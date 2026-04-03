@@ -1,6 +1,5 @@
-package com.akiwiksten.worktime30.ui.theme
+package com.akiwiksten.worktime30.core.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

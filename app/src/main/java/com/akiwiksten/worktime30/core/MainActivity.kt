@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30
+package com.akiwiksten.worktime30.core
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -29,7 +29,13 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.akiwiksten.worktime30.ui.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
+import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
+import com.akiwiksten.worktime30.feature.intro.IntroScreen
+import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
+import com.akiwiksten.worktime30.feature.settings.SettingsScreen
+import com.akiwiksten.worktime30.navigation.Screen
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -47,16 +53,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Navigation routes
-sealed class Screen(val route: String) {
-    object Tab1 : Screen("tab1")
-    object Tab2 : Screen("tab2")
-    object Tab3 : Screen("tab3")
-    object Detail : Screen("detail/{id}") {
-        fun create(id: String) = "detail/$id"
-    }
-}
-
 // App composable with bottom navigation
 @Composable
 fun WorkTime30App() {
@@ -65,7 +61,7 @@ fun WorkTime30App() {
     Scaffold(
         bottomBar = {
             NavigationBar {
-                listOf(Screen.Tab1, Screen.Tab2, Screen.Tab3).forEach { screen ->
+                listOf(Screen.Calendar, Screen.Projects, Screen.Settings).forEach { screen ->
                     NavigationBarItem(
                         selected = false,
                         onClick = { navController.navigate(screen.route) },
@@ -76,68 +72,33 @@ fun WorkTime30App() {
             }
         }
     ) { padding ->
-        NavHost(navController, startDestination = Screen.Tab1.route, modifier = Modifier.padding(padding)) {
+        NavHost(navController, startDestination = Screen.Intro.route, modifier = Modifier.padding(padding)) {
 
-            composable(Screen.Tab1.route) {
-                TabScreen(
-                    "Tab 1",
-                    onItemClick = { id -> navController.navigate(Screen.Detail.create(id)) }
-                )
+            composable(Screen.Calendar.route) {
+                CalendarScreen()
             }
 
-            composable(Screen.Tab2.route) {
-                TabScreen(
-                    "Tab 2",
-                    onItemClick = { id -> navController.navigate(Screen.Detail.create(id)) }
-                )
+            composable(Screen.Projects.route) {
+                ProjectsScreen()
             }
 
-            composable(Screen.Tab3.route) {
-                TabScreen(
-                    "Tab 3",
-                    onItemClick = { id -> navController.navigate(Screen.Detail.create(id)) }
-                )
+            composable(Screen.Settings.route) {
+                SettingsScreen()
             }
 
-            composable(Screen.Detail.route) { backStack ->
+            composable(Screen.EditWorkDay.route) { backStack ->
                 val id = backStack.arguments?.getString("id") ?: ""
-                DetailScreen(id)
+                EditWorkDayScreen(
+                    onItemClick = { navController.navigate(Screen.Projects) },
+                )
             }
-        }
-    }
-}
 
-// Shared ViewModel (Hilt)
-@HiltViewModel
-class MainViewModel @Inject constructor() : ViewModel() {
-    fun getItems(): List<String> = List(10) { "Item $it" }
-}
-
-// Tab screen
-@Composable
-fun TabScreen(title: String, onItemClick: (String) -> Unit, viewModel: MainViewModel = hiltViewModel()) {
-    val items = viewModel.getItems()
-
-    Column {
-        Text(text = title, style = MaterialTheme.typography.headlineMedium)
-        LazyColumn {
-            items(items) { item ->
-                Text(
-                    text = item,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onItemClick(item) }
-                        .padding(16.dp)
+            composable(Screen.Intro.route) { backStack ->
+                val id = backStack.arguments?.getString("id") ?: ""
+                IntroScreen(
+                    onItemClick = { navController.navigate(Screen.Calendar) },
                 )
             }
         }
-    }
-}
-
-// Detail screen
-@Composable
-fun DetailScreen(id: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Detail for $id")
     }
 }

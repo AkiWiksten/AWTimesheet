@@ -134,14 +134,14 @@ fun ProjectDialog(
                         stringResource(R.string.daily_allowance),
                         stringResource(R.string.half_day_allowance)
                     ),
-                    selectedTextFunc = fun(selectedText0: String) { allowance = selectedText0 },
-                    stringId = R.string.allowance,
+                    onItemSelected = { allowance = it },
+                    labelId = R.string.allowance,
                     selectedText = allowance
                 )
                 DropdownMenuBox(
                     items = workTypeDropDownList,
-                    selectedTextFunc = fun(selectedText0: String) { workType = selectedText0 },
-                    stringId = R.string.work_type,
+                    onItemSelected = { workType = it },
+                    labelId = R.string.work_type,
                     selectedText = workType
                 )
                 OutlinedTextField(

@@ -13,10 +13,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
@@ -39,19 +42,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// App composable with bottom navigation
-@Suppress("FunctionNaming")
+// App composable with Navigation 3
+@Suppress("FunctionNaming", "LongMethod")
 @Composable
 fun WorkTime30App() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
 
     Scaffold(
         bottomBar = {
             NavigationBar {
                 listOf(Screen.Calendar, Screen.Projects, Screen.Settings).forEach { screen ->
                     NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate(screen.route) },
+                        selected = backStack.lastOrNull() == screen,
+                        onClick = { 
+                            if (backStack.lastOrNull() != screen) {
+                                backStack.add(screen)
+                            }
+                        },
                         icon = { Icon(Icons.Default.Home, contentDescription = null) },
                         label = { Text(screen.route) }
                     )
@@ -59,31 +66,35 @@ fun WorkTime30App() {
             }
         }
     ) { padding ->
-        NavHost(navController, startDestination = Screen.Intro.route, modifier = Modifier.padding(padding)) {
-
-            composable(Screen.Calendar.route) {
-                CalendarScreen()
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeLastOrNull() },
+            modifier = Modifier.padding(padding),
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<Screen.Intro> {
+                    IntroScreen(
+                        onItemClick = { backStack.add(Screen.Calendar) }
+                    )
+                }
+                entry<Screen.Calendar> {
+                    CalendarScreen()
+                }
+                entry<Screen.Projects> {
+                    ProjectsScreen()
+                }
+                entry<Screen.Settings> {
+                    SettingsScreen()
+                }
+                entry<Screen.EditWorkDay> {
+                    EditWorkDayScreen(
+                        onItemClick = { backStack.add(Screen.Projects) }
+                    )
+                }
             }
-
-            composable(Screen.Projects.route) {
-                ProjectsScreen()
-            }
-
-            composable(Screen.Settings.route) {
-                SettingsScreen()
-            }
-
-            composable(Screen.EditWorkDay.route) {
-                EditWorkDayScreen(
-                    onItemClick = { navController.navigate(Screen.Projects.route) },
-                )
-            }
-
-            composable(Screen.Intro.route) {
-                IntroScreen(
-                    onItemClick = { navController.navigate(Screen.Calendar.route) },
-                )
-            }
-        }
+        )
     }
 }

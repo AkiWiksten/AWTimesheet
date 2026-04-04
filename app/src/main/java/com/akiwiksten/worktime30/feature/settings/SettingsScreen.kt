@@ -29,18 +29,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.GeneratePdfParams
 import com.akiwiksten.worktime30.core.PdfGenerator
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.core.ui.OnLifecycleEvent
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
-import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayViewModel
-import com.akiwiksten.worktime30.feature.projects.ProjectsViewModel
 
 
 @Composable
@@ -128,9 +124,9 @@ fun SettingsScreen(
 
         DropdownMenuBox(
             items = dropDownWorkTypes,
-            selectedTextFunc = fun(selectedText0: String) { selectedWorkType = selectedText0 },
+            onItemSelected = { selectedWorkType = it },
             selectedText = selectedWorkType,
-            stringId = R.string.work_type,
+            labelId = R.string.work_type,
             modifier = Modifier
                 .width(500.dp),
         )
@@ -215,4 +211,3 @@ fun SettingsScreen(
         )
     }
 }
-

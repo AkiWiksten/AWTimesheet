@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,11 +16,11 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,14 +29,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.akiwiksten.worktime30.R
 
-@Suppress("FunctionNaming")
+@Suppress("FunctionNaming", "LongParameterList")
 @Composable
 fun MyAlertDialog(
     onDismissRequest: () -> Unit,
@@ -45,10 +42,13 @@ fun MyAlertDialog(
     dialogTitle: String,
     dialogText: String,
     icon: ImageVector,
+    modifier: Modifier = Modifier
 ) {
     AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismissRequest,
         icon = {
-            Icon(icon, contentDescription = "Example Icon")
+            Icon(icon, contentDescription = null)
         },
         title = {
             Text(text = dialogTitle)
@@ -56,78 +56,71 @@ fun MyAlertDialog(
         text = {
             Text(text = dialogText)
         },
-        onDismissRequest = {
-            onDismissRequest()
-        },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
+            TextButton(onClick = onConfirmation) {
                 Text(stringResource(R.string.confirm))
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
+            TextButton(onClick = onDismissRequest) {
                 Text(stringResource(R.string.dismiss))
             }
         }
     )
 }
 
+@Suppress("FunctionNaming")
 @Composable
 fun AddTextFieldDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: (workType: String) -> Unit,
-    label: String
+    onConfirmation: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier
 ) {
-    Dialog(onDismissRequest = { onDismissRequest() }) {
+    Dialog(onDismissRequest = onDismissRequest) {
         var addText by remember { mutableStateOf("") }
-        // Draw a rectangle shape with rounded corners inside the dialog
+        
         Card(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
+                .width(280.dp)
                 .height(IntrinsicSize.Min)
-                .width(250.dp)
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(28.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(10.dp).fillMaxSize().verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Center,
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(text = label, fontSize = 20.sp)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                
                 OutlinedTextField(
                     value = addText,
-                    onValueChange = { addText = it},
-                    label = { Text(label, fontSize = 20.sp) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    textStyle = TextStyle.Default.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                    isError = addText.isEmpty()
+                    onValueChange = { addText = it },
+                    label = { Text(label) },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    singleLine = true,
+                    isError = addText.isBlank()
                 )
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(
-                        onClick = { onDismissRequest() },
-                    ) {
+                    TextButton(onClick = onDismissRequest) {
                         Text(stringResource(R.string.dismiss))
                     }
                     TextButton(
                         onClick = { onConfirmation(addText) },
-                        enabled = addText.isNotEmpty()
+                        enabled = addText.isNotBlank()
                     ) {
                         Text(stringResource(R.string.confirm))
                     }
@@ -138,22 +131,14 @@ fun AddTextFieldDialog(
 }
 
 @Composable
-fun HandleSave(
-    setIsModified: (Boolean) -> Unit,
-    dialogText: String,
-    dbAction: () -> Unit,
-    recompose: MutableState<Boolean>
+fun UnsavedChangesDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    dialogText: String
 ) {
     MyAlertDialog(
-        onDismissRequest = {
-            setIsModified(false)
-            recompose.value = false
-        },
-        onConfirmation = {
-            setIsModified(false)
-            recompose.value = false
-            dbAction()
-        },
+        onDismissRequest = onDismiss,
+        onConfirmation = onConfirm,
         dialogTitle = stringResource(R.string.unsaved_data_title),
         dialogText = dialogText,
         icon = Icons.Default.Info

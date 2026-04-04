@@ -40,14 +40,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.MyAlertDialog
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayViewModel
-import com.akiwiksten.worktime30.feature.settings.SettingsViewModel
 
 @Suppress("FunctionNaming", "LongMethod")
 @Composable

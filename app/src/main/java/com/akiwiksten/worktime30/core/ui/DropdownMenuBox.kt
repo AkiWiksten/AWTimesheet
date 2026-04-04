@@ -5,12 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,76 +23,73 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import com.akiwiksten.worktime30.R
 
-@Suppress("FunctionNaming")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuBox(
     items: List<String>,
-    selectedTextFunc: (String) -> Unit,
-    stringId: Int,
+    onItemSelected: (String) -> Unit,
+    labelId: Int,
     modifier: Modifier = Modifier,
     selectedText: String = "",
 ) {
-
-    // Declaring a boolean value to store
-    // the expanded state of the Text Field
     var expanded by remember { mutableStateOf(false) }
-
-    var textFieldSize by remember { mutableStateOf(Size.Zero)}
+    var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(10.dp).fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
     ) {
-        // Up Icon when expanded and down icon when collapsed
-        val icon = if (expanded) {
-            Icons.Filled.KeyboardArrowUp
-        } else {
-            Icons.Filled.KeyboardArrowDown
-        }
-        // Create an Outlined Text Field
-        // with icon and not expanded
         OutlinedTextField(
             value = selectedText.trim(),
-            onValueChange = {  },
+            onValueChange = { },
+            readOnly = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
-                    // This value is used to assign to
-                    // the DropDown the same width
                     textFieldSize = coordinates.size.toSize()
-                },
-            label = { Text(stringResource(stringId), fontSize = 20.sp) },
-            trailingIcon = {
-                Icon(icon,"contentDescription",
-                    Modifier.clickable { expanded = !expanded })
+                }
+                .clickable { expanded = !expanded },
+            label = {
+                Text(
+                    text = stringResource(labelId),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             },
-            textStyle = TextStyle.Default.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-            isError = selectedText.trim().isEmpty() && stringId == R.string.allowance,
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold
+            ),
+            isError = selectedText.trim().isEmpty() && labelId == R.string.allowance,
             enabled = true
         )
 
-        // Create a drop-down menu with list,
-        // when clicked, set the Text Field text as the item selected
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .width(with(LocalDensity.current){textFieldSize.width.toDp()})
+                .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
         ) {
             items.forEach { label ->
                 DropdownMenuItem(
-                    onClick = {
-                        selectedTextFunc(label)
-                        expanded = false
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     },
-                    text = { Text(text = label) },
+                    onClick = {
+                        onItemSelected(label)
+                        expanded = false
+                    }
                 )
             }
         }

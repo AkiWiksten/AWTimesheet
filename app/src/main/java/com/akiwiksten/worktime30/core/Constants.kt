@@ -20,7 +20,7 @@ const val WORK_TIME_TOTAL = "work_time_total"
 const val BALANCE_TODAY = "balance_today"
 const val BALANCE_TOTAL = "balance_total"
 
-// SCREENS
+// Screens
 const val INTRO_SCREEN = "intro_screen"
 const val CALENDAR_SCREEN = "calendar_screen"
 const val EDIT_WORK_DAY_SCREEN = "edit_work_day_screen"

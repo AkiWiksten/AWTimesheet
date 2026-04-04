@@ -6,7 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -15,7 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -43,58 +48,76 @@ class MainActivity : ComponentActivity() {
 }
 
 // App composable with Navigation 3
-@Suppress("LongMethod")
 @Composable
 fun WorkTime30App() {
     val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
 
     Scaffold(
-        bottomBar = {
-            NavigationBar {
-                listOf(Screen.Calendar, Screen.Projects, Screen.Settings).forEach { screen ->
-                    NavigationBarItem(
-                        selected = backStack.lastOrNull() == screen,
-                        onClick = {
-                            if (backStack.lastOrNull() != screen) {
-                                backStack.add(screen)
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                        label = { Text(screen.route) }
-                    )
-                }
-            }
-        }
+        bottomBar = { WorkTimeNavigationBar(backStack) }
     ) { padding ->
-        NavDisplay(
+        WorkTimeNavDisplay(
             backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            modifier = Modifier.padding(padding),
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            entryProvider = entryProvider {
-                entry<Screen.Intro> {
-                    IntroScreen(
-                        onItemClick = { backStack.add(Screen.Calendar) }
-                    )
-                }
-                entry<Screen.Calendar> {
-                    CalendarScreen()
-                }
-                entry<Screen.Projects> {
-                    ProjectsScreen()
-                }
-                entry<Screen.Settings> {
-                    SettingsScreen()
-                }
-                entry<Screen.EditWorkDay> {
-                    EditWorkDayScreen(
-                        onItemClick = { backStack.add(Screen.Projects) }
-                    )
-                }
-            }
+            modifier = Modifier.padding(padding)
         )
     }
+}
+
+@Composable
+private fun WorkTimeNavigationBar(backStack: SnapshotStateList<Any>) {
+    val navigationScreens = listOf(Screen.Calendar, Screen.Projects, Screen.Settings)
+    NavigationBar {
+        navigationScreens.forEach { screen ->
+            val isSelected = backStack.lastOrNull() == screen
+            NavigationBarItem(
+                selected = isSelected,
+                onClick = { if (!isSelected) backStack.add(screen) },
+                icon = { ScreenIcon(screen) },
+                label = { ScreenLabel(screen) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScreenIcon(screen: Screen) {
+    val icon = when (screen) {
+        Screen.Calendar -> Icons.Default.CalendarMonth
+        Screen.Projects -> Icons.AutoMirrored.Filled.List
+        Screen.Settings -> Icons.Default.Settings
+        else -> Icons.Default.Home
+    }
+    Icon(imageVector = icon, contentDescription = null)
+}
+
+@Composable
+private fun ScreenLabel(screen: Screen) {
+    val label = screen.titleResId?.let { stringResource(it) } ?: screen.route
+    Text(label)
+}
+
+@Composable
+private fun WorkTimeNavDisplay(
+    backStack: SnapshotStateList<Any>,
+    modifier: Modifier = Modifier
+) {
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        modifier = modifier,
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<Screen.Intro> {
+                IntroScreen(onItemClick = { backStack.add(Screen.Calendar) })
+            }
+            entry<Screen.Calendar> { CalendarScreen() }
+            entry<Screen.Projects> { ProjectsScreen() }
+            entry<Screen.Settings> { SettingsScreen() }
+            entry<Screen.EditWorkDay> {
+                EditWorkDayScreen(onItemClick = { backStack.add(Screen.Projects) })
+            }
+        }
+    )
 }

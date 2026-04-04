@@ -37,7 +37,7 @@ class PdfGenerator {
     }
 
     fun getMaxLengthOfProjectAttributesMap(
-        map: MutableMap<String, String>,
+        map: Map<String, String>,
         paintText: Paint
     ): Float {
         var maxLength = 0.0f
@@ -51,10 +51,10 @@ class PdfGenerator {
     }
 
     private fun createUniqueProjects(
-        uniqueProjects: MutableMap<String, String>,
         endOfMonth: String,
         params: PrintWorkDaysParams
-    ) {
+    ): Map<String, String> {
+        val uniqueProjects: MutableMap<String, String> = mutableMapOf()
         for (day in 1..endOfMonth.toInt()) {
             // Projects of one specific day
             val projectsPerDay = params.projectsByMonth.filter { p ->
@@ -84,6 +84,7 @@ class PdfGenerator {
             )
         }
         uniqueProjects[params.totalSumLabel] = projectTimeTotalSum
+        return uniqueProjects.toMap()
     }
 
     private fun drawProjectTitles(
@@ -305,8 +306,7 @@ class PdfGenerator {
             left += measuredPaintTextLeft
             right += measuredPaintTextRight
             x += measuredPaintTextLeft
-            val uniqueProjects: MutableMap<String, String> = mutableMapOf()
-            createUniqueProjects(uniqueProjects, endOfMonth, params)
+            val uniqueProjects = createUniqueProjects(endOfMonth, params)
 
             val padding = 5.0f
             measuredPaintTextRight =

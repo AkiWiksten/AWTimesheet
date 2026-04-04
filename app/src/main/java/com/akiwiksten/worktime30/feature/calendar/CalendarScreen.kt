@@ -37,7 +37,7 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongMethod", "FunctionNaming")
+@Suppress("LongMethod")
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -58,7 +58,7 @@ fun CalendarScreen(
     }
 
     LaunchedEffect(selectedDate) {
-        if(selectedDate.isNotEmpty()) {
+        if (selectedDate.isNotEmpty()) {
             calendarViewModel.setDate(selectedDate)
             calendarViewModel.calculateSums(selectedDate)
         }
@@ -71,11 +71,11 @@ fun CalendarScreen(
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column (
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(5.dp)
-        ){
+        ) {
             Header(stringResource(R.string.select_work_day_date))
 
             Spacer(modifier = Modifier.padding(20.dp))

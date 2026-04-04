@@ -6,14 +6,17 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.akiwiksten.worktime30.core.DB_NAME
 
-@Database(entities = [
-    WorkDay::class,
-    WorkDayOneRow::class,
-    Project::class,
-    ProjectName::class,
-    Settings::class,
-    WorkType::class],
-    version = 1)
+@Database(
+    entities = [
+        WorkDay::class,
+        WorkDayOneRow::class,
+        Project::class,
+        ProjectName::class,
+        Settings::class,
+        WorkType::class
+    ],
+    version = 1
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun workDayDao(): WorkDayDao
     abstract fun workDayOneRowDao(): WorkDayOneRowDao

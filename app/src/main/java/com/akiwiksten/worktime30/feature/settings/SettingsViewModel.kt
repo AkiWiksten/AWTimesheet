@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
-
 @HiltViewModel
 class SettingsViewModel @Inject constructor() : ViewModel() {
     private val _ctx = MutableStateFlow<Context?>(null)
@@ -27,10 +26,10 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     val endMonthDate = _endMonthDate.asStateFlow()
     private var _dropDownWorkTypes = MutableStateFlow<MutableList<String>>(mutableListOf())
     val dropDownWorkTypes = _dropDownWorkTypes.asStateFlow()
-    var projectsByMonth = mutableListOf<Project>()
+    var projectsByMonth: List<Project> = listOf()
 
     fun setWorkType(workType: String) {
-        if(_dropDownWorkTypes.value.isEmpty()) {
+        if (_dropDownWorkTypes.value.isEmpty()) {
             _dropDownWorkTypes.value.add(workType)
         }
     }

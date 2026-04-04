@@ -233,7 +233,7 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
         _workTimeToday.value = value
     }
 
-    fun getWorkTimeToday() : String {
+    fun getWorkTimeToday(): String {
         return _workTimeToday.value
     }
     fun currentWorkTimeToday() {
@@ -279,7 +279,7 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
 
     fun insertWorkDay() {
         viewModelScope.launch {
-            if(_date.value.isNotEmpty()) {
+            if (_date.value.isNotEmpty()) {
                 val workDayOneRow = WorkDayOneRow(
                     dailyWorkTime = _dailyWorkTime.value,
                     lunchTime = _lunchTime.value,
@@ -312,7 +312,7 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
                 .workDayOneRowDao()
                 .loadWorkDayOneRow()
 
-            if(workDayOneRow != null) {
+            if (workDayOneRow != null) {
                 _dailyWorkTime.value = workDayOneRow.dailyWorkTime
                 _lunchTime.value = workDayOneRow.lunchTime
                 _workTimeTotal.value = workDayOneRow.workTimeTotal
@@ -335,8 +335,7 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
                 _balanceToday.value = workDay.balanceToday
                 _oldBalanceToday.value = _balanceToday.value
                 _isNewDay.value = isNewDay(_startTime.value)
-            }
-            else {
+            } else {
                 _isNewDay.value = true
                 _startTime.value = ZERO_TIME
                 _endTime.value = ZERO_TIME
@@ -353,7 +352,7 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
 
     fun clearDay() {
         _isNewDay.value = true
-        if(!(_workTimeToday.value == ZERO_TIME && _balanceToday.value == ZERO_TIME)) {
+        if (!(_workTimeToday.value == ZERO_TIME && _balanceToday.value == ZERO_TIME)) {
             _balanceTotal.value = TimeGeneratorModel.calculateWorkTimeBalance(
                 initialTime = _balanceTotal.value,
                 addedTime = TimeGeneratorModel.checkIfDoubleMinus(value = "-" + _balanceToday.value)
@@ -377,11 +376,11 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
 
     fun isNewDay(oldStartTime: String?): Boolean {
         return oldStartTime == ZERO_TIME &&
-                _endTime.value == ZERO_TIME &&
-                _lunchEnd.value == ZERO_TIME &&
-                _lunchStart.value == ZERO_TIME &&
-                _workTimeToday.value == ZERO_TIME &&
-                _breakStart.value == ZERO_TIME &&
-                _breakEnd.value == ZERO_TIME
+            _endTime.value == ZERO_TIME &&
+            _lunchEnd.value == ZERO_TIME &&
+            _lunchStart.value == ZERO_TIME &&
+            _workTimeToday.value == ZERO_TIME &&
+            _breakStart.value == ZERO_TIME &&
+            _breakEnd.value == ZERO_TIME
     }
 }

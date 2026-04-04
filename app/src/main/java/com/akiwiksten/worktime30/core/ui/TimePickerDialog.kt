@@ -26,7 +26,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("FunctionNaming")
 @Composable
 fun TimePickerDialog(
     onDismissRequest: () -> Unit,

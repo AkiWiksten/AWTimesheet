@@ -74,7 +74,7 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
             val db = AppDatabase.getInstance(context)
             val projects = db.projectDao().loadProjectsByDate(date)
 
-            if(projects.isEmpty()) {
+            if (projects.isEmpty()) {
                 val projectNames = db.projectNameDao().loadProjectNames()
                 for (project in projectNames) {
                     _projectListItemUiState.value = ProjectListItemUiState(projectName = project.name)
@@ -89,7 +89,8 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
                         projectTime = project.projectTime,
                         kilometres = project.kilometres,
                         allowance = project.allowance,
-                        workType = project.workType)
+                        workType = project.workType
+                    )
                     addItem(_projectListItemUiState.value)
                 }
             }
@@ -112,7 +113,8 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
                     projectTime = project.projectTime,
                     kilometres = project.kilometres,
                     allowance = project.allowance,
-                    workType = project.workType)
+                    workType = project.workType
+                )
 
                 db.projectDao().insertProject(project0)
                 db.projectNameDao().insertProjectName(ProjectName(project.projectName))
@@ -135,7 +137,8 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
             projectEndTime = uiState.projectEndTime,
             kilometres = uiState.kilometres,
             allowance = uiState.allowance,
-            workType = uiState.workType)
+            workType = uiState.workType
+        )
         items.add(_projectListItemUiState.value)
         index0++
         items.sortByDescending { it.projectStartTime }
@@ -144,8 +147,8 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     fun editItem(uiState: ProjectListItemUiState) {
         var balance = uiState.initBalance
-        for(item in items) {
-            balance = if(item.projectName == items.find { i -> i.index == uiState.index }?.projectName) {
+        for (item in items) {
+            balance = if (item.projectName == items.find { i -> i.index == uiState.index }?.projectName) {
                 TimeGeneratorModel.calculateWorkTimeBalance(
                     balance, uiState.projectTime
                 )
@@ -180,9 +183,10 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
     fun leftOvers(projectTime: String): String {
         var leftOvers: String = ZERO_TIME
         val balance = _workTimeBalance.value ?: return leftOvers
-        if(balance.isNotEmpty() && balance.substring(0, 1) == "-") {
+        if (balance.isNotEmpty() && balance.substring(0, 1) == "-") {
             val balanceLocal = TimeGeneratorModel.stringToLocalTime(
-                balance.substring(1))
+                balance.substring(1)
+            )
             val pTimeLocal = TimeGeneratorModel.stringToLocalTime(projectTime)
             leftOvers = balanceLocal
                 .plusHours(pTimeLocal.hour.toLong())
@@ -204,21 +208,21 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             val context = _ctx.value ?: return@launch
             val workDay = AppDatabase.getInstance(context).workDayDao().loadWorkDay(date)
-            
+
             _workTimeToday.value = workDay?.workTimeToday ?: ZERO_TIME
             _workTimeBalance.value = "-${_workTimeToday.value}"
-            
+
             Log.d("ProjectsViewModel", "loadWorkTimeTodayFromDb ${_workTimeBalance.value}")
             loadProjectData(date = date)
         }
     }
 
-
     fun getWorkTimeToday(): String {
         var workTimeToday = ZERO_TIME
-        for(item in items) {
+        for (item in items) {
             val workTimeProject = TimeGeneratorModel.calculateWorkTimeBalance(
-                item.projectEndTime, "-" + item.projectStartTime
+                item.projectEndTime,
+                "-" + item.projectStartTime
             )
             workTimeToday = TimeGeneratorModel.calculateWorkTimeBalance(
                 workTimeToday, workTimeProject
@@ -229,9 +233,10 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     @Suppress("ComplexCondition")
     fun areItemsOverlapping(newStartTime: String, newEndTime: String): Boolean {
-        for(item in items) {
-            if((newStartTime > item.projectStartTime && newStartTime < item.projectEndTime) ||
-                (newEndTime > item.projectStartTime && newEndTime < item.projectEndTime)) {
+        for (item in items) {
+            if ((newStartTime > item.projectStartTime && newStartTime < item.projectEndTime) ||
+                (newEndTime > item.projectStartTime && newEndTime < item.projectEndTime)
+            ) {
                 return true
             }
         }

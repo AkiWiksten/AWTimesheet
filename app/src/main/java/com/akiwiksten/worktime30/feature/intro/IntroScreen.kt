@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextMotion
@@ -40,13 +41,14 @@ private const val SCREEN_FILL_RATIO = 0.9f
 private const val BUTTON_SCALE_DIVIDER = 4f
 private const val DEFAULT_FALLBACK_SCALE = 3.1f
 
-@Suppress("LongMethod", "FunctionNaming")
+@Suppress("LongMethod")
 @Composable
 fun IntroScreen(onItemClick: () -> Unit) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
+    val windowInfo = LocalWindowInfo.current
 
     val appName = remember(context) { getApplicationName(context) }
     val textStyle = LocalTextStyle.current.copy(
@@ -55,11 +57,11 @@ fun IntroScreen(onItemClick: () -> Unit) {
     )
 
     // Calculate the target scale based on screen width to ensure text fits
-    val targetScaleFactor = remember(appName, configuration.screenWidthDp, density) {
+    val targetScaleFactor = remember(appName, windowInfo.containerSize, density) {
         val textLayoutResult = textMeasurer.measure(appName, textStyle)
         val textWidthPx = textLayoutResult.size.width
-        val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
-        
+        val screenWidthPx = windowInfo.containerSize.width
+
         if (textWidthPx > 0) {
             (screenWidthPx / textWidthPx) * SCREEN_FILL_RATIO
         } else {

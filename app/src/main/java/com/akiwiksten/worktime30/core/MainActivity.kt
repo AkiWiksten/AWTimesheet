@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 }
 
 // App composable with Navigation 3
-@Suppress("FunctionNaming", "LongMethod")
+@Suppress("LongMethod")
 @Composable
 fun WorkTime30App() {
     val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
@@ -54,7 +54,7 @@ fun WorkTime30App() {
                 listOf(Screen.Calendar, Screen.Projects, Screen.Settings).forEach { screen ->
                     NavigationBarItem(
                         selected = backStack.lastOrNull() == screen,
-                        onClick = { 
+                        onClick = {
                             if (backStack.lastOrNull() != screen) {
                                 backStack.add(screen)
                             }

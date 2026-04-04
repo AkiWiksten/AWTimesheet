@@ -49,7 +49,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-@Suppress("FunctionNaming", "LongMethod")
+@Suppress("LongMethod")
 fun ProjectDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: (uiState: ProjectListItemUiState) -> Unit,
@@ -111,7 +111,8 @@ fun ProjectDialog(
                     currentTime = fun() {
                         val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
                         projectEndTime = LocalDateTime.now().format(formatter)
-                        val timeDifference = TimeGeneratorModel.calculateWorkTimeBalance(projectEndTime,
+                        val timeDifference = TimeGeneratorModel.calculateWorkTimeBalance(
+                            projectEndTime,
                             "-$projectStartTime"
                         )
                         if (timeDifference.startsWith('-')) {
@@ -120,7 +121,8 @@ fun ProjectDialog(
                     },
                     onConfirmation = fun(time) {
                         projectEndTime = time
-                        val timeDifference = TimeGeneratorModel.calculateWorkTimeBalance(projectEndTime,
+                        val timeDifference = TimeGeneratorModel.calculateWorkTimeBalance(
+                            projectEndTime,
                             "-$projectStartTime"
                         )
                         if (timeDifference.startsWith('-')) {
@@ -180,14 +182,14 @@ fun ProjectDialog(
                             )
                         },
                         enabled = projectName.isNotEmpty() &&
-                                kilometres.isDigitsOnly()
+                            kilometres.isDigitsOnly()
                     ) {
                         Text(stringResource(R.string.confirm))
                     }
                 }
                 Text(stringResource(R.string.work_type_help))
             }
-            if(isNegativeWorkDay) {
+            if (isNegativeWorkDay) {
                 MyAlertDialog(
                     onDismissRequest = { isNegativeWorkDay = false },
                     onConfirmation = {
@@ -203,13 +205,13 @@ fun ProjectDialog(
 }
 
 @Composable
-@Suppress("FunctionNaming")
 fun AddTimeRow(
     textFieldValue: MutableState<String>,
     stringId: Int
 ) {
     var openTimePickerDialog by remember { mutableStateOf(false) }
-    Row(modifier = Modifier.padding(5.dp).fillMaxWidth(),
+    Row(
+        modifier = Modifier.padding(5.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
@@ -226,19 +228,17 @@ fun AddTimeRow(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Button(
                 onClick = { textFieldValue.value = ZERO_TIME }
-            )
-            {
+            ) {
                 Text(stringResource(R.string.reset), fontSize = 15.sp)
             }
             Spacer(modifier = Modifier.width(10.dp))
             Button(
                 onClick = { openTimePickerDialog = true }
-            )
-            {
+            ) {
                 Text(stringResource(R.string.go_to_time_picker), fontSize = 15.sp)
             }
         }
-        if(openTimePickerDialog) {
+        if (openTimePickerDialog) {
             TimePickerDialog(
                 onDismissRequest = { openTimePickerDialog = false },
                 onConfirmation = fun(time) {

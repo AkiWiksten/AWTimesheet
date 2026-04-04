@@ -6,7 +6,6 @@ import com.akiwiksten.worktime30.core.INTRO_SCREEN
 import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 
-
 // Navigation routes
 sealed class Screen(val route: String) {
     object Calendar : Screen(CALENDAR_SCREEN)

@@ -1,4 +1,5 @@
 @file:Suppress("MagicNumber")
+
 package com.akiwiksten.worktime30.core
 
 import android.content.Context
@@ -55,10 +56,10 @@ class PdfGenerator {
         params: PrintWorkDaysParams
     ) {
         for (day in 1..endOfMonth.toInt()) {
-            //Projects of one specific day
+            // Projects of one specific day
             val projectsPerDay = params.projectsByMonth.filter { p ->
                 parseDate(p.date).toInt() == day &&
-                        p.projectTime != ZERO_TIME
+                    p.projectTime != ZERO_TIME
             }
             for (project in projectsPerDay) {
                 if (uniqueProjects[project.projectName] == null) {
@@ -88,33 +89,50 @@ class PdfGenerator {
     private fun drawProjectTitles(
         drawProjectDaysParams: DrawProjectDaysParams
     ) {
-
         drawProjectDaysParams.printWorkDaysParams.canvas.drawRect(
-            /* left = */ drawProjectDaysParams.left,
-            /* top = */ ORIGIN_TOP_FIRST,
-            /* right = */ drawProjectDaysParams.right,
-            /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2,
-            /* paint = */ paintBoldRect
+            /* left = */
+            drawProjectDaysParams.left,
+            /* top = */
+            ORIGIN_TOP_FIRST,
+            /* right = */
+            drawProjectDaysParams.right,
+            /* bottom = */
+            ORIGIN_TOP_FIRST + TEXT_SIZE * 2,
+            /* paint = */
+            paintBoldRect
         )
         drawProjectDaysParams.printWorkDaysParams.canvas.drawText(
-            /* text = */ drawProjectDaysParams.projectAttributes[0],
-            /* x = */ drawProjectDaysParams.x + drawProjectDaysParams.measuredPaintTextRight / 3,
-            /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE + TEXT_SIZE / 2,
-            /* paint = */ paintBoldText
+            /* text = */
+            drawProjectDaysParams.projectAttributes[0],
+            /* x = */
+            drawProjectDaysParams.x + drawProjectDaysParams.measuredPaintTextRight / 3,
+            /* y = */
+            ORIGIN_TOP_FIRST + TEXT_SIZE + TEXT_SIZE / 2,
+            /* paint = */
+            paintBoldText
         )
-        for (titleIndex in 1..< drawProjectDaysParams.projectAttributes.size) {
+        for (titleIndex in 1..<drawProjectDaysParams.projectAttributes.size) {
             drawProjectDaysParams.printWorkDaysParams.canvas.drawRect(
-                /* left = */ drawProjectDaysParams.left,
-                /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (titleIndex),
-                /* right = */ drawProjectDaysParams.right,
-                /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (titleIndex + 1),
-                /* paint = */ paintRect
+                /* left = */
+                drawProjectDaysParams.left,
+                /* top = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (titleIndex),
+                /* right = */
+                drawProjectDaysParams.right,
+                /* bottom = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (titleIndex + 1),
+                /* paint = */
+                paintRect
             )
             drawProjectDaysParams.printWorkDaysParams.canvas.drawText(
-                /* text = */ drawProjectDaysParams.projectAttributes[titleIndex],
-                /* x = */ drawProjectDaysParams.x + 5f,
-                /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (titleIndex + 1) - TEXT_SIZE,
-                /* paint = */ paintText
+                /* text = */
+                drawProjectDaysParams.projectAttributes[titleIndex],
+                /* x = */
+                drawProjectDaysParams.x + 5f,
+                /* y = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (titleIndex + 1) - TEXT_SIZE,
+                /* paint = */
+                paintText
             )
         }
     }
@@ -123,40 +141,62 @@ class PdfGenerator {
         drawProjectDaysParams: DrawProjectDaysParams
     ) {
         drawProjectDaysParams.printWorkDaysParams.canvas.drawRect(
-            /* left = */ drawProjectDaysParams.left,
-            /* top = */ ORIGIN_TOP_FIRST,
-            /* right = */ drawProjectDaysParams.right,
-            /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2,
-            /* paint = */ paintBoldRect
+            /* left = */
+            drawProjectDaysParams.left,
+            /* top = */
+            ORIGIN_TOP_FIRST,
+            /* right = */
+            drawProjectDaysParams.right,
+            /* bottom = */
+            ORIGIN_TOP_FIRST + TEXT_SIZE * 2,
+            /* paint = */
+            paintBoldRect
         )
         drawProjectDaysParams.printWorkDaysParams.canvas.drawText(
-            /* text = */ drawProjectDaysParams.day.toString(),
-            /* x = */ drawProjectDaysParams.x + drawProjectDaysParams.measuredPaintTextRight / 2,
-            /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE + TEXT_SIZE / 2,
-            /* paint = */ paintBoldText
+            /* text = */
+            drawProjectDaysParams.day.toString(),
+            /* x = */
+            drawProjectDaysParams.x + drawProjectDaysParams.measuredPaintTextRight / 2,
+            /* y = */
+            ORIGIN_TOP_FIRST + TEXT_SIZE + TEXT_SIZE / 2,
+            /* paint = */
+            paintBoldText
         )
 
         for (attrIndex in 1..drawProjectDaysParams.projectAttributes.size) {
             drawProjectDaysParams.printWorkDaysParams.canvas.drawRect(
-                /* left = */ drawProjectDaysParams.left,
-                /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex),
-                /* right = */ drawProjectDaysParams.right,
-                /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1),
-                /* paint = */ paintRect
+                /* left = */
+                drawProjectDaysParams.left,
+                /* top = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex),
+                /* right = */
+                drawProjectDaysParams.right,
+                /* bottom = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1),
+                /* paint = */
+                paintRect
             )
-            if((attrIndex % 8) == 1) {
+            if ((attrIndex % 8) == 1) {
                 drawProjectDaysParams.printWorkDaysParams.canvas.drawText(
-                    /* text = */ drawProjectDaysParams.projectAttributes[attrIndex - 1],
-                    /* x = */ drawProjectDaysParams.x + 5f,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1) - TEXT_SIZE,
-                    /* paint = */ paintBoldText
+                    /* text = */
+                    drawProjectDaysParams.projectAttributes[attrIndex - 1],
+                    /* x = */
+                    drawProjectDaysParams.x + 5f,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintBoldText
                 )
             } else {
                 drawProjectDaysParams.printWorkDaysParams.canvas.drawText(
-                    /* text = */ drawProjectDaysParams.projectAttributes[attrIndex - 1],
-                    /* x = */ drawProjectDaysParams.x + 5f,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1) - TEXT_SIZE,
-                    /* paint = */ paintText
+                    /* text = */
+                    drawProjectDaysParams.projectAttributes[attrIndex - 1],
+                    /* x = */
+                    drawProjectDaysParams.x + 5f,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintText
                 )
             }
         }
@@ -193,12 +233,11 @@ class PdfGenerator {
     ) {
         val endOfMonth = parseDate(params.endOfMonthDate)
         var measuredPaintTextLeft = 0.0f
-        var measuredPaintTextRight = 0.0f
         var left = ORIGIN_LEFT_FIRST
         var right = ORIGIN_LEFT_FIRST
         var x = ORIGIN_LEFT_FIRST
         val padding = 5.0f
-        measuredPaintTextRight =
+        var measuredPaintTextRight =
             getMaxLengthOfProjectAttributes(params.projectTitles, paintText) + padding
         if (measuredPaintTextRight == padding) {
             measuredPaintTextRight = 30.0f
@@ -220,7 +259,7 @@ class PdfGenerator {
         )
         measuredPaintTextLeft = measuredPaintTextRight
         for (day in params.startDate..params.endDate) {
-            //Projects of one specific day
+            // Projects of one specific day
             val projects = params.projectsByMonth.filter { p -> parseDate(p.date).toInt() == day }
             val projectAttributes: MutableList<String> = mutableListOf()
             for (project in projects) {
@@ -277,30 +316,48 @@ class PdfGenerator {
             val list = uniqueProjects.toList()
             for (index in 1..list.size) {
                 params.canvas.drawRect(
-                    /* left = */ left,
-                    /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
-                    /* right = */ right + measuredPaintTextRight,
-                    /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
-                    /* paint = */ paintRect
+                    /* left = */
+                    left,
+                    /* top = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
+                    /* right = */
+                    right + measuredPaintTextRight,
+                    /* bottom = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
+                    /* paint = */
+                    paintRect
                 )
                 params.canvas.drawText(
-                    /* text = */ list[index - 1].first,
-                    /* x = */ x + 5f,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
-                    /* paint = */ paintText
+                    /* text = */
+                    list[index - 1].first,
+                    /* x = */
+                    x + 5f,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintText
                 )
                 params.canvas.drawRect(
-                    /* left = */ left + measuredPaintTextLeft,
-                    /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
-                    /* right = */ right + measuredPaintTextRight,
-                    /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
-                    /* paint = */ paintRect
+                    /* left = */
+                    left + measuredPaintTextLeft,
+                    /* top = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
+                    /* right = */
+                    right + measuredPaintTextRight,
+                    /* bottom = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
+                    /* paint = */
+                    paintRect
                 )
                 params.canvas.drawText(
-                    /* text = */ list[index - 1].second,
-                    /* x = */ x + 5f + measuredPaintTextLeft,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
-                    /* paint = */ paintText
+                    /* text = */
+                    list[index - 1].second,
+                    /* x = */
+                    x + 5f + measuredPaintTextLeft,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintText
                 )
             }
         }
@@ -315,9 +372,12 @@ class PdfGenerator {
         // we are calling it to create our PDF.
         val myPageInfo: PdfDocument.PageInfo? =
             PdfDocument.PageInfo.Builder(
-                /* pageWidth = */ PAGE_WIDTH,
-                /* pageHeight = */ PAGE_HEIGHT,
-                /* pageNumber = */ pageParams.pageNumber
+                /* pageWidth = */
+                PAGE_WIDTH,
+                /* pageHeight = */
+                PAGE_HEIGHT,
+                /* pageNumber = */
+                pageParams.pageNumber
             ).create()
 
         // below line is used for setting
@@ -362,9 +422,13 @@ class PdfGenerator {
     private fun getApplicationName(context: Context): String {
         val applicationInfo = context.applicationInfo
         val stringId = applicationInfo.labelRes
-        return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(
-            stringId
-        )
+        return if (stringId == 0) {
+            applicationInfo.nonLocalizedLabel.toString()
+        } else {
+            context.getString(
+                stringId
+            )
+        }
     }
 
     // on below line we are creating a generate PDF
@@ -380,7 +444,7 @@ class PdfGenerator {
         // two variables for paint "paint" is used
         // for drawing shapes and we will use "title"
         // for adding text in our PDF file.
-        //val paint: Paint = Paint()
+        // val paint: Paint = Paint()
         val title = Paint()
 
         // below line is used for adding typeface for
@@ -476,11 +540,14 @@ class PdfGenerator {
             Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS
             ).toString() + "/" +
-                    getApplicationName(params.ctx)
+                getApplicationName(params.ctx)
         )
 
         if (!directory.exists()) {
             val success = directory.mkdir()
+            if (!success) {
+                Log.e("PDfGenerator", "Failed mkdir!")
+            }
             // If you require it to make the entire directory path including parents,
             // use directory.mkdirs(); here instead.
         }
@@ -513,9 +580,8 @@ class PdfGenerator {
     }
 }
 
-
 data class PrintWorkDaysParams(
-    var projectsByMonth: MutableList<Project>,
+    var projectsByMonth: List<Project>,
     var canvas: Canvas,
     var showTotals: Boolean,
     var startDate: Int,
@@ -538,7 +604,7 @@ data class DrawProjectDaysParams(
 data class CreatePageParams(
     var name: String,
     var employer: String,
-    var projectsByMonth: MutableList<Project>,
+    var projectsByMonth: List<Project>,
     var endOfMonthDate: String,
     var totalSumLabel: String,
     var monthlyReportLabel: String,
@@ -553,7 +619,7 @@ data class CreatePageParams(
 
 data class GeneratePdfParams(
     var ctx: Context,
-    var projectsByMonth: MutableList<Project>,
+    var projectsByMonth: List<Project>,
     var endOfMonthDate: String,
     var totalSumLabel: String,
     var monthlyReportLabel: String,

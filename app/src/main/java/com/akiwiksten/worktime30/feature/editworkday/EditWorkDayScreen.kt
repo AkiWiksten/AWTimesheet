@@ -28,16 +28,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
-import com.akiwiksten.worktime30.feature.projects.ProjectsViewModel
-import com.akiwiksten.worktime30.feature.settings.SettingsViewModel
 
 @Composable
-@Suppress("LongMethod", "FunctionNaming", "CyclomaticComplexMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun EditWorkDayScreen(
     onItemClick: () -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -57,7 +55,6 @@ fun EditWorkDayScreen(
     val balanceToday by editWorkDayViewModel.balanceToday.collectAsState()
     val balanceTotal by editWorkDayViewModel.balanceTotal.collectAsState()
     val isNewDay by editWorkDayViewModel.isNewDay.collectAsState()
-    val recompose = remember { mutableStateOf(true) }
     val ctx = LocalContext.current
     editWorkDayViewModel.setCtx(ctx)
 
@@ -100,7 +97,7 @@ fun EditWorkDayScreen(
                 editWorkDayViewModel.setStartTime(startTime0 = time)
             }
         )
-        if(isNewDay) {
+        if (isNewDay) {
             AddTimeRow(
                 textFieldValue = dailyWorkTime,
                 stringId = R.string.daily_work_time,
@@ -243,11 +240,11 @@ fun EditWorkDayScreen(
                 )
             }
         }
-        Row(modifier = Modifier.padding(16.dp),
+        Row(
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.Center
         ) {
-
             Button(
                 onClick = {
                     editWorkDayViewModel.insertWorkDay()
@@ -256,21 +253,19 @@ fun EditWorkDayScreen(
                 },
                 modifier = Modifier
                     .padding(5.dp)
-            )
-            {
+            ) {
                 Text(stringResource(R.string.save), fontSize = 20.sp)
             }
         }
     }
 }
 
-fun isValidText(text : String) : Boolean {
+fun isValidText(text: String): Boolean {
     return text.matches(Regex("-?[1-9][0-9]+:[0-5][0-9]")) ||
-            text.matches(Regex("-?0[0-9]:[0-5][0-9]"))
+        text.matches(Regex("-?0[0-9]:[0-5][0-9]"))
 }
 
 @Composable
-@Suppress("FunctionNaming")
 fun AddCustomTimeRow(customTime: String, customTimeFunction: (String, Boolean) -> Unit, stringId: Int) {
     OutlinedTextField(
         value = customTime,
@@ -286,34 +281,29 @@ fun AddCustomTimeRow(customTime: String, customTimeFunction: (String, Boolean) -
 }
 
 @Composable
-@Suppress("FunctionNaming")
 fun AddTimeRow(
     textFieldValue: String,
     stringId: Int,
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
 ) {
-
     var openTimePickerDialog by remember { mutableStateOf(false) }
-    var isOpen by remember { mutableStateOf(false) }
 
-    if(openTimePickerDialog) {
-        isOpen = false
+    if (openTimePickerDialog) {
         TimePickerDialog(
-            onDismissRequest = { openTimePickerDialog = false },
+            onDismissRequest = {},
             onConfirmation = fun (time) {
-                openTimePickerDialog = false
                 onConfirmation(time)
             },
 
             time = textFieldValue,
             titleId = stringId,
         )
-
     }
     Row(
         modifier = Modifier.padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         OutlinedTextField(
             value = textFieldValue,
@@ -333,16 +323,14 @@ fun AddTimeRow(
                     currentTime()
                 },
                 modifier = Modifier.width(100.dp)
-            )
-            {
+            ) {
                 Text(stringResource(R.string.current_time), fontSize = 15.sp)
             }
             Spacer(modifier = Modifier.width(10.dp))
             Button(
-                onClick = { openTimePickerDialog = true },
+                onClick = {},
                 modifier = Modifier.width(100.dp)
-            )
-            {
+            ) {
                 Text(stringResource(R.string.go_to_time_picker), fontSize = 15.sp)
             }
         }

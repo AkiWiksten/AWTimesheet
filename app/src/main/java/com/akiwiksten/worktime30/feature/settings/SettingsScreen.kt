@@ -1,4 +1,5 @@
 @file:Suppress("MagicNumber")
+
 package com.akiwiksten.worktime30.feature.settings
 
 import android.widget.Toast
@@ -38,9 +39,8 @@ import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
-
 @Composable
-@Suppress("LongMethod", "FunctionNaming")
+@Suppress("LongMethod")
 fun SettingsScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
@@ -50,7 +50,7 @@ fun SettingsScreen(
     val date by calendarViewModel.date.collectAsState()
     val endOfMonthDate by settingsViewModel.endMonthDate.collectAsState()
     val dropDownWorkTypes by
-    settingsViewModel.dropDownWorkTypes.collectAsState()
+        settingsViewModel.dropDownWorkTypes.collectAsState()
     val saveString = stringResource(R.string.saved)
     val ctx = LocalContext.current
     settingsViewModel.setCtx(ctx)
@@ -70,13 +70,13 @@ fun SettingsScreen(
 
     LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
-        if(date.isNotEmpty()) {
+        if (date.isNotEmpty()) {
             settingsViewModel.loadProjectsByMonth(date)
             settingsViewModel.setEndMonthDate(date)
         }
     }
 
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
@@ -137,8 +137,7 @@ fun SettingsScreen(
                     openAddText = true
                 },
                 modifier = Modifier.padding(10.dp)
-            )
-            { Text(modifier = Modifier.padding(6.dp), text = stringResource(R.string.add)) }
+            ) { Text(modifier = Modifier.padding(6.dp), text = stringResource(R.string.add)) }
             Button(
                 onClick = {
                     dropDownWorkTypes.remove(selectedWorkType)
@@ -146,13 +145,12 @@ fun SettingsScreen(
                 },
                 modifier = Modifier.padding(10.dp),
                 enabled = selectedWorkType.isNotEmpty()
-            )
-            { Text(modifier = Modifier.padding(6.dp), text = stringResource(R.string.delete)) }
+            ) { Text(modifier = Modifier.padding(6.dp), text = stringResource(R.string.delete)) }
         }
 
         HorizontalDivider(thickness = 2.dp)
 
-        if(openAddText) {
+        if (openAddText) {
             AddTextFieldDialog(
                 onDismissRequest = { openAddText = false },
                 onConfirmation = fun(addText: String) {
@@ -164,19 +162,20 @@ fun SettingsScreen(
             )
         }
 
-        Button(onClick = {
-            settingsViewModel.saveSettings()
-            Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
-        },
+        Button(
+            onClick = {
+                settingsViewModel.saveSettings()
+                Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
+            },
             modifier = Modifier
                 .width(500.dp)
                 .padding(20.dp)
-        )
-        {
+        ) {
             Text(
                 modifier = Modifier.padding(6.dp),
                 text = stringResource(R.string.save),
-                fontSize = 20.sp)
+                fontSize = 20.sp
+            )
         }
 
         Button(
@@ -184,7 +183,7 @@ fun SettingsScreen(
                 .width(500.dp)
                 .padding(20.dp),
             onClick = {
-                if(settingsViewModel.projectsByMonth.size > 0) {
+                if (settingsViewModel.projectsByMonth.isNotEmpty()) {
                     pdfGenerator.generatePdf(
                         GeneratePdfParams(
                             ctx = ctx,
@@ -198,7 +197,8 @@ fun SettingsScreen(
                         )
                     )
                 }
-            }) {
+            }
+        ) {
             Text(
                 modifier = Modifier.padding(6.dp),
                 text = stringResource(R.string.generate_pdf),

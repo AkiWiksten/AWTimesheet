@@ -26,7 +26,6 @@ import com.akiwiksten.worktime30.data.database.Project
  */
 @Suppress(
     "LongMethod",
-    "FunctionNaming",
     "MagicNumber",
     "CyclomaticComplexMethod"
 )
@@ -60,7 +59,7 @@ fun PrintWorkDaysComposable(
         typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
     }
 
-    val endOfMonth =  parseDate(params.endOfMonthDate)
+    val endOfMonth = parseDate(params.endOfMonthDate)
 
     Canvas(
         modifier = Modifier
@@ -74,7 +73,7 @@ fun PrintWorkDaysComposable(
         var right = ORIGIN_LEFT_FIRST
         var x = ORIGIN_LEFT_FIRST
         for (day in params.startDate..params.endDate) {
-            //Projects of one specific day
+            // Projects of one specific day
             val projects = params.projectsByMonth.filter { p -> parseDate(p.date).toInt() == day }
             val projectAttributes: MutableList<String> = mutableListOf()
             for (project in projects) {
@@ -97,36 +96,53 @@ fun PrintWorkDaysComposable(
             right += measuredPaintTextRight
             x += measuredPaintTextLeft
             drawContext.canvas.nativeCanvas.drawRect(
-                /* left = */ left,
-                /* top = */ ORIGIN_TOP_FIRST,
-                /* right = */ right,
-                /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2,
-                /* paint = */ paintBoldRect
+                /* left = */
+                left,
+                /* top = */
+                ORIGIN_TOP_FIRST,
+                /* right = */
+                right,
+                /* bottom = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE * 2,
+                /* paint = */
+                paintBoldRect
             )
             drawContext.canvas.nativeCanvas.drawText(
-                /* text = */ day.toString(),
-                /* x = */ x + measuredPaintTextRight / 2,
-                /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE + TEXT_SIZE / 2,
-                /* paint = */ paintBoldText
+                /* text = */
+                day.toString(),
+                /* x = */
+                x + measuredPaintTextRight / 2,
+                /* y = */
+                ORIGIN_TOP_FIRST + TEXT_SIZE + TEXT_SIZE / 2,
+                /* paint = */
+                paintBoldText
             )
 
             for (attrIndex in 1..projectAttributes.size) {
                 drawContext.canvas.nativeCanvas.drawRect(
-                    /* left = */ left,
-                    /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex),
-                    /* right = */ right,
-                    /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1),
-                    /* paint = */ paintRect
+                    /* left = */
+                    left,
+                    /* top = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex),
+                    /* right = */
+                    right,
+                    /* bottom = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1),
+                    /* paint = */
+                    paintRect
                 )
                 drawContext.canvas.nativeCanvas.drawText(
-                    /* text = */ projectAttributes[attrIndex - 1],
-                    /* x = */ x + 5f,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1) - TEXT_SIZE,
-                    /* paint = */ paintText
+                    /* text = */
+                    projectAttributes[attrIndex - 1],
+                    /* x = */
+                    x + 5f,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (attrIndex + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintText
                 )
             }
             measuredPaintTextLeft = measuredPaintTextRight
-
         }
 
         if (params.showTotals) {
@@ -135,10 +151,10 @@ fun PrintWorkDaysComposable(
             x += measuredPaintTextLeft
             val uniqueProjects: MutableMap<String, String> = mutableMapOf()
             for (day in 1..endOfMonth.toInt()) {
-                //Projects of one specific day
+                // Projects of one specific day
                 val projects = params.projectsByMonth.filter { p ->
                     parseDate(p.date).toInt() == day &&
-                            p.projectTime != ZERO_TIME
+                        p.projectTime != ZERO_TIME
                 }
                 for (project in projects) {
                     if (uniqueProjects[project.projectName] == null) {
@@ -174,30 +190,48 @@ fun PrintWorkDaysComposable(
             val list = uniqueProjects.toList()
             for (index in 1..list.size) {
                 drawContext.canvas.nativeCanvas.drawRect(
-                    /* left = */ left,
-                    /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
-                    /* right = */ right + measuredPaintTextRight,
-                    /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
-                    /* paint = */ paintRect
+                    /* left = */
+                    left,
+                    /* top = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
+                    /* right = */
+                    right + measuredPaintTextRight,
+                    /* bottom = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
+                    /* paint = */
+                    paintRect
                 )
                 drawContext.canvas.nativeCanvas.drawText(
-                    /* text = */ list[index - 1].first,
-                    /* x = */ x + 5f,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
-                    /* paint = */ paintText
+                    /* text = */
+                    list[index - 1].first,
+                    /* x = */
+                    x + 5f,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintText
                 )
                 drawContext.canvas.nativeCanvas.drawRect(
-                    /* left = */ left + measuredPaintTextLeft,
-                    /* top = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
-                    /* right = */ right + measuredPaintTextRight,
-                    /* bottom = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
-                    /* paint = */ paintRect
+                    /* left = */
+                    left + measuredPaintTextLeft,
+                    /* top = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index),
+                    /* right = */
+                    right + measuredPaintTextRight,
+                    /* bottom = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1),
+                    /* paint = */
+                    paintRect
                 )
                 drawContext.canvas.nativeCanvas.drawText(
-                    /* text = */ list[index - 1].second,
-                    /* x = */ x + 5f + measuredPaintTextLeft,
-                    /* y = */ ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
-                    /* paint = */ paintText
+                    /* text = */
+                    list[index - 1].second,
+                    /* x = */
+                    x + 5f + measuredPaintTextLeft,
+                    /* y = */
+                    ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1) - TEXT_SIZE,
+                    /* paint = */
+                    paintText
                 )
             }
         }

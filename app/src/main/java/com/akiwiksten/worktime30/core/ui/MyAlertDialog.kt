@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.akiwiksten.worktime30.R
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("LongParameterList")
 @Composable
 fun MyAlertDialog(
     onDismissRequest: () -> Unit,
@@ -69,7 +69,6 @@ fun MyAlertDialog(
     )
 }
 
-@Suppress("FunctionNaming")
 @Composable
 fun AddTextFieldDialog(
     onDismissRequest: () -> Unit,
@@ -79,7 +78,7 @@ fun AddTextFieldDialog(
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         var addText by remember { mutableStateOf("") }
-        
+
         Card(
             modifier = modifier
                 .fillMaxWidth()
@@ -99,7 +98,7 @@ fun AddTextFieldDialog(
                     text = label,
                     style = MaterialTheme.typography.headlineSmall
                 )
-                
+
                 OutlinedTextField(
                     value = addText,
                     onValueChange = { addText = it },

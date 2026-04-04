@@ -48,7 +48,7 @@ import com.akiwiksten.worktime30.core.ui.MyAlertDialog
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayViewModel
 
-@Suppress("FunctionNaming", "LongMethod")
+@Suppress("LongMethod")
 @Composable
 fun ProjectsScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -62,7 +62,7 @@ fun ProjectsScreen(
     var additionFailed by remember { mutableStateOf(false) }
     val selectedIndex by projectsViewModel.selectedIndex.collectAsState()
     val dropDownWorkTypes by
-    projectsViewModel.dropDownWorkTypes.collectAsState()
+        projectsViewModel.dropDownWorkTypes.collectAsState()
     val ctx = LocalContext.current
     projectsViewModel.setCtx(ctx)
 
@@ -74,7 +74,7 @@ fun ProjectsScreen(
         projectsViewModel.loadWorkTypes()
     }
 
-    Column (
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(5.dp)
@@ -93,7 +93,7 @@ fun ProjectsScreen(
             )
             Text(
                 text = stringResource(R.string.work_time_today) + ": " +
-                        projectsViewModel.getWorkTimeToday(),
+                    projectsViewModel.getWorkTimeToday(),
                 fontSize = 20.sp,
             )
         }
@@ -117,8 +117,7 @@ fun ProjectsScreen(
                 Button(
                     onClick = { openProjectDialogEdit = true },
                     enabled = selectedIndex != -1
-                )
-                {
+                ) {
                     Text(text = stringResource(R.string.edit), fontSize = 20.sp)
                 }
             }
@@ -128,8 +127,7 @@ fun ProjectsScreen(
                         projectsViewModel.deleteItem(index = selectedIndex)
                     },
                     enabled = (selectedIndex != -1)
-                )
-                {
+                ) {
                     Text(text = stringResource(R.string.delete), fontSize = 20.sp)
                 }
                 Spacer(modifier = Modifier.padding(8.dp))
@@ -138,9 +136,8 @@ fun ProjectsScreen(
                         projectsViewModel.saveProjects()
                         Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
                     },
-                    enabled = projectsViewModel.items.size > 0
-                )
-                {
+                    enabled = projectsViewModel.items.isNotEmpty()
+                ) {
                     Text(text = stringResource(R.string.save), fontSize = 20.sp)
                 }
             }
@@ -178,7 +175,8 @@ fun ProjectsScreen(
                         openProjectDialogAdd = false
                         areItemsOverLapping = projectsViewModel.areItemsOverlapping(
                             uiState.projectStartTime,
-                            uiState.projectEndTime)
+                            uiState.projectEndTime
+                        )
                     },
                     workTypeDropDownList = dropDownWorkTypes,
                     uiState = ProjectListItemUiState(
@@ -214,7 +212,8 @@ fun ProjectsScreen(
                         openProjectDialogEdit = false
                         areItemsOverLapping = projectsViewModel.areItemsOverlapping(
                             uiState.projectStartTime,
-                            uiState.projectEndTime)
+                            uiState.projectEndTime
+                        )
                     },
                     uiState = ProjectListItemUiState(
                         projectName = projectName,
@@ -234,7 +233,6 @@ fun ProjectsScreen(
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 fun ProjectsList(
     selectedIndex: Int,
@@ -250,7 +248,7 @@ fun ProjectsList(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
+    ) {
         // LazyColumn to display the list
         LazyColumn(
             modifier = Modifier.height(400.dp)
@@ -272,7 +270,6 @@ fun ProjectsList(
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 fun ListItem(item: ProjectListItemUiState, selectedIndex: Int, setSelectedIndex: (Int) -> Unit) {
     Box(
@@ -289,15 +286,22 @@ fun ListItem(item: ProjectListItemUiState, selectedIndex: Int, setSelectedIndex:
                 }
             )
             .background(
-                if (selectedIndex == item.index) Color.Gray
-                else Color.Transparent
+                if (selectedIndex == item.index) {
+                    Color.Gray
+                } else {
+                    Color.Transparent
+                }
             )
             .padding(16.dp) // Padding inside the box
     ) {
         Row {
-            Text(text = "${item.index}  ${item.projectName}  ${item.projectStartTime}  " +
+            Text(
+                text = "${item.index}  ${item.projectName}  ${item.projectStartTime}  " +
                     "${item.projectEndTime}  ${item.kilometres} km  ${item.allowance}  " +
-                    item.workType, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    item.workType,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

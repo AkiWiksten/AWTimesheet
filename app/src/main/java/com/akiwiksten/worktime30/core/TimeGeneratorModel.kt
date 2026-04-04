@@ -31,9 +31,9 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         }
 
         fun calculateWorkTimeBalance(initialTime: String, addedTime: String): String {
-            if (initialTime.substring(0, 1) == "-") {
+            return if (initialTime.substring(0, 1) == "-") {
                 val positiveInitialTime = initialTime.substring(1)
-                return if (addedTime.substring(0, 1) == "-") {
+                if (addedTime.substring(0, 1) == "-") {
                     val positiveAddedTime = addedTime.substring(1)
                     calculateTotalMinutes(
                         initialTime = positiveInitialTime,
@@ -50,7 +50,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
                     )
                 }
             } else {
-                return if (addedTime.substring(0, 1) == "-") {
+                if (addedTime.substring(0, 1) == "-") {
                     val positiveAddedTime = addedTime.substring(1)
                     calculateTotalMinutes(
                         initialTime = initialTime,
@@ -119,7 +119,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         }
 
         fun checkIfDoubleMinus(value: String): String {
-            if(value.substring(0, 2) == "--") {
+            if (value.substring(0, 2) == "--") {
                 return value.substring(2)
             }
             return value
@@ -132,28 +132,39 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         calculateBalanceToday: Boolean = true
     ) {
         var oldBalanceD = oldBalanceToday
-        if(calculateBalanceToday) {
+        if (calculateBalanceToday) {
             oldBalanceD = editWorkDayViewModel.balanceToday.value
-            editWorkDayViewModel.updateBalanceToday(calculateWorkTimeBalance(
-                initialTime = editWorkDayViewModel.workTimeToday.value,
-                addedTime = "-" + editWorkDayViewModel.dailyWorkTime.value
-            ))
+            editWorkDayViewModel.updateBalanceToday(
+                calculateWorkTimeBalance(
+                    initialTime = editWorkDayViewModel.workTimeToday.value,
+                    addedTime = "-" + editWorkDayViewModel.dailyWorkTime.value
+                )
+            )
         }
-        editWorkDayViewModel.updateBalanceTotal(calculateWorkTimeBalance(
-            initialTime = editWorkDayViewModel.balanceTotal.value,
-            addedTime = checkIfDoubleMinus("-$oldBalanceD")
-        ))
-        editWorkDayViewModel.updateBalanceTotal(calculateWorkTimeBalance(
-            initialTime = editWorkDayViewModel.balanceTotal.value,
-            addedTime = editWorkDayViewModel.balanceToday.value))
-        editWorkDayViewModel.updateWorkTimeTotal(calculateWorkTimeBalance(
-            initialTime = editWorkDayViewModel.workTimeTotal.value,
-            addedTime = "-$oldWorkTimeToday"
-        ))
-        editWorkDayViewModel.updateWorkTimeTotal(calculateWorkTimeBalance(
-            initialTime = editWorkDayViewModel.workTimeTotal.value,
-            addedTime = editWorkDayViewModel.workTimeToday.value
-        ))
+        editWorkDayViewModel.updateBalanceTotal(
+            calculateWorkTimeBalance(
+                initialTime = editWorkDayViewModel.balanceTotal.value,
+                addedTime = checkIfDoubleMinus("-$oldBalanceD")
+            )
+        )
+        editWorkDayViewModel.updateBalanceTotal(
+            calculateWorkTimeBalance(
+                initialTime = editWorkDayViewModel.balanceTotal.value,
+                addedTime = editWorkDayViewModel.balanceToday.value
+            )
+        )
+        editWorkDayViewModel.updateWorkTimeTotal(
+            calculateWorkTimeBalance(
+                initialTime = editWorkDayViewModel.workTimeTotal.value,
+                addedTime = "-$oldWorkTimeToday"
+            )
+        )
+        editWorkDayViewModel.updateWorkTimeTotal(
+            calculateWorkTimeBalance(
+                initialTime = editWorkDayViewModel.workTimeTotal.value,
+                addedTime = editWorkDayViewModel.workTimeToday.value
+            )
+        )
     }
 
     fun calculateFieldsFromStartTime(oldStartTime: String) {
@@ -163,7 +174,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         val lunchTime = stringToLocalTime(editWorkDayViewModel.lunchTime.value)
 
         if (editWorkDayViewModel.isNewDay(oldStartTime)) {
-            //Work day hasn't been modified yet
+            // Work day hasn't been modified yet
             val end = start.add(dailyWorkTime).add(lunchTime)
             editWorkDayViewModel.updateEndTime(end.toString())
             val lunchStart = calculateHalfTime(start, dailyWorkTime)
@@ -173,7 +184,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
             editWorkDayViewModel.updateBreakStart(start.toString())
             editWorkDayViewModel.updateBreakEnd(start.toString())
         } else if (!(workTimeToday.hour == 0 && workTimeToday.minute == 0)) {
-            //Work day has ended already
+            // Work day has ended already
             val oldStartTimeLocal = stringToLocalTime(oldStartTime)
             val oldWorkTimeToday = workTimeToday
             workTimeToday = workTimeToday.subtract(start).add(oldStartTimeLocal)
@@ -210,7 +221,8 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
 
         if (!editWorkDayViewModel.isNewDay(editWorkDayViewModel.startTime.value) &&
             workTimeToday.hour == 0 &&
-            workTimeToday.minute == 0) {
+            workTimeToday.minute == 0
+        ) {
             val oldDailyWorkTimeLocal = stringToLocalTime(oldDailyWorkTime!!)
             end = end.subtract(oldDailyWorkTimeLocal).add(dailyWorkTime)
             editWorkDayViewModel.updateEndTime(end.toString())
@@ -261,7 +273,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         val lunchTime = stringToLocalTime(editWorkDayViewModel.lunchTime.value)
         val oldLunchTimeLocal = stringToLocalTime(oldLunchTime!!)
 
-        if(workTimeToday.hour == 0 && workTimeToday.minute == 0) {
+        if (workTimeToday.hour == 0 && workTimeToday.minute == 0) {
             end = end.add(lunchTime).subtract(oldLunchTimeLocal)
             editWorkDayViewModel.updateEndTime(end.toString())
             val lunchEnd = lunchStart.add(lunchTime)
@@ -277,7 +289,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
 
         val oldBreakStartLocal = stringToLocalTime(oldBreakStart!!)
 
-        if(oldBreakStartLocal == breakEnd) {
+        if (oldBreakStartLocal == breakEnd) {
             breakEnd = breakStart
             editWorkDayViewModel.updateBreakEnd(breakEnd.toString())
         } else if (workTimeToday.hour == 0 && workTimeToday.minute == 0) {
@@ -317,15 +329,17 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         val breakEnd = stringToLocalTime(editWorkDayViewModel.breakEnd.value)
         val oldWorkTimeToday = stringToLocalTime(editWorkDayViewModel.workTimeToday.value)
 
-        if(workTimeToday.hour == 0 && workTimeToday.minute == 0) {
+        if (workTimeToday.hour == 0 && workTimeToday.minute == 0) {
             val balanceSum = calculateWorkTimeBalance(
                 initialTime = checkIfDoubleMinus("-$oldBalanceToday"),
                 addedTime = editWorkDayViewModel.balanceToday.value
             )
-            editWorkDayViewModel.updateWorkTimeToday(calculateWorkTimeBalance(
-                initialTime = balanceSum,
-                addedTime = editWorkDayViewModel.dailyWorkTime.value
-            ))
+            editWorkDayViewModel.updateWorkTimeToday(
+                calculateWorkTimeBalance(
+                    initialTime = balanceSum,
+                    addedTime = editWorkDayViewModel.dailyWorkTime.value
+                )
+            )
             workTimeToday = stringToLocalTime(editWorkDayViewModel.workTimeToday.value)
             val end = start.add(workTimeToday).subtract(lunchStart).add(lunchEnd)
                 .subtract(breakStart).add(breakEnd)
@@ -335,14 +349,18 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
                 initialTime = checkIfDoubleMinus("-$oldBalanceToday"),
                 addedTime = editWorkDayViewModel.balanceToday.value
             )
-            editWorkDayViewModel.updateEndTime(calculateWorkTimeBalance(
-                initialTime = balanceSum,
-                addedTime = editWorkDayViewModel.endTime.value
-            ))
-            editWorkDayViewModel.updateWorkTimeToday(calculateWorkTimeBalance(
-                initialTime = balanceSum,
-                addedTime = editWorkDayViewModel.workTimeToday.value
-            ))
+            editWorkDayViewModel.updateEndTime(
+                calculateWorkTimeBalance(
+                    initialTime = balanceSum,
+                    addedTime = editWorkDayViewModel.endTime.value
+                )
+            )
+            editWorkDayViewModel.updateWorkTimeToday(
+                calculateWorkTimeBalance(
+                    initialTime = balanceSum,
+                    addedTime = editWorkDayViewModel.workTimeToday.value
+                )
+            )
         }
         calculateCustomTimeValues(oldWorkTimeToday, oldBalanceToday, false)
         editWorkDayViewModel.updateOldBalanceToday(editWorkDayViewModel.balanceToday.value)
@@ -354,7 +372,7 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         val workTimeToday = stringToLocalTime(editWorkDayViewModel.workTimeToday.value)
         val oldWorkTimeTodayLocal = stringToLocalTime(oldWorkTimeToday!!)
 
-        end = if(oldWorkTimeTodayLocal.hour == 0 && oldWorkTimeTodayLocal.minute == 0) {
+        end = if (oldWorkTimeTodayLocal.hour == 0 && oldWorkTimeTodayLocal.minute == 0) {
             end.subtract(dailyWorkTime).add(workTimeToday)
         } else {
             end.subtract(oldWorkTimeTodayLocal).add(workTimeToday)

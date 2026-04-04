@@ -1,4 +1,5 @@
 @file: SuppressWarnings("UnusedDeclaration")
+
 package com.akiwiksten.worktime30.data.database
 
 import androidx.room.Dao
@@ -25,7 +26,7 @@ interface WorkDayDao {
     suspend fun delete(workDay: WorkDay)
 
     @Query("SELECT * FROM workday WHERE date BETWEEN :dateStart AND :dateEnd")
-    suspend fun getWorkDaysByDateRange(dateStart: String, dateEnd: String): MutableList<WorkDay>
+    suspend fun getWorkDaysByDateRange(dateStart: String, dateEnd: String): List<WorkDay>
 }
 
 @Dao
@@ -55,7 +56,7 @@ interface ProjectDao {
     suspend fun delete(project: Project)
 
     @Query("SELECT * FROM project WHERE date BETWEEN :dateStart AND :dateEnd")
-    suspend fun getProjectsByDateRange(dateStart: String, dateEnd: String): MutableList<Project>
+    suspend fun getProjectsByDateRange(dateStart: String, dateEnd: String): List<Project>
 }
 
 @Dao

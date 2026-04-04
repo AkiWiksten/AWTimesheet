@@ -34,7 +34,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
     val timePerWeek = _timePerWeek.asStateFlow()
     private val _timePerDay = MutableStateFlow("")
     val timePerDay = _timePerDay.asStateFlow()
-    private var _workDaysMonth = MutableStateFlow<MutableList<WorkDay>>(mutableListOf())
+    private val _workDaysMonth = MutableStateFlow<List<WorkDay>>(emptyList())
 
     init {
         _date.value = currentDate()
@@ -49,7 +49,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         return formatter.format(Date(millis))
     }
 
-    private fun currentDate() : String {
+    private fun currentDate(): String {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val current = LocalDateTime.now().format(formatter)
         return current
@@ -77,8 +77,8 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
             .getProjectsByDateRange(startMonth, endMonth)
         var workTimeMonth = ZERO_TIME
         for (day in 1..parseDate(endMonth).toInt()) {
-            val workDay = _workDaysMonth.value.find { w -> parseDate(w.date).toInt() == day}
-            if(workDay != null) {
+            val workDay = _workDaysMonth.value.find { w -> parseDate(w.date).toInt() == day }
+            if (workDay != null) {
                 workTimeMonth = TimeGeneratorModel.calculateTotalMinutes(
                     initialTime = workTimeMonth,
                     addedTime = workDay.workTimeToday,
@@ -87,36 +87,44 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
                 )
             } else {
                 val projectsDay = projectTimesMonth.filter {
-                        p -> parseDate(p.date).toInt() == day }
-                for(project in projectsDay) {
+                        p ->
+                    parseDate(p.date).toInt() == day
+                }
+                for (project in projectsDay) {
                     workTimeMonth = TimeGeneratorModel.calculateWorkTimeBalance(
                         workTimeMonth,
-                        project.projectEndTime)
+                        project.projectEndTime
+                    )
                     workTimeMonth = TimeGeneratorModel.calculateWorkTimeBalance(
                         workTimeMonth,
-                        "-" + project.projectStartTime)
+                        "-" + project.projectStartTime
+                    )
                 }
             }
         }
         _timePerMonth.value = workTimeMonth
     }
 
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LongMethod")
     private suspend fun calculateWeeklyWorkTime(date: String) {
         val initial = LocalDate.parse(date)
-        var workTimeWeek = "00:00"
+        var workTimeWeek = ZERO_TIME
         val firstDateOfWeek = initial.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val workDaysWeek = AppDatabase.getInstance(_ctx.value!!).workDayDao()
-            .getWorkDaysByDateRange(firstDateOfWeek.toString(),
-                firstDateOfWeek.plusDays(6).toString())
+            .getWorkDaysByDateRange(
+                firstDateOfWeek.toString(),
+                firstDateOfWeek.plusDays(6).toString()
+            )
         val firstDayOfWeek = parseDate(firstDateOfWeek.toString()).toInt()
         val lastDayOfWeek = parseDate(firstDateOfWeek.plusDays(6).toString()).toInt()
         val projectTimesWeek = AppDatabase.getInstance(_ctx.value!!).projectDao()
-            .getProjectsByDateRange(firstDateOfWeek.toString(),
-                firstDateOfWeek.plusDays(6).toString())
+            .getProjectsByDateRange(
+                firstDateOfWeek.toString(),
+                firstDateOfWeek.plusDays(6).toString()
+            )
         val allWeekDays: MutableList<Int> = mutableListOf()
 
-        if(firstDayOfWeek > lastDayOfWeek) {
+        if (firstDayOfWeek > lastDayOfWeek) {
             val initial0 = initial.minusMonths(1)
             val endMonth = initial0.withDayOfMonth(initial0.month.length(initial0.isLeapYear))
             val endMonthDay = parseDate(endMonth.toString()).toInt()
@@ -133,8 +141,8 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         }
 
         for (day in allWeekDays) {
-            val workDay = workDaysWeek.find { w -> parseDate(w.date).toInt() == day}
-            if(workDay != null) {
+            val workDay = workDaysWeek.find { w -> parseDate(w.date).toInt() == day }
+            if (workDay != null) {
                 workTimeWeek = TimeGeneratorModel.calculateTotalMinutes(
                     initialTime = workTimeWeek,
                     addedTime = workDay.workTimeToday,
@@ -143,14 +151,18 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
                 )
             } else {
                 val projectsDay = projectTimesWeek.filter {
-                        p -> parseDate(p.date).toInt() == day }
-                for(project in projectsDay) {
+                        p ->
+                    parseDate(p.date).toInt() == day
+                }
+                for (project in projectsDay) {
                     workTimeWeek = TimeGeneratorModel.calculateWorkTimeBalance(
                         workTimeWeek,
-                        project.projectEndTime)
+                        project.projectEndTime
+                    )
                     workTimeWeek = TimeGeneratorModel.calculateWorkTimeBalance(
                         workTimeWeek,
-                        "-" + project.projectStartTime)
+                        "-" + project.projectStartTime
+                    )
                 }
             }
         }
@@ -167,16 +179,18 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
             .getInstance(_ctx.value!!)
             .projectDao()
             .loadProjectsByDate(date)
-        if(workDay != null) {
+        if (workDay != null) {
             _timePerDay.value = workDay.workTimeToday
         } else {
             for (project in projectsPerDay) {
                 projectTimeDay = TimeGeneratorModel.calculateWorkTimeBalance(
                     projectTimeDay,
-                    project.projectEndTime)
+                    project.projectEndTime
+                )
                 projectTimeDay = TimeGeneratorModel.calculateWorkTimeBalance(
                     projectTimeDay,
-                    "-" + project.projectStartTime)
+                    "-" + project.projectStartTime
+                )
             }
             _timePerDay.value = projectTimeDay
         }

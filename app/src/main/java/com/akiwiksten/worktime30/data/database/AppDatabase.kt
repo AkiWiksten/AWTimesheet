@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.akiwiksten.worktime30.core.DB_NAME
 
 @Database(
     entities = [
@@ -26,6 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun workTypeDao(): WorkTypeDao
 
     companion object {
+        const val DB_NAME = "ajvw-db"
 
         // For Singleton instantiation
         @Volatile

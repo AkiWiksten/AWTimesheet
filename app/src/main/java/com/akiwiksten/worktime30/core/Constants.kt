@@ -2,9 +2,8 @@ package com.akiwiksten.worktime30.core
 
 const val DATE = "date"
 const val ZERO_TIME = "00:00"
-const val MINUTES_60 = 60
-
-const val DB_NAME = "ajvw-db"
+const val MINUTES_IN_HOUR = 60
+const val TIME_FORMAT = "HH:mm"
 
 // Edit Work day
 const val START_TIME = "start_time"
@@ -47,18 +46,3 @@ const val WORK_TYPE = "workType"
 // Settings
 const val NAME = "name"
 const val EMPLOYER = "employer"
-
-// PDF
-const val TEXT_SIZE = 8f
-const val ORIGIN_LEFT_FIRST = 50f
-const val ORIGIN_TOP_FIRST = 150f
-const val TIME_FORMAT = "HH:mm"
-const val PAGE_HEIGHT = 1120
-const val PAGE_WIDTH = 792
-const val DATE_01 = 1
-const val DATE_08 = 8
-const val DATE_09 = 9
-const val DATE_16 = 16
-const val DATE_17 = 17
-const val DATE_24 = 24
-const val DATE_25 = 25

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.GeneratePdfParams
-import com.akiwiksten.worktime30.core.PdfGenerator
+import com.akiwiksten.worktime30.core.MonthlyReportGenerator
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
@@ -56,7 +56,6 @@ fun SettingsScreen(
     settingsViewModel.setCtx(ctx)
     var openAddText by remember { mutableStateOf(false) }
     var selectedWorkType by remember { mutableStateOf("") }
-    val pdfGenerator = PdfGenerator()
     val projectTitles: List<String> = listOf(
         stringResource(R.string.date),
         stringResource(R.string.project),
@@ -184,7 +183,7 @@ fun SettingsScreen(
                 .padding(20.dp),
             onClick = {
                 if (settingsViewModel.projectsByMonth.isNotEmpty()) {
-                    pdfGenerator.generatePdf(
+                    MonthlyReportGenerator.generatePdf(
                         GeneratePdfParams(
                             ctx = ctx,
                             projectsByMonth = settingsViewModel.projectsByMonth,

@@ -76,10 +76,10 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
             isAddedTimeNegative: Boolean
         ): String {
             val (hour0, minute0) = initialTime.split(':')
-            val initialTotalMinutes = hour0.toInt() * MINUTES_60 + minute0.toInt()
+            val initialTotalMinutes = hour0.toInt() * MINUTES_IN_HOUR + minute0.toInt()
 
             val (hour1, minute1) = addedTime.split(':')
-            val addedTotalMinutes = hour1.toInt() * MINUTES_60 + minute1.toInt()
+            val addedTotalMinutes = hour1.toInt() * MINUTES_IN_HOUR + minute1.toInt()
             val totalMinutes = if (isInitialTimeNegative) {
                 if (isAddedTimeNegative) {
                     -initialTotalMinutes - addedTotalMinutes
@@ -93,8 +93,8 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
                     initialTotalMinutes + addedTotalMinutes
                 }
             }
-            val hours = abs(totalMinutes) / MINUTES_60
-            val minutes = abs(totalMinutes) % MINUTES_60
+            val hours = abs(totalMinutes) / MINUTES_IN_HOUR
+            val minutes = abs(totalMinutes) % MINUTES_IN_HOUR
             return if (totalMinutes < 0) {
                 "-" + convertDate(hours) + ":" + convertDate(minutes)
             } else {
@@ -112,9 +112,9 @@ class TimeGeneratorModel(private val editWorkDayViewModel: EditWorkDayViewModel)
         }
 
         private fun calculateHalfTime(start: LocalTime, dailyWorkTime: LocalTime): LocalTime {
-            val totalMinutes = (dailyWorkTime.hour * MINUTES_60 + dailyWorkTime.minute) / 2
-            val hours = totalMinutes / MINUTES_60
-            val minutes = totalMinutes % MINUTES_60
+            val totalMinutes = (dailyWorkTime.hour * MINUTES_IN_HOUR + dailyWorkTime.minute) / 2
+            val hours = totalMinutes / MINUTES_IN_HOUR
+            val minutes = totalMinutes % MINUTES_IN_HOUR
             return start.plusHours(hours.toLong()).plusMinutes(minutes.toLong())
         }
 

@@ -1,18 +1,28 @@
 package com.akiwiksten.worktime30.data.database
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.akiwiksten.worktime30.data.database.dao.ProjectDao
+import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
+import com.akiwiksten.worktime30.data.database.dao.SettingsDao
+import com.akiwiksten.worktime30.data.database.dao.WorkDayDao
+import com.akiwiksten.worktime30.data.database.dao.WorkDayOneRowDao
+import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
+import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
+import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 
 @Database(
     entities = [
-        WorkDay::class,
-        WorkDayOneRow::class,
-        Project::class,
-        ProjectName::class,
-        Settings::class,
-        WorkType::class
+        WorkDayEntity::class,
+        WorkDayOneRowEntity::class,
+        ProjectEntity::class,
+        ProjectNameEntity::class,
+        SettingsEntity::class,
+        WorkTypeEntity::class
     ],
     version = 1
 )
@@ -26,20 +36,5 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         const val DB_NAME = "ajvw-db"
-
-        // For Singleton instantiation
-        @Volatile
-        private var instance: AppDatabase? = null
-
-        fun getInstance(ctx: Context): AppDatabase {
-            return instance ?: synchronized(this) {
-                instance ?: buildDatabase(ctx).also { instance = it }
-            }
-        }
-
-        private fun buildDatabase(ctx: Context) =
-            Room.databaseBuilder(ctx, AppDatabase::class.java, DB_NAME)
-                .fallbackToDestructiveMigration(false)
-                .build()
     }
 }

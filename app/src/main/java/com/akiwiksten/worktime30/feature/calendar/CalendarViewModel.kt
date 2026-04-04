@@ -3,8 +3,8 @@ package com.akiwiksten.worktime30.feature.calendar
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.TimeGeneratorModel
-import com.akiwiksten.worktime30.core.TimeGeneratorModel.Companion.parseDate
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.WorkDay
@@ -79,7 +79,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         for (day in 1..parseDate(endMonth).toInt()) {
             val workDay = _workDaysMonth.value.find { w -> parseDate(w.date).toInt() == day }
             if (workDay != null) {
-                workTimeMonth = TimeGeneratorModel.calculateTotalMinutes(
+                workTimeMonth = WorkTimeCalculator.calculateTotalMinutes(
                     initialTime = workTimeMonth,
                     addedTime = workDay.workTimeToday,
                     isInitialTimeNegative = false,
@@ -91,11 +91,11 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
                     parseDate(p.date).toInt() == day
                 }
                 for (project in projectsDay) {
-                    workTimeMonth = TimeGeneratorModel.calculateWorkTimeBalance(
+                    workTimeMonth = WorkTimeCalculator.calculateWorkTimeBalance(
                         workTimeMonth,
                         project.projectEndTime
                     )
-                    workTimeMonth = TimeGeneratorModel.calculateWorkTimeBalance(
+                    workTimeMonth = WorkTimeCalculator.calculateWorkTimeBalance(
                         workTimeMonth,
                         "-" + project.projectStartTime
                     )
@@ -143,7 +143,7 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
         for (day in allWeekDays) {
             val workDay = workDaysWeek.find { w -> parseDate(w.date).toInt() == day }
             if (workDay != null) {
-                workTimeWeek = TimeGeneratorModel.calculateTotalMinutes(
+                workTimeWeek = WorkTimeCalculator.calculateTotalMinutes(
                     initialTime = workTimeWeek,
                     addedTime = workDay.workTimeToday,
                     isInitialTimeNegative = false,
@@ -155,11 +155,11 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
                     parseDate(p.date).toInt() == day
                 }
                 for (project in projectsDay) {
-                    workTimeWeek = TimeGeneratorModel.calculateWorkTimeBalance(
+                    workTimeWeek = WorkTimeCalculator.calculateWorkTimeBalance(
                         workTimeWeek,
                         project.projectEndTime
                     )
-                    workTimeWeek = TimeGeneratorModel.calculateWorkTimeBalance(
+                    workTimeWeek = WorkTimeCalculator.calculateWorkTimeBalance(
                         workTimeWeek,
                         "-" + project.projectStartTime
                     )
@@ -183,11 +183,11 @@ class CalendarViewModel @Inject constructor() : ViewModel() {
             _timePerDay.value = workDay.workTimeToday
         } else {
             for (project in projectsPerDay) {
-                projectTimeDay = TimeGeneratorModel.calculateWorkTimeBalance(
+                projectTimeDay = WorkTimeCalculator.calculateWorkTimeBalance(
                     projectTimeDay,
                     project.projectEndTime
                 )
-                projectTimeDay = TimeGeneratorModel.calculateWorkTimeBalance(
+                projectTimeDay = WorkTimeCalculator.calculateWorkTimeBalance(
                     projectTimeDay,
                     "-" + project.projectStartTime
                 )

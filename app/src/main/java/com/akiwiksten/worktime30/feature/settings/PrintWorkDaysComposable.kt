@@ -19,8 +19,8 @@ import com.akiwiksten.worktime30.core.MonthlyReportGenerator
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator.ORIGIN_LEFT_FIRST
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator.ORIGIN_TOP_FIRST
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator.TEXT_SIZE
-import com.akiwiksten.worktime30.core.TimeGeneratorModel
-import com.akiwiksten.worktime30.core.TimeGeneratorModel.Companion.parseDate
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.Project
 
@@ -147,7 +147,7 @@ private fun drawTotalsSection(
         params.projectsByMonth
             .filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
             .forEach { project ->
-                uniqueProjects[project.projectName] = TimeGeneratorModel.calculateTotalMinutes(
+                uniqueProjects[project.projectName] = WorkTimeCalculator.calculateTotalMinutes(
                     initialTime = uniqueProjects[project.projectName] ?: ZERO_TIME,
                     addedTime = project.projectTime,
                     isInitialTimeNegative = false,
@@ -157,7 +157,7 @@ private fun drawTotalsSection(
     }
 
     val totalSum = uniqueProjects.values.fold(ZERO_TIME) { acc, time ->
-        TimeGeneratorModel.calculateTotalMinutes(acc, time, false, false)
+        WorkTimeCalculator.calculateTotalMinutes(acc, time, false, false)
     }
     uniqueProjects[params.totalSumLabel] = totalSum
 

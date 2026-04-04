@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.TimeGeneratorModel
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.Project
@@ -149,11 +149,11 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
         var balance = uiState.initBalance
         for (item in items) {
             balance = if (item.projectName == items.find { i -> i.index == uiState.index }?.projectName) {
-                TimeGeneratorModel.calculateWorkTimeBalance(
+                WorkTimeCalculator.calculateWorkTimeBalance(
                     balance, uiState.projectTime
                 )
             } else {
-                TimeGeneratorModel.calculateWorkTimeBalance(
+                WorkTimeCalculator.calculateWorkTimeBalance(
                     balance, item.projectTime
                 )
             }
@@ -184,10 +184,10 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
         var leftOvers: String = ZERO_TIME
         val balance = _workTimeBalance.value ?: return leftOvers
         if (balance.isNotEmpty() && balance.substring(0, 1) == "-") {
-            val balanceLocal = TimeGeneratorModel.stringToLocalTime(
+            val balanceLocal = WorkTimeCalculator.stringToLocalTime(
                 balance.substring(1)
             )
-            val pTimeLocal = TimeGeneratorModel.stringToLocalTime(projectTime)
+            val pTimeLocal = WorkTimeCalculator.stringToLocalTime(projectTime)
             leftOvers = balanceLocal
                 .plusHours(pTimeLocal.hour.toLong())
                 .plusMinutes(pTimeLocal.minute.toLong()).toString()
@@ -220,11 +220,11 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
     fun getWorkTimeToday(): String {
         var workTimeToday = ZERO_TIME
         for (item in items) {
-            val workTimeProject = TimeGeneratorModel.calculateWorkTimeBalance(
+            val workTimeProject = WorkTimeCalculator.calculateWorkTimeBalance(
                 item.projectEndTime,
                 "-" + item.projectStartTime
             )
-            workTimeToday = TimeGeneratorModel.calculateWorkTimeBalance(
+            workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
                 workTimeToday, workTimeProject
             )
         }

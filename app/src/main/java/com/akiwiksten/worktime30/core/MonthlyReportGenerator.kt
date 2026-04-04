@@ -14,7 +14,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.core.TimeGeneratorModel.Companion.parseDate
+import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
 import com.akiwiksten.worktime30.data.database.Project
 import java.io.File
 import java.io.FileOutputStream
@@ -77,7 +77,7 @@ object MonthlyReportGenerator {
             params.projectsByMonth
                 .filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
                 .forEach { project ->
-                    uniqueProjects[project.projectName] = TimeGeneratorModel.calculateTotalMinutes(
+                    uniqueProjects[project.projectName] = WorkTimeCalculator.calculateTotalMinutes(
                         initialTime = uniqueProjects[project.projectName] ?: ZERO_TIME,
                         addedTime = project.projectTime,
                         isInitialTimeNegative = false,
@@ -87,7 +87,7 @@ object MonthlyReportGenerator {
         }
 
         val totalSum = uniqueProjects.values.fold(ZERO_TIME) { acc, time ->
-            TimeGeneratorModel.calculateTotalMinutes(acc, time, false, false)
+            WorkTimeCalculator.calculateTotalMinutes(acc, time, false, false)
         }
         uniqueProjects[params.totalSumLabel] = totalSum
         return uniqueProjects
@@ -190,7 +190,7 @@ object MonthlyReportGenerator {
         projects.filter { parseDate(it.date).toInt() == day }
             .forEach { project ->
                 if (project.projectStartTime != ZERO_TIME && project.projectEndTime != ZERO_TIME) {
-                    val workTime = TimeGeneratorModel.calculateWorkTimeBalance(
+                    val workTime = WorkTimeCalculator.calculateWorkTimeBalance(
                         project.projectEndTime, "-" + project.projectStartTime)
                     attributes.addAll(listOf(
                         project.projectName, project.projectStartTime, 

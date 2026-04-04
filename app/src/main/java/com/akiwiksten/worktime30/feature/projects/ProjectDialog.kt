@@ -39,7 +39,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.TIME_FORMAT
-import com.akiwiksten.worktime30.core.TimeGeneratorModel
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.MyAlertDialog
@@ -111,7 +111,7 @@ fun ProjectDialog(
                     currentTime = fun() {
                         val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
                         projectEndTime = LocalDateTime.now().format(formatter)
-                        val timeDifference = TimeGeneratorModel.calculateWorkTimeBalance(
+                        val timeDifference = WorkTimeCalculator.calculateWorkTimeBalance(
                             projectEndTime,
                             "-$projectStartTime"
                         )
@@ -121,7 +121,7 @@ fun ProjectDialog(
                     },
                     onConfirmation = fun(time) {
                         projectEndTime = time
-                        val timeDifference = TimeGeneratorModel.calculateWorkTimeBalance(
+                        val timeDifference = WorkTimeCalculator.calculateWorkTimeBalance(
                             projectEndTime,
                             "-$projectStartTime"
                         )

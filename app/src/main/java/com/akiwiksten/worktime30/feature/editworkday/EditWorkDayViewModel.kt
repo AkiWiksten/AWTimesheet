@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.TIME_FORMAT
-import com.akiwiksten.worktime30.core.TimeGeneratorModel
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
+import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.WorkDay
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -67,8 +70,6 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
     private var _isNewDay = MutableStateFlow(true)
     var isNewDay = _isNewDay.asStateFlow()
 
-    private val tgm = TimeGeneratorModel(this)
-
     fun setCtx(ctx: Context) {
         _ctx.value = ctx
     }
@@ -78,203 +79,220 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setStartTime(startTime0: String) {
-        val oldStartTime = _startTime.value
+        val oldStart = WorkTimeCalculator.stringToLocalTime(_startTime.value)
         _startTime.value = startTime0
-        tgm.calculateFieldsFromStartTime(oldStartTime = oldStartTime)
+        applyUpdate(WorkTimeCalculator.calculateStartTimeUpdate(
+            StartTimeUpdateParams(
+                start = WorkTimeCalculator.stringToLocalTime(startTime0),
+                dailyWorkTime = WorkTimeCalculator.stringToLocalTime(_dailyWorkTime.value),
+                lunchTime = WorkTimeCalculator.stringToLocalTime(_lunchTime.value),
+                workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+                oldStartTime = oldStart,
+                isNewDay = _isNewDay.value
+            )
+        ))
         _isNewDay.value = false
-    }
-
-    fun updateStartTime(value: String) {
-        _startTime.value = value
     }
 
     fun currentStartTime() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _startTime.value
-        _startTime.value = current
-        tgm.calculateFieldsFromStartTime(oldStartTime = oldValue)
-        _isNewDay.value = false
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setStartTime(current)
     }
 
     fun setEndTime(endTime0: String) {
-        val oldEndTime = _endTime.value
+        val oldEnd = WorkTimeCalculator.stringToLocalTime(_endTime.value)
         _endTime.value = endTime0
-        tgm.calculateFieldsFromEndTime(oldEndTime = oldEndTime)
-    }
-
-    fun updateEndTime(value: String) {
-        _endTime.value = value
+        applyUpdate(WorkTimeCalculator.calculateEndTimeUpdate(
+            EndTimeUpdateParams(
+                start = WorkTimeCalculator.stringToLocalTime(_startTime.value),
+                end = WorkTimeCalculator.stringToLocalTime(endTime0),
+                lunchStart = WorkTimeCalculator.stringToLocalTime(_lunchStart.value),
+                lunchEnd = WorkTimeCalculator.stringToLocalTime(_lunchEnd.value),
+                breakStart = WorkTimeCalculator.stringToLocalTime(_breakStart.value),
+                breakEnd = WorkTimeCalculator.stringToLocalTime(_breakEnd.value),
+                workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+                oldEndTime = oldEnd
+            )
+        ))
     }
 
     fun currentEndTime() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _endTime.value
-        _endTime.value = current
-        tgm.calculateFieldsFromEndTime(oldEndTime = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setEndTime(current)
     }
 
     fun setDailyWorkTime(dailyWorkTime0: String) {
-        val oldDailyWorkTime = _dailyWorkTime.value
+        val oldDaily = WorkTimeCalculator.stringToLocalTime(_dailyWorkTime.value)
         _dailyWorkTime.value = dailyWorkTime0
-        tgm.calculateFieldsFromDailyWorkTime(oldDailyWorkTime = oldDailyWorkTime)
-    }
-
-    fun updateDailyWorkTime(value: String) {
-        _dailyWorkTime.value = value
+        applyUpdate(WorkTimeCalculator.calculateDailyWorkTimeUpdate(
+            end = WorkTimeCalculator.stringToLocalTime(_endTime.value),
+            dailyWorkTime = WorkTimeCalculator.stringToLocalTime(dailyWorkTime0),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+            oldDailyWorkTime = oldDaily,
+            isNewDay = _isNewDay.value
+        ))
     }
 
     fun currentDailyWorkTime() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _dailyWorkTime.value
-        _dailyWorkTime.value = current
-        tgm.calculateFieldsFromDailyWorkTime(oldDailyWorkTime = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setDailyWorkTime(current)
     }
 
     fun setLunchStart(lunchStart0: String) {
-        val oldLunchStart = _lunchStart.value
+        val oldLunchStart = WorkTimeCalculator.stringToLocalTime(_lunchStart.value)
         _lunchStart.value = lunchStart0
-        tgm.calculateFieldsFromLunchStart(oldLunchStart = oldLunchStart)
-    }
-
-    fun updateLunchStart(value: String) {
-        _lunchStart.value = value
+        applyUpdate(WorkTimeCalculator.calculateLunchStartUpdate(
+            lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
+            lunchTime = WorkTimeCalculator.stringToLocalTime(_lunchTime.value),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+            oldLunchStart = oldLunchStart,
+            currentLunchEnd = WorkTimeCalculator.stringToLocalTime(_lunchEnd.value)
+        ))
     }
 
     fun currentLunchStart() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _lunchStart.value
-        _lunchStart.value = current
-        tgm.calculateFieldsFromLunchStart(oldLunchStart = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setLunchStart(current)
     }
 
     fun setLunchEnd(lunchEnd0: String) {
-        val oldLunchEnd = _lunchEnd.value
+        val oldLunchEnd = WorkTimeCalculator.stringToLocalTime(_lunchEnd.value)
         _lunchEnd.value = lunchEnd0
-        tgm.calculateFieldsFromLunchEnd(oldLunchEnd = oldLunchEnd)
-    }
-
-    fun updateLunchEnd(value: String) {
-        _lunchEnd.value = value
+        applyUpdate(WorkTimeCalculator.calculateLunchEndUpdate(
+            end = WorkTimeCalculator.stringToLocalTime(_endTime.value),
+            lunchEnd = WorkTimeCalculator.stringToLocalTime(lunchEnd0),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+            oldLunchEnd = oldLunchEnd
+        ))
     }
 
     fun currentLunchEnd() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _lunchEnd.value
-        _lunchEnd.value = current
-        tgm.calculateFieldsFromLunchEnd(oldLunchEnd = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setLunchEnd(current)
     }
 
     fun setLunchTime(lunchTime0: String) {
-        val oldLunchTime = _lunchTime.value
+        val oldLunchTime = WorkTimeCalculator.stringToLocalTime(_lunchTime.value)
         _lunchTime.value = lunchTime0
-        tgm.calculateFieldsFromLunchTime(oldLunchTime = oldLunchTime)
-    }
-
-    fun updateLunchTime(value: String) {
-        _lunchTime.value = value
+        applyUpdate(WorkTimeCalculator.calculateLunchTimeUpdate(
+            end = WorkTimeCalculator.stringToLocalTime(_endTime.value),
+            lunchStart = WorkTimeCalculator.stringToLocalTime(_lunchStart.value),
+            lunchTime = WorkTimeCalculator.stringToLocalTime(lunchTime0),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+            oldLunchTime = oldLunchTime
+        ))
     }
 
     fun currentLunchTime() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _lunchTime.value
-        _lunchTime.value = current
-        tgm.calculateFieldsFromLunchTime(oldLunchTime = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setLunchTime(current)
     }
 
     fun setBreakStart(breakStart0: String) {
-        val oldBreakStart = _breakStart.value
+        val oldBreakStart = WorkTimeCalculator.stringToLocalTime(_breakStart.value)
         _breakStart.value = breakStart0
-        tgm.calculateFieldsFromBreakStart(oldBreakStart = oldBreakStart)
-    }
-
-    fun updateBreakStart(value: String) {
-        _breakStart.value = value
+        applyUpdate(WorkTimeCalculator.calculateBreakStartUpdate(
+            end = WorkTimeCalculator.stringToLocalTime(_endTime.value),
+            breakStart = WorkTimeCalculator.stringToLocalTime(breakStart0),
+            breakEnd = WorkTimeCalculator.stringToLocalTime(_breakEnd.value),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+            oldBreakStart = oldBreakStart
+        ))
     }
 
     fun currentBreakStart() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _breakStart.value
-        _breakStart.value = current
-        tgm.calculateFieldsFromBreakStart(oldBreakStart = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setBreakStart(current)
     }
 
     fun setBreakEnd(breakEnd0: String) {
-        val oldBreakEnd = _breakEnd.value
+        val oldBreakEnd = WorkTimeCalculator.stringToLocalTime(_breakEnd.value)
         _breakEnd.value = breakEnd0
-        tgm.calculateFieldsFromBreakEnd(oldBreakEnd = oldBreakEnd)
-    }
-
-    fun updateBreakEnd(value: String) {
-        _breakEnd.value = value
+        applyUpdate(WorkTimeCalculator.calculateBreakEndUpdate(
+            end = WorkTimeCalculator.stringToLocalTime(_endTime.value),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value),
+            breakEnd = WorkTimeCalculator.stringToLocalTime(breakEnd0),
+            oldBreakEnd = oldBreakEnd
+        ))
     }
 
     fun currentBreakEnd() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _breakEnd.value
-        _breakEnd.value = current
-        tgm.calculateFieldsFromBreakEnd(oldBreakEnd = oldValue)
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setBreakEnd(current)
     }
 
     fun setWorkTimeToday(workTimeToday0: String) {
-        val oldWorkTimeToday = _workTimeToday.value
+        val oldWorkTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value)
         _workTimeToday.value = workTimeToday0
-        tgm.calculateFieldsFromWorkTimeToday(oldWorkTimeToday = oldWorkTimeToday)
+        applyUpdate(WorkTimeCalculator.calculateWorkTimeTodayUpdate(
+            end = WorkTimeCalculator.stringToLocalTime(_endTime.value),
+            dailyWorkTime = WorkTimeCalculator.stringToLocalTime(_dailyWorkTime.value),
+            workTimeToday = WorkTimeCalculator.stringToLocalTime(workTimeToday0),
+            oldWorkTimeToday = oldWorkTimeToday
+        ))
     }
 
-    fun updateWorkTimeToday(value: String) {
-        _workTimeToday.value = value
-    }
-
-    fun getWorkTimeToday(): String {
-        return _workTimeToday.value
-    }
     fun currentWorkTimeToday() {
-        val formatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        val current = LocalDateTime.now().format(formatter)
-        val oldValue = _workTimeToday.value
-        _workTimeToday.value = current
-        tgm.calculateFieldsFromWorkTimeToday(oldWorkTimeToday = oldValue)
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun setWorkTimeTotal(workTimeTotal0: String, isValid: Boolean) {
-        _workTimeTotal.value = workTimeTotal0
-    }
-
-    fun updateWorkTimeTotal(value: String) {
-        _workTimeTotal.value = value
+        val current = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT))
+        setWorkTimeToday(current)
     }
 
     fun setBalanceToday(balanceToday0: String, isValid: Boolean) {
+        val oldWorkTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value)
+        val oldBalance = _oldBalanceToday.value
         _balanceToday.value = balanceToday0
         if (isValid) {
-            tgm.calculateFieldsFromBalanceToday(oldBalanceToday = _oldBalanceToday.value)
+            calculateBalanceUpdates(oldWorkTimeToday, oldBalance, false)
+            _oldBalanceToday.value = balanceToday0
         }
     }
 
-    fun updateBalanceToday(value: String) {
-        _balanceToday.value = value
+    private fun applyUpdate(result: WorkTimeCalculator.TimeUpdateResult) {
+        result.endTime?.let { _endTime.value = it }
+        result.lunchStart?.let { _lunchStart.value = it }
+        result.lunchEnd?.let { _lunchEnd.value = it }
+        result.breakStart?.let { _breakStart.value = it }
+        result.breakEnd?.let { _breakEnd.value = it }
+        result.workTimeToday?.let {
+            val oldWorkTimeToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value)
+            _workTimeToday.value = it
+            calculateBalanceUpdates(oldWorkTimeToday, null, result.calculateBalance)
+        }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun setBalanceTotal(balanceTotal0: String, isValid: Boolean) {
-        _balanceTotal.value = balanceTotal0
-    }
+    private fun calculateBalanceUpdates(
+        oldWorkTimeToday: LocalTime,
+        oldBalanceToday: String?,
+        calculateToday: Boolean
+    ) {
+        var balanceToRevert = oldBalanceToday
+        if (calculateToday) {
+            balanceToRevert = _balanceToday.value
+            _balanceToday.value = WorkTimeCalculator.calculateWorkTimeBalance(
+                initialTime = _workTimeToday.value,
+                addedTime = "-" + _dailyWorkTime.value
+            )
+        }
 
-    fun updateBalanceTotal(value: String) {
-        _balanceTotal.value = value
-    }
+        // Adjust total balance
+        _balanceTotal.value = WorkTimeCalculator.calculateWorkTimeBalance(
+            initialTime = _balanceTotal.value,
+            addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$balanceToRevert")
+        )
+        _balanceTotal.value = WorkTimeCalculator.calculateWorkTimeBalance(
+            initialTime = _balanceTotal.value,
+            addedTime = _balanceToday.value
+        )
 
-    fun updateOldBalanceToday(value: String) {
-        _oldBalanceToday.value = value
+        // Adjust total work time
+        _workTimeTotal.value = WorkTimeCalculator.calculateWorkTimeBalance(
+            initialTime = _workTimeTotal.value,
+            addedTime = "-$oldWorkTimeToday"
+        )
+        _workTimeTotal.value = WorkTimeCalculator.calculateWorkTimeBalance(
+            initialTime = _workTimeTotal.value,
+            addedTime = _workTimeToday.value
+        )
     }
 
     fun insertWorkDay() {
@@ -353,12 +371,12 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
     fun clearDay() {
         _isNewDay.value = true
         if (!(_workTimeToday.value == ZERO_TIME && _balanceToday.value == ZERO_TIME)) {
-            _balanceTotal.value = TimeGeneratorModel.calculateWorkTimeBalance(
+            _balanceTotal.value = WorkTimeCalculator.calculateWorkTimeBalance(
                 initialTime = _balanceTotal.value,
-                addedTime = TimeGeneratorModel.checkIfDoubleMinus(value = "-" + _balanceToday.value)
+                addedTime = WorkTimeCalculator.checkIfDoubleMinus(value = "-" + _balanceToday.value)
             )
-            val wTTotal = TimeGeneratorModel.stringToLocalTime(_workTimeTotal.value)
-            val wTToday = TimeGeneratorModel.stringToLocalTime(_workTimeToday.value)
+            val wTTotal = WorkTimeCalculator.stringToLocalTime(_workTimeTotal.value)
+            val wTToday = WorkTimeCalculator.stringToLocalTime(_workTimeToday.value)
             _workTimeTotal.value = wTTotal
                 .minusHours(wTToday.hour.toLong())
                 .minusMinutes(wTToday.minute.toLong()).toString()
@@ -382,5 +400,19 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
             _workTimeToday.value == ZERO_TIME &&
             _breakStart.value == ZERO_TIME &&
             _breakEnd.value == ZERO_TIME
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun setBalanceTotal(balanceTotal0: String, isValid: Boolean) {
+        _balanceTotal.value = balanceTotal0
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun setWorkTimeTotal(workTimeTotal0: String, isValid: Boolean) {
+        _workTimeTotal.value = workTimeTotal0
+    }
+
+    fun getWorkTimeToday() : String {
+        return _workTimeToday.value
     }
 }

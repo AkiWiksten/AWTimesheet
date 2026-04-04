@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Projects screen, managing project logs and work types.
+ */
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class ProjectsViewModel @Inject constructor(
@@ -25,17 +28,23 @@ class ProjectsViewModel @Inject constructor(
 ) : ViewModel() {
     var items = mutableStateListOf<ProjectListItemUiState>()
     var index0 = 0
+    
     private val _workTimeBalance = MutableStateFlow<String?>(ZERO_TIME)
     val workTimeBalance = _workTimeBalance.asStateFlow()
+    
     private val _workTimeToday = MutableStateFlow<String?>(ZERO_TIME)
+    
     private val _selectedIndex = MutableStateFlow(-1)
     val selectedIndex = _selectedIndex.asStateFlow()
-    val deletedProjects: MutableList<String> = mutableListOf()
+    
+    private val deletedProjects = mutableListOf<String>()
+    
     private var _dropDownWorkTypes = MutableStateFlow<List<String>>(listOf())
     val dropDownWorkTypes = _dropDownWorkTypes.asStateFlow()
+    
     private val _projectListItemUiState = MutableStateFlow(ProjectListItemUiState())
-    val projectListItemUiState: StateFlow<ProjectListItemUiState>
-        get() = _projectListItemUiState.asStateFlow()
+    val projectListItemUiState: StateFlow<ProjectListItemUiState> = _projectListItemUiState.asStateFlow()
+    
     private val _date = MutableStateFlow<String?>(ZERO_TIME)
 
     fun setDate(date: String) {
@@ -85,6 +94,7 @@ class ProjectsViewModel @Inject constructor(
                 projectsToSave = projectsToSave,
                 projectNamesToDelete = deletedProjects
             )
+            deletedProjects.clear()
         }
     }
 
@@ -92,8 +102,8 @@ class ProjectsViewModel @Inject constructor(
         if (items.any { it.projectName == uiState.projectName }) {
             return false
         }
-        _projectListItemUiState.value = ProjectListItemUiState(
-            index = index0,
+        val newItem = ProjectListItemUiState(
+            index = index0++,
             projectName = uiState.projectName.trim(),
             projectStartTime = uiState.projectStartTime,
             projectEndTime = uiState.projectEndTime,
@@ -101,60 +111,50 @@ class ProjectsViewModel @Inject constructor(
             allowance = uiState.allowance,
             workType = uiState.workType
         )
-        items.add(_projectListItemUiState.value)
-        index0++
+        items.add(newItem)
         items.sortByDescending { it.projectStartTime }
         return true
     }
 
     fun editItem(uiState: ProjectListItemUiState) {
         var balance = uiState.initBalance
-        for (item in items) {
-            balance = if (item.projectName == items.find { i -> i.index == uiState.index }?.projectName) {
-                WorkTimeCalculator.calculateWorkTimeBalance(
-                    balance, uiState.projectTime
-                )
-            } else {
-                WorkTimeCalculator.calculateWorkTimeBalance(
-                    balance, item.projectTime
-                )
-            }
+        items.forEach { item ->
+            val timeToUse = if (item.index == uiState.index) uiState.projectTime else item.projectTime
+            balance = WorkTimeCalculator.calculateWorkTimeBalance(balance, timeToUse)
         }
         _workTimeBalance.value = balance
-        val item = items.find { i -> i.index == uiState.index }
-        item?.projectName = uiState.projectName
-        item?.projectStartTime = uiState.projectStartTime
-        item?.projectEndTime = uiState.projectEndTime
-        item?.kilometres = uiState.kilometres
-        item?.allowance = uiState.allowance
-        item?.workType = uiState.workType
+        
+        items.find { it.index == uiState.index }?.apply {
+            projectName = uiState.projectName
+            projectStartTime = uiState.projectStartTime
+            projectEndTime = uiState.projectEndTime
+            kilometres = uiState.kilometres
+            allowance = uiState.allowance
+            workType = uiState.workType
+        }
         items.sortByDescending { it.projectStartTime }
         _selectedIndex.value = -1
     }
 
     fun deleteItem(index: Int) {
-        val item = items.find { i -> i.index == index } ?: return
+        val item = items.find { it.index == index } ?: return
         deletedProjects.add(item.projectName)
         items.remove(item)
     }
 
     fun selectedItem(index: Int): ProjectListItemUiState {
-        return items.find { i -> i.index == index } ?: ProjectListItemUiState()
+        return items.find { it.index == index } ?: ProjectListItemUiState()
     }
 
     fun leftOvers(projectTime: String): String {
-        var leftOvers: String = ZERO_TIME
-        val balance = _workTimeBalance.value ?: return leftOvers
-        if (balance.isNotEmpty() && balance.startsWith("-")) {
-            val balanceLocal = WorkTimeCalculator.stringToLocalTime(
-                balance.substring(1)
-            )
+        val balance = _workTimeBalance.value ?: return ZERO_TIME
+        if (balance.startsWith("-")) {
+            val balanceLocal = WorkTimeCalculator.stringToLocalTime(balance.substring(1))
             val pTimeLocal = WorkTimeCalculator.stringToLocalTime(projectTime)
-            leftOvers = balanceLocal
-                .plusHours(pTimeLocal.hour.toLong())
+            return balanceLocal.plusHours(pTimeLocal.hour.toLong())
                 .plusMinutes(pTimeLocal.minute.toLong()).toString()
         }
-        return leftOvers
+        return ZERO_TIME
     }
 
     fun loadWorkTimeTodayFromDb(date: String) {
@@ -162,16 +162,16 @@ class ProjectsViewModel @Inject constructor(
             val data = getProjectsScreenDataUseCase(date)
 
             _workTimeToday.value = data.workTimeToday
-            _workTimeBalance.value = "-${_workTimeToday.value}"
+            _workTimeBalance.value = "-${data.workTimeToday}"
             _dropDownWorkTypes.value = data.workTypes
 
             items.clear()
             if (data.projects.isEmpty()) {
-                for (project in data.projectNames) {
+                data.projectNames.forEach { project ->
                     addItem(ProjectListItemUiState(projectName = project.name))
                 }
             } else {
-                for (project in data.projects) {
+                data.projects.forEach { project ->
                     addItem(ProjectListItemUiState(
                         projectName = project.projectName,
                         projectStartTime = project.projectStartTime,
@@ -184,35 +184,25 @@ class ProjectsViewModel @Inject constructor(
                 }
             }
             items.sortByDescending { it.projectTime }
-
             Log.d("ProjectsViewModel", "loadWorkTimeTodayFromDb ${_workTimeBalance.value}")
         }
     }
 
     fun getWorkTimeToday(): String {
-        var workTimeToday = ZERO_TIME
-        for (item in items) {
-            val workTimeProject = WorkTimeCalculator.calculateWorkTimeBalance(
-                item.projectEndTime,
-                "-" + item.projectStartTime
+        return items.fold(ZERO_TIME) { acc, item ->
+            val duration = WorkTimeCalculator.calculateWorkTimeBalance(
+                item.projectEndTime, "-" + item.projectStartTime
             )
-            workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
-                workTimeToday, workTimeProject
-            )
+            WorkTimeCalculator.calculateWorkTimeBalance(acc, duration)
         }
-        return workTimeToday
     }
 
     @Suppress("ComplexCondition")
     fun areItemsOverlapping(newStartTime: String, newEndTime: String): Boolean {
-        for (item in items) {
-            if ((newStartTime > item.projectStartTime && newStartTime < item.projectEndTime) ||
-                (newEndTime > item.projectStartTime && newEndTime < item.projectEndTime)
-            ) {
-                return true
-            }
+        return items.any { item ->
+            (newStartTime > item.projectStartTime && newStartTime < item.projectEndTime) ||
+            (newEndTime > item.projectStartTime && newEndTime < item.projectEndTime)
         }
-        return false
     }
 }
 

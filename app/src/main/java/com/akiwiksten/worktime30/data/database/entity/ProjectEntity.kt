@@ -14,7 +14,7 @@ import com.akiwiksten.worktime30.core.WORK_TYPE
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "project", primaryKeys = [DATE, PROJECT_NAME])
+@Entity(tableName = "project", primaryKeys = ["date", "project_name"])
 data class ProjectEntity(
     @ColumnInfo(name = DATE) val date: String,
     @ColumnInfo(name = PROJECT_NAME) val projectName: String = "",

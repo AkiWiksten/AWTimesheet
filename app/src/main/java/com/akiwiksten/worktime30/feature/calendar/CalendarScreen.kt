@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,25 +40,15 @@ import com.akiwiksten.worktime30.core.ui.Header
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
-    val date by calendarViewModel.date.collectAsState()
+    val uiState by calendarViewModel.uiState.collectAsState()
     val datePickerState = rememberDatePickerState()
-    val timePerMonth by calendarViewModel.timePerMonth.collectAsState(ZERO_TIME)
-    val timePerWeek by calendarViewModel.timePerWeek.collectAsState(ZERO_TIME)
-    val timePerDay by calendarViewModel.timePerDay.collectAsState(ZERO_TIME)
-    var selectedDate = datePickerState.selectedDateMillis?.let {
-        calendarViewModel.convertMillisToDate(it)
-    } ?: date
-    val ctx = LocalContext.current
-    calendarViewModel.setCtx(ctx)
 
-    LaunchedEffect(Unit) {
-        selectedDate = date
-    }
-
-    LaunchedEffect(selectedDate) {
-        if (selectedDate.isNotEmpty()) {
-            calendarViewModel.setDate(selectedDate)
-            calendarViewModel.calculateSums(selectedDate)
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+        datePickerState.selectedDateMillis?.let {
+            val selectedDate = calendarViewModel.convertMillisToDate(it)
+            if (selectedDate != uiState.date) {
+                calendarViewModel.onDateSelected(selectedDate)
+            }
         }
     }
 
@@ -81,7 +69,7 @@ fun CalendarScreen(
             Spacer(modifier = Modifier.padding(20.dp))
 
             OutlinedTextField(
-                value = selectedDate,
+                value = uiState.date,
                 onValueChange = { },
                 label = { Text(stringResource((R.string.selected_date)), fontSize = 20.sp) },
                 readOnly = true,
@@ -124,7 +112,7 @@ fun CalendarScreen(
                 modifier = Modifier.padding(5.dp)
             )
             Text(
-                timePerDay,
+                uiState.timePerDay,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(5.dp),
                 fontWeight = FontWeight.Bold
@@ -135,7 +123,7 @@ fun CalendarScreen(
                 modifier = Modifier.padding(5.dp)
             )
             Text(
-                timePerWeek,
+                uiState.timePerWeek,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(5.dp),
                 fontWeight = FontWeight.Bold
@@ -146,7 +134,7 @@ fun CalendarScreen(
                 modifier = Modifier.padding(5.dp)
             )
             Text(
-                timePerMonth,
+                uiState.timePerMonth,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(5.dp),
                 fontWeight = FontWeight.Bold

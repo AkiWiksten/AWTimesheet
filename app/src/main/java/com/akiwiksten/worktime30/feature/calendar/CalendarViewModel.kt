@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.domain.CalendarData
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,7 +54,7 @@ class CalendarViewModel @Inject constructor(
 
     private fun calculateSums(date: String) {
         viewModelScope.launch {
-            val data = getCalendarDataUseCase(date)
+            val data: CalendarData = getCalendarDataUseCase(date)
             _uiState.update {
                 it.copy(
                     timePerMonth = data.timePerMonth,

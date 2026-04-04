@@ -11,6 +11,7 @@ import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -32,12 +33,6 @@ class SettingsViewModel @Inject constructor(
     val dropDownWorkTypes = _dropDownWorkTypes.asStateFlow()
     var projectsByMonth: List<ProjectEntity> = listOf()
 
-    fun setWorkType(workType: String) {
-        if (_dropDownWorkTypes.value.isEmpty()) {
-            _dropDownWorkTypes.value.add(workType)
-        }
-    }
-
     fun setEndMonthDate(selectedDate: String) {
         val initial = LocalDate.parse(selectedDate)
         _endMonthDate.value = initial.withDayOfMonth(initial.month.length(initial.isLeapYear)).toString()
@@ -49,6 +44,28 @@ class SettingsViewModel @Inject constructor(
 
     fun setEmployer(employer0: String) {
         _employer.value = employer0
+    }
+
+    fun addWorkType(workType: String) {
+        _dropDownWorkTypes.update {
+            val newList = it.toMutableList()
+            if (!newList.contains(workType)) {
+                newList.add(workType)
+                newList.sort()
+            }
+            newList
+        }
+    }
+
+    fun removeWorkType(workType: String) {
+        _dropDownWorkTypes.update {
+            val newList = it.toMutableList()
+            newList.remove(workType)
+            newList
+        }
+        viewModelScope.launch {
+            settingsRepository.deleteWorkType(WorkTypeEntity(workType = workType))
+        }
     }
 
     fun loadProjectsByMonth(date: String) {
@@ -77,12 +94,6 @@ class SettingsViewModel @Inject constructor(
                 employer = _employer.value,
                 workTypes = _dropDownWorkTypes.value
             )
-        }
-    }
-
-    fun deleteWorkType(workType: String) {
-        viewModelScope.launch {
-            settingsRepository.deleteWorkType(WorkTypeEntity(workType = workType))
         }
     }
 }

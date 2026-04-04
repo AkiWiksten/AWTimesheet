@@ -15,7 +15,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
-import com.akiwiksten.worktime30.data.database.Project
+import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -71,7 +71,7 @@ object MonthlyReportGenerator {
         params: PrintWorkDaysParams
     ): Map<String, String> {
         val uniqueProjects = mutableMapOf<String, String>()
-        val endDay = endOfMonth.toInt()
+        val endDay = LocalDate.parse(endOfMonth).dayOfMonth
 
         for (day in 1..endDay) {
             params.projectsByMonth
@@ -158,7 +158,6 @@ object MonthlyReportGenerator {
     }
 
     private fun printWorkDays(params: PrintWorkDaysParams) {
-        val endOfMonth = parseDate(params.endOfMonthDate)
         var currentXOffset = ORIGIN_LEFT_FIRST
         
         val titleWidth = getMaxLengthOfProjectAttributes(params.projectTitles, paintText)
@@ -182,10 +181,10 @@ object MonthlyReportGenerator {
             currentXOffset += dayWidth
         }
 
-        if (params.showTotals) drawTotals(params, endOfMonth, currentXOffset)
+        if (params.showTotals) drawTotals(params, params.endOfMonthDate, currentXOffset)
     }
 
-    private fun getProjectAttributesForDay(projects: List<Project>, day: Int): List<String> {
+    private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int): List<String> {
         val attributes = mutableListOf<String>()
         projects.filter { parseDate(it.date).toInt() == day }
             .forEach { project ->
@@ -320,7 +319,7 @@ object MonthlyReportGenerator {
 }
 
 data class PrintWorkDaysParams(
-    val projectsByMonth: List<Project>,
+    val projectsByMonth: List<ProjectEntity>,
     val canvas: Canvas,
     val showTotals: Boolean,
     val startDate: Int,
@@ -343,7 +342,7 @@ data class DrawProjectDaysParams(
 data class CreatePageParams(
     val name: String,
     val employer: String,
-    val projectsByMonth: List<Project>,
+    val projectsByMonth: List<ProjectEntity>,
     val endOfMonthDate: String,
     val totalSumLabel: String,
     val monthlyReportLabel: String,
@@ -358,7 +357,7 @@ data class CreatePageParams(
 
 data class GeneratePdfParams(
     val ctx: Context,
-    val projectsByMonth: List<Project>,
+    val projectsByMonth: List<ProjectEntity>,
     val endOfMonthDate: String,
     val totalSumLabel: String,
     val monthlyReportLabel: String,

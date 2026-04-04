@@ -47,13 +47,12 @@ fun SettingsScreen(
 ) {
     val name by settingsViewModel.name.collectAsState()
     val employer by settingsViewModel.employer.collectAsState()
-    val date by calendarViewModel.date.collectAsState()
-    val endOfMonthDate by settingsViewModel.endMonthDate.collectAsState()
-    val dropDownWorkTypes by
-        settingsViewModel.dropDownWorkTypes.collectAsState()
+    val calendarUiState by calendarViewModel.uiState.collectAsState()
+    val date = calendarUiState.date
+    val endMonthDate by settingsViewModel.endMonthDate.collectAsState()
+    val dropDownWorkTypes by settingsViewModel.dropDownWorkTypes.collectAsState()
     val saveString = stringResource(R.string.saved)
     val ctx = LocalContext.current
-    settingsViewModel.setCtx(ctx)
     var openAddText by remember { mutableStateOf(false) }
     var selectedWorkType by remember { mutableStateOf("") }
     val projectTitles: List<String> = listOf(
@@ -67,7 +66,7 @@ fun SettingsScreen(
         stringResource(R.string.kilometres)
     )
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(date) {
         settingsViewModel.loadSettings()
         if (date.isNotEmpty()) {
             settingsViewModel.loadProjectsByMonth(date)
@@ -139,7 +138,7 @@ fun SettingsScreen(
             ) { Text(modifier = Modifier.padding(6.dp), text = stringResource(R.string.add)) }
             Button(
                 onClick = {
-                    dropDownWorkTypes.remove(selectedWorkType)
+                    settingsViewModel.removeWorkType(selectedWorkType)
                     selectedWorkType = ""
                 },
                 modifier = Modifier.padding(10.dp),
@@ -152,9 +151,8 @@ fun SettingsScreen(
         if (openAddText) {
             AddTextFieldDialog(
                 onDismissRequest = { openAddText = false },
-                onConfirmation = fun(addText: String) {
-                    dropDownWorkTypes.add(addText)
-                    dropDownWorkTypes.sort()
+                onConfirmation = { addText ->
+                    settingsViewModel.addWorkType(addText)
                     openAddText = false
                 },
                 label = stringResource(R.string.work_type)
@@ -187,7 +185,7 @@ fun SettingsScreen(
                         GeneratePdfParams(
                             ctx = ctx,
                             projectsByMonth = settingsViewModel.projectsByMonth,
-                            endOfMonthDate = endOfMonthDate,
+                            endOfMonthDate = endMonthDate,
                             totalSumLabel = totalSumLabel,
                             monthlyReportLabel = monthlyReportLabel,
                             name = name,

@@ -55,23 +55,20 @@ fun ProjectsScreen(
     editWorkDayViewModel: EditWorkDayViewModel = hiltViewModel(),
     projectsViewModel: ProjectsViewModel = hiltViewModel(),
 ) {
-    val date by calendarViewModel.date.collectAsState()
+    val calendarUiState by calendarViewModel.uiState.collectAsState()
+    val date = calendarUiState.date
     var openProjectDialogAdd by remember { mutableStateOf(false) }
     var openProjectDialogEdit by remember { mutableStateOf(false) }
     var areItemsOverLapping by remember { mutableStateOf(false) }
     var additionFailed by remember { mutableStateOf(false) }
     val selectedIndex by projectsViewModel.selectedIndex.collectAsState()
-    val dropDownWorkTypes by
-        projectsViewModel.dropDownWorkTypes.collectAsState()
+    val dropDownWorkTypes by projectsViewModel.dropDownWorkTypes.collectAsState()
     val ctx = LocalContext.current
-    projectsViewModel.setCtx(ctx)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(date) {
         projectsViewModel.setDate(date)
         projectsViewModel.loadWorkTimeTodayFromDb(date)
         projectsViewModel.index0 = 0
-        projectsViewModel.deletedProjects.clear()
-        projectsViewModel.loadWorkTypes()
     }
 
     Column(
@@ -168,7 +165,7 @@ fun ProjectsScreen(
             openProjectDialogAdd -> {
                 ProjectDialog(
                     onDismissRequest = { openProjectDialogAdd = false },
-                    onConfirmation = fun(uiState: ProjectListItemUiState) {
+                    onConfirmation = { uiState ->
                         additionFailed = !projectsViewModel.addItem(
                             uiState = uiState
                         )
@@ -195,17 +192,18 @@ fun ProjectsScreen(
                 var allowance = ""
                 var workType = ""
                 if (selectedIndex != -1) {
-                    projectName = projectsViewModel.selectedItem(selectedIndex).projectName
-                    projectStartTime = projectsViewModel.selectedItem(selectedIndex).projectStartTime
-                    projectEndTime = projectsViewModel.selectedItem(selectedIndex).projectEndTime
-                    projectTime = projectsViewModel.selectedItem(selectedIndex).projectTime
-                    kilometres = projectsViewModel.selectedItem(selectedIndex).kilometres
-                    allowance = projectsViewModel.selectedItem(selectedIndex).allowance
-                    workType = projectsViewModel.selectedItem(selectedIndex).workType
+                    val item = projectsViewModel.selectedItem(selectedIndex)
+                    projectName = item.projectName
+                    projectStartTime = item.projectStartTime
+                    projectEndTime = item.projectEndTime
+                    projectTime = item.projectTime
+                    kilometres = item.kilometres
+                    allowance = item.allowance
+                    workType = item.workType
                 }
                 ProjectDialog(
                     onDismissRequest = { openProjectDialogEdit = false },
-                    onConfirmation = fun(uiState: ProjectListItemUiState) {
+                    onConfirmation = { uiState ->
                         uiState.index = selectedIndex
                         uiState.initBalance = "-" + editWorkDayViewModel.getWorkTimeToday()
                         projectsViewModel.editItem(uiState)

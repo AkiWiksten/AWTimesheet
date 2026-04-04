@@ -22,7 +22,7 @@ import com.akiwiksten.worktime30.core.MonthlyReportGenerator.TEXT_SIZE
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.Project
+import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 
 /**
  * Composable used for debugging purposes to preview the work days report layout.
@@ -125,7 +125,7 @@ private fun drawCell(
     canvas.drawText(text, pos.x, pos.y, cellPaints.text)
 }
 
-private fun getProjectAttributesForDay(projects: List<Project>, day: Int): List<String> {
+private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int): List<String> {
     return projects.filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
         .flatMap { project ->
             listOf(
@@ -187,7 +187,7 @@ private data class ReportPaints(
 private data class CellPaints(val rect: Paint, val text: Paint)
 
 data class PrintWorkDaysComposableParams(
-    val projectsByMonth: List<Project>,
+    val projectsByMonth: List<ProjectEntity>,
     val endOfMonthDate: String,
     val startDate: Int,
     val endDate: Int,

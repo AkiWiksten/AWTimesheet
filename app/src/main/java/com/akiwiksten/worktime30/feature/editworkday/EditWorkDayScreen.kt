@@ -56,10 +56,9 @@ fun EditWorkDayScreen(
     val balanceTotal by editWorkDayViewModel.balanceTotal.collectAsState()
     val isNewDay by editWorkDayViewModel.isNewDay.collectAsState()
     val ctx = LocalContext.current
-    editWorkDayViewModel.setCtx(ctx)
 
     LaunchedEffect(Unit) {
-        editWorkDayViewModel.setDate(date0 = calendarViewModel.date.value)
+        editWorkDayViewModel.setDate(date0 = calendarViewModel.uiState.value.date)
         editWorkDayViewModel.loadWorkDay()
     }
 
@@ -90,10 +89,10 @@ fun EditWorkDayScreen(
         AddTimeRow(
             textFieldValue = startTime,
             stringId = R.string.start_time,
-            currentTime = fun () {
+            currentTime = {
                 editWorkDayViewModel.currentStartTime()
             },
-            onConfirmation = fun (time) {
+            onConfirmation = { time ->
                 editWorkDayViewModel.setStartTime(startTime0 = time)
             }
         )
@@ -101,34 +100,34 @@ fun EditWorkDayScreen(
             AddTimeRow(
                 textFieldValue = dailyWorkTime,
                 stringId = R.string.daily_work_time,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentDailyWorkTime()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setDailyWorkTime(dailyWorkTime0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = lunchTime,
                 stringId = R.string.lunch_time,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentLunchTime()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setLunchTime(lunchTime0 = time)
                 }
             )
             Row(modifier = Modifier.padding(16.dp)) {
                 AddCustomTimeRow(
                     customTime = balanceTotal,
-                    customTimeFunction = fun (value, isValid) {
+                    customTimeFunction = { value, isValid ->
                         editWorkDayViewModel.setBalanceTotal(value, isValid)
                     },
                     stringId = R.string.balance_total
                 )
                 AddCustomTimeRow(
                     customTime = workTimeTotal,
-                    customTimeFunction = fun (value, isValid) {
+                    customTimeFunction = { value, isValid ->
                         editWorkDayViewModel.setWorkTimeTotal(value, isValid)
                     },
                     stringId = R.string.work_time_total
@@ -139,101 +138,101 @@ fun EditWorkDayScreen(
             AddTimeRow(
                 textFieldValue = endTime,
                 stringId = R.string.end_time,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentEndTime()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setEndTime(endTime0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = workTimeToday,
                 stringId = R.string.work_time_today,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentWorkTimeToday()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setWorkTimeToday(workTimeToday0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = lunchStart,
                 stringId = R.string.lunch_start,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentLunchStart()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setLunchStart(lunchStart0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = lunchEnd,
                 stringId = R.string.lunch_end,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentLunchEnd()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setLunchEnd(lunchEnd0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = breakStart,
                 stringId = R.string.break_start,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentBreakStart()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setBreakStart(breakStart0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = breakEnd,
                 stringId = R.string.break_end,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentBreakEnd()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setBreakEnd(breakEnd0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = dailyWorkTime,
                 stringId = R.string.daily_work_time,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentDailyWorkTime()
                 },
-                onConfirmation = fun (time) {
+                onConfirmation = { time ->
                     editWorkDayViewModel.setDailyWorkTime(dailyWorkTime0 = time)
                 }
             )
             AddTimeRow(
                 textFieldValue = lunchTime,
                 stringId = R.string.lunch_time,
-                currentTime = fun () {
+                currentTime = {
                     editWorkDayViewModel.currentLunchTime()
                 },
-                onConfirmation = fun (time0) {
+                onConfirmation = { time0 ->
                     editWorkDayViewModel.setLunchTime(time0)
                 }
             )
             Row(modifier = Modifier.padding(16.dp)) {
                 AddCustomTimeRow(
                     customTime = balanceToday,
-                    customTimeFunction = fun (value, isValid) {
+                    customTimeFunction = { value, isValid ->
                         editWorkDayViewModel.setBalanceToday(value, isValid)
                     },
                     stringId = R.string.balance_today
                 )
                 AddCustomTimeRow(
                     customTime = balanceTotal,
-                    customTimeFunction = fun (value, isValid) {
+                    customTimeFunction = { value, isValid ->
                         editWorkDayViewModel.setBalanceTotal(value, isValid)
                     },
                     stringId = R.string.balance_total
                 )
                 AddCustomTimeRow(
                     customTime = workTimeTotal,
-                    customTimeFunction = fun (value, isValid) {
+                    customTimeFunction = { value, isValid ->
                         editWorkDayViewModel.setWorkTimeTotal(value, isValid)
                     },
                     stringId = R.string.work_time_total
@@ -291,11 +290,11 @@ fun AddTimeRow(
 
     if (openTimePickerDialog) {
         TimePickerDialog(
-            onDismissRequest = {},
-            onConfirmation = fun (time) {
+            onDismissRequest = { openTimePickerDialog = false },
+            onConfirmation = { time ->
                 onConfirmation(time)
+                openTimePickerDialog = false
             },
-
             time = textFieldValue,
             titleId = stringId,
         )
@@ -328,7 +327,7 @@ fun AddTimeRow(
             }
             Spacer(modifier = Modifier.width(10.dp))
             Button(
-                onClick = {},
+                onClick = { openTimePickerDialog = true },
                 modifier = Modifier.width(100.dp)
             ) {
                 Text(stringResource(R.string.go_to_time_picker), fontSize = 15.sp)

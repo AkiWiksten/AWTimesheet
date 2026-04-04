@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +31,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +48,6 @@ import com.akiwiksten.worktime30.core.ui.MyAlertDialog
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayViewModel
 
-@Suppress("LongMethod")
 @Composable
 fun ProjectsScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -57,249 +56,249 @@ fun ProjectsScreen(
 ) {
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val date = calendarUiState.date
-    var openProjectDialogAdd by remember { mutableStateOf(false) }
-    var openProjectDialogEdit by remember { mutableStateOf(false) }
-    var areItemsOverLapping by remember { mutableStateOf(false) }
-    var additionFailed by remember { mutableStateOf(false) }
     val selectedIndex by projectsViewModel.selectedIndex.collectAsState()
     val dropDownWorkTypes by projectsViewModel.dropDownWorkTypes.collectAsState()
-    val ctx = LocalContext.current
+    
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showOverlapAlert by remember { mutableStateOf(false) }
+    var showAddFailedAlert by remember { mutableStateOf(false) }
 
     LaunchedEffect(date) {
-        projectsViewModel.setDate(date)
-        projectsViewModel.loadWorkTimeTodayFromDb(date)
-        projectsViewModel.index0 = 0
+        if (date.isNotEmpty()) {
+            projectsViewModel.setDate(date)
+            projectsViewModel.loadWorkTimeTodayFromDb(date)
+            projectsViewModel.index0 = 0
+        }
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(5.dp)
             .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        val saveString = stringResource(R.string.saved)
+        ProjectsHeader(date = date, workTime = projectsViewModel.getWorkTimeToday())
 
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Header(stringResource(R.string.projects_customers))
-            Text(
-                text = date,
-                fontSize = 30.sp,
-            )
-            Text(
-                text = stringResource(R.string.work_time_today) + ": " +
-                    projectsViewModel.getWorkTimeToday(),
-                fontSize = 20.sp,
-            )
-        }
-        ProjectsList(
-            selectedIndex = selectedIndex,
+        ProjectsListSection(
             items = projectsViewModel.items,
-            setSelectedIndex = projectsViewModel::setSelectedIndex,
-            modifier = Modifier.weight(2f)
+            selectedIndex = selectedIndex,
+            onItemSelected = projectsViewModel::setSelectedIndex,
+            modifier = Modifier.weight(1f)
         )
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row {
-                // Button to add items to the list
-                Button(onClick = { openProjectDialogAdd = true }) {
-                    Text(text = stringResource(R.string.add), fontSize = 20.sp)
-                }
-                Spacer(modifier = Modifier.padding(8.dp))
-                // Button to add items to the list
-                Button(
-                    onClick = { openProjectDialogEdit = true },
-                    enabled = selectedIndex != -1
-                ) {
-                    Text(text = stringResource(R.string.edit), fontSize = 20.sp)
-                }
+
+        ProjectsActionButtons(
+            isItemSelected = selectedIndex != -1,
+            onAddClick = { showAddDialog = true },
+            onEditClick = { showEditDialog = true },
+            onDeleteClick = { projectsViewModel.deleteItem(selectedIndex) },
+            onSaveClick = { projectsViewModel.saveProjects() },
+            isSaveEnabled = projectsViewModel.items.isNotEmpty()
+        )
+
+        DialogHandling(
+            showAddDialog = showAddDialog,
+            showEditDialog = showEditDialog,
+            showOverlapAlert = showOverlapAlert,
+            showAddFailedAlert = showAddFailedAlert,
+            selectedIndex = selectedIndex,
+            dropDownWorkTypes = dropDownWorkTypes,
+            projectsViewModel = projectsViewModel,
+            editWorkDayViewModel = editWorkDayViewModel,
+            onAddDismiss = { showAddDialog = false },
+            onEditDismiss = { showEditDialog = false },
+            onOverlapDismiss = { showOverlapAlert = false },
+            onAddFailedDismiss = { showAddFailedAlert = false },
+            onItemAdded = { failed, overlapping ->
+                showAddFailedAlert = failed
+                showOverlapAlert = overlapping
+            },
+            onItemEdited = { overlapping ->
+                showOverlapAlert = overlapping
             }
-            Row(modifier = Modifier.padding(start = 0.dp, top = 0.dp, end = 0.dp, bottom = 20.dp)) {
-                Button(
-                    onClick = {
-                        projectsViewModel.deleteItem(index = selectedIndex)
-                    },
-                    enabled = (selectedIndex != -1)
-                ) {
-                    Text(text = stringResource(R.string.delete), fontSize = 20.sp)
-                }
-                Spacer(modifier = Modifier.padding(8.dp))
-                Button(
-                    onClick = {
-                        projectsViewModel.saveProjects()
-                        Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
-                    },
-                    enabled = projectsViewModel.items.isNotEmpty()
-                ) {
-                    Text(text = stringResource(R.string.save), fontSize = 20.sp)
-                }
-            }
-        }
-        when {
-            additionFailed -> {
-                MyAlertDialog(
-                    onDismissRequest = { additionFailed = false },
-                    onConfirmation = {
-                        additionFailed = false
-                    },
-                    dialogTitle = stringResource(R.string.add_project_item_failed_title),
-                    dialogText = stringResource(R.string.add_project_item_failed_text),
-                    icon = Icons.Default.Info
-                )
-            }
-            areItemsOverLapping -> {
-                MyAlertDialog(
-                    onDismissRequest = { areItemsOverLapping = false },
-                    onConfirmation = {
-                        areItemsOverLapping = false
-                    },
-                    dialogTitle = stringResource(R.string.items_overlapping_title),
-                    dialogText = stringResource(R.string.items_overlapping_text),
-                    icon = Icons.Default.Info
-                )
-            }
-            openProjectDialogAdd -> {
-                ProjectDialog(
-                    onDismissRequest = { openProjectDialogAdd = false },
-                    onConfirmation = { uiState ->
-                        additionFailed = !projectsViewModel.addItem(
-                            uiState = uiState
-                        )
-                        openProjectDialogAdd = false
-                        areItemsOverLapping = projectsViewModel.areItemsOverlapping(
-                            uiState.projectStartTime,
-                            uiState.projectEndTime
-                        )
-                    },
-                    workTypeDropDownList = dropDownWorkTypes,
-                    uiState = ProjectListItemUiState(
-                        projectName = "Project1",
-                        titleId = R.string.add,
-                        leftOvers = projectsViewModel.leftOvers(ZERO_TIME)
-                    )
-                )
-            }
-            openProjectDialogEdit -> {
-                var projectName = "Project1"
-                var projectStartTime = ZERO_TIME
-                var projectEndTime = ZERO_TIME
-                var projectTime = ZERO_TIME
-                var kilometres = 0
-                var allowance = ""
-                var workType = ""
-                if (selectedIndex != -1) {
-                    val item = projectsViewModel.selectedItem(selectedIndex)
-                    projectName = item.projectName
-                    projectStartTime = item.projectStartTime
-                    projectEndTime = item.projectEndTime
-                    projectTime = item.projectTime
-                    kilometres = item.kilometres
-                    allowance = item.allowance
-                    workType = item.workType
-                }
-                ProjectDialog(
-                    onDismissRequest = { openProjectDialogEdit = false },
-                    onConfirmation = { uiState ->
-                        uiState.index = selectedIndex
-                        uiState.initBalance = "-" + editWorkDayViewModel.getWorkTimeToday()
-                        projectsViewModel.editItem(uiState)
-                        openProjectDialogEdit = false
-                        areItemsOverLapping = projectsViewModel.areItemsOverlapping(
-                            uiState.projectStartTime,
-                            uiState.projectEndTime
-                        )
-                    },
-                    uiState = ProjectListItemUiState(
-                        projectName = projectName,
-                        projectStartTime = projectStartTime,
-                        projectEndTime = projectEndTime,
-                        projectTime = projectTime,
-                        kilometres = kilometres,
-                        allowance = allowance,
-                        workType = workType,
-                        titleId = R.string.edit,
-                        leftOvers = projectsViewModel.leftOvers(projectTime)
-                    ),
-                    workTypeDropDownList = dropDownWorkTypes
-                )
-            }
-        }
+        )
     }
 }
 
 @Composable
-fun ProjectsList(
+private fun ProjectsHeader(date: String, workTime: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Header(stringResource(R.string.projects_customers))
+        Text(text = date, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = "${stringResource(R.string.work_time_today)}: $workTime",
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.secondary
+        )
+    }
+}
+
+@Composable
+private fun ProjectsListSection(
+    items: List<ProjectListItemUiState>,
     selectedIndex: Int,
-    items: SnapshotStateList<ProjectListItemUiState>,
-    setSelectedIndex: (Int) -> Unit,
-    modifier: Modifier
+    onItemSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-
+            .clip(RoundedCornerShape(8.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+            .selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // LazyColumn to display the list
-        LazyColumn(
-            modifier = Modifier.height(400.dp)
-                .selectableGroup(),
-            verticalArrangement = Arrangement.spacedBy(8.dp), // Spacing between items
-
-        ) {
-            items(
-                items = items
-            ) { item ->
-                ListItem(
-                    item = item,
-                    selectedIndex = selectedIndex,
-                    setSelectedIndex = setSelectedIndex
-                )
-            }
+        items(items) { item ->
+            ProjectListItem(
+                item = item,
+                isSelected = selectedIndex == item.index,
+                onClick = { onItemSelected(item.index) }
+            )
         }
-        Spacer(modifier = Modifier.padding(8.dp))
     }
 }
 
 @Composable
-fun ListItem(item: ProjectListItemUiState, selectedIndex: Int, setSelectedIndex: (Int) -> Unit) {
+private fun ProjectListItem(
+    item: ProjectListItemUiState,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp) // Add horizontal padding
-            .clip(RoundedCornerShape(8.dp)) // Rounded corners
-            .background(Color.LightGray)
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)) // Simple border
-            .selectable(
-                selected = selectedIndex == item.index,
-                onClick = {
-                    setSelectedIndex(item.index)
-                }
-            )
-            .background(
-                if (selectedIndex == item.index) {
-                    Color.Gray
-                } else {
-                    Color.Transparent
-                }
-            )
-            .padding(16.dp) // Padding inside the box
+            .fillMaxWidth()
+            .selectable(selected = isSelected, onClick = onClick)
+            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .padding(12.dp)
     ) {
-        Row {
-            Text(
-                text = "${item.index}  ${item.projectName}  ${item.projectStartTime}  " +
-                    "${item.projectEndTime}  ${item.kilometres} km  ${item.allowance}  " +
-                    item.workType,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+        Text(
+            text = "${item.projectName} | ${item.projectStartTime} - ${item.projectEndTime}\n" +
+                "${item.workType} | ${item.kilometres}km",
+            fontSize = 16.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        )
+    }
+}
+
+@Composable
+private fun ProjectsActionButtons(
+    isItemSelected: Boolean,
+    onAddClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onSaveClick: () -> Unit,
+    isSaveEnabled: Boolean
+) {
+    val ctx = LocalContext.current
+    val saveString = stringResource(R.string.saved)
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = onAddClick, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.add))
+            }
+            Button(onClick = onEditClick, enabled = isItemSelected, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.edit))
+            }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = onDeleteClick, enabled = isItemSelected, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.delete))
+            }
+            Button(
+                onClick = {
+                    onSaveClick()
+                    Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
+                },
+                enabled = isSaveEnabled,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialogHandling(
+    showAddDialog: Boolean,
+    showEditDialog: Boolean,
+    showOverlapAlert: Boolean,
+    showAddFailedAlert: Boolean,
+    selectedIndex: Int,
+    dropDownWorkTypes: List<String>,
+    projectsViewModel: ProjectsViewModel,
+    editWorkDayViewModel: EditWorkDayViewModel,
+    onAddDismiss: () -> Unit,
+    onEditDismiss: () -> Unit,
+    onOverlapDismiss: () -> Unit,
+    onAddFailedDismiss: () -> Unit,
+    onItemAdded: (failed: Boolean, overlapping: Boolean) -> Unit,
+    onItemEdited: (overlapping: Boolean) -> Unit
+) {
+    if (showAddFailedAlert) {
+        MyAlertDialog(
+            onDismissRequest = onAddFailedDismiss,
+            onConfirmation = onAddFailedDismiss,
+            dialogTitle = stringResource(R.string.add_project_item_failed_title),
+            dialogText = stringResource(R.string.add_project_item_failed_text),
+            icon = Icons.Default.Info
+        )
+    }
+
+    if (showOverlapAlert) {
+        MyAlertDialog(
+            onDismissRequest = onOverlapDismiss,
+            onConfirmation = onOverlapDismiss,
+            dialogTitle = stringResource(R.string.items_overlapping_title),
+            dialogText = stringResource(R.string.items_overlapping_text),
+            icon = Icons.Default.Info
+        )
+    }
+
+    if (showAddDialog) {
+        ProjectDialog(
+            onDismissRequest = onAddDismiss,
+            onConfirmation = { uiState ->
+                val failed = !projectsViewModel.addItem(uiState)
+                val overlapping = projectsViewModel
+                    .areItemsOverlapping(uiState.projectStartTime,
+                        uiState.projectEndTime)
+                onItemAdded(failed, overlapping)
+                onAddDismiss()
+            },
+            workTypeDropDownList = dropDownWorkTypes,
+            uiState = ProjectListItemUiState(
+                projectName = "",
+                titleId = R.string.add,
+                leftOvers = projectsViewModel.leftOvers(ZERO_TIME)
+            )
+        )
+    }
+
+    if (showEditDialog && selectedIndex != -1) {
+        val item = projectsViewModel.selectedItem(selectedIndex)
+        ProjectDialog(
+            onDismissRequest = onEditDismiss,
+            onConfirmation = { uiState ->
+                uiState.index = selectedIndex
+                uiState.initBalance = "-" + editWorkDayViewModel.getWorkTimeToday()
+                projectsViewModel.editItem(uiState)
+                val overlapping = projectsViewModel
+                    .areItemsOverlapping(uiState.projectStartTime,
+                        uiState.projectEndTime)
+                onItemEdited(overlapping)
+                onEditDismiss()
+            },
+            uiState = item.copy(titleId = R.string.edit, leftOvers = projectsViewModel.leftOvers(item.projectTime)),
+            workTypeDropDownList = dropDownWorkTypes
+        )
     }
 }

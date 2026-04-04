@@ -58,7 +58,7 @@
     <string name="total_sum">KOKONAISSUMMA</string>
     <string name="other">Muu</string>
     <string name="work_type_help">Voit lisätä vaihtoehtoja \"Työn tyyppi\" alasvetovalikkoon \"Asetukset\" tabin vastaavaan valikkoon.</string>
-    <string name="continue0">Jatka</string>
+    <string name="continueFromIntro">Jatka</string>
     <string name="settings">Asetukset</string>
     <string name="calendar_help">Jokaiselle päivälle nämä ajat lasketaan \"Ajat\" välilehden \"Päivän työaika\" perusteella ja vasta sitten projektiaikojen perusteella.</string>
     <string name="unsaved_work_day_text">Haluatko tallentaa talentamattoman Työpäivän?</string>

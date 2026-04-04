@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kotlin.android) apply false
+    id("io.gitlab.arturbosch.detekt") version libs.versions.detektCli.get()
 }

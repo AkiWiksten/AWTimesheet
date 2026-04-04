@@ -1,4 +1,3 @@
-@file:Suppress("MagicNumber")
 package com.akiwiksten.worktime30.feature.intro
 
 import android.content.Context
@@ -7,11 +6,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.LocalTextStyle
@@ -28,21 +25,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akiwiksten.worktime30.R
 
-@Suppress("LongMethod", "FunctionNaming", "LongParameterList")
+private const val ANIMATION_DURATION = 3000
+private const val SCREEN_FILL_RATIO = 0.9f
+private const val BUTTON_SCALE_DIVIDER = 4f
+private const val DEFAULT_FALLBACK_SCALE = 3.1f
+
+@Suppress("LongMethod", "FunctionNaming")
 @Composable
 fun IntroScreen(onItemClick: () -> Unit) {
-    var scale by remember { mutableFloatStateOf(1f) }
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+    val textMeasurer = rememberTextMeasurer()
 
-    LaunchedEffect(Unit) {
-        scale = 3.7f
+    val appName = remember(context) { getApplicationName(context) }
+    val textStyle = LocalTextStyle.current.copy(
+        textMotion = TextMotion.Animated,
+        fontSize = 20.sp
+    )
+
+    // Calculate the target scale based on screen width to ensure text fits
+    val targetScaleFactor = remember(appName, configuration.screenWidthDp, density) {
+        val textLayoutResult = textMeasurer.measure(appName, textStyle)
+        val textWidthPx = textLayoutResult.size.width
+        val screenWidthPx = with(density) { configuration.screenWidthDp.dp.toPx() }
+        
+        if (textWidthPx > 0) {
+            (screenWidthPx / textWidthPx) * SCREEN_FILL_RATIO
+        } else {
+            DEFAULT_FALLBACK_SCALE
+        }
     }
+
+    var animateToScale by remember { mutableFloatStateOf(1f) }
+
+    LaunchedEffect(targetScaleFactor) {
+        animateToScale = targetScaleFactor
+    }
+
+    val currentScale by animateFloatAsState(
+        targetValue = animateToScale,
+        animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
+        label = "IntroScaleAnimation"
+    )
 
     Column(
         modifier = Modifier
@@ -51,60 +86,45 @@ fun IntroScreen(onItemClick: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        val alpha: Float by animateFloatAsState(
-            targetValue = scale,
-            // Configure the animation duration and easing.
-            animationSpec = tween(durationMillis = 3000, easing = FastOutSlowInEasing),
-            label = "alpha"
+        Text(
+            text = appName,
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = currentScale
+                    scaleY = currentScale
+                    transformOrigin = TransformOrigin.Center
+                },
+            style = textStyle,
+            color = Color.White
         )
-        Box(modifier = Modifier.fillMaxWidth()) {
-            val ctx = LocalContext.current
-            Text(
-                text = getApplicationName(ctx),
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = alpha
-                        scaleY = alpha
-                        transformOrigin = TransformOrigin.Center
-                    }
-                    .align(Alignment.Center),
-                // Text composable does not take TextMotion as a parameter.
-                // Provide it via style argument but make sure that we are copying from current theme
-                style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated),
-                color = Color.White
-            )
-        }
 
         Spacer(modifier = Modifier.padding(80.dp))
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom,
+        Button(
+            onClick = onItemClick,
+            modifier = Modifier
+                .graphicsLayer {
+                    val btnScale = currentScale / BUTTON_SCALE_DIVIDER
+                    scaleX = btnScale
+                    scaleY = btnScale
+                    transformOrigin = TransformOrigin.Center
+                }
         ) {
-            Button(
-                onClick = { onItemClick() },
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = alpha / 4
-                        scaleY = alpha / 4
-                        transformOrigin = TransformOrigin.Center
-                    }
+            Text(
+                text = stringResource(R.string.continueFromIntro),
+                fontSize = 40.sp,
+                modifier = Modifier.padding(10.dp),
+                style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
             )
-            {
-                Text(
-                    text = stringResource(R.string.continue0),
-                    fontSize = 20.sp,
-                    style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
-                )
-            }
         }
     }
 }
 
-fun getApplicationName(context: Context): String {
+private fun getApplicationName(context: Context): String {
     val applicationInfo = context.applicationInfo
-    val stringId = applicationInfo.labelRes
-    return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(
-        stringId
-    )
+    return if (applicationInfo.labelRes == 0) {
+        applicationInfo.nonLocalizedLabel?.toString() ?: "WorkTime 3.0"
+    } else {
+        context.getString(applicationInfo.labelRes)
+    }
 }

@@ -5,8 +5,12 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.worktime30.core.TimeGeneratorModel
+import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.database.AppDatabase
+import com.akiwiksten.worktime30.data.database.Project
+import com.akiwiksten.worktime30.data.database.ProjectName
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -66,17 +70,12 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
     private fun loadProjectData(date: String) {
         viewModelScope.launch {
             items.clear()
-            var projects: List<Project> = emptyList()
-            async {
-                projects =
-                    AppDatabase.getInstance(ctx.value!!).projectDao().loadProjectsByDate(date)
-            }.await()
+            val context = _ctx.value ?: return@launch
+            val db = AppDatabase.getInstance(context)
+            val projects = db.projectDao().loadProjectsByDate(date)
+
             if(projects.isEmpty()) {
-                var projectNames: List<ProjectName> = emptyList()
-                async {
-                    projectNames =
-                        AppDatabase.getInstance(ctx.value!!).projectNameDao().loadProjectNames()
-                }.await()
+                val projectNames = db.projectNameDao().loadProjectNames()
                 for (project in projectNames) {
                     _projectListItemUiState.value = ProjectListItemUiState(projectName = project.name)
                     addItem(_projectListItemUiState.value)
@@ -100,9 +99,13 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     fun saveProjects() {
         viewModelScope.launch {
+            val context = _ctx.value ?: return@launch
+            val dateVal = _date.value ?: return@launch
+            val db = AppDatabase.getInstance(context)
+
             for (project in items) {
                 val project0 = Project(
-                    date = _date.value!!,
+                    date = dateVal,
                     projectName = project.projectName,
                     projectStartTime = project.projectStartTime,
                     projectEndTime = project.projectEndTime,
@@ -110,34 +113,21 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
                     kilometres = project.kilometres,
                     allowance = project.allowance,
                     workType = project.workType)
-                async {
-                    AppDatabase.getInstance(ctx.value!!).projectDao()
-                        .insertProject(project0)
-                    val project1 = ProjectName(project.projectName)
-                    AppDatabase.getInstance(ctx.value!!).projectNameDao()
-                        .insertProjectName(project1)
-                }.await()
+
+                db.projectDao().insertProject(project0)
+                db.projectNameDao().insertProjectName(ProjectName(project.projectName))
             }
             for (deleted in deletedProjects) {
-                async {
-                    AppDatabase.getInstance(ctx.value!!).projectDao()
-                        .delete(Project(_date.value!!, deleted, ZERO_TIME))
-                    val project0 = ProjectName(deleted)
-                    AppDatabase.getInstance(ctx.value!!).projectNameDao()
-                        .delete(project0)
-                }.await()
+                db.projectDao().delete(Project(dateVal, deleted, ZERO_TIME))
+                db.projectNameDao().delete(ProjectName(deleted))
             }
         }
     }
 
     fun addItem(uiState: ProjectListItemUiState): Boolean {
-        if(items.find { i -> i.projectName == uiState.projectName } != null) {
+        if (items.any { it.projectName == uiState.projectName }) {
             return false
         }
-        //_workTimeBalance.value = TimeGeneratorModel.calculateWorkTimeBalance(
-        //    _workTimeBalance.value!!, uiState.projectTime)
-
-        //Log.d("ProjectsViewModel", "addItem ${_workTimeBalance.value}")
         _projectListItemUiState.value = ProjectListItemUiState(
             index = index0,
             projectName = uiState.projectName.trim(),
@@ -152,8 +142,7 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
         return true
     }
 
-    fun editItem(uiState: ProjectListItemUiState
-    ) {
+    fun editItem(uiState: ProjectListItemUiState) {
         var balance = uiState.initBalance
         for(item in items) {
             balance = if(item.projectName == items.find { i -> i.index == uiState.index }?.projectName) {
@@ -179,20 +168,21 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
     }
 
     fun deleteItem(index: Int) {
-        val item = items.find { i -> i.index == index }
-        deletedProjects.add(item!!.projectName)
-        items.remove(selectedItem(index))
+        val item = items.find { i -> i.index == index } ?: return
+        deletedProjects.add(item.projectName)
+        items.remove(item)
     }
 
     fun selectedItem(index: Int): ProjectListItemUiState {
-        return items.find { i -> i.index == index }!!
+        return items.find { i -> i.index == index } ?: ProjectListItemUiState()
     }
 
     fun leftOvers(projectTime: String): String {
         var leftOvers: String = ZERO_TIME
-        if(_workTimeBalance.value!!.substring(0, 1) == "-") {
+        val balance = _workTimeBalance.value ?: return leftOvers
+        if(balance.isNotEmpty() && balance.substring(0, 1) == "-") {
             val balanceLocal = TimeGeneratorModel.stringToLocalTime(
-                _workTimeBalance.value!!.substring(1))
+                balance.substring(1))
             val pTimeLocal = TimeGeneratorModel.stringToLocalTime(projectTime)
             leftOvers = balanceLocal
                 .plusHours(pTimeLocal.hour.toLong())
@@ -203,28 +193,21 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     fun loadWorkTypes() {
         viewModelScope.launch {
-            async {
-                _dropDownWorkTypes.value.clear()
-                val workTypes = AppDatabase.getInstance(_ctx.value!!).workTypeDao().loadWorkTypes()
-                for (workType in workTypes) {
-                    _dropDownWorkTypes.value.add(workType.workType)
-                }
-            }.await()
+            val context = _ctx.value ?: return@launch
+            val db = AppDatabase.getInstance(context)
+            val workTypes = db.workTypeDao().loadWorkTypes()
+            _dropDownWorkTypes.value = workTypes.map { it.workType }
         }
     }
 
     fun loadWorkTimeTodayFromDb(date: String) {
         viewModelScope.launch {
-            var workDay: WorkDay? = null
-            async {
-                workDay = AppDatabase.getInstance(_ctx.value!!).workDayDao().loadWorkDay(date)
-            }.await()
-            if(workDay != null) {
-                _workTimeToday.value = workDay!!.workTimeToday
-            } else {
-                _workTimeToday.value = ZERO_TIME
-            }
+            val context = _ctx.value ?: return@launch
+            val workDay = AppDatabase.getInstance(context).workDayDao().loadWorkDay(date)
+            
+            _workTimeToday.value = workDay?.workTimeToday ?: ZERO_TIME
             _workTimeBalance.value = "-${_workTimeToday.value}"
+            
             Log.d("ProjectsViewModel", "loadWorkTimeTodayFromDb ${_workTimeBalance.value}")
             loadProjectData(date = date)
         }
@@ -270,4 +253,3 @@ data class ProjectListItemUiState(
     var initBalance: String = "",
     var id: Int = 0
 )
-

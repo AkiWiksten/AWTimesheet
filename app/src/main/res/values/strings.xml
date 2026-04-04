@@ -57,7 +57,7 @@
 <string name="total_sum">TOTAL SUM</string>
 <string name="other">Other</string>
 <string name="work_type_help">You can add items into \"Work type\" dropdown list in the similar list in \"Settings\" tab.</string>
-<string name="continue0">Continue</string>
+<string name="continueFromIntro">Continue</string>
 <string name="settings">Settings</string>
 <string name="calendar_help">For each day, times here are calculated first with \"work time today\" in \"Times\" tab, then with project times.</string>
 <string name="unsaved_work_day_text">Do you want to save unsaved Work day?</string>

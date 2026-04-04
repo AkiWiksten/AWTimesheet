@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,7 +36,6 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongMethod")
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -57,88 +57,97 @@ fun CalendarScreen(
             .verticalScroll(rememberScrollState())
             .fillMaxWidth()
             .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(5.dp)
-        ) {
-            Header(stringResource(R.string.select_work_day_date))
+        DatePickerSection(
+            selectedDate = uiState.date,
+            datePickerState = datePickerState
+        )
 
-            Spacer(modifier = Modifier.padding(20.dp))
+        WorkTimeSummarySection(uiState = uiState)
+    }
+}
 
-            OutlinedTextField(
-                value = uiState.date,
-                onValueChange = { },
-                label = { Text(stringResource((R.string.selected_date)), fontSize = 20.sp) },
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = stringResource((R.string.select_date))
-                    )
-                },
-                modifier = Modifier
-                    .height(64.dp),
-                textStyle = TextStyle.Default.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-            )
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerSection(
+    selectedDate: String,
+    datePickerState: androidx.compose.material3.DatePickerState
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        modifier = Modifier.padding(5.dp)
+    ) {
+        Header(stringResource(R.string.select_work_day_date))
 
-            Spacer(modifier = Modifier.padding(20.dp))
-
-            Box(
-                modifier = Modifier
-                    .shadow(elevation = 4.dp)
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                DatePicker(
-                    state = datePickerState,
-                    showModeToggle = true,
+        OutlinedTextField(
+            value = selectedDate,
+            onValueChange = { },
+            label = { Text(stringResource(R.string.selected_date), fontSize = 20.sp) },
+            readOnly = true,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = stringResource(R.string.select_date)
                 )
-            }
-        }
-        Column(
+            },
+            modifier = Modifier.height(64.dp),
+            textStyle = TextStyle.Default.copy(
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            ),
+        )
+
+        Box(
             modifier = Modifier
-                .padding(vertical = 20.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .shadow(elevation = 4.dp)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            Text(
-                stringResource(R.string.selected_work_day),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(5.dp)
-            )
-            Text(
-                uiState.timePerDay,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(5.dp),
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                stringResource(R.string.selected_work_week),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(5.dp)
-            )
-            Text(
-                uiState.timePerWeek,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(5.dp),
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                stringResource(R.string.selected_work_month),
-                fontSize = 20.sp,
-                modifier = Modifier.padding(5.dp)
-            )
-            Text(
-                uiState.timePerMonth,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(5.dp),
-                fontWeight = FontWeight.Bold
+            DatePicker(
+                state = datePickerState,
+                showModeToggle = true,
             )
         }
+    }
+}
+
+@Composable
+private fun WorkTimeSummarySection(uiState: CalendarUiState) {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 20.dp)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        SummaryItem(
+            label = stringResource(R.string.selected_work_day),
+            value = uiState.timePerDay
+        )
+        SummaryItem(
+            label = stringResource(R.string.selected_work_week),
+            value = uiState.timePerWeek
+        )
+        SummaryItem(
+            label = stringResource(R.string.selected_work_month),
+            value = uiState.timePerMonth
+        )
+    }
+}
+
+@Composable
+private fun SummaryItem(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            fontSize = 20.sp
+        )
+        Text(
+            text = value,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

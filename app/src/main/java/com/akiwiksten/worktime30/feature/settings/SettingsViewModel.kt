@@ -1,12 +1,13 @@
 package com.akiwiksten.worktime30.feature.settings
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.data.database.AppDatabase
-import com.akiwiksten.worktime30.data.database.Project
-import com.akiwiksten.worktime30.data.database.Settings
-import com.akiwiksten.worktime30.data.database.WorkType
+import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
+import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
+import com.akiwiksten.worktime30.domain.GetSettingsUseCase
+import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,9 +16,12 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
-    private val _ctx = MutableStateFlow<Context?>(null)
-    val ctx = _ctx.asStateFlow()
+class SettingsViewModel @Inject constructor(
+    private val getSettingsUseCase: GetSettingsUseCase,
+    private val saveSettingsUseCase: SaveSettingsUseCase,
+    private val getProjectsByMonthUseCase: GetProjectsByMonthUseCase,
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
     private var _name = MutableStateFlow("")
     val name = _name.asStateFlow()
     private var _employer = MutableStateFlow("")
@@ -26,7 +30,7 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     val endMonthDate = _endMonthDate.asStateFlow()
     private var _dropDownWorkTypes = MutableStateFlow<MutableList<String>>(mutableListOf())
     val dropDownWorkTypes = _dropDownWorkTypes.asStateFlow()
-    var projectsByMonth: List<Project> = listOf()
+    var projectsByMonth: List<ProjectEntity> = listOf()
 
     fun setWorkType(workType: String) {
         if (_dropDownWorkTypes.value.isEmpty()) {
@@ -39,10 +43,6 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
         _endMonthDate.value = initial.withDayOfMonth(initial.month.length(initial.isLeapYear)).toString()
     }
 
-    fun setCtx(ctx: Context) {
-        _ctx.value = ctx
-    }
-
     fun setName(name0: String) {
         _name.value = name0
     }
@@ -53,45 +53,36 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
 
     fun loadProjectsByMonth(date: String) {
         viewModelScope.launch {
-            val initial = LocalDate.parse(date)
-            val startMonth = initial.withDayOfMonth(1).toString()
-            _endMonthDate.value =
-                initial.withDayOfMonth(initial.month.length(initial.isLeapYear)).toString()
-            projectsByMonth = AppDatabase.getInstance(ctx.value!!).projectDao()
-                .getProjectsByDateRange(startMonth, _endMonthDate.value)
+            val parsedDate = LocalDate.parse(date)
+            _endMonthDate.value = parsedDate
+                .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
+                .toString()
+            projectsByMonth = getProjectsByMonthUseCase(date)
         }
     }
 
     fun loadSettings() {
         viewModelScope.launch {
-            _dropDownWorkTypes.value.clear()
-            val workTypes = AppDatabase.getInstance(_ctx.value!!).workTypeDao().loadWorkTypes()
-            for (workType in workTypes) {
-                _dropDownWorkTypes.value.add(workType.workType)
-            }
-            val report = AppDatabase.getInstance(_ctx.value!!).settingsDao().loadSettings()
-            _name.value = report?.name ?: ""
-            _employer.value = report?.employer ?: ""
-            _dropDownWorkTypes.value.sort()
+            val data = getSettingsUseCase()
+            _name.value = data.name
+            _employer.value = data.employer
+            _dropDownWorkTypes.value = data.workTypes.toMutableList()
         }
     }
 
     fun saveSettings() {
         viewModelScope.launch {
-            AppDatabase.getInstance(_ctx.value!!).workTypeDao().deleteAll()
-            for (workType in _dropDownWorkTypes.value) {
-                val workTypeDb = WorkType(workType = workType)
-                AppDatabase.getInstance(_ctx.value!!).workTypeDao().insertWorkType(workTypeDb)
-            }
-            val settings = Settings(name = _name.value, employer = _employer.value)
-            AppDatabase.getInstance(_ctx.value!!).settingsDao().insertSettings(settings)
+            saveSettingsUseCase(
+                name = _name.value,
+                employer = _employer.value,
+                workTypes = _dropDownWorkTypes.value
+            )
         }
     }
 
     fun deleteWorkType(workType: String) {
         viewModelScope.launch {
-            val workTypeDb = WorkType(workType = workType)
-            AppDatabase.getInstance(_ctx.value!!).workTypeDao().delete(workTypeDb)
+            settingsRepository.deleteWorkType(WorkTypeEntity(workType = workType))
         }
     }
 }

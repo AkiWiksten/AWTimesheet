@@ -8,4 +8,5 @@ interface WorkDayRepository {
     suspend fun insertWorkDay(workDay: WorkDayEntity)
     suspend fun getWorkDayOneRow(): WorkDayOneRowEntity?
     suspend fun insertWorkDayOneRow(workDayOneRow: WorkDayOneRowEntity)
+    suspend fun getWorkDaysByDateRange(start: String, end: String): List<WorkDayEntity>
 }

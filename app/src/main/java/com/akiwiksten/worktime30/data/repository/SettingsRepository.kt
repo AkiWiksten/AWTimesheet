@@ -1,13 +1,13 @@
 package com.akiwiksten.worktime30.data.repository
 
-import com.akiwiksten.worktime30.data.database.Settings
-import com.akiwiksten.worktime30.data.database.WorkType
+import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 
 interface SettingsRepository {
-    suspend fun getSettings(): Settings?
-    suspend fun insertSettings(settings: Settings)
-    suspend fun getWorkTypes(): List<WorkType>
-    suspend fun insertWorkType(workType: WorkType)
-    suspend fun deleteWorkType(workType: WorkType)
+    suspend fun getSettings(): SettingsEntity?
+    suspend fun insertSettings(settings: SettingsEntity)
+    suspend fun getWorkTypes(): List<WorkTypeEntity>
+    suspend fun insertWorkType(workType: WorkTypeEntity)
+    suspend fun deleteWorkType(workType: WorkTypeEntity)
     suspend fun clearWorkTypes()
 }

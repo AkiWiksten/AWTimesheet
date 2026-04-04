@@ -1,6 +1,5 @@
 package com.akiwiksten.worktime30.feature.editworkday
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.TIME_FORMAT
@@ -8,9 +7,9 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.AppDatabase
-import com.akiwiksten.worktime30.data.database.WorkDay
-import com.akiwiksten.worktime30.data.database.WorkDayOneRow
+import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.repository.WorkDayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,13 +19,17 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+/**
+ * ViewModel for managing the edit/add work day screen.
+ */
 @Suppress("TooManyFunctions")
 @HiltViewModel
-class EditWorkDayViewModel @Inject constructor() : ViewModel() {
-    private val _ctx = MutableStateFlow<Context?>(null)
+class EditWorkDayViewModel @Inject constructor(
+    private val workDayRepository: WorkDayRepository
+) : ViewModel() {
 
     private var _date = MutableStateFlow("")
-    var date = _date.asStateFlow()
+    val date = _date.asStateFlow()
 
     private var _startTime = MutableStateFlow(ZERO_TIME)
     var startTime = _startTime.asStateFlow()
@@ -35,10 +38,10 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
     var endTime = _endTime.asStateFlow()
 
     private var _dailyWorkTime = MutableStateFlow(ZERO_TIME)
-    var dailyWorkTime = _dailyWorkTime.asStateFlow()
+    val dailyWorkTime = _dailyWorkTime.asStateFlow()
 
     private var _lunchStart = MutableStateFlow(ZERO_TIME)
-    var lunchStart = _lunchStart.asStateFlow()
+    val lunchStart = _lunchStart.asStateFlow()
 
     private var _lunchEnd = MutableStateFlow(ZERO_TIME)
     var lunchEnd = _lunchEnd.asStateFlow()
@@ -59,20 +62,16 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
     var workTimeTotal = _workTimeTotal.asStateFlow()
 
     private var _balanceToday = MutableStateFlow(ZERO_TIME)
-    var balanceToday = _balanceToday.asStateFlow()
+    val balanceToday = _balanceToday.asStateFlow()
 
     private var _oldBalanceToday = MutableStateFlow(ZERO_TIME)
-    var oldBalanceToday = _oldBalanceToday.asStateFlow()
+    val oldBalanceToday = _oldBalanceToday.asStateFlow()
 
     private var _balanceTotal = MutableStateFlow(ZERO_TIME)
     var balanceTotal = _balanceTotal.asStateFlow()
 
     private var _isNewDay = MutableStateFlow(true)
-    var isNewDay = _isNewDay.asStateFlow()
-
-    fun setCtx(ctx: Context) {
-        _ctx.value = ctx
-    }
+    val isNewDay = _isNewDay.asStateFlow()
 
     fun setDate(date0: String) {
         _date.value = date0
@@ -298,15 +297,14 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
     fun insertWorkDay() {
         viewModelScope.launch {
             if (_date.value.isNotEmpty()) {
-                val workDayOneRow = WorkDayOneRow(
+                val workDayOneRow = WorkDayOneRowEntity(
                     dailyWorkTime = _dailyWorkTime.value,
                     lunchTime = _lunchTime.value,
                     workTimeTotal = _workTimeTotal.value,
                     balanceTotal = _balanceTotal.value
                 )
-                AppDatabase.getInstance(_ctx.value!!).workDayOneRowDao()
-                    .insertWorkDayOneRow(workDayOneRow)
-                val workDay = WorkDay(
+                workDayRepository.insertWorkDayOneRow(workDayOneRow)
+                val workDay = WorkDayEntity(
                     date = _date.value,
                     startTime = _startTime.value,
                     endTime = _endTime.value,
@@ -317,18 +315,15 @@ class EditWorkDayViewModel @Inject constructor() : ViewModel() {
                     workTimeToday = _workTimeToday.value,
                     balanceToday = _balanceToday.value,
                 )
-                AppDatabase.getInstance(_ctx.value!!).workDayDao().insertWorkDay(workDay)
+                workDayRepository.insertWorkDay(workDay)
             }
         }
     }
 
     fun loadWorkDay() {
         viewModelScope.launch {
-            val workDay = AppDatabase.getInstance(_ctx.value!!).workDayDao().loadWorkDay(_date.value)
-            val workDayOneRow = AppDatabase
-                .getInstance(_ctx.value!!)
-                .workDayOneRowDao()
-                .loadWorkDayOneRow()
+            val workDay = workDayRepository.getWorkDay(_date.value)
+            val workDayOneRow = workDayRepository.getWorkDayOneRow()
 
             if (workDayOneRow != null) {
                 _dailyWorkTime.value = workDayOneRow.dailyWorkTime

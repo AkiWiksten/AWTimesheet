@@ -1,15 +1,16 @@
 package com.akiwiksten.worktime30.feature.projects
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.AppDatabase
-import com.akiwiksten.worktime30.data.database.Project
-import com.akiwiksten.worktime30.data.database.ProjectName
+import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
+import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.data.repository.WorkDayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,9 +21,11 @@ import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
 @HiltViewModel
-class ProjectsViewModel @Inject constructor() : ViewModel() {
-    private val _ctx = MutableStateFlow<Context?>(null)
-    val ctx = _ctx.asStateFlow()
+class ProjectsViewModel @Inject constructor(
+    private val projectRepository: ProjectRepository,
+    private val workDayRepository: WorkDayRepository,
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
     var items = mutableStateListOf<ProjectListItemUiState>()
     var index0 = 0
     private val _workTimeBalance = MutableStateFlow<String?>(ZERO_TIME)
@@ -40,10 +43,6 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     fun setDate(date: String) {
         _date.value = date
-    }
-
-    fun setCtx(ctx: Context) {
-        _ctx.value = ctx
     }
 
     fun setSelectedIndex(index: Int) {
@@ -70,12 +69,10 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
     private fun loadProjectData(date: String) {
         viewModelScope.launch {
             items.clear()
-            val context = _ctx.value ?: return@launch
-            val db = AppDatabase.getInstance(context)
-            val projects = db.projectDao().loadProjectsByDate(date)
+            val projects = projectRepository.getProjectsByDateRange(date, date)
 
             if (projects.isEmpty()) {
-                val projectNames = db.projectNameDao().loadProjectNames()
+                val projectNames = projectRepository.getProjectNames()
                 for (project in projectNames) {
                     _projectListItemUiState.value = ProjectListItemUiState(projectName = project.name)
                     addItem(_projectListItemUiState.value)
@@ -100,12 +97,10 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     fun saveProjects() {
         viewModelScope.launch {
-            val context = _ctx.value ?: return@launch
             val dateVal = _date.value ?: return@launch
-            val db = AppDatabase.getInstance(context)
 
             for (project in items) {
-                val project0 = Project(
+                val project0 = ProjectEntity(
                     date = dateVal,
                     projectName = project.projectName,
                     projectStartTime = project.projectStartTime,
@@ -116,12 +111,12 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
                     workType = project.workType
                 )
 
-                db.projectDao().insertProject(project0)
-                db.projectNameDao().insertProjectName(ProjectName(project.projectName))
+                projectRepository.insertProject(project0)
+                projectRepository.insertProjectName(ProjectNameEntity(project.projectName))
             }
             for (deleted in deletedProjects) {
-                db.projectDao().delete(Project(dateVal, deleted, ZERO_TIME))
-                db.projectNameDao().delete(ProjectName(deleted))
+                projectRepository.deleteProject(ProjectEntity(dateVal, deleted, ZERO_TIME))
+                projectRepository.deleteProjectName(ProjectNameEntity(deleted))
             }
         }
     }
@@ -183,7 +178,7 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
     fun leftOvers(projectTime: String): String {
         var leftOvers: String = ZERO_TIME
         val balance = _workTimeBalance.value ?: return leftOvers
-        if (balance.isNotEmpty() && balance.substring(0, 1) == "-") {
+        if (balance.isNotEmpty() && balance.startsWith("-")) {
             val balanceLocal = WorkTimeCalculator.stringToLocalTime(
                 balance.substring(1)
             )
@@ -197,17 +192,14 @@ class ProjectsViewModel @Inject constructor() : ViewModel() {
 
     fun loadWorkTypes() {
         viewModelScope.launch {
-            val context = _ctx.value ?: return@launch
-            val db = AppDatabase.getInstance(context)
-            val workTypes = db.workTypeDao().loadWorkTypes()
+            val workTypes = settingsRepository.getWorkTypes()
             _dropDownWorkTypes.value = workTypes.map { it.workType }
         }
     }
 
     fun loadWorkTimeTodayFromDb(date: String) {
         viewModelScope.launch {
-            val context = _ctx.value ?: return@launch
-            val workDay = AppDatabase.getInstance(context).workDayDao().loadWorkDay(date)
+            val workDay = workDayRepository.getWorkDay(date)
 
             _workTimeToday.value = workDay?.workTimeToday ?: ZERO_TIME
             _workTimeBalance.value = "-${_workTimeToday.value}"

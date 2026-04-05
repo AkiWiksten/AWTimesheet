@@ -39,6 +39,7 @@ import com.akiwiksten.worktime30.core.MonthlyReportGenerator
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Composable
@@ -46,11 +47,13 @@ fun SettingsScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val name by settingsViewModel.name.collectAsState()
-    val employer by settingsViewModel.employer.collectAsState()
+    val settingsUiState by settingsViewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val endMonthDate by settingsViewModel.endMonthDate.collectAsState()
-    val dropDownWorkTypes by settingsViewModel.dropDownWorkTypes.collectAsState()
+
+    val name = settingsUiState.name
+    val employer = settingsUiState.employer
+    val endMonthDate = settingsUiState.endMonthDate
+    val dropDownWorkTypes = settingsUiState.workTypes
     
     val date = calendarUiState.date
     val ctx = LocalContext.current
@@ -103,9 +106,15 @@ fun SettingsScreen(
                 Toast.makeText(ctx, ctx.getString(R.string.saved), Toast.LENGTH_SHORT).show()
             },
             onGeneratePdf = {
-                generateReport(ctx, settingsViewModel, endMonthDate, name, employer)
+                generateReport(
+                    ctx,
+                    settingsUiState.projectsByMonth,
+                    endMonthDate,
+                    name,
+                    employer
+                )
             },
-            isPdfEnabled = settingsViewModel.projectsByMonth.isNotEmpty()
+            isPdfEnabled = settingsUiState.projectsByMonth.isNotEmpty()
         )
 
         if (showAddWorkTypeDialog) {
@@ -240,7 +249,7 @@ private fun ActionButtonsSection(
 
 private fun generateReport(
     ctx: Context,
-    viewModel: SettingsViewModel,
+    projectsByMonth: List<ProjectEntity>,
     endOfMonthDate: String,
     name: String,
     employer: String
@@ -253,7 +262,7 @@ private fun generateReport(
     MonthlyReportGenerator.generatePdf(
         GeneratePdfParams(
             ctx = ctx,
-            projectsByMonth = viewModel.projectsByMonth,
+            projectsByMonth = projectsByMonth,
             endOfMonthDate = endOfMonthDate,
             totalSumLabel = ctx.getString(R.string.total_sum),
             monthlyReportLabel = ctx.getString(R.string.monthly_report),

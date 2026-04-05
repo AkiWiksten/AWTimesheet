@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -67,13 +68,12 @@ fun ProjectDialog(
     }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Card(
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            tonalElevation = 6.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 16.dp),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .padding(horizontal = 8.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -85,106 +85,129 @@ fun ProjectDialog(
                 Text(
                     text = stringResource(uiState.titleId),
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
                 )
 
-                OutlinedTextField(
-                    value = state.projectName,
-                    onValueChange = { state = state.copy(projectName = it) },
-                    label = { Text(stringResource(R.string.project_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = uiState.titleId == R.string.add,
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
+                DialogMainFields(
+                    state = state,
+                    isAddMode = uiState.titleId == R.string.add,
+                    onStateChange = { state = it }
                 )
 
-                TimeRow(
-                    labelId = R.string.start_time,
-                    value = state.projectStartTime,
-                    onTimeChanged = { 
-                        state = state.copy(projectStartTime = it, projectEndTime = it) 
-                    }
+                TimeSelectionSection(
+                    state = state,
+                    onStateChange = { state = it },
+                    onNegativeTime = { isNegativeWorkDay = true }
                 )
 
-                TimeRow(
-                    labelId = R.string.end_time,
-                    value = state.projectEndTime,
-                    onTimeChanged = {
-                        state = state.copy(projectEndTime = it)
-                        val diff = WorkTimeCalculator.calculateWorkTimeBalance(it, "-${state.projectStartTime}")
-                        if (diff.startsWith('-')) isNegativeWorkDay = true
-                    }
+                DialogDropdownFields(
+                    state = state,
+                    workTypeDropDownList = workTypeDropDownList,
+                    onStateChange = { state = it }
                 )
 
-                DropdownMenuBox(
-                    items = listOf(
-                        stringResource(R.string.no_allowance),
-                        stringResource(R.string.daily_allowance),
-                        stringResource(R.string.half_day_allowance)
-                    ),
-                    onItemSelected = { state = state.copy(allowance = it) },
-                    labelId = R.string.allowance,
-                    selectedText = state.allowance,
-                    modifier = Modifier.fillMaxWidth()
+                DialogActionButtons(
+                    onDismiss = onDismissRequest,
+                    onConfirm = { onConfirmation(state.toUiState()) },
+                    confirmEnabled = isConfirmEnabled
                 )
-
-                DropdownMenuBox(
-                    items = workTypeDropDownList,
-                    onItemSelected = { state = state.copy(workType = it) },
-                    labelId = R.string.work_type,
-                    selectedText = state.workType,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = state.kilometres,
-                    onValueChange = { if (it.isDigitsOnly()) state = state.copy(kilometres = it) },
-                    label = { Text(stringResource(R.string.kilometres)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text(stringResource(R.string.dismiss))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = { onConfirmation(state.toUiState()) },
-                        enabled = isConfirmEnabled,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(R.string.confirm))
-                    }
-                }
             }
         }
     }
 
     if (isNegativeWorkDay) {
-        MyAlertDialog(
-            onDismissRequest = { isNegativeWorkDay = false },
-            onConfirmation = { isNegativeWorkDay = false },
-            dialogTitle = stringResource(R.string.negative_worktime_title),
-            dialogText = stringResource(R.string.negative_worktime_text),
-            icon = Icons.Default.Info
+        NegativeWorkTimeAlert(onDismiss = { isNegativeWorkDay = false })
+    }
+}
+
+@Composable
+private fun DialogMainFields(
+    state: ProjectDialogState,
+    isAddMode: Boolean,
+    onStateChange: (ProjectDialogState) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        OutlinedTextField(
+            value = state.projectName,
+            onValueChange = { onStateChange(state.copy(projectName = it)) },
+            label = { Text(stringResource(R.string.project_name)) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = isAddMode,
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        OutlinedTextField(
+            value = state.kilometres,
+            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
+            label = { Text(stringResource(R.string.kilometres)) },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
         )
     }
 }
 
 @Composable
-private fun TimeRow(
-    labelId: Int,
-    value: String,
-    onTimeChanged: (String) -> Unit
+private fun TimeSelectionSection(
+    state: ProjectDialogState,
+    onStateChange: (ProjectDialogState) -> Unit,
+    onNegativeTime: () -> Unit
 ) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        CompactTimeRow(
+            labelId = R.string.start_time,
+            value = state.projectStartTime,
+            onTimeChanged = { 
+                onStateChange(state.copy(projectStartTime = it, projectEndTime = it)) 
+            }
+        )
+        CompactTimeRow(
+            labelId = R.string.end_time,
+            value = state.projectEndTime,
+            onTimeChanged = {
+                onStateChange(state.copy(projectEndTime = it))
+                if (WorkTimeCalculator.calculateWorkTimeBalance(it, "-${state.projectStartTime}")
+                        .startsWith('-')
+                ) onNegativeTime()
+            }
+        )
+    }
+}
+
+@Composable
+private fun DialogDropdownFields(
+    state: ProjectDialogState,
+    workTypeDropDownList: List<String>,
+    onStateChange: (ProjectDialogState) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        DropdownMenuBox(
+            items = listOf(
+                stringResource(R.string.no_allowance),
+                stringResource(R.string.daily_allowance),
+                stringResource(R.string.half_day_allowance)
+            ),
+            onItemSelected = { onStateChange(state.copy(allowance = it)) },
+            labelId = R.string.allowance,
+            selectedText = state.allowance,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        DropdownMenuBox(
+            items = workTypeDropDownList,
+            onItemSelected = { onStateChange(state.copy(workType = it)) },
+            labelId = R.string.work_type,
+            selectedText = state.workType,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun CompactTimeRow(labelId: Int, value: String, onTimeChanged: (String) -> Unit) {
     var openPicker by remember { mutableStateOf(false) }
 
     Row(
@@ -198,7 +221,6 @@ private fun TimeRow(
             label = { Text(stringResource(labelId)) },
             readOnly = true,
             modifier = Modifier.weight(1f),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -208,21 +230,20 @@ private fun TimeRow(
             shape = RoundedCornerShape(12.dp)
         )
         
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            IconButton(
-                onClick = {
-                    onTimeChanged(LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT)))
-                },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            }
-            IconButton(
-                onClick = { openPicker = true },
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            }
+        IconButton(
+            onClick = {
+                onTimeChanged(LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIME_FORMAT)))
+            },
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        }
+        
+        IconButton(
+            onClick = { openPicker = true },
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         }
     }
 
@@ -237,6 +258,38 @@ private fun TimeRow(
             titleId = labelId
         )
     }
+}
+
+@Composable
+private fun DialogActionButtons(onDismiss: () -> Unit, onConfirm: () -> Unit, confirmEnabled: Boolean) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = onDismiss) {
+            Text(stringResource(R.string.dismiss))
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = onConfirm,
+            enabled = confirmEnabled,
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(stringResource(R.string.confirm))
+        }
+    }
+}
+
+@Composable
+private fun NegativeWorkTimeAlert(onDismiss: () -> Unit) {
+    MyAlertDialog(
+        onDismissRequest = onDismiss,
+        onConfirmation = onDismiss,
+        dialogTitle = stringResource(R.string.negative_worktime_title),
+        dialogText = stringResource(R.string.negative_worktime_text),
+        icon = Icons.Default.Info
+    )
 }
 
 private data class ProjectDialogState(

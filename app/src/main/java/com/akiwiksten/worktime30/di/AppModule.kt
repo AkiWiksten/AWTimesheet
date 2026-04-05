@@ -1,0 +1,27 @@
+package com.akiwiksten.worktime30.di
+
+import android.content.Context
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    @Singleton
+    @Named("app_name")
+    fun provideAppName(@ApplicationContext context: Context): String {
+        val applicationInfo = context.applicationInfo
+        return if (applicationInfo.labelRes == 0) {
+            applicationInfo.nonLocalizedLabel?.toString() ?: "WorkTime 3.0"
+        } else {
+            context.getString(applicationInfo.labelRes)
+        }
+    }
+}

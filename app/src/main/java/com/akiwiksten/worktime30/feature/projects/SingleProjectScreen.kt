@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,13 +39,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
+import com.akiwiksten.worktime30.core.ui.Header
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,7 @@ fun SingleProjectScreen(
     index: Int,
     workTime: String? = null,
     onNavigateBack: () -> Unit,
-    onOpenEditWorkDay: () -> Unit,
+    onOpenEditWorkDay: (String) -> Unit,
     viewModel: ProjectsViewModel = hiltViewModel()
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
@@ -80,7 +81,6 @@ fun SingleProjectScreen(
     Scaffold(
         topBar = {
             SingleProjectTopBar(
-                isEditMode = index != -1,
                 onNavigateBack = onNavigateBack
             )
         }
@@ -95,7 +95,7 @@ fun SingleProjectScreen(
             ),
             actions = SingleProjectActions(
                 onStateChange = { state = it },
-                onOpenEditWorkDay = onOpenEditWorkDay,
+                onOpenEditWorkDay = { onOpenEditWorkDay(state.projectName) },
                 onConfirm = {
                     viewModel.saveProject(state.toUiState())
                     onNavigateBack()
@@ -103,6 +103,28 @@ fun SingleProjectScreen(
             )
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
+    CenterAlignedTopAppBar(
+        title = {
+            Header(
+                title = stringResource(R.string.project_customer),
+                modifier = Modifier.padding(top = 0.dp)
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+        },
+        actions = {
+            // Balance the navigation icon to ensure the title is centered relative to the window
+            Spacer(modifier = Modifier.width(48.dp))
+        }
+    )
 }
 
 data class SingleProjectScreenState(
@@ -117,25 +139,6 @@ data class SingleProjectActions(
     val onOpenEditWorkDay: () -> Unit,
     val onConfirm: () -> Unit
 )
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SingleProjectTopBar(isEditMode: Boolean, onNavigateBack: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(
-                text = if (isEditMode) stringResource(R.string.edit) else stringResource(R.string.add),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-            }
-        }
-    )
-}
 
 @Composable
 private fun SingleProjectContent(

@@ -68,5 +68,6 @@
 <string name="negative_worktime_text">Warning! You have provided a negative work time. Work day should end at 23:59 at the latest.</string>
 <string name="items_overlapping_title">Items overlapping</string>
 <string name="items_overlapping_text">Warning! Time items are overlapping.</string>
-    <string name="work_time">Work time</string>
+<string name="work_time">Work time</string>
+<string name="project_customer">Project/Customer</string>
 </resources>

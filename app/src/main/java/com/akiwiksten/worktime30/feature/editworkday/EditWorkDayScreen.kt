@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.editworkday
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,17 +13,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,8 +48,10 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkDayScreen(
+    projectName: String? = null,
     onNavigateBack: () -> Unit,
     onSave: (String) -> Unit = { onNavigateBack() },
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -52,33 +59,74 @@ fun EditWorkDayScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    BackHandler {
+        onNavigateBack()
+    }
+
     LaunchedEffect(Unit) {
         viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
         viewModel.loadWorkDay()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
-
-        if (uiState.isNewDay) {
-            NewDayFields(uiState = uiState, viewModel = viewModel)
-        } else {
-            ExistingDayFields(uiState = uiState, viewModel = viewModel)
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Header(
+                        title = stringResource(R.string.work_day),
+                        modifier = Modifier.padding(top = 0.dp),
+                        fillMaxWidth = false
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
         }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
 
-        FooterSection(
-            onSave = {
-                viewModel.insertWorkDay()
-                onSave(viewModel.getWorkTimeToday())
+            projectName?.let {
+                OutlinedTextField(
+                    value = it,
+                    onValueChange = {},
+                    label = { Text(stringResource(R.string.project_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    enabled = false,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    )
+                )
             }
-        )
+
+            if (uiState.isNewDay) {
+                NewDayFields(uiState = uiState, viewModel = viewModel)
+            } else {
+                ExistingDayFields(uiState = uiState, viewModel = viewModel)
+            }
+
+            FooterSection(
+                onSave = {
+                    viewModel.insertWorkDay()
+                    onSave(viewModel.getWorkTimeToday())
+                }
+            )
+        }
     }
 }
 
@@ -92,7 +140,6 @@ private fun HeaderSection(date: String, onClearDay: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Header(stringResource(R.string.work_day))
             Text(
                 text = date,
                 style = MaterialTheme.typography.headlineMedium,
@@ -288,7 +335,7 @@ private fun AddTimeRow(
                 )
             }
             IconButton(
-                onClick = {},
+                onClick = { openTimePickerDialog = true },
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(

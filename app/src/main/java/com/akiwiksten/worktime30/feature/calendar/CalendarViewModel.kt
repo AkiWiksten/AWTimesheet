@@ -61,9 +61,7 @@ class CalendarViewModel @Inject constructor(
 
     private fun calculateSums(date: String) {
         viewModelScope.launch {
-            val data: CalendarData = withContext(Dispatchers.IO) {
-                getCalendarDataUseCase(date)
-            }
+            val data: CalendarData = getCalendarDataUseCase(date)
             _uiState.update {
                 it.copy(
                     timePerMonth = data.timePerMonth,

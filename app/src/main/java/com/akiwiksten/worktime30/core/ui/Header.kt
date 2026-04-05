@@ -15,14 +15,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Header(
     title: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fillMaxWidth: Boolean = true
 ) {
     Text(
         text = title,
         style = MaterialTheme.typography.headlineMedium,
         textAlign = TextAlign.Center,
         modifier = modifier
-            .fillMaxWidth()
+            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
             .heightIn(min = 56.dp)
             .padding(vertical = 16.dp, horizontal = 8.dp)
             .wrapContentSize(Alignment.Center)

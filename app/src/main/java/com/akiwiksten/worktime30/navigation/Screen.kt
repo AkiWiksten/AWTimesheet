@@ -13,11 +13,7 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Calendar : Screen(CALENDAR_SCREEN, R.string.calendar)
     object Projects : Screen(PROJECTS_SCREEN, R.string.projects)
     object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
-    object EditWorkDay : Screen("$EDIT_WORK_DAY_SCREEN/{id}") {
-        fun create(id: String) = "$EDIT_WORK_DAY_SCREEN/$id"
-    }
-    object Intro : Screen("$INTRO_SCREEN/{id}") {
-        fun create(id: String) = "$INTRO_SCREEN/$id"
-    }
+    data class EditWorkDay(val projectName: String? = null) : Screen(EDIT_WORK_DAY_SCREEN, R.string.work_day)
+    object Intro : Screen(INTRO_SCREEN)
     data class SingleProject(val index: Int = -1, val workTime: String? = null) : Screen(SINGLE_PROJECT_SCREEN)
 }

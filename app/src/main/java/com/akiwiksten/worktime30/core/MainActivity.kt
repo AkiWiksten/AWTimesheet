@@ -103,7 +103,7 @@ private fun WorkTimeNavDisplay(
 ) {
     NavDisplay(
         backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
+        onBack = { backStack.pop() },
         modifier = modifier,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
@@ -120,26 +120,45 @@ private fun WorkTimeNavDisplay(
                 )
             }
             entry<Screen.Settings> { SettingsScreen() }
-            entry<Screen.EditWorkDay> {
-                EditWorkDayScreen(
-                    onNavigateBack = { backStack.removeLastOrNull() },
-                    onSave = { workTime ->
-                        backStack.removeLastOrNull()
-                        val last = backStack.lastOrNull()
-                        if (last is Screen.SingleProject) {
-                            backStack[backStack.size - 1] = last.copy(workTime = workTime)
-                        }
-                    }
-                )
+            entry<Screen.EditWorkDay> { screen ->
+                EditWorkDayEntry(screen, backStack)
             }
             entry<Screen.SingleProject> { screen ->
-                SingleProjectScreen(
-                    index = screen.index,
-                    workTime = screen.workTime,
-                    onNavigateBack = { backStack.removeLastOrNull() },
-                    onOpenEditWorkDay = { backStack.add(Screen.EditWorkDay) }
-                )
+                SingleProjectEntry(screen, backStack)
             }
         }
     )
+}
+
+@Composable
+private fun EditWorkDayEntry(screen: Screen.EditWorkDay, backStack: SnapshotStateList<Any>) {
+    EditWorkDayScreen(
+        projectName = screen.projectName,
+        onNavigateBack = { backStack.pop() },
+        onSave = { workTime -> backStack.updateSingleProjectWorkTime(workTime) }
+    )
+}
+
+@Composable
+private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
+    SingleProjectScreen(
+        index = screen.index,
+        workTime = screen.workTime,
+        onNavigateBack = { backStack.pop() },
+        onOpenEditWorkDay = { projectName -> backStack.add(Screen.EditWorkDay(projectName)) }
+    )
+}
+
+private fun SnapshotStateList<Any>.pop() {
+    if (isNotEmpty()) {
+        removeAt(size - 1)
+    }
+}
+
+private fun SnapshotStateList<Any>.updateSingleProjectWorkTime(workTime: String) {
+    pop()
+    val currentLast = lastOrNull()
+    if (currentLast is Screen.SingleProject) {
+        this[size - 1] = currentLast.copy(workTime = workTime)
+    }
 }

@@ -70,4 +70,5 @@
     <string name="items_overlapping_title">Päällekkäiset ajat</string>
     <string name="items_overlapping_text">Varoitus! Päällekkäiset ajat!</string>
     <string name="work_time">Työaika</string>
+    <string name="project_customer">Projekti/Asiakas</string>
 </resources>

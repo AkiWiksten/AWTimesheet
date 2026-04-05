@@ -2,10 +2,8 @@ package com.akiwiksten.worktime30.feature.settings
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.Typeface
-import androidx.compose.foundation.Canvas as ComposeCanvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -22,6 +20,7 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import androidx.compose.foundation.Canvas as ComposeCanvas
 
 @Composable
 fun PrintWorkDaysComposable(params: PrintWorkDaysComposableParams) {
@@ -42,11 +41,18 @@ fun PrintWorkDaysComposable(params: PrintWorkDaysComposableParams) {
             if (projectAttrs.isEmpty()) continue
 
             val dayWidth = MonthlyReportGenerator.getMaxLengthOfProjectAttributes(
-                projectAttrs, paints.textPaint
+                projectAttrs,
+                paints.textPaint
             ).coerceAtLeast(40f)
 
             currentX += prevWidth
-            drawDayColumn(nativeCanvas, day, projectAttrs, currentX, dayWidth, paints)
+            drawDayColumn(
+                canvas = nativeCanvas,
+                day = day,
+                attrs = projectAttrs,
+                bounds = ColumnBounds(currentX, dayWidth),
+                paints = paints
+            )
             prevWidth = dayWidth
         }
 
@@ -85,19 +91,30 @@ private fun drawDayColumn(
     canvas: Canvas,
     day: Int,
     attrs: List<String>,
-    x: Float,
-    width: Float,
+    bounds: ColumnBounds,
     paints: ReportPaints
 ) {
     // Header
-    val headerRect = RectF(x, ORIGIN_TOP_FIRST, x + width, ORIGIN_TOP_FIRST + TEXT_SIZE * 2)
-    drawCell(canvas, headerRect, day.toString(), paints.boldRectPaint, paints.boldTextPaint, true)
+    val headerRect = RectF(bounds.x, ORIGIN_TOP_FIRST, bounds.x + bounds.width, ORIGIN_TOP_FIRST + TEXT_SIZE * 2)
+    drawCell(
+        canvas = canvas,
+        rect = headerRect,
+        text = day.toString(),
+        paints = PaintPair(paints.boldRectPaint, paints.boldTextPaint),
+        centerText = true
+    )
 
     // Attributes
     attrs.forEachIndexed { index, attr ->
         val top = ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1)
-        val rect = RectF(x, top, x + width, top + TEXT_SIZE * 2)
-        drawCell(canvas, rect, attr, paints.rectPaint, paints.textPaint, false)
+        val rect = RectF(bounds.x, top, bounds.x + bounds.width, top + TEXT_SIZE * 2)
+        drawCell(
+            canvas = canvas,
+            rect = rect,
+            text = attr,
+            paints = PaintPair(paints.rectPaint, paints.textPaint),
+            centerText = false
+        )
     }
 }
 
@@ -105,21 +122,24 @@ private fun drawCell(
     canvas: Canvas,
     rect: RectF,
     text: String,
-    rectPaint: Paint,
-    textPaint: Paint,
+    paints: PaintPair,
     centerText: Boolean
 ) {
-    canvas.drawRect(rect, rectPaint)
-    val textX = if (centerText) rect.centerX() - textPaint.measureText(text) / 2 else rect.left + 4f
-    canvas.drawText(text, textX, rect.bottom - (rect.height() - TEXT_SIZE) / 2 - 2f, textPaint)
+    canvas.drawRect(rect, paints.rect)
+    val textX = if (centerText) rect.centerX() - paints.text.measureText(text) / 2 else rect.left + 4f
+    canvas.drawText(text, textX, rect.bottom - (rect.height() - TEXT_SIZE) / 2 - 2f, paints.text)
 }
 
 private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int): List<String> {
     return projects.filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
         .flatMap { project ->
             listOf(
-                project.projectName, project.projectTime, project.allowance,
-                project.workType, "${project.kilometres}km", ""
+                project.projectName,
+                project.projectTime,
+                project.allowance,
+                project.workType,
+                "${project.kilometres}km",
+                ""
             )
         }
 }
@@ -138,9 +158,21 @@ private fun drawTotalsSection(
         val top = ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1)
         val nameRect = RectF(startX, top, startX + maxWidth, top + TEXT_SIZE * 2)
         val valRect = RectF(startX + maxWidth, top, startX + maxWidth * 1.5f, top + TEXT_SIZE * 2)
-        
-        drawCell(canvas, nameRect, name, paints.rectPaint, paints.textPaint, false)
-        drawCell(canvas, valRect, value, paints.rectPaint, paints.textPaint, false)
+
+        drawCell(
+            canvas = canvas,
+            rect = nameRect,
+            text = name,
+            paints = PaintPair(paints.rectPaint, paints.textPaint),
+            centerText = false
+        )
+        drawCell(
+            canvas = canvas,
+            rect = valRect,
+            text = value,
+            paints = PaintPair(paints.rectPaint, paints.textPaint),
+            centerText = false
+        )
     }
 }
 
@@ -163,6 +195,9 @@ private data class ReportPaints(
     val rectPaint: Paint,
     val boldRectPaint: Paint
 )
+
+private data class ColumnBounds(val x: Float, val width: Float)
+private data class PaintPair(val rect: Paint, val text: Paint)
 
 data class PrintWorkDaysComposableParams(
     val projectsByMonth: List<ProjectEntity>,

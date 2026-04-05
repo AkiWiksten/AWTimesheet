@@ -2,12 +2,6 @@ package com.akiwiksten.worktime30.di
 
 import android.content.Context
 import androidx.room.Room
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.WorkDayRepository
-import com.akiwiksten.worktime30.data.repository.WorkDayRepositoryImpl
 import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
@@ -15,6 +9,12 @@ import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkDayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkDayOneRowDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
+import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
+import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
+import com.akiwiksten.worktime30.data.repository.WorkDayRepository
+import com.akiwiksten.worktime30.data.repository.WorkDayRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

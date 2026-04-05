@@ -2,13 +2,13 @@ package com.akiwiksten.worktime30.feature.projects
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,9 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.runtime.collectAsState
 import androidx.core.text.isDigitsOnly
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 
@@ -56,7 +56,7 @@ fun SingleProjectScreen(
     viewModel: ProjectsViewModel = hiltViewModel()
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
-    
+
     val initialUiState = remember(index, projectsUiState.projects) {
         if (index != -1) {
             projectsUiState.projects.find { it.index == index } ?: ProjectListItemUiState()
@@ -68,9 +68,7 @@ fun SingleProjectScreen(
     var state by remember(initialUiState) { mutableStateOf(ProjectDialogState(initialUiState)) }
 
     LaunchedEffect(workTime) {
-        workTime?.let {
-            state = state.copy(projectTime = it)
-        }
+        workTime?.let { state = state.copy(projectTime = it) }
     }
 
     val isConfirmEnabled by remember {
@@ -81,63 +79,107 @@ fun SingleProjectScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (index == -1) stringResource(R.string.add) else stringResource(R.string.edit),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                }
+            SingleProjectTopBar(
+                isEditMode = index != -1,
+                onNavigateBack = onNavigateBack
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            DialogMainFields(
+        SingleProjectContent(
+            padding = padding,
+            screenState = SingleProjectScreenState(
                 state = state,
                 isAddMode = index == -1,
-                onStateChange = { state = it }
-            )
-
-            TimeSelectionSection(
-                state = state,
-                workTimeToday = projectsUiState.workTimeToday,
+                uiState = projectsUiState,
+                isConfirmEnabled = isConfirmEnabled
+            ),
+            actions = SingleProjectActions(
+                onStateChange = { state = it },
                 onOpenEditWorkDay = onOpenEditWorkDay,
-                onStateChange = { state = it }
-            )
-
-            DialogDropdownFields(
-                state = state,
-                workTypeDropDownList = projectsUiState.workTypes,
-                onStateChange = { state = it }
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
+                onConfirm = {
                     viewModel.saveProject(state.toUiState())
                     onNavigateBack()
-                },
-                enabled = isConfirmEnabled,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleMedium)
+                }
+            )
+        )
+    }
+}
+
+data class SingleProjectScreenState(
+    val state: ProjectDialogState,
+    val isAddMode: Boolean,
+    val uiState: ProjectsUiState,
+    val isConfirmEnabled: Boolean
+)
+
+data class SingleProjectActions(
+    val onStateChange: (ProjectDialogState) -> Unit,
+    val onOpenEditWorkDay: () -> Unit,
+    val onConfirm: () -> Unit
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SingleProjectTopBar(isEditMode: Boolean, onNavigateBack: () -> Unit) {
+    TopAppBar(
+        title = {
+            Text(
+                text = if (isEditMode) stringResource(R.string.edit) else stringResource(R.string.add),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
+        }
+    )
+}
+
+@Composable
+private fun SingleProjectContent(
+    padding: PaddingValues,
+    screenState: SingleProjectScreenState,
+    actions: SingleProjectActions
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        DialogMainFields(
+            state = screenState.state,
+            isAddMode = screenState.isAddMode,
+            onStateChange = actions.onStateChange
+        )
+
+        TimeSelectionSection(
+            state = screenState.state,
+            workTimeToday = screenState.uiState.workTimeToday,
+            onOpenEditWorkDay = actions.onOpenEditWorkDay,
+            onStateChange = actions.onStateChange
+        )
+
+        DialogDropdownFields(
+            state = screenState.state,
+            workTypeDropDownList = screenState.uiState.workTypes,
+            onStateChange = actions.onStateChange
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = actions.onConfirm,
+            enabled = screenState.isConfirmEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -221,8 +263,8 @@ private fun DialogDropdownFields(
 
 @Composable
 private fun CompactTimeRow(
-    labelId: Int, 
-    value: String, 
+    labelId: Int,
+    value: String,
     onOpenEditWorkDay: () -> Unit,
     onHistoryClick: () -> Unit
 ) {
@@ -245,14 +287,14 @@ private fun CompactTimeRow(
             enabled = false,
             shape = RoundedCornerShape(12.dp)
         )
-        
+
         IconButton(
             onClick = onHistoryClick,
             modifier = Modifier.size(48.dp)
         ) {
             Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         }
-        
+
         IconButton(
             onClick = onOpenEditWorkDay,
             modifier = Modifier.size(48.dp)

@@ -47,18 +47,10 @@ fun SettingsScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val settingsUiState by settingsViewModel.uiState.collectAsState()
+    val uiState by settingsViewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
-
-    val name = settingsUiState.name
-    val employer = settingsUiState.employer
-    val endMonthDate = settingsUiState.endMonthDate
-    val dropDownWorkTypes = settingsUiState.workTypes
-    
     val date = calendarUiState.date
     val ctx = LocalContext.current
-    var showAddWorkTypeDialog by remember { mutableStateOf(false) }
-    var selectedWorkType by remember { mutableStateOf("") }
 
     LaunchedEffect(date) {
         settingsViewModel.loadSettings()
@@ -68,6 +60,42 @@ fun SettingsScreen(
         }
     }
 
+    val actions = remember(settingsViewModel, uiState, ctx) {
+        SettingsActions(
+            onNameChange = settingsViewModel::setName,
+            onEmployerChange = settingsViewModel::setEmployer,
+            onWorkTypeAdded = settingsViewModel::addWorkType,
+            onWorkTypeRemoved = settingsViewModel::removeWorkType,
+            onSave = {
+                settingsViewModel.saveSettings()
+            },
+            onGeneratePdf = {
+                generateReport(ctx, uiState.projectsByMonth, uiState.endMonthDate, uiState.name, uiState.employer)
+            }
+        )
+    }
+
+    SettingsContent(uiState, date, actions)
+}
+
+data class SettingsActions(
+    val onNameChange: (String) -> Unit,
+    val onEmployerChange: (String) -> Unit,
+    val onWorkTypeAdded: (String) -> Unit,
+    val onWorkTypeRemoved: (String) -> Unit,
+    val onSave: () -> Unit,
+    val onGeneratePdf: () -> Unit
+)
+
+@Composable
+private fun SettingsContent(
+    uiState: SettingsUiState,
+    calendarDate: String,
+    actions: SettingsActions
+) {
+    var showAddWorkTypeDialog by remember { mutableStateOf(false) }
+    var selectedWorkType by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -76,52 +104,41 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        HeaderSection(date = date)
+        HeaderSection(date = calendarDate)
 
         SettingsCard(title = stringResource(R.string.name) + " & " + stringResource(R.string.employer)) {
             ProfileSection(
-                name = name,
-                employer = employer,
-                onNameChange = settingsViewModel::setName,
-                onEmployerChange = settingsViewModel::setEmployer
+                name = uiState.name,
+                employer = uiState.employer,
+                onNameChange = actions.onNameChange,
+                onEmployerChange = actions.onEmployerChange
             )
         }
 
         SettingsCard(title = stringResource(R.string.work_type)) {
             WorkTypeSection(
-                workTypes = dropDownWorkTypes,
+                workTypes = uiState.workTypes,
                 selectedWorkType = selectedWorkType,
                 onWorkTypeSelected = { selectedWorkType = it },
                 onAddClick = { showAddWorkTypeDialog = true },
                 onDeleteClick = {
-                    settingsViewModel.removeWorkType(selectedWorkType)
+                    actions.onWorkTypeRemoved(selectedWorkType)
                     selectedWorkType = ""
                 }
             )
         }
 
         ActionButtonsSection(
-            onSave = {
-                settingsViewModel.saveSettings()
-                Toast.makeText(ctx, ctx.getString(R.string.saved), Toast.LENGTH_SHORT).show()
-            },
-            onGeneratePdf = {
-                generateReport(
-                    ctx,
-                    settingsUiState.projectsByMonth,
-                    endMonthDate,
-                    name,
-                    employer
-                )
-            },
-            isPdfEnabled = settingsUiState.projectsByMonth.isNotEmpty()
+            onSave = actions.onSave,
+            onGeneratePdf = actions.onGeneratePdf,
+            isPdfEnabled = uiState.projectsByMonth.isNotEmpty()
         )
 
         if (showAddWorkTypeDialog) {
             AddTextFieldDialog(
                 onDismissRequest = { showAddWorkTypeDialog = false },
                 onConfirmation = {
-                    settingsViewModel.addWorkType(it)
+                    actions.onWorkTypeAdded(it)
                     showAddWorkTypeDialog = false
                 },
                 label = stringResource(R.string.work_type)
@@ -255,8 +272,14 @@ private fun generateReport(
     employer: String
 ) {
     val titles = listOf(
-        R.string.date, R.string.project, R.string.start_time, R.string.end_time,
-        R.string.work_time_today, R.string.allowance, R.string.work_type, R.string.kilometres
+        R.string.date,
+        R.string.project,
+        R.string.start_time,
+        R.string.end_time,
+        R.string.work_time_today,
+        R.string.allowance,
+        R.string.work_type,
+        R.string.kilometres
     ).map { ctx.getString(it) }
 
     MonthlyReportGenerator.generatePdf(

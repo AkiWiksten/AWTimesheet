@@ -116,7 +116,12 @@ private fun HeaderSection(date: String, onClearDay: () -> Unit) {
 private fun NewDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         AddTimeRow(uiState.startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
-        AddTimeRow(uiState.dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
+        AddTimeRow(
+            uiState.dailyWorkTime,
+            R.string.daily_work_time,
+            viewModel::currentDailyWorkTime,
+            viewModel::setDailyWorkTime
+        )
         AddTimeRow(uiState.lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -146,18 +151,28 @@ private fun ExistingDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDa
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AddTimeRow(uiState.startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
         AddTimeRow(uiState.endTime, R.string.end_time, viewModel::currentEndTime, viewModel::setEndTime)
-        AddTimeRow(uiState.workTimeToday, R.string.work_time_today, viewModel::currentWorkTimeToday, viewModel::setWorkTimeToday)
-        
+        AddTimeRow(
+            uiState.workTimeToday,
+            R.string.work_time_today,
+            viewModel::currentWorkTimeToday,
+            viewModel::setWorkTimeToday
+        )
+
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-        
+
         AddTimeRow(uiState.lunchStart, R.string.lunch_start, viewModel::currentLunchStart, viewModel::setLunchStart)
         AddTimeRow(uiState.lunchEnd, R.string.lunch_end, viewModel::currentLunchEnd, viewModel::setLunchEnd)
         AddTimeRow(uiState.breakStart, R.string.break_start, viewModel::currentBreakStart, viewModel::setBreakStart)
         AddTimeRow(uiState.breakEnd, R.string.break_end, viewModel::currentBreakEnd, viewModel::setBreakEnd)
-        
+
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-        
-        AddTimeRow(uiState.dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
+
+        AddTimeRow(
+            textFieldValue = uiState.dailyWorkTime,
+            stringId = R.string.daily_work_time,
+            currentTime = viewModel::currentDailyWorkTime,
+            onConfirmation = viewModel::setDailyWorkTime
+        )
         AddTimeRow(uiState.lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -231,10 +246,9 @@ private fun AddTimeRow(
 
     if (openTimePickerDialog) {
         TimePickerDialog(
-            onDismissRequest = { openTimePickerDialog = false },
+            onDismissRequest = {},
             onConfirmation = { time ->
                 onConfirmation(time)
-                openTimePickerDialog = false
             },
             time = textFieldValue,
             titleId = stringId,
@@ -261,7 +275,7 @@ private fun AddTimeRow(
                 disabledBorderColor = MaterialTheme.colorScheme.outline,
             )
         )
-        
+
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             IconButton(
                 onClick = currentTime,
@@ -274,7 +288,7 @@ private fun AddTimeRow(
                 )
             }
             IconButton(
-                onClick = { openTimePickerDialog = true },
+                onClick = {},
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(

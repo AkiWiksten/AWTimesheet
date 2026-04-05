@@ -444,7 +444,7 @@ class EditWorkDayViewModel @Inject constructor(
         _uiState.update { it.copy(workTimeTotal = workTimeTotal0) }
     }
 
-    fun getWorkTimeToday() : String {
+    fun getWorkTimeToday(): String {
         return _uiState.value.workTimeToday
     }
 }

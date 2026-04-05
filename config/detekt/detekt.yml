@@ -5,7 +5,6 @@ naming:
   FunctionNaming:
     active: true
     ignoreAnnotated: [ Composable, Preview ]
-    constantPattern: '[a-z][A-Za-z\d]*[A-Z][A-Za-z\d]*'
   TopLevelPropertyNaming:
     active: true
     constantPattern: '[A-Z][_A-Z0-9]*'

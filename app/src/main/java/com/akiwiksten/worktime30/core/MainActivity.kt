@@ -116,7 +116,6 @@ private fun WorkTimeNavDisplay(
             entry<Screen.Calendar> { CalendarScreen() }
             entry<Screen.Projects> {
                 ProjectsScreen(
-                    onNavigateToEditWorkDay = { backStack.add(Screen.EditWorkDay) },
                     onNavigateToSingleProject = { index -> backStack.add(Screen.SingleProject(index)) }
                 )
             }

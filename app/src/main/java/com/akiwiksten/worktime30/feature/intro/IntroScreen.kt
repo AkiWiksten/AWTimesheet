@@ -25,9 +25,13 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -53,20 +57,14 @@ fun IntroScreen(
         fontSize = 20.sp
     )
 
-    // Calculate the target scale based on screen width immediately
-    val targetScaleFactor = remember(appName, windowInfo.containerSize, density) {
-        val textLayoutResult = textMeasurer.measure(appName, textStyle)
-        val textWidthPx = textLayoutResult.size.width
-        val screenWidthPx = windowInfo.containerSize.width
+    val targetScaleFactor = calculateTargetScale(
+        appName = appName,
+        textStyle = textStyle,
+        textMeasurer = textMeasurer,
+        windowInfo = windowInfo,
+        density = density
+    )
 
-        if (textWidthPx > 0 && screenWidthPx > 0) {
-            (screenWidthPx / textWidthPx) * SCREEN_FILL_RATIO
-        } else {
-            DEFAULT_FALLBACK_SCALE
-        }
-    }
-
-    // Initialize scale at 1f and animate to targetScaleFactor immediately
     val currentScale = remember { Animatable(1f) }
 
     LaunchedEffect(targetScaleFactor) {
@@ -76,6 +74,40 @@ fun IntroScreen(
         )
     }
 
+    IntroContent(
+        appName = appName,
+        textStyle = textStyle,
+        currentScale = currentScale.value,
+        onItemClick = onItemClick
+    )
+}
+
+@Composable
+private fun calculateTargetScale(
+    appName: String,
+    textStyle: TextStyle,
+    textMeasurer: TextMeasurer,
+    windowInfo: WindowInfo,
+    density: Density
+): Float = remember(appName, windowInfo.containerSize, density) {
+    val textLayoutResult = textMeasurer.measure(appName, textStyle)
+    val textWidthPx = textLayoutResult.size.width
+    val screenWidthPx = windowInfo.containerSize.width
+
+    if (textWidthPx > 0 && screenWidthPx > 0) {
+        (screenWidthPx / textWidthPx) * SCREEN_FILL_RATIO
+    } else {
+        DEFAULT_FALLBACK_SCALE
+    }
+}
+
+@Composable
+private fun IntroContent(
+    appName: String,
+    textStyle: TextStyle,
+    currentScale: Float,
+    onItemClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -87,9 +119,8 @@ fun IntroScreen(
             text = appName,
             modifier = Modifier
                 .graphicsLayer {
-                    val scale = currentScale.value
-                    scaleX = scale
-                    scaleY = scale
+                    scaleX = currentScale
+                    scaleY = currentScale
                     transformOrigin = TransformOrigin.Center
                 },
             style = textStyle,
@@ -102,7 +133,7 @@ fun IntroScreen(
             onClick = onItemClick,
             modifier = Modifier
                 .graphicsLayer {
-                    val btnScale = currentScale.value / BUTTON_SCALE_DIVIDER
+                    val btnScale = currentScale / BUTTON_SCALE_DIVIDER
                     scaleX = btnScale
                     scaleY = btnScale
                     transformOrigin = TransformOrigin.Center

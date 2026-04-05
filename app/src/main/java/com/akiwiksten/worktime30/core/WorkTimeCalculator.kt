@@ -3,7 +3,6 @@ package com.akiwiksten.worktime30.core
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.abs
 
 /**
@@ -17,7 +16,7 @@ object WorkTimeCalculator {
     private val dayFormatter = DateTimeFormatter.ofPattern("dd")
 
     fun parseDate(workDay: String): String {
-        // Optimization: LocalDate.parse is relatively slow. 
+        // Optimization: LocalDate.parse is relatively slow.
         // If workDay is always in ISO format (yyyy-MM-dd), we can just take the last 2 chars.
         return if (workDay.length >= 10 && workDay[4] == '-' && workDay[7] == '-') {
             workDay.substring(8, 10)
@@ -34,7 +33,7 @@ object WorkTimeCalculator {
     fun calculateWorkTimeBalance(initialTime: String, addedTime: String): String {
         val isInitialNegative = initialTime.startsWith("-")
         val isAddedNegative = addedTime.startsWith("-")
-        
+
         val cleanInitial = if (isInitialNegative) initialTime.substring(1) else initialTime
         val cleanAdded = if (isAddedNegative) addedTime.substring(1) else addedTime
 
@@ -59,13 +58,13 @@ object WorkTimeCalculator {
         val addedSign = if (isAddedTimeNegative) -1 else 1
 
         val totalMinutes = (initialTotalMinutes * initialSign) + (addedTotalMinutes * addedSign)
-        
+
         val absTotal = abs(totalMinutes)
         val hours = absTotal / MINUTES_IN_HOUR
         val minutes = absTotal % MINUTES_IN_HOUR
-        
+
         val sign = if (totalMinutes < 0) "-" else ""
-        
+
         // Optimization: Use StringBuilder or manual padding instead of String.format for performance
         return buildString(6) {
             append(sign)

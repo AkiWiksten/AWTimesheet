@@ -49,7 +49,6 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Composable
 fun ProjectsScreen(
-    onNavigateToEditWorkDay: () -> Unit,
     onNavigateToSingleProject: (Int) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     projectsViewModel: ProjectsViewModel = hiltViewModel(),
@@ -57,7 +56,7 @@ fun ProjectsScreen(
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
     val date = calendarUiState.date
-    
+
     var selectedItemIndex by remember { mutableIntStateOf(-1) }
 
     LaunchedEffect(date) {
@@ -86,7 +85,7 @@ fun ProjectsScreen(
             isItemSelected = selectedItemIndex != -1,
             onAddClick = { onNavigateToSingleProject(-1) },
             onEditClick = { onNavigateToSingleProject(selectedItemIndex) },
-            onDeleteClick = { 
+            onDeleteClick = {
                 projectsUiState.projects.getOrNull(selectedItemIndex)?.let {
                     projectsViewModel.deleteProject(it)
                     selectedItemIndex = -1
@@ -163,7 +162,9 @@ private fun ProjectListItem(
         modifier = Modifier
             .fillMaxWidth()
             .selectable(selected = isSelected, onClick = onClick)
-            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else Color.Transparent)
+            .background(
+                if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else Color.Transparent
+            )
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -175,7 +176,11 @@ private fun ProjectListItem(
                     text = item.projectName,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
                 )
                 Text(
                     text = item.projectTime,

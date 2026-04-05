@@ -22,6 +22,7 @@ import javax.inject.Inject
 
 data class EditWorkDayUiState(
     val date: String = "",
+    val projectName: String = "",
     val startTime: String = ZERO_TIME,
     val endTime: String = ZERO_TIME,
     val dailyWorkTime: String = ZERO_TIME,
@@ -54,6 +55,10 @@ class EditWorkDayViewModel @Inject constructor(
 
     fun setDate(date0: String) {
         _uiState.update { it.copy(date = date0) }
+    }
+
+    fun setProjectName(projectName: String) {
+        _uiState.update { it.copy(projectName = projectName) }
     }
 
     fun setStartTime(startTime0: String) {
@@ -309,37 +314,36 @@ class EditWorkDayViewModel @Inject constructor(
         return nextState
     }
 
-    fun insertWorkDay() {
-        viewModelScope.launch {
-            val state = _uiState.value
-            if (state.date.isNotEmpty()) {
-                val workDayOneRow = WorkDayOneRowEntity(
-                    dailyWorkTime = state.dailyWorkTime,
-                    lunchTime = state.lunchTime,
-                    workTimeTotal = state.workTimeTotal,
-                    balanceTotal = state.balanceTotal
-                )
-                workDayRepository.insertWorkDayOneRow(workDayOneRow)
-                val workDay = WorkDayEntity(
-                    date = state.date,
-                    startTime = state.startTime,
-                    endTime = state.endTime,
-                    lunchStart = state.lunchStart,
-                    lunchEnd = state.lunchEnd,
-                    breakStart = state.breakStart,
-                    breakEnd = state.breakEnd,
-                    workTimeToday = state.workTimeToday,
-                    balanceToday = state.balanceToday,
-                )
-                workDayRepository.insertWorkDay(workDay)
-            }
-        }
+    fun getWorkDayEntity(): WorkDayEntity {
+        val state = _uiState.value
+        return WorkDayEntity(
+            date = state.date,
+            projectName = state.projectName,
+            startTime = state.startTime,
+            endTime = state.endTime,
+            lunchStart = state.lunchStart,
+            lunchEnd = state.lunchEnd,
+            breakStart = state.breakStart,
+            breakEnd = state.breakEnd,
+            workTimeToday = state.workTimeToday,
+            balanceToday = state.balanceToday,
+        )
+    }
+
+    fun getWorkDayOneRowEntity(): WorkDayOneRowEntity {
+        val state = _uiState.value
+        return WorkDayOneRowEntity(
+            dailyWorkTime = state.dailyWorkTime,
+            lunchTime = state.lunchTime,
+            workTimeTotal = state.workTimeTotal,
+            balanceTotal = state.balanceTotal
+        )
     }
 
     fun loadWorkDay() {
         viewModelScope.launch {
             val state = _uiState.value
-            val workDay = workDayRepository.getWorkDay(state.date)
+            val workDay = workDayRepository.getWorkDay(state.date, state.projectName)
             val workDayOneRow = workDayRepository.getWorkDayOneRow()
 
             _uiState.update { currentState ->
@@ -446,5 +450,12 @@ class EditWorkDayViewModel @Inject constructor(
 
     fun getWorkTimeToday(): String {
         return _uiState.value.workTimeToday
+    }
+
+    fun saveWorkDay(workDay: WorkDayEntity, workDayOneRow: WorkDayOneRowEntity) {
+        viewModelScope.launch {
+            workDayRepository.insertWorkDay(workDay)
+            workDayRepository.insertWorkDayOneRow(workDayOneRow)
+        }
     }
 }

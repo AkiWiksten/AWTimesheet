@@ -29,6 +29,7 @@ import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
+import com.akiwiksten.worktime30.feature.projects.ProjectDialogState
 import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
 import com.akiwiksten.worktime30.feature.projects.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
@@ -135,7 +136,7 @@ private fun EditWorkDayEntry(screen: Screen.EditWorkDay, backStack: SnapshotStat
     EditWorkDayScreen(
         projectName = screen.projectName,
         onNavigateBack = { backStack.pop() },
-        onSave = { workTime -> backStack.updateSingleProjectWorkTime(workTime) }
+        onSave = { workDay, _ -> backStack.updateSingleProjectWorkTime(workDay.workTimeToday) }
     )
 }
 
@@ -143,9 +144,16 @@ private fun EditWorkDayEntry(screen: Screen.EditWorkDay, backStack: SnapshotStat
 private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
     SingleProjectScreen(
         index = screen.index,
-        workTime = screen.workTime,
+        projectName = screen.projectName,
+        workTime = screen.projectTime,
+        kilometres = screen.kilometres,
+        allowance = screen.allowance,
+        workType = screen.workType,
         onNavigateBack = { backStack.pop() },
-        onOpenEditWorkDay = { projectName -> backStack.add(Screen.EditWorkDay(projectName)) }
+        onOpenEditWorkDay = { state ->
+            backStack.updateSingleProjectState(state)
+            backStack.add(Screen.EditWorkDay(state.projectName))
+        }
     )
 }
 
@@ -159,6 +167,20 @@ private fun SnapshotStateList<Any>.updateSingleProjectWorkTime(workTime: String)
     pop()
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
-        this[size - 1] = currentLast.copy(workTime = workTime)
+        this[size - 1] = currentLast.copy(projectTime = workTime)
+    }
+}
+
+private fun SnapshotStateList<Any>.updateSingleProjectState(state: ProjectDialogState) {
+    val index = size - 1
+    val current = getOrNull(index)
+    if (current is Screen.SingleProject) {
+        this[index] = current.copy(
+            projectName = state.projectName,
+            projectTime = state.projectTime,
+            kilometres = state.kilometres,
+            allowance = state.allowance,
+            workType = state.workType
+        )
     }
 }

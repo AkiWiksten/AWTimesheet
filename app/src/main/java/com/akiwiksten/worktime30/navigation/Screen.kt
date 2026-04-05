@@ -15,5 +15,12 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
     data class EditWorkDay(val projectName: String? = null) : Screen(EDIT_WORK_DAY_SCREEN, R.string.work_day)
     object Intro : Screen(INTRO_SCREEN)
-    data class SingleProject(val index: Int = -1, val workTime: String? = null) : Screen(SINGLE_PROJECT_SCREEN)
+    data class SingleProject(
+        val index: Int = -1,
+        val projectName: String? = null,
+        val projectTime: String? = null,
+        val kilometres: String? = null,
+        val allowance: String? = null,
+        val workType: String? = null
+    ) : Screen(SINGLE_PROJECT_SCREEN)
 }

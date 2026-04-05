@@ -16,8 +16,8 @@ interface WorkDayDao {
     @Query("SELECT * FROM workday")
     suspend fun getAll(): List<WorkDayEntity>
 
-    @Query("SELECT * FROM workday WHERE date = :date")
-    suspend fun loadWorkDay(date: String): WorkDayEntity?
+    @Query("SELECT * FROM workday WHERE date = :date AND projectName = :projectName")
+    suspend fun loadWorkDay(date: String, projectName: String): WorkDayEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorkDay(workDay: WorkDayEntity)

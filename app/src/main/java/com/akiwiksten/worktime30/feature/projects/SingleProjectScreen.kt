@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,24 +40,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
     index: Int,
+    projectName: String? = null,
     workTime: String? = null,
+    kilometres: String? = null,
+    allowance: String? = null,
+    workType: String? = null,
+    workDay: WorkDayEntity? = null,
+    workDayOneRow: WorkDayOneRowEntity? = null,
     onNavigateBack: () -> Unit,
-    onOpenEditWorkDay: (String) -> Unit,
+    onOpenEditWorkDay: (ProjectDialogState) -> Unit,
+    calendarViewModel: CalendarViewModel = hiltViewModel(),
     viewModel: ProjectsViewModel = hiltViewModel()
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
+    val calendarUiState by calendarViewModel.uiState.collectAsState()
+    val date = calendarUiState.date
 
     val initialUiState = remember(index, projectsUiState.projects) {
         if (index != -1) {
@@ -68,8 +83,28 @@ fun SingleProjectScreen(
 
     var state by remember(initialUiState) { mutableStateOf(ProjectDialogState(initialUiState)) }
 
+    // Apply overrides from navigation parameters if they exist
+    LaunchedEffect(initialUiState) {
+        projectName?.let { state = state.copy(projectName = it) }
+        workTime?.let { state = state.copy(projectTime = it) }
+        kilometres?.let { state = state.copy(kilometres = it) }
+        allowance?.let { state = state.copy(allowance = it) }
+        workType?.let { state = state.copy(workType = it) }
+        workDay?.let { state = state.copy(workDay = it) }
+        workDayOneRow?.let { state = state.copy(workDayOneRow = it) }
+    }
+
+    // Specifically handle workTime updates (e.g. returning from EditWorkDay)
     LaunchedEffect(workTime) {
         workTime?.let { state = state.copy(projectTime = it) }
+    }
+
+    LaunchedEffect(workDay) {
+        workDay?.let { state = state.copy(workDay = it) }
+    }
+
+    LaunchedEffect(workDayOneRow) {
+        workDayOneRow?.let { state = state.copy(workDayOneRow = it) }
     }
 
     val isConfirmEnabled by remember {
@@ -88,6 +123,7 @@ fun SingleProjectScreen(
         SingleProjectContent(
             padding = padding,
             screenState = SingleProjectScreenState(
+                date = date,
                 state = state,
                 isAddMode = index == -1,
                 uiState = projectsUiState,
@@ -95,7 +131,7 @@ fun SingleProjectScreen(
             ),
             actions = SingleProjectActions(
                 onStateChange = { state = it },
-                onOpenEditWorkDay = { onOpenEditWorkDay(state.projectName) },
+                onOpenEditWorkDay = { onOpenEditWorkDay(state) },
                 onConfirm = {
                     viewModel.saveProject(state.toUiState())
                     onNavigateBack()
@@ -128,6 +164,7 @@ private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
 }
 
 data class SingleProjectScreenState(
+    val date: String,
     val state: ProjectDialogState,
     val isAddMode: Boolean,
     val uiState: ProjectsUiState,
@@ -155,6 +192,8 @@ private fun SingleProjectContent(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        HeaderSection(date = screenState.date)
+
         DialogMainFields(
             state = screenState.state,
             isAddMode = screenState.isAddMode,
@@ -183,6 +222,28 @@ private fun SingleProjectContent(
             shape = RoundedCornerShape(12.dp)
         ) {
             Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleMedium)
+        }
+    }
+}
+
+@Composable
+private fun HeaderSection(date: String) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = date,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

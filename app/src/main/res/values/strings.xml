@@ -15,7 +15,7 @@
 <string name="lunch_time">Lunch time</string>
 <string name="break_start">Break start</string>
 <string name="break_end">Break end</string>
-<string name="work_time_today">Work time today</string>
+<string name="work_time_today">Work time</string>
 <string name="work_time_total">Work time total</string>
 <string name="balance_today">Balance today</string>
 <string name="balance_total">Balance total</string>
@@ -59,7 +59,7 @@
 <string name="work_type_help">You can add items into \"Work type\" dropdown list in the similar list in \"Settings\" tab.</string>
 <string name="continueFromIntro">Continue</string>
 <string name="settings">Settings</string>
-<string name="calendar_help">For each day, times here are calculated first with \"work time today\" in \"Times\" tab, then with project times.</string>
+<string name="calendar_help">For each day, times here are calculated first with \"Work time\" in \"Times\" tab, then with project times.</string>
 <string name="unsaved_work_day_text">Do you want to save unsaved Work day?</string>
 <string name="unsaved_projects_text">Do you want to save unsaved Projects?</string>
 <string name="project">Project</string>

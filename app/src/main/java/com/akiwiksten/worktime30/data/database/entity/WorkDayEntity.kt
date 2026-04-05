@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.data.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.akiwiksten.worktime30.core.BALANCE_TODAY
 import com.akiwiksten.worktime30.core.BALANCE_TOTAL
 import com.akiwiksten.worktime30.core.BREAK_END
@@ -16,11 +15,13 @@ import com.akiwiksten.worktime30.core.START_TIME
 import com.akiwiksten.worktime30.core.WORK_TIME_TODAY
 import com.akiwiksten.worktime30.core.WORK_TIME_TOTAL
 import kotlinx.serialization.Serializable
+import androidx.room.PrimaryKey
 
 @Serializable
-@Entity(tableName = "workday")
+@Entity(tableName = "workday", primaryKeys = ["date", "projectName"])
 data class WorkDayEntity(
-    @PrimaryKey val date: String,
+    val date: String,
+    val projectName: String = "",
     @ColumnInfo(name = START_TIME) val startTime: String = "",
     @ColumnInfo(name = END_TIME) val endTime: String = "",
     @ColumnInfo(name = LUNCH_START) val lunchStart: String = "",

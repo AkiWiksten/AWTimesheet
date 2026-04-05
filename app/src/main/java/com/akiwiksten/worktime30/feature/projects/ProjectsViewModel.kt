@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.data.repository.WorkDayRepository
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +31,8 @@ data class ProjectListItemUiState(
     val titleId: Int = -1,
     val leftOvers: String = "",
     val initBalance: String = "",
+    val workDay: WorkDayEntity? = null,
+    val workDayOneRow: WorkDayOneRowEntity? = null
 )
 
 data class ProjectsUiState(
@@ -44,14 +49,18 @@ data class ProjectDialogState(
     val projectTime: String,
     val kilometres: String,
     val allowance: String,
-    val workType: String
+    val workType: String,
+    val workDay: WorkDayEntity? = null,
+    val workDayOneRow: WorkDayOneRowEntity? = null
 ) {
     constructor(uiState: ProjectListItemUiState) : this(
         projectName = uiState.projectName,
         projectTime = uiState.projectTime,
         kilometres = uiState.kilometres.toString(),
         allowance = uiState.allowance.ifEmpty { "No Allowance" },
-        workType = uiState.workType
+        workType = uiState.workType,
+        workDay = uiState.workDay,
+        workDayOneRow = uiState.workDayOneRow
     )
 
     fun toUiState() = ProjectListItemUiState(
@@ -59,7 +68,9 @@ data class ProjectDialogState(
         projectTime = projectTime,
         kilometres = kilometres.toIntOrNull() ?: 0,
         allowance = allowance,
-        workType = workType
+        workType = workType,
+        workDay = workDay,
+        workDayOneRow = workDayOneRow
     )
 }
 
@@ -67,7 +78,8 @@ data class ProjectDialogState(
 class ProjectsViewModel @Inject constructor(
     private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
     private val saveProjectsUseCase: SaveProjectsUseCase,
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val workDayRepository: WorkDayRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProjectsUiState())
@@ -114,6 +126,10 @@ class ProjectsViewModel @Inject constructor(
                 workType = uiState.workType
             )
             saveProjectsUseCase(date, listOf(entity), emptyList())
+            
+            uiState.workDay?.let { workDayRepository.insertWorkDay(it) }
+            uiState.workDayOneRow?.let { workDayRepository.insertWorkDayOneRow(it) }
+
             loadData(date)
         }
     }

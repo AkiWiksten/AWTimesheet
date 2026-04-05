@@ -12,11 +12,14 @@ class WorkDayRepositoryImpl @Inject constructor(
     private val workDayDao: WorkDayDao,
     private val workDayOneRowDao: WorkDayOneRowDao
 ) : WorkDayRepository {
-    override suspend fun getWorkDay(date: String): WorkDayEntity? = workDayDao.loadWorkDay(date)
+    override suspend fun getWorkDay(date: String, projectName: String): WorkDayEntity? =
+        workDayDao.loadWorkDay(date, projectName)
+
     override suspend fun insertWorkDay(workDay: WorkDayEntity) = workDayDao.insertWorkDay(workDay)
     override suspend fun getWorkDayOneRow(): WorkDayOneRowEntity? = workDayOneRowDao.loadWorkDayOneRow()
     override suspend fun insertWorkDayOneRow(workDayOneRow: WorkDayOneRowEntity) =
         workDayOneRowDao.insertWorkDayOneRow(workDayOneRow)
+
     override suspend fun getWorkDaysByDateRange(start: String, end: String): List<WorkDayEntity> =
         workDayDao.getWorkDaysByDateRange(start, end)
 }

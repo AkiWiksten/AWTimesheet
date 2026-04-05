@@ -17,8 +17,14 @@ object WorkTimeCalculator {
     private val dayFormatter = DateTimeFormatter.ofPattern("dd")
 
     fun parseDate(workDay: String): String {
-        val formattedDate = LocalDate.parse(workDay)
-        return dayFormatter.format(formattedDate)
+        // Optimization: LocalDate.parse is relatively slow. 
+        // If workDay is always in ISO format (yyyy-MM-dd), we can just take the last 2 chars.
+        return if (workDay.length >= 10 && workDay[4] == '-' && workDay[7] == '-') {
+            workDay.substring(8, 10)
+        } else {
+            val formattedDate = LocalDate.parse(workDay)
+            dayFormatter.format(formattedDate)
+        }
     }
 
     fun stringToLocalTime(time: String): LocalTime {
@@ -59,7 +65,16 @@ object WorkTimeCalculator {
         val minutes = absTotal % MINUTES_IN_HOUR
         
         val sign = if (totalMinutes < 0) "-" else ""
-        return "$sign${formatTimeValue(hours)}:${formatTimeValue(minutes)}"
+        
+        // Optimization: Use StringBuilder or manual padding instead of String.format for performance
+        return buildString(6) {
+            append(sign)
+            if (hours < 10) append('0')
+            append(hours)
+            append(':')
+            if (minutes < 10) append('0')
+            append(minutes)
+        }
     }
 
     fun calculateStartTimeUpdate(params: StartTimeUpdateParams): TimeUpdateResult {
@@ -210,12 +225,12 @@ object WorkTimeCalculator {
     }
 
     private fun timeToMinutes(time: String): Int {
-        val parts = time.split(':')
-        if (parts.size != 2) return 0
-        return parts[0].toInt() * MINUTES_IN_HOUR + parts[1].toInt()
+        val colonIndex = time.indexOf(':')
+        if (colonIndex == -1) return 0
+        val hours = time.substring(0, colonIndex).toInt()
+        val minutes = time.substring(colonIndex + 1).toInt()
+        return hours * MINUTES_IN_HOUR + minutes
     }
-
-    private fun formatTimeValue(value: Int): String = String.format(Locale.US, "%02d", value)
 
     private fun calculateHalfTime(start: LocalTime, dailyWorkTime: LocalTime): LocalTime {
         val totalMinutes = (dailyWorkTime.hour * MINUTES_IN_HOUR + dailyWorkTime.minute) / 2

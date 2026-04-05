@@ -24,6 +24,7 @@ const val INTRO_SCREEN = "intro_screen"
 const val CALENDAR_SCREEN = "calendar_screen"
 const val EDIT_WORK_DAY_SCREEN = "edit_work_day_screen"
 const val PROJECTS_SCREEN = "projects_screen"
+const val SINGLE_PROJECT_SCREEN = "single_project_screen"
 const val SETTINGS_SCREEN = "settings_screen"
 
 // Json generator

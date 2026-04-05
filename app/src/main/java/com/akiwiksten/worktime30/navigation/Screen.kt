@@ -6,6 +6,7 @@ import com.akiwiksten.worktime30.core.EDIT_WORK_DAY_SCREEN
 import com.akiwiksten.worktime30.core.INTRO_SCREEN
 import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
+import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
 
 // Navigation routes
 sealed class Screen(val route: String, val titleResId: Int? = null) {
@@ -18,4 +19,5 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Intro : Screen("$INTRO_SCREEN/{id}") {
         fun create(id: String) = "$INTRO_SCREEN/$id"
     }
+    data class SingleProject(val index: Int = -1, val workTime: String? = null) : Screen(SINGLE_PROJECT_SCREEN)
 }

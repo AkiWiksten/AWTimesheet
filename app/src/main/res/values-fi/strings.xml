@@ -16,7 +16,7 @@
     <string name="lunch_time">Lounaan pituus</string>
     <string name="break_start">Tauon alku</string>
     <string name="break_end">Tauon loppu</string>
-    <string name="work_time_today">Työaika</string>
+    <string name="work_time_today">Päivän työaika</string>
     <string name="work_time_total">Kokonaistyöaika</string>
     <string name="balance_today">Päivän saldo</string>
     <string name="balance_total">Kokonaissaldo</string>
@@ -69,4 +69,5 @@
     <string name="negative_worktime_text">Varoitus! Olet syöttänyt negatiivisen työajan. Työpäivän tulee päättyä viimeistään klo 23:59.</string>
     <string name="items_overlapping_title">Päällekkäiset ajat</string>
     <string name="items_overlapping_text">Varoitus! Päällekkäiset ajat!</string>
+    <string name="work_time">Työaika</string>
 </resources>

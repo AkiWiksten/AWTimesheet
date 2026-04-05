@@ -45,7 +45,8 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Composable
 fun EditWorkDayScreen(
-    onItemClick: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onSave: (String) -> Unit = { onNavigateBack() },
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     viewModel: EditWorkDayViewModel = hiltViewModel(),
 ) {
@@ -75,7 +76,7 @@ fun EditWorkDayScreen(
         FooterSection(
             onSave = {
                 viewModel.insertWorkDay()
-                onItemClick()
+                onSave(viewModel.getWorkTimeToday())
             }
         )
     }

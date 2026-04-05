@@ -30,6 +30,7 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
+import com.akiwiksten.worktime30.feature.projects.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.navigation.Screen
 import dagger.hilt.android.AndroidEntryPoint
@@ -113,10 +114,32 @@ private fun WorkTimeNavDisplay(
                 IntroScreen(onItemClick = { backStack.add(Screen.Calendar) })
             }
             entry<Screen.Calendar> { CalendarScreen() }
-            entry<Screen.Projects> { ProjectsScreen() }
+            entry<Screen.Projects> {
+                ProjectsScreen(
+                    onNavigateToEditWorkDay = { backStack.add(Screen.EditWorkDay) },
+                    onNavigateToSingleProject = { index -> backStack.add(Screen.SingleProject(index)) }
+                )
+            }
             entry<Screen.Settings> { SettingsScreen() }
             entry<Screen.EditWorkDay> {
-                EditWorkDayScreen(onItemClick = { backStack.add(Screen.Projects) })
+                EditWorkDayScreen(
+                    onNavigateBack = { backStack.removeLastOrNull() },
+                    onSave = { workTime ->
+                        backStack.removeLastOrNull()
+                        val last = backStack.lastOrNull()
+                        if (last is Screen.SingleProject) {
+                            backStack[backStack.size - 1] = last.copy(workTime = workTime)
+                        }
+                    }
+                )
+            }
+            entry<Screen.SingleProject> { screen ->
+                SingleProjectScreen(
+                    index = screen.index,
+                    workTime = screen.workTime,
+                    onNavigateBack = { backStack.removeLastOrNull() },
+                    onOpenEditWorkDay = { backStack.add(Screen.EditWorkDay) }
+                )
             }
         }
     )

@@ -6,16 +6,17 @@ import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
 import com.akiwiksten.worktime30.domain.CalendarData
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.withContext
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -41,20 +42,27 @@ class CalendarViewModel @Inject constructor(
      * Formats milliseconds into a date string (yyyy-MM-dd).
      */
     fun convertMillisToDate(millis: Long): String {
-        return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(millis))
+        return Instant.ofEpochMilli(millis)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .format(dateFormatter)
     }
 
     /**
      * Updates the currently selected date and recalculates sums.
      */
     fun onDateSelected(selectedDate: String) {
+        if (_uiState.value.date == selectedDate) return
         _uiState.update { it.copy(date = selectedDate) }
         calculateSums(selectedDate)
     }
 
     private fun calculateSums(date: String) {
         viewModelScope.launch {
-            val data: CalendarData = getCalendarDataUseCase(date)
+            // Move heavy database/calculation logic to background thread
+            val data: CalendarData = withContext(Dispatchers.IO) {
+                getCalendarDataUseCase(date)
+            }
             _uiState.update {
                 it.copy(
                     timePerMonth = data.timePerMonth,

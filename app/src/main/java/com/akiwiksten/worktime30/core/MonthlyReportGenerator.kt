@@ -63,28 +63,29 @@ object MonthlyReportGenerator {
     }
 
     fun getMaxLengthOfProjectAttributesMap(map: Map<String, String>, paint: Paint): Float {
-        return (map.keys.maxOfOrNull { paint.measureText(it) } ?: 0f) + PADDING
+        val maxKeyWidth = map.keys.maxOfOrNull { paint.measureText(it) } ?: 0f
+        val maxValueWidth = map.values.maxOfOrNull { paint.measureText(it) } ?: 0f
+        return maxOf(maxKeyWidth, maxValueWidth) + PADDING
     }
 
     private fun createUniqueProjects(
-        endOfMonth: String,
         params: PrintWorkDaysParams
     ): Map<String, String> {
         val uniqueProjects = mutableMapOf<String, String>()
-        val endDay = LocalDate.parse(endOfMonth).dayOfMonth
-
-        for (day in 1..endDay) {
-            params.projectsByMonth
-                .filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
-                .forEach { project ->
-                    uniqueProjects[project.projectName] = WorkTimeCalculator.calculateTotalMinutes(
-                        initialTime = uniqueProjects[project.projectName] ?: ZERO_TIME,
+        
+        params.projectsByMonth
+            .filter { it.projectTime != ZERO_TIME }
+            .groupBy { it.projectName }
+            .forEach { (name, projects) ->
+                uniqueProjects[name] = projects.fold(ZERO_TIME) { acc, project ->
+                    WorkTimeCalculator.calculateTotalMinutes(
+                        initialTime = acc,
                         addedTime = project.projectTime,
                         isInitialTimeNegative = false,
                         isAddedTimeNegative = false
                     )
                 }
-        }
+            }
 
         val totalSum = uniqueProjects.values.fold(ZERO_TIME) { acc, time ->
             WorkTimeCalculator.calculateTotalMinutes(acc, time, false, false)
@@ -170,7 +171,7 @@ object MonthlyReportGenerator {
         currentXOffset += titleWidth
 
         for (day in params.startDate..params.endDate) {
-            val projectAttrs = getProjectAttributesForDay(params.projectsByMonth, day)
+            val projectAttrs = params.preprocessedProjects[day] ?: emptyList()
             val dayWidth = getMaxLengthOfProjectAttributes(projectAttrs, paintText)
                 .coerceAtLeast(DEFAULT_WIDTH)
             val dayParams = DrawProjectDaysParams(
@@ -181,28 +182,11 @@ object MonthlyReportGenerator {
             currentXOffset += dayWidth
         }
 
-        if (params.showTotals) drawTotals(params, params.endOfMonthDate, currentXOffset)
+        if (params.showTotals) drawTotals(params, currentXOffset)
     }
 
-    private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int): List<String> {
-        val attributes = mutableListOf<String>()
-        projects.filter { parseDate(it.date).toInt() == day }
-            .forEach { project ->
-                if (project.projectStartTime != ZERO_TIME && project.projectEndTime != ZERO_TIME) {
-                    val workTime = WorkTimeCalculator.calculateWorkTimeBalance(
-                        project.projectEndTime, "-" + project.projectStartTime)
-                    attributes.addAll(listOf(
-                        project.projectName, project.projectStartTime, 
-                        project.projectEndTime, workTime, project.allowance, 
-                        project.workType, "${project.kilometres} km", ""
-                    ))
-                }
-            }
-        return attributes
-    }
-
-    private fun drawTotals(params: PrintWorkDaysParams, endOfMonth: String, startX: Float) {
-        val uniqueProjects = createUniqueProjects(endOfMonth, params)
+    private fun drawTotals(params: PrintWorkDaysParams, startX: Float) {
+        val uniqueProjects = createUniqueProjects(params)
         val maxWidth = getMaxLengthOfProjectAttributesMap(uniqueProjects, paintText)
         val rectHeight = TEXT_SIZE * 2
         
@@ -241,7 +225,8 @@ object MonthlyReportGenerator {
         val printParams = PrintWorkDaysParams(
             pageParams.projectsByMonth, canvas, pageParams.showTotals, 
             pageParams.startDate, pageParams.endDate, pageParams.totalSumLabel, 
-            pageParams.endOfMonthDate, pageParams.projectTitles
+            pageParams.endOfMonthDate, pageParams.projectTitles,
+            pageParams.preprocessedProjects
         )
         printWorkDays(printParams)
         
@@ -259,6 +244,23 @@ object MonthlyReportGenerator {
             color = ContextCompat.getColor(params.ctx, R.color.black)
         }
 
+        // Pre-process all projects once
+        val preprocessedProjects = params.projectsByMonth
+            .filter { it.projectStartTime != ZERO_TIME && it.projectEndTime != ZERO_TIME }
+            .groupBy { parseDate(it.date).toInt() }
+            .mapValues { (_, projects) ->
+                projects.flatMap { project ->
+                    val workTime = WorkTimeCalculator.calculateWorkTimeBalance(
+                        project.projectEndTime, "-" + project.projectStartTime
+                    )
+                    listOf(
+                        project.projectName, project.projectStartTime,
+                        project.projectEndTime, workTime, project.allowance,
+                        project.workType, "${project.kilometres} km", ""
+                    )
+                }
+            }
+
         val pages = listOf(
             PageInfo(1, DATE_01, DATE_08, false),
             PageInfo(2, DATE_09, DATE_16, false),
@@ -266,12 +268,12 @@ object MonthlyReportGenerator {
         )
 
         pages.forEach { info ->
-            createPage(createPageParams(params, pdfDocument, titlePaint, info))
+            createPage(createPageParams(params, pdfDocument, titlePaint, info, preprocessedProjects))
         }
 
         val lastDay = LocalDate.parse(params.endOfMonthDate).dayOfMonth
         createPage(createPageParams(params, pdfDocument, titlePaint, 
-            PageInfo(4, DATE_25, lastDay, true)))
+            PageInfo(4, DATE_25, lastDay, true), preprocessedProjects))
 
         savePdf(params.ctx, pdfDocument, params.name, params.endOfMonthDate)
         pdfDocument.close()
@@ -281,12 +283,13 @@ object MonthlyReportGenerator {
         params: GeneratePdfParams,
         doc: PdfDocument,
         paint: Paint,
-        info: PageInfo
+        info: PageInfo,
+        preprocessedProjects: Map<Int, List<String>>
     ) = CreatePageParams(
         params.name, params.employer, params.projectsByMonth,
         params.endOfMonthDate, params.totalSumLabel, params.monthlyReportLabel,
         doc, paint, info.number, info.start, info.end,
-        info.showTotals, params.projectTitles
+        info.showTotals, params.projectTitles, preprocessedProjects
     )
 
     private fun savePdf(ctx: Context, doc: PdfDocument, name: String, date: String) {
@@ -326,7 +329,8 @@ data class PrintWorkDaysParams(
     val endDate: Int,
     val totalSumLabel: String,
     val endOfMonthDate: String,
-    val projectTitles: List<String>
+    val projectTitles: List<String>,
+    val preprocessedProjects: Map<Int, List<String>>
 )
 
 data class DrawProjectDaysParams(
@@ -352,7 +356,8 @@ data class CreatePageParams(
     val startDate: Int,
     val endDate: Int,
     val showTotals: Boolean,
-    val projectTitles: List<String>
+    val projectTitles: List<String>,
+    val preprocessedProjects: Map<Int, List<String>>
 )
 
 data class GeneratePdfParams(

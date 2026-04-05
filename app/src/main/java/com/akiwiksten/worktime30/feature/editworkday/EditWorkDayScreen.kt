@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -39,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
@@ -50,14 +47,13 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 fun EditWorkDayScreen(
     onItemClick: () -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
-    editWorkDayViewModel: EditWorkDayViewModel = hiltViewModel(),
+    viewModel: EditWorkDayViewModel = hiltViewModel(),
 ) {
-    val date by editWorkDayViewModel.date.collectAsState()
-    val isNewDay by editWorkDayViewModel.isNewDay.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        editWorkDayViewModel.setDate(date0 = calendarViewModel.uiState.value.date)
-        editWorkDayViewModel.loadWorkDay()
+        viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
+        viewModel.loadWorkDay()
     }
 
     Column(
@@ -68,17 +64,17 @@ fun EditWorkDayScreen(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderSection(date = date, onClearDay = editWorkDayViewModel::clearDay)
+        HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
 
-        if (isNewDay) {
-            NewDayFields(viewModel = editWorkDayViewModel)
+        if (uiState.isNewDay) {
+            NewDayFields(uiState = uiState, viewModel = viewModel)
         } else {
-            ExistingDayFields(viewModel = editWorkDayViewModel)
+            ExistingDayFields(uiState = uiState, viewModel = viewModel)
         }
 
         FooterSection(
             onSave = {
-                editWorkDayViewModel.insertWorkDay()
+                viewModel.insertWorkDay()
                 onItemClick()
             }
         )
@@ -116,17 +112,11 @@ private fun HeaderSection(date: String, onClearDay: () -> Unit) {
 }
 
 @Composable
-private fun NewDayFields(viewModel: EditWorkDayViewModel) {
-    val startTime by viewModel.startTime.collectAsState()
-    val dailyWorkTime by viewModel.dailyWorkTime.collectAsState()
-    val lunchTime by viewModel.lunchTime.collectAsState()
-    val balanceTotal by viewModel.balanceTotal.collectAsState()
-    val workTimeTotal by viewModel.workTimeTotal.collectAsState()
-
+private fun NewDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        AddTimeRow(startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
-        AddTimeRow(dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
-        AddTimeRow(lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
+        AddTimeRow(uiState.startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
+        AddTimeRow(uiState.dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
+        AddTimeRow(uiState.lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -135,10 +125,10 @@ private fun NewDayFields(viewModel: EditWorkDayViewModel) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Box(modifier = Modifier.weight(1f)) {
-                AddCustomTimeRow(balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
+                AddCustomTimeRow(uiState.balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
             }
             Box(modifier = Modifier.weight(1f)) {
-                AddCustomTimeRow(workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
+                AddCustomTimeRow(uiState.workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
             }
         }
         Text(
@@ -151,36 +141,23 @@ private fun NewDayFields(viewModel: EditWorkDayViewModel) {
 }
 
 @Composable
-private fun ExistingDayFields(viewModel: EditWorkDayViewModel) {
-    val startTime by viewModel.startTime.collectAsState()
-    val endTime by viewModel.endTime.collectAsState()
-    val workTimeToday by viewModel.workTimeToday.collectAsState()
-    val lunchStart by viewModel.lunchStart.collectAsState()
-    val lunchEnd by viewModel.lunchEnd.collectAsState()
-    val breakStart by viewModel.breakStart.collectAsState()
-    val breakEnd by viewModel.breakEnd.collectAsState()
-    val dailyWorkTime by viewModel.dailyWorkTime.collectAsState()
-    val lunchTime by viewModel.lunchTime.collectAsState()
-    val balanceToday by viewModel.balanceToday.collectAsState()
-    val balanceTotal by viewModel.balanceTotal.collectAsState()
-    val workTimeTotal by viewModel.workTimeTotal.collectAsState()
-
+private fun ExistingDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AddTimeRow(startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
-        AddTimeRow(endTime, R.string.end_time, viewModel::currentEndTime, viewModel::setEndTime)
-        AddTimeRow(workTimeToday, R.string.work_time_today, viewModel::currentWorkTimeToday, viewModel::setWorkTimeToday)
+        AddTimeRow(uiState.startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
+        AddTimeRow(uiState.endTime, R.string.end_time, viewModel::currentEndTime, viewModel::setEndTime)
+        AddTimeRow(uiState.workTimeToday, R.string.work_time_today, viewModel::currentWorkTimeToday, viewModel::setWorkTimeToday)
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         
-        AddTimeRow(lunchStart, R.string.lunch_start, viewModel::currentLunchStart, viewModel::setLunchStart)
-        AddTimeRow(lunchEnd, R.string.lunch_end, viewModel::currentLunchEnd, viewModel::setLunchEnd)
-        AddTimeRow(breakStart, R.string.break_start, viewModel::currentBreakStart, viewModel::setBreakStart)
-        AddTimeRow(breakEnd, R.string.break_end, viewModel::currentBreakEnd, viewModel::setBreakEnd)
+        AddTimeRow(uiState.lunchStart, R.string.lunch_start, viewModel::currentLunchStart, viewModel::setLunchStart)
+        AddTimeRow(uiState.lunchEnd, R.string.lunch_end, viewModel::currentLunchEnd, viewModel::setLunchEnd)
+        AddTimeRow(uiState.breakStart, R.string.break_start, viewModel::currentBreakStart, viewModel::setBreakStart)
+        AddTimeRow(uiState.breakEnd, R.string.break_end, viewModel::currentBreakEnd, viewModel::setBreakEnd)
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         
-        AddTimeRow(dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
-        AddTimeRow(lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
+        AddTimeRow(uiState.dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
+        AddTimeRow(uiState.lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -190,13 +167,13 @@ private fun ExistingDayFields(viewModel: EditWorkDayViewModel) {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(modifier = Modifier.weight(1f)) {
-                    AddCustomTimeRow(balanceToday, viewModel::setBalanceToday, R.string.balance_today)
+                    AddCustomTimeRow(uiState.balanceToday, viewModel::setBalanceToday, R.string.balance_today)
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    AddCustomTimeRow(balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
+                    AddCustomTimeRow(uiState.balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
                 }
             }
-            AddCustomTimeRow(workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
+            AddCustomTimeRow(uiState.workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
         }
     }
 }
@@ -253,9 +230,10 @@ private fun AddTimeRow(
 
     if (openTimePickerDialog) {
         TimePickerDialog(
-            onDismissRequest = {},
+            onDismissRequest = { openTimePickerDialog = false },
             onConfirmation = { time ->
                 onConfirmation(time)
+                openTimePickerDialog = false
             },
             time = textFieldValue,
             titleId = stringId,
@@ -295,7 +273,7 @@ private fun AddTimeRow(
                 )
             }
             IconButton(
-                onClick = {},
+                onClick = { openTimePickerDialog = true },
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(

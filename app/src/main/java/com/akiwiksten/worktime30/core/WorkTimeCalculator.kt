@@ -13,14 +13,16 @@ import kotlin.math.abs
 @Suppress("TooManyFunctions")
 object WorkTimeCalculator {
 
+    private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
+    private val dayFormatter = DateTimeFormatter.ofPattern("dd")
+
     fun parseDate(workDay: String): String {
         val formattedDate = LocalDate.parse(workDay)
-        return DateTimeFormatter.ofPattern("dd").format(formattedDate)
+        return dayFormatter.format(formattedDate)
     }
 
     fun stringToLocalTime(time: String): LocalTime {
-        val outputFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
-        return LocalTime.parse(time, outputFormatter)
+        return LocalTime.parse(time, timeFormatter)
     }
 
     fun calculateWorkTimeBalance(initialTime: String, addedTime: String): String {

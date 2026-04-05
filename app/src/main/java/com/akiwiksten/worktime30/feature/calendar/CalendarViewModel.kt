@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.domain.CalendarData
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -24,7 +24,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
-    private val getCalendarDataUseCase: GetCalendarDataUseCase
+    private val getCalendarDataUseCase: GetCalendarDataUseCase,
+    private val dateRepository: DateRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CalendarUiState())
@@ -33,9 +34,12 @@ class CalendarViewModel @Inject constructor(
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
     init {
-        val today = LocalDate.now().format(dateFormatter)
-        _uiState.update { it.copy(date = today) }
-        calculateSums(today)
+        viewModelScope.launch {
+            dateRepository.selectedDate.collect { date ->
+                _uiState.update { it.copy(date = date) }
+                calculateSums(date)
+            }
+        }
     }
 
     /**
@@ -52,14 +56,11 @@ class CalendarViewModel @Inject constructor(
      * Updates the currently selected date and recalculates sums.
      */
     fun onDateSelected(selectedDate: String) {
-        if (_uiState.value.date == selectedDate) return
-        _uiState.update { it.copy(date = selectedDate) }
-        calculateSums(selectedDate)
+        dateRepository.updateDate(selectedDate)
     }
 
     private fun calculateSums(date: String) {
         viewModelScope.launch {
-            // Move heavy database/calculation logic to background thread
             val data: CalendarData = withContext(Dispatchers.IO) {
                 getCalendarDataUseCase(date)
             }

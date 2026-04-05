@@ -1,11 +1,11 @@
 package com.akiwiksten.worktime30.feature.projects
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -26,7 +25,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProjectsViewModel @Inject constructor(
     private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
-    private val saveProjectsUseCase: SaveProjectsUseCase
+    private val saveProjectsUseCase: SaveProjectsUseCase,
+    private val dateRepository: DateRepository
 ) : ViewModel() {
     
     private val _items = MutableStateFlow<List<ProjectListItemUiState>>(emptyList())
@@ -47,8 +47,15 @@ class ProjectsViewModel @Inject constructor(
     private var _dropDownWorkTypes = MutableStateFlow<List<String>>(listOf())
     val dropDownWorkTypes = _dropDownWorkTypes.asStateFlow()
     
-    private val _date = MutableStateFlow(ZERO_TIME)
-    val date: StateFlow<String> = _date.asStateFlow()
+    val date: StateFlow<String> = dateRepository.selectedDate
+
+    init {
+        viewModelScope.launch {
+            dateRepository.selectedDate.collect { date ->
+                loadWorkTimeTodayFromDb(date)
+            }
+        }
+    }
 
     val totalWorkTime: StateFlow<String> = _items.map { list ->
         list.fold(ZERO_TIME) { acc, item ->
@@ -60,7 +67,7 @@ class ProjectsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ZERO_TIME)
 
     fun setDate(date: String) {
-        _date.value = date
+        dateRepository.updateDate(date)
     }
 
     fun setSelectedIndex(index: Int) {
@@ -69,7 +76,7 @@ class ProjectsViewModel @Inject constructor(
 
     fun saveProjects() {
         viewModelScope.launch {
-            val dateVal = _date.value
+            val dateVal = date.value
 
             val projectsToSave = _items.value.map { project ->
                 ProjectEntity(
@@ -162,6 +169,7 @@ class ProjectsViewModel @Inject constructor(
             _workTimeBalance.value = "-${data.workTimeToday}"
             _dropDownWorkTypes.value = data.workTypes
 
+            index0 = 0
             val loadedItems = if (data.projects.isEmpty()) {
                 data.projectNames.map { project ->
                     ProjectListItemUiState(index = index0++, projectName = project.name)

@@ -10,18 +10,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -123,14 +130,25 @@ fun ProjectsScreen(
 
 @Composable
 private fun ProjectsHeader(date: String, workTime: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Header(stringResource(R.string.projects_customers))
-        Text(text = date, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-        Text(
-            text = "${stringResource(R.string.work_time_today)}: $workTime",
-            fontSize = 18.sp,
-            color = MaterialTheme.colorScheme.secondary
-        )
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Header(stringResource(R.string.projects_customers))
+            Text(
+                text = date,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "${stringResource(R.string.work_time_today)}: $workTime",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
     }
 }
 
@@ -144,16 +162,21 @@ private fun ProjectsListSection(
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
             .selectableGroup(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(items) { item ->
             ProjectListItem(
                 item = item,
                 isSelected = selectedIndex == item.index,
                 onClick = { onItemSelected(item.index) }
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
             )
         }
     }
@@ -169,15 +192,44 @@ private fun ProjectListItem(
         modifier = Modifier
             .fillMaxWidth()
             .selectable(selected = isSelected, onClick = onClick)
-            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-            .padding(12.dp)
+            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else Color.Transparent)
+            .padding(16.dp)
     ) {
-        Text(
-            text = "${item.projectName} | ${item.projectStartTime} - ${item.projectEndTime}\n" +
-                "${item.workType} | ${item.kilometres}km",
-            fontSize = 16.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = item.projectName,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "${item.projectStartTime} - ${item.projectEndTime}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.workType,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "${item.kilometres} km",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
     }
 }
 
@@ -193,23 +245,49 @@ private fun ProjectsActionButtons(
     val ctx = LocalContext.current
     val saveString = stringResource(R.string.saved)
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(onClick = onAddClick, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onAddClick,
+                modifier = Modifier.weight(1f),
+                contentPadding = ButtonDefaults.ContentPadding
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.add))
             }
-            Button(onClick = onEditClick, enabled = isItemSelected, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onEditClick,
+                enabled = isItemSelected,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.edit))
             }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(onClick = onDeleteClick, enabled = isItemSelected, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onDeleteClick,
+                enabled = isItemSelected,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.delete))
             }
             Button(
@@ -218,8 +296,14 @@ private fun ProjectsActionButtons(
                     Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
                 },
                 enabled = isSaveEnabled,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
+                Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.save))
             }
         }
@@ -268,9 +352,7 @@ private fun DialogHandling(
             onDismissRequest = onAddDismiss,
             onConfirmation = { uiState ->
                 val failed = !projectsViewModel.addItem(uiState)
-                val overlapping = projectsViewModel
-                    .areItemsOverlapping(uiState.projectStartTime,
-                        uiState.projectEndTime)
+                val overlapping = projectsViewModel.areItemsOverlapping(uiState.projectStartTime, uiState.projectEndTime)
                 onItemAdded(failed, overlapping)
                 onAddDismiss()
             },
@@ -291,9 +373,7 @@ private fun DialogHandling(
                 uiState.index = selectedIndex
                 uiState.initBalance = "-" + editWorkDayViewModel.getWorkTimeToday()
                 projectsViewModel.editItem(uiState)
-                val overlapping = projectsViewModel
-                    .areItemsOverlapping(uiState.projectStartTime,
-                        uiState.projectEndTime)
+                val overlapping = projectsViewModel.areItemsOverlapping(uiState.projectStartTime, uiState.projectEndTime)
                 onItemEdited(overlapping)
                 onEditDismiss()
             },

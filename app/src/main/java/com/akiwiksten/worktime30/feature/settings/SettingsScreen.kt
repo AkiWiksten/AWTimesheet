@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -25,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +56,6 @@ fun SettingsScreen(
     val ctx = LocalContext.current
     var showAddWorkTypeDialog by remember { mutableStateOf(false) }
     var selectedWorkType by remember { mutableStateOf("") }
-    val savedMessage = stringResource(R.string.saved)
 
     LaunchedEffect(date) {
         settingsViewModel.loadSettings()
@@ -69,45 +71,39 @@ fun SettingsScreen(
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         HeaderSection(date = date)
 
-        ProfileSection(
-            name = name,
-            employer = employer,
-            onNameChange = settingsViewModel::setName,
-            onEmployerChange = settingsViewModel::setEmployer
-        )
+        SettingsCard(title = stringResource(R.string.name) + " & " + stringResource(R.string.employer)) {
+            ProfileSection(
+                name = name,
+                employer = employer,
+                onNameChange = settingsViewModel::setName,
+                onEmployerChange = settingsViewModel::setEmployer
+            )
+        }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-        WorkTypeSection(
-            workTypes = dropDownWorkTypes,
-            selectedWorkType = selectedWorkType,
-            onWorkTypeSelected = { selectedWorkType = it },
-            onAddClick = { showAddWorkTypeDialog = true },
-            onDeleteClick = {
-                settingsViewModel.removeWorkType(selectedWorkType)
-                selectedWorkType = ""
-            }
-        )
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        SettingsCard(title = stringResource(R.string.work_type)) {
+            WorkTypeSection(
+                workTypes = dropDownWorkTypes,
+                selectedWorkType = selectedWorkType,
+                onWorkTypeSelected = { selectedWorkType = it },
+                onAddClick = { showAddWorkTypeDialog = true },
+                onDeleteClick = {
+                    settingsViewModel.removeWorkType(selectedWorkType)
+                    selectedWorkType = ""
+                }
+            )
+        }
 
         ActionButtonsSection(
             onSave = {
                 settingsViewModel.saveSettings()
-                Toast.makeText(ctx, savedMessage, Toast.LENGTH_SHORT).show()
+                Toast.makeText(ctx, ctx.getString(R.string.saved), Toast.LENGTH_SHORT).show()
             },
             onGeneratePdf = {
-                generateReport(
-                    ctx = ctx,
-                    viewModel = settingsViewModel,
-                    endOfMonthDate = endMonthDate,
-                    name = name,
-                    employer = employer
-                )
+                generateReport(ctx, settingsViewModel, endMonthDate, name, employer)
             },
             isPdfEnabled = settingsViewModel.projectsByMonth.isNotEmpty()
         )
@@ -126,10 +122,30 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun SettingsCard(title: String, content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            HorizontalDivider()
+            content()
+        }
+    }
+}
+
+@Composable
 private fun HeaderSection(date: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Header(stringResource(R.string.settings))
-        Text(text = date, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(
+            text = date,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 
@@ -154,7 +170,7 @@ private fun SettingsTextField(value: String, label: Int, onValueChange: (String)
         singleLine = true,
         label = { Text(stringResource(label)) },
         modifier = Modifier.fillMaxWidth(),
-        textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        textStyle = MaterialTheme.typography.bodyLarge
     )
 }
 
@@ -184,7 +200,8 @@ private fun WorkTypeSection(
             Button(
                 onClick = onDeleteClick,
                 enabled = selectedWorkType.isNotEmpty(),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
                 Text(stringResource(R.string.delete))
             }
@@ -198,7 +215,10 @@ private fun ActionButtonsSection(
     onGeneratePdf: () -> Unit,
     isPdfEnabled: Boolean
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+        modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.save), fontSize = 18.sp)
         }

@@ -2,16 +2,26 @@ package com.akiwiksten.worktime30.feature.editworkday
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -27,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +65,7 @@ fun EditWorkDayScreen(
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderSection(date = date, onClearDay = editWorkDayViewModel::clearDay)
@@ -78,16 +87,30 @@ fun EditWorkDayScreen(
 
 @Composable
 private fun HeaderSection(date: String, onClearDay: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Header(stringResource(R.string.work_day))
-        Text(
-            text = date,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-        Button(onClick = onClearDay) {
-            Text(stringResource(R.string.clear_day))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Header(stringResource(R.string.work_day))
+            Text(
+                text = date,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Button(
+                onClick = onClearDay,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Text(stringResource(R.string.clear_day))
+            }
         }
     }
 }
@@ -100,23 +123,29 @@ private fun NewDayFields(viewModel: EditWorkDayViewModel) {
     val balanceTotal by viewModel.balanceTotal.collectAsState()
     val workTimeTotal by viewModel.workTimeTotal.collectAsState()
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         AddTimeRow(startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
         AddTimeRow(dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
         AddTimeRow(lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
 
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AddCustomTimeRow(balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
-            Spacer(modifier = Modifier.width(8.dp))
-            AddCustomTimeRow(workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
+            Box(modifier = Modifier.weight(1f)) {
+                AddCustomTimeRow(balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                AddCustomTimeRow(workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
+            }
         }
         Text(
             text = stringResource(R.string.new_day),
-            fontSize = 14.sp,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 8.dp)
         )
     }
 }
@@ -136,26 +165,36 @@ private fun ExistingDayFields(viewModel: EditWorkDayViewModel) {
     val balanceTotal by viewModel.balanceTotal.collectAsState()
     val workTimeTotal by viewModel.workTimeTotal.collectAsState()
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AddTimeRow(startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
         AddTimeRow(endTime, R.string.end_time, viewModel::currentEndTime, viewModel::setEndTime)
         AddTimeRow(workTimeToday, R.string.work_time_today, viewModel::currentWorkTimeToday, viewModel::setWorkTimeToday)
+        
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+        
         AddTimeRow(lunchStart, R.string.lunch_start, viewModel::currentLunchStart, viewModel::setLunchStart)
         AddTimeRow(lunchEnd, R.string.lunch_end, viewModel::currentLunchEnd, viewModel::setLunchEnd)
         AddTimeRow(breakStart, R.string.break_start, viewModel::currentBreakStart, viewModel::setBreakStart)
         AddTimeRow(breakEnd, R.string.break_end, viewModel::currentBreakEnd, viewModel::setBreakEnd)
+        
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+        
         AddTimeRow(dailyWorkTime, R.string.daily_work_time, viewModel::currentDailyWorkTime, viewModel::setDailyWorkTime)
         AddTimeRow(lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
 
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.Center) {
-                AddCustomTimeRow(balanceToday, viewModel::setBalanceToday, R.string.balance_today)
-                Spacer(modifier = Modifier.width(8.dp))
-                AddCustomTimeRow(balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Box(modifier = Modifier.weight(1f)) {
+                    AddCustomTimeRow(balanceToday, viewModel::setBalanceToday, R.string.balance_today)
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    AddCustomTimeRow(balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
+                }
             }
             AddCustomTimeRow(workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
         }
@@ -172,9 +211,12 @@ private fun FooterSection(onSave: () -> Unit) {
             onSave()
             Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
         },
-        modifier = Modifier.padding(top = 16.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        shape = MaterialTheme.shapes.large
     ) {
-        Text(stringResource(R.string.save), fontSize = 20.sp)
+        Text(stringResource(R.string.save), style = MaterialTheme.typography.titleLarge)
     }
 }
 
@@ -193,9 +235,9 @@ private fun AddCustomTimeRow(
         value = customTime,
         onValueChange = { customTimeFunction(it, isValidText(it)) },
         singleLine = true,
-        label = { Text(stringResource(stringId), fontSize = 16.sp) },
-        modifier = Modifier.width(130.dp),
-        textStyle = TextStyle.Default.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+        label = { Text(stringResource(stringId)) },
+        modifier = Modifier.fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
         isError = !isValidText(customTime)
     )
 }
@@ -211,10 +253,9 @@ private fun AddTimeRow(
 
     if (openTimePickerDialog) {
         TimePickerDialog(
-            onDismissRequest = { openTimePickerDialog = false },
+            onDismissRequest = {},
             onConfirmation = { time ->
                 onConfirmation(time)
-                openTimePickerDialog = false
             },
             time = textFieldValue,
             titleId = stringId,
@@ -224,31 +265,44 @@ private fun AddTimeRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         OutlinedTextField(
             value = textFieldValue,
             onValueChange = {},
-            label = { Text(stringResource(stringId), fontSize = 16.sp) },
+            label = { Text(stringResource(stringId)) },
             readOnly = true,
             enabled = false,
             isError = !isValidText(textFieldValue),
-            textStyle = TextStyle.Default.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-            modifier = Modifier.width(110.dp),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.weight(1f),
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledBorderColor = MaterialTheme.colorScheme.outline,
-                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Button(onClick = currentTime, modifier = Modifier.width(140.dp)) {
-                Text(stringResource(R.string.current_time), fontSize = 14.sp)
+        
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            IconButton(
+                onClick = currentTime,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = stringResource(R.string.current_time),
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
-            Button(onClick = { openTimePickerDialog = true }, modifier = Modifier.width(140.dp)) {
-                Text(stringResource(R.string.go_to_time_picker), fontSize = 14.sp)
+            IconButton(
+                onClick = {},
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccessTime,
+                    contentDescription = stringResource(R.string.go_to_time_picker),
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

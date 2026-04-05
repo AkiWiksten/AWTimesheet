@@ -65,6 +65,8 @@ fun ProjectsScreen(
     val date = calendarUiState.date
     val selectedIndex by projectsViewModel.selectedIndex.collectAsState()
     val dropDownWorkTypes by projectsViewModel.dropDownWorkTypes.collectAsState()
+    val items by projectsViewModel.items.collectAsState()
+    val totalWorkTime by projectsViewModel.totalWorkTime.collectAsState()
     
     var showAddDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
@@ -86,10 +88,10 @@ fun ProjectsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ProjectsHeader(date = date, workTime = projectsViewModel.getWorkTimeToday())
+        ProjectsHeader(date = date, workTime = totalWorkTime)
 
         ProjectsListSection(
-            items = projectsViewModel.items,
+            items = items,
             selectedIndex = selectedIndex,
             onItemSelected = projectsViewModel::setSelectedIndex,
             modifier = Modifier.weight(1f)
@@ -101,7 +103,7 @@ fun ProjectsScreen(
             onEditClick = { showEditDialog = true },
             onDeleteClick = { projectsViewModel.deleteItem(selectedIndex) },
             onSaveClick = { projectsViewModel.saveProjects() },
-            isSaveEnabled = projectsViewModel.items.isNotEmpty()
+            isSaveEnabled = items.isNotEmpty()
         )
 
         DialogHandling(
@@ -167,7 +169,10 @@ private fun ProjectsListSection(
             .selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        items(items) { item ->
+        items(
+            items = items,
+            key = { it.index }
+        ) { item ->
             ProjectListItem(
                 item = item,
                 isSelected = selectedIndex == item.index,
@@ -370,9 +375,11 @@ private fun DialogHandling(
         ProjectDialog(
             onDismissRequest = onEditDismiss,
             onConfirmation = { uiState ->
-                uiState.index = selectedIndex
-                uiState.initBalance = "-" + editWorkDayViewModel.getWorkTimeToday()
-                projectsViewModel.editItem(uiState)
+                val updatedUiState = uiState.copy(
+                    index = selectedIndex,
+                    initBalance = "-" + editWorkDayViewModel.getWorkTimeToday()
+                )
+                projectsViewModel.editItem(updatedUiState)
                 val overlapping = projectsViewModel.areItemsOverlapping(uiState.projectStartTime, uiState.projectEndTime)
                 onItemEdited(overlapping)
                 onEditDismiss()

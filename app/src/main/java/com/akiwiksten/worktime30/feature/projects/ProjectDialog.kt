@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +60,12 @@ fun ProjectDialog(
     var state by remember { mutableStateOf(ProjectDialogState(uiState)) }
     var isNegativeWorkDay by remember { mutableStateOf(false) }
 
+    val isConfirmEnabled by remember {
+        derivedStateOf {
+            state.projectName.isNotBlank() && state.kilometres.isDigitsOnly()
+        }
+    }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
             modifier = Modifier
@@ -82,27 +89,89 @@ fun ProjectDialog(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                ProjectInputs(
-                    state = state,
-                    isAddMode = uiState.titleId == R.string.add,
-                    workTypes = workTypeDropDownList,
-                    onStateChange = { state = it },
-                    onNegativeTime = { isNegativeWorkDay = true }
+                OutlinedTextField(
+                    value = state.projectName,
+                    onValueChange = { state = state.copy(projectName = it) },
+                    label = { Text(stringResource(R.string.project_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = uiState.titleId == R.string.add,
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
                 )
 
-                ActionButtons(
-                    onDismiss = onDismissRequest,
-                    onConfirm = { onConfirmation(state.toUiState()) },
-                    confirmEnabled = state.projectName.isNotBlank() && state.kilometres.isDigitsOnly()
+                TimeRow(
+                    labelId = R.string.start_time,
+                    value = state.projectStartTime,
+                    onTimeChanged = { 
+                        state = state.copy(projectStartTime = it, projectEndTime = it) 
+                    }
                 )
+
+                TimeRow(
+                    labelId = R.string.end_time,
+                    value = state.projectEndTime,
+                    onTimeChanged = {
+                        state = state.copy(projectEndTime = it)
+                        val diff = WorkTimeCalculator.calculateWorkTimeBalance(it, "-${state.projectStartTime}")
+                        if (diff.startsWith('-')) isNegativeWorkDay = true
+                    }
+                )
+
+                DropdownMenuBox(
+                    items = listOf(
+                        stringResource(R.string.no_allowance),
+                        stringResource(R.string.daily_allowance),
+                        stringResource(R.string.half_day_allowance)
+                    ),
+                    onItemSelected = { state = state.copy(allowance = it) },
+                    labelId = R.string.allowance,
+                    selectedText = state.allowance,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                DropdownMenuBox(
+                    items = workTypeDropDownList,
+                    onItemSelected = { state = state.copy(workType = it) },
+                    labelId = R.string.work_type,
+                    selectedText = state.workType,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = state.kilometres,
+                    onValueChange = { if (it.isDigitsOnly()) state = state.copy(kilometres = it) },
+                    label = { Text(stringResource(R.string.kilometres)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text(stringResource(R.string.dismiss))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { onConfirmation(state.toUiState()) },
+                        enabled = isConfirmEnabled,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(stringResource(R.string.confirm))
+                    }
+                }
             }
         }
     }
 
     if (isNegativeWorkDay) {
         MyAlertDialog(
-            onDismissRequest = {},
-            onConfirmation = {},
+            onDismissRequest = { isNegativeWorkDay = false },
+            onConfirmation = { isNegativeWorkDay = false },
             dialogTitle = stringResource(R.string.negative_worktime_title),
             dialogText = stringResource(R.string.negative_worktime_text),
             icon = Icons.Default.Info
@@ -111,75 +180,11 @@ fun ProjectDialog(
 }
 
 @Composable
-private fun ProjectInputs(
-    state: ProjectDialogState,
-    isAddMode: Boolean,
-    workTypes: List<String>,
-    onStateChange: (ProjectDialogState) -> Unit,
-    onNegativeTime: () -> Unit
+private fun TimeRow(
+    labelId: Int,
+    value: String,
+    onTimeChanged: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        OutlinedTextField(
-            value = state.projectName,
-            onValueChange = { onStateChange(state.copy(projectName = it)) },
-            label = { Text(stringResource(R.string.project_name)) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = isAddMode,
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        TimeRow(
-            label = R.string.start_time,
-            value = state.projectStartTime,
-            onTimeChanged = { onStateChange(state.copy(projectStartTime = it, projectEndTime = it)) }
-        )
-
-        TimeRow(
-            label = R.string.end_time,
-            value = state.projectEndTime,
-            onTimeChanged = {
-                onStateChange(state.copy(projectEndTime = it))
-                if (WorkTimeCalculator.calculateWorkTimeBalance(it, "-${state.projectStartTime}")
-                        .startsWith('-')
-                ) onNegativeTime()
-            }
-        )
-
-        DropdownMenuBox(
-            items = listOf(
-                stringResource(R.string.no_allowance),
-                stringResource(R.string.daily_allowance),
-                stringResource(R.string.half_day_allowance)
-            ),
-            onItemSelected = { onStateChange(state.copy(allowance = it)) },
-            labelId = R.string.allowance,
-            selectedText = state.allowance,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        DropdownMenuBox(
-            items = workTypes,
-            onItemSelected = { onStateChange(state.copy(workType = it)) },
-            labelId = R.string.work_type,
-            selectedText = state.workType,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = state.kilometres,
-            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-            label = { Text(stringResource(R.string.kilometres)) },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp)
-        )
-    }
-}
-
-@Composable
-private fun TimeRow(label: Int, value: String, onTimeChanged: (String) -> Unit) {
     var openPicker by remember { mutableStateOf(false) }
 
     Row(
@@ -190,7 +195,7 @@ private fun TimeRow(label: Int, value: String, onTimeChanged: (String) -> Unit) 
         OutlinedTextField(
             value = value,
             onValueChange = {},
-            label = { Text(stringResource(label)) },
+            label = { Text(stringResource(labelId)) },
             readOnly = true,
             modifier = Modifier.weight(1f),
             textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
@@ -223,34 +228,14 @@ private fun TimeRow(label: Int, value: String, onTimeChanged: (String) -> Unit) 
 
     if (openPicker) {
         TimePickerDialog(
-            onDismissRequest = {},
+            onDismissRequest = { openPicker = false },
             onConfirmation = {
                 onTimeChanged(it)
+                openPicker = false
             },
             time = value,
-            titleId = R.string.select_date
+            titleId = labelId
         )
-    }
-}
-
-@Composable
-private fun ActionButtons(onDismiss: () -> Unit, onConfirm: () -> Unit, confirmEnabled: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(onClick = onDismiss) {
-            Text(stringResource(R.string.dismiss))
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Button(
-            onClick = onConfirm,
-            enabled = confirmEnabled,
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(stringResource(R.string.confirm))
-        }
     }
 }
 

@@ -7,7 +7,7 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkDayDao
-import com.akiwiksten.worktime30.data.database.dao.WorkDayOneRowDao
+import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
@@ -25,49 +25,48 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface RepositoryModule {
-    @Binds
-    @Singleton
-    fun bindWorkDayRepository(impl: WorkDayRepositoryImpl): WorkDayRepository
+@Suppress("unused")
+abstract class DatabaseModule {
 
     @Binds
     @Singleton
-    fun bindProjectRepository(impl: ProjectRepositoryImpl): ProjectRepository
+    abstract fun bindWorkDayRepository(impl: WorkDayRepositoryImpl): WorkDayRepository
 
     @Binds
     @Singleton
-    fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
-}
+    abstract fun bindProjectRepository(impl: ProjectRepositoryImpl): ProjectRepository
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModule {
-
-    @Provides
+    @Binds
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            AppDatabase.DB_NAME
-        ).fallbackToDestructiveMigration(dropAllTables = true).build()
+    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    companion object {
+        @Provides
+        @Singleton
+        fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+            return Room.databaseBuilder(
+                context,
+                AppDatabase::class.java,
+                AppDatabase.DB_NAME
+            ).fallbackToDestructiveMigration(dropAllTables = true).build()
+        }
+
+        @Provides
+        fun provideWorkDayDao(database: AppDatabase): WorkDayDao = database.workDayDao()
+
+        @Provides
+        fun provideWorkStatsDao(database: AppDatabase): WorkStatsDao = database.workStatsDao()
+
+        @Provides
+        fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
+
+        @Provides
+        fun provideProjectNameDao(database: AppDatabase): ProjectNameDao = database.projectNameDao()
+
+        @Provides
+        fun provideSettingsDao(database: AppDatabase): SettingsDao = database.settingsDao()
+
+        @Provides
+        fun provideWorkTypeDao(database: AppDatabase): WorkTypeDao = database.workTypeDao()
     }
-
-    @Provides
-    fun provideWorkDayDao(database: AppDatabase): WorkDayDao = database.workDayDao()
-
-    @Provides
-    fun provideWorkDayOneRowDao(database: AppDatabase): WorkDayOneRowDao = database.workDayOneRowDao()
-
-    @Provides
-    fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
-
-    @Provides
-    fun provideProjectNameDao(database: AppDatabase): ProjectNameDao = database.projectNameDao()
-
-    @Provides
-    fun provideSettingsDao(database: AppDatabase): SettingsDao = database.settingsDao()
-
-    @Provides
-    fun provideWorkTypeDao(database: AppDatabase): WorkTypeDao = database.workTypeDao()
 }

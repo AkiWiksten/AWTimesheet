@@ -6,7 +6,7 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.WorkDayRepository
@@ -33,7 +33,7 @@ data class ProjectListItemUiState(
     val leftOvers: String = "",
     val initBalance: String = "",
     val workDay: WorkDayEntity? = null,
-    val workDayOneRow: WorkDayOneRowEntity? = null
+    val workStats: WorkStatsEntity? = null
 )
 
 data class ProjectsUiState(
@@ -52,7 +52,7 @@ data class ProjectDialogState(
     val allowance: String,
     val workType: String,
     val workDay: WorkDayEntity? = null,
-    val workDayOneRow: WorkDayOneRowEntity? = null
+    val workStats: WorkStatsEntity? = null
 ) {
     constructor(uiState: ProjectListItemUiState) : this(
         projectName = uiState.projectName,
@@ -61,7 +61,7 @@ data class ProjectDialogState(
         allowance = uiState.allowance.ifEmpty { "No Allowance" },
         workType = uiState.workType,
         workDay = uiState.workDay,
-        workDayOneRow = uiState.workDayOneRow
+        workStats = uiState.workStats
     )
 
     fun toUiState() = ProjectListItemUiState(
@@ -71,7 +71,7 @@ data class ProjectDialogState(
         allowance = allowance,
         workType = workType,
         workDay = workDay,
-        workDayOneRow = workDayOneRow
+        workStats = workStats
     )
 }
 
@@ -138,7 +138,7 @@ class ProjectsViewModel @Inject constructor(
             saveProjectsUseCase(date, listOf(entity), emptyList())
             
             uiState.workDay?.let { workDayRepository.insertWorkDay(it) }
-            uiState.workDayOneRow?.let { workDayRepository.insertWorkDayOneRow(it) }
+            uiState.workStats?.let { workDayRepository.insertWorkStats(it) }
 
             loadData(date)
         }

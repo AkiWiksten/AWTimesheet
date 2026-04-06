@@ -54,7 +54,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 data class SingleProjectArgs(
@@ -65,7 +65,7 @@ data class SingleProjectArgs(
     val allowance: String? = null,
     val workType: String? = null,
     val workDay: WorkDayEntity? = null,
-    val workDayOneRow: WorkDayOneRowEntity? = null
+    val workStats: WorkStatsEntity? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,7 +104,7 @@ fun SingleProjectScreen(
         args.allowance?.let { state = state.copy(allowance = it) }
         args.workType?.let { state = state.copy(workType = it) }
         args.workDay?.let { state = state.copy(workDay = it) }
-        args.workDayOneRow?.let { state = state.copy(workDayOneRow = it) }
+        args.workStats?.let { state = state.copy(workStats = it) }
     }
 
     val isConfirmEnabled by remember {
@@ -143,7 +143,7 @@ private fun Context.findActivity(): ComponentActivity {
         if (context is ComponentActivity) return context
         context = context.baseContext
     }
-    throw IllegalStateException("Context does not have an Activity")
+    error("Context does not have an Activity")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -350,24 +350,25 @@ private fun CompactTimeRow(
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledBorderColor = MaterialTheme.colorScheme.outline
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
             ),
-            enabled = false,
             shape = RoundedCornerShape(12.dp)
         )
 
-        IconButton(
-            onClick = onHistoryClick,
-            modifier = Modifier.size(48.dp)
-        ) {
-            Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        IconButton(onClick = onHistoryClick) {
+            Icon(
+                imageVector = Icons.Default.History,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
 
-        IconButton(
-            onClick = onOpenEditWorkDay,
-            modifier = Modifier.size(48.dp)
-        ) {
-            Icon(Icons.Default.AccessTime, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        IconButton(onClick = onOpenEditWorkDay) {
+            Icon(
+                imageVector = Icons.Default.AccessTime,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

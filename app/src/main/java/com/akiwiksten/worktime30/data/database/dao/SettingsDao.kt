@@ -22,18 +22,18 @@ interface SettingsDao {
 
 @Dao
 interface WorkTypeDao {
-    @Query("SELECT exists (SELECT 1 FROM worktype)")
+    @Query("SELECT exists (SELECT 1 FROM work_type)")
     suspend fun anyRecords(): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorkType(workType: WorkTypeEntity)
 
-    @Query("SELECT * FROM worktype")
+    @Query("SELECT * FROM work_type")
     suspend fun loadWorkTypes(): List<WorkTypeEntity>
 
     @Delete
     suspend fun delete(workType: WorkTypeEntity)
 
-    @Query("DELETE FROM worktype")
+    @Query("DELETE FROM work_type")
     suspend fun deleteAll()
 }

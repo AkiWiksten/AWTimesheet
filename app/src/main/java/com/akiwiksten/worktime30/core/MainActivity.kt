@@ -27,7 +27,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
@@ -139,10 +139,10 @@ private fun EditWorkDayEntry(screen: Screen.EditWorkDay, backStack: SnapshotStat
     EditWorkDayScreen(
         projectName = screen.projectName,
         workDay = screen.workDay,
-        workDayOneRow = screen.workDayOneRow,
+        workStats = screen.workStats,
         onNavigateBack = { backStack.pop() },
-        onConfirm = { workDay, workDayOneRow ->
-            backStack.updateSingleProjectWorkTime(workDay, workDayOneRow)
+        onConfirm = { workDay, workStats ->
+            backStack.updateSingleProjectWorkTime(workDay, workStats)
         }
     )
 }
@@ -158,7 +158,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             allowance = screen.allowance,
             workType = screen.workType,
             workDay = screen.workDay,
-            workDayOneRow = screen.workDayOneRow
+            workStats = screen.workStats
         ),
         onNavigateBack = { backStack.pop() },
         onOpenEditWorkDay = { state ->
@@ -167,7 +167,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                 Screen.EditWorkDay(
                     projectName = state.projectName,
                     workDay = state.workDay,
-                    workDayOneRow = state.workDayOneRow
+                    workStats = state.workStats
                 )
             )
         }
@@ -182,7 +182,7 @@ private fun SnapshotStateList<Any>.pop() {
 
 private fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     workDay: WorkDayEntity,
-    workDayOneRow: WorkDayOneRowEntity
+    workStats: WorkStatsEntity
 ) {
     pop()
     val currentLast = lastOrNull()
@@ -190,7 +190,7 @@ private fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
         this[size - 1] = currentLast.copy(
             projectTime = workDay.workTimeToday,
             workDay = workDay,
-            workDayOneRow = workDayOneRow
+            workStats = workStats
         )
     }
 }
@@ -206,7 +206,7 @@ private fun SnapshotStateList<Any>.updateSingleProjectState(state: ProjectDialog
             allowance = state.allowance,
             workType = state.workType,
             workDay = state.workDay,
-            workDayOneRow = state.workDayOneRow
+            workStats = state.workStats
         )
     }
 }

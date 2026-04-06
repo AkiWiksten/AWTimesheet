@@ -15,8 +15,8 @@ class SaveProjectsUseCase @Inject constructor(
         projectNamesToDelete: List<String>
     ) {
         projectsToSave.forEach { project ->
-            projectRepository.insertProject(project)
             projectRepository.insertProjectName(ProjectNameEntity(project.projectName))
+            projectRepository.insertProject(project)
         }
         projectNamesToDelete.forEach { name ->
             projectRepository.deleteProject(

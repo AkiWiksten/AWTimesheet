@@ -8,7 +8,7 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.repository.WorkDayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -330,9 +330,9 @@ class EditWorkDayViewModel @Inject constructor(
         )
     }
 
-    fun getWorkDayOneRowEntity(): WorkDayOneRowEntity {
+    fun getWorkStatsEntity(): WorkStatsEntity {
         val state = _uiState.value
-        return WorkDayOneRowEntity(
+        return WorkStatsEntity(
             dailyWorkTime = state.dailyWorkTime,
             lunchTime = state.lunchTime,
             workTimeTotal = state.workTimeTotal,
@@ -340,20 +340,20 @@ class EditWorkDayViewModel @Inject constructor(
         )
     }
 
-    fun loadWorkDay(workDayArg: WorkDayEntity? = null, workDayOneRowArg: WorkDayOneRowEntity? = null) {
+    fun loadWorkDay(workDayArg: WorkDayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
         viewModelScope.launch {
             val state = _uiState.value
             val workDay = workDayArg ?: workDayRepository.getWorkDay(state.date, state.projectName)
-            val workDayOneRow = workDayOneRowArg ?: workDayRepository.getWorkDayOneRow()
+            val workStats = workStatsArg ?: workDayRepository.getWorkStats()
 
             _uiState.update { currentState ->
                 var nextState = currentState
-                if (workDayOneRow != null) {
+                if (workStats != null) {
                     nextState = nextState.copy(
-                        dailyWorkTime = workDayOneRow.dailyWorkTime,
-                        lunchTime = workDayOneRow.lunchTime,
-                        workTimeTotal = workDayOneRow.workTimeTotal,
-                        balanceTotal = workDayOneRow.balanceTotal
+                        dailyWorkTime = workStats.dailyWorkTime,
+                        lunchTime = workStats.lunchTime,
+                        workTimeTotal = workStats.workTimeTotal,
+                        balanceTotal = workStats.balanceTotal
                     )
                 } else {
                     nextState = nextState.copy(
@@ -446,16 +446,5 @@ class EditWorkDayViewModel @Inject constructor(
     @Suppress("UNUSED_PARAMETER")
     fun setWorkTimeTotal(workTimeTotal0: String, isValid: Boolean) {
         _uiState.update { it.copy(workTimeTotal = workTimeTotal0) }
-    }
-
-    fun getWorkTimeToday(): String {
-        return _uiState.value.workTimeToday
-    }
-
-    fun saveWorkDay(workDay: WorkDayEntity, workDayOneRow: WorkDayOneRowEntity) {
-        viewModelScope.launch {
-            workDayRepository.insertWorkDay(workDay)
-            workDayRepository.insertWorkDayOneRow(workDayOneRow)
-        }
     }
 }

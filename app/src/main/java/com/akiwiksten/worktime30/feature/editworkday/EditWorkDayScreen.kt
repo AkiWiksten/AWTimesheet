@@ -13,8 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,8 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,9 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,12 +48,12 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 fun EditWorkDayScreen(
     projectName: String? = null,
     workDay: WorkDayEntity? = null,
-    workDayOneRow: WorkDayOneRowEntity? = null,
+    workStats: WorkStatsEntity? = null,
     onNavigateBack: () -> Unit,
-    onConfirm: (WorkDayEntity, WorkDayOneRowEntity) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(),
+    onConfirm: (WorkDayEntity, WorkStatsEntity) -> Unit,
     viewModel: EditWorkDayViewModel = hiltViewModel(),
 ) {
+    val calendarViewModel: CalendarViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
     BackHandler { onNavigateBack() }
@@ -66,7 +61,7 @@ fun EditWorkDayScreen(
     LaunchedEffect(Unit) {
         viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
         projectName?.let { viewModel.setProjectName(it) }
-        viewModel.loadWorkDay(workDay, workDayOneRow)
+        viewModel.loadWorkDay(workDay, workStats)
     }
 
     Scaffold(
@@ -81,8 +76,8 @@ fun EditWorkDayScreen(
             viewModel = viewModel,
             onConfirm = {
                 val workDayResult = viewModel.getWorkDayEntity()
-                val workDayOneRowResult = viewModel.getWorkDayOneRowEntity()
-                onConfirm(workDayResult, workDayOneRowResult)
+                val workStatsResult = viewModel.getWorkStatsEntity()
+                onConfirm(workDayResult, workStatsResult)
             }
         )
     }
@@ -281,86 +276,5 @@ private fun FooterSection(onConfirm: () -> Unit) {
         shape = MaterialTheme.shapes.large
     ) {
         Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleLarge)
-    }
-}
-
-private fun isValidText(text: String): Boolean {
-    return text.matches(Regex("-?[1-9][0-9]+:[0-5][0-9]")) ||
-        text.matches(Regex("-?0[0-9]:[0-5][0-9]"))
-}
-
-@Composable
-private fun AddCustomTimeRow(
-    customTime: String,
-    customTimeFunction: (String, Boolean) -> Unit,
-    stringId: Int
-) {
-    OutlinedTextField(
-        value = customTime,
-        onValueChange = { customTimeFunction(it, isValidText(it)) },
-        singleLine = true,
-        label = { Text(stringResource(stringId)) },
-        modifier = Modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        isError = !isValidText(customTime)
-    )
-}
-
-@Composable
-private fun AddTimeRow(
-    textFieldValue: String,
-    stringId: Int,
-    currentTime: () -> Unit,
-    onConfirmation: (time: String) -> Unit,
-) {
-    val openTimePickerDialog = remember { mutableStateOf(false) }
-
-    if (openTimePickerDialog.value) {
-        TimePickerDialog(
-            onDismissRequest = { openTimePickerDialog.value = false },
-            onConfirmation = { time ->
-                onConfirmation(time)
-                openTimePickerDialog.value = false
-            },
-            time = textFieldValue,
-            titleId = stringId,
-        )
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        OutlinedTextField(
-            value = textFieldValue,
-            onValueChange = {},
-            label = { Text(stringResource(stringId)) },
-            readOnly = true,
-            enabled = false,
-            modifier = Modifier.weight(1f),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledBorderColor = MaterialTheme.colorScheme.outline,
-            )
-        )
-
-        IconButton(onClick = currentTime) {
-            Icon(
-                imageVector = Icons.Default.History,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        IconButton(onClick = { openTimePickerDialog.value = true }) {
-            Icon(
-                imageVector = Icons.Default.AccessTime,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
     }
 }

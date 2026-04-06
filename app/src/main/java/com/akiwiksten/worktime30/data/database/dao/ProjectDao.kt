@@ -31,13 +31,13 @@ interface ProjectDao {
 
 @Dao
 interface ProjectNameDao {
-    @Query("SELECT exists (SELECT 1 FROM projectname)")
+    @Query("SELECT exists (SELECT 1 FROM project_name)")
     suspend fun anyRecords(): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProjectName(project: ProjectNameEntity)
 
-    @Query("SELECT * FROM projectname")
+    @Query("SELECT * FROM project_name")
     suspend fun loadProjectNames(): List<ProjectNameEntity>
 
     @Delete

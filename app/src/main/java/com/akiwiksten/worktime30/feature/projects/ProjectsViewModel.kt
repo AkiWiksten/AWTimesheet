@@ -155,7 +155,14 @@ class ProjectsViewModel @Inject constructor(
             )
             saveProjectsUseCase(date, listOf(entity), emptyList())
             
-            uiState.workDay?.let { workDayRepository.insertWorkDay(it) }
+            val workDayToSave = uiState.workDay ?: WorkDayEntity(
+                date = date,
+                projectName = uiState.projectName,
+                workTimeToday = uiState.projectTime,
+                balanceToday = ZERO_TIME 
+            )
+            workDayRepository.insertWorkDay(workDayToSave)
+
             uiState.workStats?.let { workDayRepository.insertWorkStats(it) }
 
             loadData(date)
@@ -176,6 +183,8 @@ class ProjectsViewModel @Inject constructor(
                 workType = uiState.workType
             )
             projectRepository.deleteProject(entity)
+            workDayRepository.deleteWorkDay(WorkDayEntity(date = date, projectName = uiState.projectName))
+
             if (uiState.projectTime == ZERO_TIME) {
                 projectRepository.deleteProjectName(ProjectNameEntity(uiState.projectName))
             }

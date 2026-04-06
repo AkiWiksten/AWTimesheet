@@ -16,6 +16,9 @@ class WorkDayRepositoryImpl @Inject constructor(
         workDayDao.loadWorkDay(date, projectName)
 
     override suspend fun insertWorkDay(workDay: WorkDayEntity) = workDayDao.insertWorkDay(workDay)
+
+    override suspend fun deleteWorkDay(workDay: WorkDayEntity) = workDayDao.delete(workDay)
+
     override suspend fun getWorkStats(): WorkStatsEntity? = workStatsDao.loadWorkStats()
     override suspend fun insertWorkStats(workStats: WorkStatsEntity) =
         workStatsDao.insertWorkStats(workStats)

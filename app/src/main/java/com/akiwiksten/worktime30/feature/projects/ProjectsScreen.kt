@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
@@ -85,7 +86,8 @@ fun ProjectsScreen(
         )
 
         ProjectsActionButtons(
-            isItemSelected = selectedItemIndex != -1,
+            items = projectsUiState.projects,
+            selectedIndex = selectedItemIndex,
             onAddClick = { onNavigateToSingleProject(-1) },
             onEditClick = { onNavigateToSingleProject(selectedItemIndex) },
             onDeleteClick = {
@@ -211,11 +213,7 @@ private fun ProjectListItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = item.workType,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ProjectDetails(item.workType, item.allowance, Modifier.weight(1f))
                 Text(
                     text = "${item.kilometres} km",
                     style = MaterialTheme.typography.labelLarge,
@@ -228,12 +226,40 @@ private fun ProjectListItem(
 }
 
 @Composable
+private fun ProjectDetails(workType: String, allowance: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        if (workType.isNotEmpty()) {
+            Text(
+                text = workType,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (allowance.isNotEmpty()) {
+            Text(
+                text = allowance,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.secondary
+            )
+        }
+    }
+}
+
+@Composable
 private fun ProjectsActionButtons(
-    isItemSelected: Boolean,
+    items: List<ProjectListItemUiState>,
+    selectedIndex: Int,
     onAddClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val selectedProject = items.getOrNull(selectedIndex)
+    val deleteButtonText = if (selectedProject?.projectTime != ZERO_TIME) {
+        stringResource(R.string.nullify)
+    } else {
+        stringResource(R.string.delete)
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -248,7 +274,7 @@ private fun ProjectsActionButtons(
         }
         Button(
             onClick = onEditClick,
-            enabled = isItemSelected,
+            enabled = selectedIndex != -1,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -261,7 +287,7 @@ private fun ProjectsActionButtons(
         }
         Button(
             onClick = onDeleteClick,
-            enabled = isItemSelected,
+            enabled = selectedIndex != -1,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -270,7 +296,7 @@ private fun ProjectsActionButtons(
         ) {
             Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.delete))
+            Text(deleteButtonText)
         }
     }
 }

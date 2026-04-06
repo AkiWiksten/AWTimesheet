@@ -26,4 +26,7 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override suspend fun deleteProjectName(projectName: ProjectNameEntity) =
         projectNameDao.delete(projectName)
+
+    override suspend fun isProjectNameUsed(projectName: String): Boolean =
+        projectDao.isProjectNameUsed(projectName)
 }

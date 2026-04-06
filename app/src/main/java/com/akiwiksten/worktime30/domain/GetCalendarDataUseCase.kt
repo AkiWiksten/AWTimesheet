@@ -49,8 +49,10 @@ class GetCalendarDataUseCase @Inject constructor(
 
         val timePerWeek = calculateTotalTime(workDaysWeek, projectTimesWeek)
 
-        val timePerDay = workDaysMonth.find { it.date == date }?.workTimeToday
-            ?: calculateTotalTime(emptyList(), projectTimesMonth.filter { it.date == date })
+        val timePerDay = calculateTotalTime(
+            workDaysMonth.filter { it.date == date },
+            projectTimesMonth.filter { it.date == date }
+        )
 
         return CalendarData(
             timePerMonth = timePerMonth,
@@ -68,21 +70,12 @@ class GetCalendarDataUseCase @Inject constructor(
 
         // Sum up work days
         for (workDay in workDays) {
-            totalTime = WorkTimeCalculator.calculateTotalMinutes(
-                initialTime = totalTime,
-                addedTime = workDay.workTimeToday,
-                isInitialTimeNegative = false,
-                isAddedTimeNegative = false
-            )
+            totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, workDay.workTimeToday)
         }
 
         // Sum up projects for dates that DON'T have a work day entry
         projects.filter { it.date !in workDayDates }.forEach { project ->
-            val projectDuration = WorkTimeCalculator.calculateWorkTimeBalance(
-                project.projectEndTime,
-                "-" + project.projectStartTime
-            )
-            totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, projectDuration)
+            totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, project.projectTime)
         }
 
         return totalTime

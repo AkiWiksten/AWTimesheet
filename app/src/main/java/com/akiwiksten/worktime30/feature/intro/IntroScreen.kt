@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,7 +40,7 @@ import com.akiwiksten.worktime30.R
 
 private const val ANIMATION_DURATION = 3000
 private const val SCREEN_FILL_RATIO = 0.9f
-private const val BUTTON_SCALE_DIVIDER = 4f
+private const val BUTTON_SCALE_DIVIDER = 2.4f
 private const val DEFAULT_FALLBACK_SCALE = 3.1f
 
 @Composable
@@ -131,6 +132,7 @@ private fun IntroContent(
 
         Button(
             onClick = onItemClick,
+            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp),
             modifier = Modifier
                 .graphicsLayer {
                     val btnScale = currentScale / BUTTON_SCALE_DIVIDER
@@ -141,8 +143,8 @@ private fun IntroContent(
         ) {
             Text(
                 text = stringResource(R.string.continueFromIntro),
-                fontSize = 40.sp,
-                modifier = Modifier.padding(10.dp),
+                fontSize = 24.sp,
+                modifier = Modifier.padding(4.dp),
                 style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
             )
         }

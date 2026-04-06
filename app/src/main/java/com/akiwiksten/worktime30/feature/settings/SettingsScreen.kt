@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.feature.settings
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -96,6 +95,12 @@ private fun SettingsContent(
     var showAddWorkTypeDialog by remember { mutableStateOf(false) }
     var selectedWorkType by remember { mutableStateOf("") }
 
+    LaunchedEffect(uiState.workTypes) {
+        if (selectedWorkType.isEmpty() || !uiState.workTypes.contains(selectedWorkType)) {
+            selectedWorkType = uiState.workTypes.firstOrNull() ?: ""
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,7 +128,7 @@ private fun SettingsContent(
                 onAddClick = { showAddWorkTypeDialog = true },
                 onDeleteClick = {
                     actions.onWorkTypeRemoved(selectedWorkType)
-                    selectedWorkType = ""
+                    // Reset selection will be handled by LaunchedEffect(uiState.workTypes)
                 }
             )
         }

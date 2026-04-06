@@ -358,7 +358,7 @@ class EditWorkDayViewModel @Inject constructor(
                 } else {
                     nextState = nextState.copy(
                         dailyWorkTime = "07:30",
-                        lunchTime = "00:30",
+                        lunchTime = ZERO_TIME,
                         workTimeTotal = ZERO_TIME,
                         balanceTotal = ZERO_TIME
                     )

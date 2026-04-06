@@ -27,6 +27,9 @@ interface ProjectDao {
 
     @Query("SELECT * FROM project WHERE date BETWEEN :dateStart AND :dateEnd")
     suspend fun getProjectsByDateRange(dateStart: String, dateEnd: String): List<ProjectEntity>
+
+    @Query("SELECT exists (SELECT 1 FROM project WHERE project_name = :projectName)")
+    suspend fun isProjectNameUsed(projectName: String): Boolean
 }
 
 @Dao
@@ -34,7 +37,7 @@ interface ProjectNameDao {
     @Query("SELECT exists (SELECT 1 FROM project_name)")
     suspend fun anyRecords(): Boolean
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertProjectName(project: ProjectNameEntity)
 
     @Query("SELECT * FROM project_name")

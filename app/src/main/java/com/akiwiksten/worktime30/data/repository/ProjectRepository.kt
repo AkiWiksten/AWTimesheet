@@ -10,4 +10,5 @@ interface ProjectRepository {
     suspend fun getProjectNames(): List<ProjectNameEntity>
     suspend fun insertProjectName(projectName: ProjectNameEntity)
     suspend fun deleteProjectName(projectName: ProjectNameEntity)
+    suspend fun isProjectNameUsed(projectName: String): Boolean
 }

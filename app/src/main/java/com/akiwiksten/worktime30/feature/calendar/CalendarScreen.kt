@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.calendar
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,12 +21,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,31 +46,54 @@ fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
-    val datePickerState = rememberDatePickerState()
-
-    LaunchedEffect(datePickerState.selectedDateMillis) {
-        datePickerState.selectedDateMillis?.let {
-            val selectedDate = calendarViewModel.convertMillisToDate(it)
-            if (selectedDate != uiState.date) {
-                calendarViewModel.onDateSelected(selectedDate)
-            }
-        }
+    
+    // Get the current application locale from the configuration
+    val appLocale = LocalConfiguration.current.locales[0]
+    
+    // Create a modified locale that uses the app's language/country 
+    // but ensures Monday is the first day of the week (fw=mon)
+    val mondayFirstLocale = remember(appLocale) {
+        Locale.Builder()
+            .setLocale(appLocale)
+            .setUnicodeLocaleKeyword("fw", "mon")
+            .build()
     }
 
-    Column(
-        modifier = Modifier
-            .verticalScroll(rememberScrollState())
-            .fillMaxWidth()
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        DatePickerSection(
-            selectedDate = uiState.date,
-            datePickerState = datePickerState
-        )
+    val configuration = Configuration(LocalConfiguration.current).apply {
+        setLocale(mondayFirstLocale)
+    }
 
-        WorkTimeSummarySection(uiState = uiState)
+    CompositionLocalProvider(LocalConfiguration provides configuration) {
+        val datePickerState = rememberDatePickerState()
+
+        LaunchedEffect(Unit) {
+            calendarViewModel.onDateSelected(uiState.date)
+        }
+
+        LaunchedEffect(datePickerState.selectedDateMillis) {
+            datePickerState.selectedDateMillis?.let {
+                val selectedDate = calendarViewModel.convertMillisToDate(it)
+                if (selectedDate != uiState.date) {
+                    calendarViewModel.onDateSelected(selectedDate)
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            DatePickerSection(
+                selectedDate = uiState.date,
+                datePickerState = datePickerState
+            )
+
+            WorkTimeSummarySection(uiState = uiState)
+        }
     }
 }
 
@@ -72,7 +101,7 @@ fun CalendarScreen(
 @Composable
 private fun DatePickerSection(
     selectedDate: String,
-    datePickerState: androidx.compose.material3.DatePickerState
+    datePickerState: DatePickerState
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

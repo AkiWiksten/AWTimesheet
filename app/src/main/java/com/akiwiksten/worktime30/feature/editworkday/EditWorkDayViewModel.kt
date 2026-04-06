@@ -340,11 +340,11 @@ class EditWorkDayViewModel @Inject constructor(
         )
     }
 
-    fun loadWorkDay() {
+    fun loadWorkDay(workDayArg: WorkDayEntity? = null, workDayOneRowArg: WorkDayOneRowEntity? = null) {
         viewModelScope.launch {
             val state = _uiState.value
-            val workDay = workDayRepository.getWorkDay(state.date, state.projectName)
-            val workDayOneRow = workDayRepository.getWorkDayOneRow()
+            val workDay = workDayArg ?: workDayRepository.getWorkDay(state.date, state.projectName)
+            val workDayOneRow = workDayOneRowArg ?: workDayRepository.getWorkDayOneRow()
 
             _uiState.update { currentState ->
                 var nextState = currentState

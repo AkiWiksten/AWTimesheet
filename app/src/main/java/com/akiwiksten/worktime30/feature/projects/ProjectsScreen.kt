@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,8 +52,8 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 @Composable
 fun ProjectsScreen(
     onNavigateToSingleProject: (Int) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(),
-    projectsViewModel: ProjectsViewModel = hiltViewModel(),
+    calendarViewModel: CalendarViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
+    projectsViewModel: ProjectsViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
 ) {
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
@@ -136,7 +138,7 @@ private fun ProjectsListSection(
     ) {
         items(
             items = items,
-            key = { it.index }
+            key = { it.projectName }
         ) { item ->
             ProjectListItem(
                 item = item,

@@ -7,6 +7,7 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.WorkDayRepository
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
@@ -79,11 +80,20 @@ class ProjectsViewModel @Inject constructor(
     private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
     private val saveProjectsUseCase: SaveProjectsUseCase,
     private val projectRepository: ProjectRepository,
-    private val workDayRepository: WorkDayRepository
+    private val workDayRepository: WorkDayRepository,
+    private val dateRepository: DateRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProjectsUiState())
     val uiState: StateFlow<ProjectsUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            dateRepository.selectedDate.collect { date ->
+                loadData(date)
+            }
+        }
+    }
 
     fun loadData(date: String) {
         viewModelScope.launch {

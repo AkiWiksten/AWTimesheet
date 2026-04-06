@@ -1,5 +1,8 @@
 package com.akiwiksten.worktime30.feature.projects
 
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,29 +57,39 @@ import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkDayOneRowEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
+data class SingleProjectArgs(
+    val index: Int,
+    val projectName: String? = null,
+    val workTime: String? = null,
+    val kilometres: String? = null,
+    val allowance: String? = null,
+    val workType: String? = null,
+    val workDay: WorkDayEntity? = null,
+    val workDayOneRow: WorkDayOneRowEntity? = null
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
-    index: Int,
-    projectName: String? = null,
-    workTime: String? = null,
-    kilometres: String? = null,
-    allowance: String? = null,
-    workType: String? = null,
-    workDay: WorkDayEntity? = null,
-    workDayOneRow: WorkDayOneRowEntity? = null,
+    args: SingleProjectArgs,
     onNavigateBack: () -> Unit,
     onOpenEditWorkDay: (ProjectDialogState) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(),
-    viewModel: ProjectsViewModel = hiltViewModel()
+    calendarViewModel: CalendarViewModel = hiltViewModel(LocalContext.current.findActivity()),
+    viewModel: ProjectsViewModel = hiltViewModel(LocalContext.current.findActivity())
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val date = calendarUiState.date
 
-    val initialUiState = remember(index, projectsUiState.projects) {
-        if (index != -1) {
-            projectsUiState.projects.find { it.index == index } ?: ProjectListItemUiState()
+    LaunchedEffect(date) {
+        if (date.isNotEmpty()) {
+            viewModel.loadData(date)
+        }
+    }
+
+    val initialUiState = remember(args.index, projectsUiState.projects) {
+        if (args.index != -1) {
+            projectsUiState.projects.find { it.index == args.index } ?: ProjectListItemUiState()
         } else {
             ProjectListItemUiState()
         }
@@ -83,28 +97,14 @@ fun SingleProjectScreen(
 
     var state by remember(initialUiState) { mutableStateOf(ProjectDialogState(initialUiState)) }
 
-    // Apply overrides from navigation parameters if they exist
-    LaunchedEffect(initialUiState) {
-        projectName?.let { state = state.copy(projectName = it) }
-        workTime?.let { state = state.copy(projectTime = it) }
-        kilometres?.let { state = state.copy(kilometres = it) }
-        allowance?.let { state = state.copy(allowance = it) }
-        workType?.let { state = state.copy(workType = it) }
-        workDay?.let { state = state.copy(workDay = it) }
-        workDayOneRow?.let { state = state.copy(workDayOneRow = it) }
-    }
-
-    // Specifically handle workTime updates (e.g. returning from EditWorkDay)
-    LaunchedEffect(workTime) {
-        workTime?.let { state = state.copy(projectTime = it) }
-    }
-
-    LaunchedEffect(workDay) {
-        workDay?.let { state = state.copy(workDay = it) }
-    }
-
-    LaunchedEffect(workDayOneRow) {
-        workDayOneRow?.let { state = state.copy(workDayOneRow = it) }
+    LaunchedEffect(initialUiState, args) {
+        args.projectName?.let { state = state.copy(projectName = it) }
+        args.workTime?.let { state = state.copy(projectTime = it) }
+        args.kilometres?.let { state = state.copy(kilometres = it) }
+        args.allowance?.let { state = state.copy(allowance = it) }
+        args.workType?.let { state = state.copy(workType = it) }
+        args.workDay?.let { state = state.copy(workDay = it) }
+        args.workDayOneRow?.let { state = state.copy(workDayOneRow = it) }
     }
 
     val isConfirmEnabled by remember {
@@ -114,18 +114,14 @@ fun SingleProjectScreen(
     }
 
     Scaffold(
-        topBar = {
-            SingleProjectTopBar(
-                onNavigateBack = onNavigateBack
-            )
-        }
+        topBar = { SingleProjectTopBar(onNavigateBack = onNavigateBack) }
     ) { padding ->
         SingleProjectContent(
             padding = padding,
             screenState = SingleProjectScreenState(
                 date = date,
                 state = state,
-                isAddMode = index == -1,
+                isAddMode = args.index == -1,
                 uiState = projectsUiState,
                 isConfirmEnabled = isConfirmEnabled
             ),
@@ -139,6 +135,15 @@ fun SingleProjectScreen(
             )
         )
     }
+}
+
+private fun Context.findActivity(): ComponentActivity {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is ComponentActivity) return context
+        context = context.baseContext
+    }
+    throw IllegalStateException("Context does not have an Activity")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,7 +162,6 @@ private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
             }
         },
         actions = {
-            // Balance the navigation icon to ensure the title is centered relative to the window
             Spacer(modifier = Modifier.width(48.dp))
         }
     )
@@ -221,7 +225,7 @@ private fun SingleProjectContent(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.save), style = MaterialTheme.typography.titleMedium)
         }
     }
 }

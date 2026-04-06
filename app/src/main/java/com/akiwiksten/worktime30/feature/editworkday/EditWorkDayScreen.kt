@@ -1,10 +1,10 @@
 package com.akiwiksten.worktime30.feature.editworkday
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,10 +34,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,85 +52,110 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 @Composable
 fun EditWorkDayScreen(
     projectName: String? = null,
+    workDay: WorkDayEntity? = null,
+    workDayOneRow: WorkDayOneRowEntity? = null,
     onNavigateBack: () -> Unit,
-    onSave: (WorkDayEntity, WorkDayOneRowEntity) -> Unit,
+    onConfirm: (WorkDayEntity, WorkDayOneRowEntity) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     viewModel: EditWorkDayViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    BackHandler {
-        onNavigateBack()
-    }
+    BackHandler { onNavigateBack() }
 
     LaunchedEffect(Unit) {
         viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
         projectName?.let { viewModel.setProjectName(it) }
-        viewModel.loadWorkDay()
+        viewModel.loadWorkDay(workDay, workDayOneRow)
     }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Header(
-                        title = stringResource(R.string.work_day),
-                        modifier = Modifier.padding(top = 0.dp),
-                        fillMaxWidth = false
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                }
-            )
+            EditWorkDayTopBar(onNavigateBack = onNavigateBack)
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
-
-            projectName?.let {
-                OutlinedTextField(
-                    value = it,
-                    onValueChange = {},
-                    label = { Text(stringResource(R.string.project_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    enabled = false,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledBorderColor = MaterialTheme.colorScheme.outline,
-                    )
-                )
+        EditWorkDayContent(
+            padding = padding,
+            uiState = uiState,
+            projectName = projectName,
+            viewModel = viewModel,
+            onConfirm = {
+                val workDayResult = viewModel.getWorkDayEntity()
+                val workDayOneRowResult = viewModel.getWorkDayOneRowEntity()
+                onConfirm(workDayResult, workDayOneRowResult)
             }
-
-            if (uiState.isNewDay) {
-                NewDayFields(uiState = uiState, viewModel = viewModel)
-            } else {
-                ExistingDayFields(uiState = uiState, viewModel = viewModel)
-            }
-
-            FooterSection(
-                onSave = {
-                    val workDay = viewModel.getWorkDayEntity()
-                    val workDayOneRow = viewModel.getWorkDayOneRowEntity()
-                    viewModel.saveWorkDay(workDay, workDayOneRow)
-                    onSave(workDay, workDayOneRow)
-                }
-            )
-        }
+        )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditWorkDayTopBar(onNavigateBack: () -> Unit) {
+    CenterAlignedTopAppBar(
+        title = {
+            Header(
+                title = stringResource(R.string.work_day),
+                modifier = Modifier.padding(top = 0.dp),
+                fillMaxWidth = false
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+        }
+    )
+}
+
+@Composable
+private fun EditWorkDayContent(
+    padding: PaddingValues,
+    uiState: EditWorkDayUiState,
+    projectName: String?,
+    viewModel: EditWorkDayViewModel,
+    onConfirm: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
+
+        projectName?.let {
+            ProjectNameField(name = it)
+        }
+
+        if (uiState.isNewDay) {
+            NewDayFields(uiState = uiState, viewModel = viewModel)
+        } else {
+            ExistingDayFields(uiState = uiState, viewModel = viewModel)
+        }
+
+        FooterSection(onConfirm = onConfirm)
+    }
+}
+
+@Composable
+private fun ProjectNameField(name: String) {
+    OutlinedTextField(
+        value = name,
+        onValueChange = {},
+        label = { Text(stringResource(R.string.project_name)) },
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = true,
+        enabled = false,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+        )
+    )
 }
 
 @Composable
@@ -249,21 +272,15 @@ private fun ExistingDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDa
 }
 
 @Composable
-private fun FooterSection(onSave: () -> Unit) {
-    val ctx = LocalContext.current
-    val saveString = stringResource(R.string.saved)
-
+private fun FooterSection(onConfirm: () -> Unit) {
     Button(
-        onClick = {
-            onSave()
-            Toast.makeText(ctx, saveString, Toast.LENGTH_SHORT).show()
-        },
+        onClick = onConfirm,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         shape = MaterialTheme.shapes.large
     ) {
-        Text(stringResource(R.string.save), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleLarge)
     }
 }
 
@@ -296,14 +313,14 @@ private fun AddTimeRow(
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
 ) {
-    var openTimePickerDialog by remember { mutableStateOf(false) }
+    val openTimePickerDialog = remember { mutableStateOf(false) }
 
-    if (openTimePickerDialog) {
+    if (openTimePickerDialog.value) {
         TimePickerDialog(
-            onDismissRequest = { openTimePickerDialog = false },
+            onDismissRequest = { openTimePickerDialog.value = false },
             onConfirmation = { time ->
                 onConfirmation(time)
-                openTimePickerDialog = false
+                openTimePickerDialog.value = false
             },
             time = textFieldValue,
             titleId = stringId,
@@ -338,7 +355,7 @@ private fun AddTimeRow(
             )
         }
 
-        IconButton(onClick = { openTimePickerDialog = true }) {
+        IconButton(onClick = { openTimePickerDialog.value = true }) {
             Icon(
                 imageVector = Icons.Default.AccessTime,
                 contentDescription = null,

@@ -70,4 +70,5 @@
 <string name="items_overlapping_text">Warning! Time items are overlapping.</string>
 <string name="work_time">Work time</string>
 <string name="project_customer">Project/Customer</string>
+<string name="no_projects_available">No projects available. Add one with the button.</string>
 </resources>

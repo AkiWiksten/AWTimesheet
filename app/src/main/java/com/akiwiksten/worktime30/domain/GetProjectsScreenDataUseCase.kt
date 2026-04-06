@@ -18,11 +18,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
         val workTimeToday = workDay?.workTimeToday ?: ZERO_TIME
 
         val projects = projectRepository.getProjectsByDateRange(date, date)
-        val projectNames = if (projects.isEmpty()) {
-            projectRepository.getProjectNames()
-        } else {
-            emptyList()
-        }
+        val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes().map { it.workType }
 

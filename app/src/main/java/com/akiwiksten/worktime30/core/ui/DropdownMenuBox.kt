@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.core.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,46 +48,28 @@ fun DropdownMenuBox(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-        OutlinedTextField(
-            value = selectedText.trim(),
-            onValueChange = { },
-            readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .onGloballyPositioned { coordinates ->
-                    textFieldSize = coordinates.size.toSize()
-                }
-                .clickable { expanded = !expanded },
-            label = {
-                Text(
-                    text = stringResource(labelId),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            isError = selectedText.trim().isEmpty() && labelId == R.string.allowance,
-            enabled = true
-        )
+        Box {
+            DropdownTextField(
+                selectedText = selectedText,
+                expanded = expanded,
+                labelId = labelId,
+                onSizeChanged = { textFieldSize = it }
+            )
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { expanded = !expanded }
+            )
+        }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
+            modifier = Modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
         ) {
             items.forEach { label ->
                 DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
+                    text = { Text(text = label, style = MaterialTheme.typography.bodyLarge) },
                     onClick = {
                         onItemSelected(label)
                         expanded = false
@@ -94,4 +78,41 @@ fun DropdownMenuBox(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DropdownTextField(
+    selectedText: String,
+    expanded: Boolean,
+    labelId: Int,
+    onSizeChanged: (Size) -> Unit
+) {
+    OutlinedTextField(
+        value = selectedText.trim(),
+        onValueChange = { },
+        readOnly = true,
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { coordinates ->
+                onSizeChanged(coordinates.size.toSize())
+            },
+        label = {
+            Text(
+                text = stringResource(labelId),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        trailingIcon = {
+            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+        },
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        isError = selectedText.trim().isEmpty() && labelId == R.string.allowance,
+        enabled = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    )
 }

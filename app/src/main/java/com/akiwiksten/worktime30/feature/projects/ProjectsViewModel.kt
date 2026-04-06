@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.projects
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
@@ -100,20 +101,37 @@ class ProjectsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, date = date) }
             val data = getProjectsScreenDataUseCase(date)
             _uiState.update { currentState ->
+                val recordedProjects = data.projects.map { entity ->
+                    ProjectListItemUiState(
+                        projectName = entity.projectName,
+                        projectTime = entity.projectTime,
+                        projectStartTime = entity.projectStartTime,
+                        projectEndTime = entity.projectEndTime,
+                        kilometres = entity.kilometres,
+                        allowance = entity.allowance,
+                        workType = entity.workType,
+                    )
+                }
+
+                val recordedNames = data.projects.map { it.projectName }.toSet()
+
+                val unrecordedProjects = data.projectNames
+                    .filter { it.name !in recordedNames }
+                    .map { entity ->
+                        ProjectListItemUiState(projectName = entity.name)
+                    }
+
+                val combinedList = (recordedProjects + unrecordedProjects)
+                    .sortedBy { it.projectName }
+                    .mapIndexed { index, item -> item.copy(index = index) }
+
+                val totalProjectTime = combinedList.fold(ZERO_TIME) { acc, project ->
+                    WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
+                }
+
                 currentState.copy(
-                    workTimeToday = data.workTimeToday,
-                    projects = data.projects.mapIndexed { index, entity ->
-                        ProjectListItemUiState(
-                            index = index,
-                            projectName = entity.projectName,
-                            projectTime = entity.projectTime,
-                            projectStartTime = entity.projectStartTime,
-                            projectEndTime = entity.projectEndTime,
-                            kilometres = entity.kilometres,
-                            allowance = entity.allowance,
-                            workType = entity.workType,
-                        )
-                    },
+                    workTimeToday = totalProjectTime,
+                    projects = combinedList,
                     projectNames = data.projectNames,
                     workTypes = data.workTypes,
                     isLoading = false
@@ -146,8 +164,9 @@ class ProjectsViewModel @Inject constructor(
 
     fun deleteProject(uiState: ProjectListItemUiState) {
         viewModelScope.launch {
+            val date = _uiState.value.date
             val entity = ProjectEntity(
-                date = _uiState.value.date,
+                date = date,
                 projectName = uiState.projectName,
                 projectTime = uiState.projectTime,
                 projectStartTime = uiState.projectStartTime,
@@ -157,7 +176,10 @@ class ProjectsViewModel @Inject constructor(
                 workType = uiState.workType
             )
             projectRepository.deleteProject(entity)
-            loadData(_uiState.value.date)
+            if (uiState.projectTime == ZERO_TIME) {
+                projectRepository.deleteProjectName(ProjectNameEntity(uiState.projectName))
+            }
+            loadData(date)
         }
     }
 }

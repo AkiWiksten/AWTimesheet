@@ -1,6 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects
 
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -40,11 +40,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
@@ -52,8 +53,8 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 @Composable
 fun ProjectsScreen(
     onNavigateToSingleProject: (Int) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
-    projectsViewModel: ProjectsViewModel = hiltViewModel(LocalContext.current as ComponentActivity),
+    calendarViewModel: CalendarViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner),
+    projectsViewModel: ProjectsViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner),
 ) {
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
@@ -128,28 +129,43 @@ private fun ProjectsListSection(
     onItemSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
-            .selectableGroup(),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        items(
-            items = items,
-            key = { it.projectName }
-        ) { item ->
-            ProjectListItem(
-                item = item,
-                isSelected = selectedIndex == item.index,
-                onClick = { onItemSelected(item.index) }
+    if (items.isEmpty()) {
+        Box(
+            modifier = modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.no_projects_available),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(32.dp)
             )
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                .selectableGroup(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            items(
+                items = items,
+                key = { it.projectName }
+            ) { item ->
+                ProjectListItem(
+                    item = item,
+                    isSelected = selectedIndex == item.index,
+                    onClick = { onItemSelected(item.index) }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
         }
     }
 }

@@ -24,8 +24,6 @@ data class ProjectListItemUiState(
     val index: Int = 0,
     val projectName: String = "",
     val projectTime: String = ZERO_TIME,
-    val projectStartTime: String = ZERO_TIME,
-    val projectEndTime: String = ZERO_TIME,
     val kilometres: Int = 0,
     val allowance: String = "",
     val workType: String = "",
@@ -103,8 +101,6 @@ class ProjectsViewModel @Inject constructor(
                     ProjectListItemUiState(
                         projectName = entity.projectName,
                         projectTime = entity.projectTime,
-                        projectStartTime = entity.projectStartTime,
-                        projectEndTime = entity.projectEndTime,
                         kilometres = entity.kilometres,
                         allowance = entity.allowance,
                         workType = entity.workType,
@@ -145,8 +141,6 @@ class ProjectsViewModel @Inject constructor(
                 date = date,
                 projectName = uiState.projectName,
                 projectTime = uiState.projectTime,
-                projectStartTime = uiState.projectStartTime,
-                projectEndTime = uiState.projectEndTime,
                 kilometres = uiState.kilometres,
                 allowance = uiState.allowance,
                 workType = uiState.workType

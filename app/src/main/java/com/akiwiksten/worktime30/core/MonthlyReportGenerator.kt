@@ -2,6 +2,7 @@
 
 package com.akiwiksten.worktime30.core
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -9,7 +10,10 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.media.MediaScannerConnection
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -68,25 +72,16 @@ object MonthlyReportGenerator {
         return maxOf(maxKeyWidth, maxValueWidth) + PADDING
     }
 
-    private fun createUniqueProjects(
-        params: PrintWorkDaysParams
-    ): Map<String, String> {
+    private fun createUniqueProjects(params: PrintWorkDaysParams): Map<String, String> {
         val uniqueProjects = mutableMapOf<String, String>()
-
         params.projectsByMonth
             .filter { it.projectTime != ZERO_TIME }
             .groupBy { it.projectName }
             .forEach { (name, projects) ->
                 uniqueProjects[name] = projects.fold(ZERO_TIME) { acc, project ->
-                    WorkTimeCalculator.calculateTotalMinutes(
-                        initialTime = acc,
-                        addedTime = project.projectTime,
-                        isInitialTimeNegative = false,
-                        isAddedTimeNegative = false
-                    )
+                    WorkTimeCalculator.calculateTotalMinutes(acc, project.projectTime, false, false)
                 }
             }
-
         val totalSum = uniqueProjects.values.fold(ZERO_TIME) { acc, time ->
             WorkTimeCalculator.calculateTotalMinutes(acc, time, false, false)
         }
@@ -94,22 +89,17 @@ object MonthlyReportGenerator {
         return uniqueProjects
     }
 
-    private fun drawCell(
-        canvas: Canvas,
-        rect: RectF,
-        text: String,
-        textPos: PointF,
-        paints: PaintGroup
-    ) {
+    private fun drawCell(canvas: Canvas, rect: RectF, text: String, textPos: PointF, paints: PaintGroup) {
         canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paints.rectPaint)
         canvas.drawText(text, textPos.x, textPos.y, paints.textPaint)
     }
 
-    private fun drawProjectTitles(params: DrawProjectDaysParams) {
+    private fun drawProjectTitles(params: DrawProjectDaysParams, maxRows: Int) {
         val rectHeight = TEXT_SIZE * 2
         val top = ORIGIN_TOP_FIRST
         val bottom = top + rectHeight
 
+        // Draw header cell
         drawCell(
             params.printWorkDaysParams.canvas,
             RectF(params.left, top, params.right, bottom),
@@ -118,20 +108,24 @@ object MonthlyReportGenerator {
             PaintGroup(paintBoldRect, paintBoldText)
         )
 
-        for (i in 1 until params.projectAttributes.size) {
+        // Draw rows, repeating titles if multiple projects exist
+        for (i in 1..maxRows) {
             val cellTop = top + i * rectHeight
             val cellBottom = cellTop + rectHeight
+            val titleIndex = i % params.projectAttributes.size
+            val text = if (titleIndex == 0) "" else params.projectAttributes[titleIndex]
+            
             drawCell(
                 params.printWorkDaysParams.canvas,
                 RectF(params.left, cellTop, params.right, cellBottom),
-                params.projectAttributes[i],
+                text,
                 PointF(params.x + PADDING, cellBottom - TEXT_SIZE),
                 PaintGroup(paintRect, paintText)
             )
         }
     }
 
-    private fun drawProjectDays(params: DrawProjectDaysParams) {
+    private fun drawProjectDays(params: DrawProjectDaysParams, maxRows: Int) {
         val rectHeight = TEXT_SIZE * 2
         val top = ORIGIN_TOP_FIRST
         val bottom = top + rectHeight
@@ -144,14 +138,16 @@ object MonthlyReportGenerator {
             PaintGroup(paintBoldRect, paintBoldText)
         )
 
-        for (i in 1..params.projectAttributes.size) {
+        for (i in 1..maxRows) {
             val cellTop = top + i * rectHeight
             val cellBottom = cellTop + rectHeight
-            val paints = PaintGroup(paintRect, if ((i % 8) == 1) paintBoldText else paintText)
+            val text = params.projectAttributes.getOrNull(i - 1) ?: ""
+            val paints = PaintGroup(paintRect, if ((i % 6) == 1 && text.isNotEmpty()) paintBoldText else paintText)
+            
             drawCell(
                 params.printWorkDaysParams.canvas,
                 RectF(params.left, cellTop, params.right, cellBottom),
-                params.projectAttributes[i - 1],
+                text,
                 PointF(params.x + PADDING, cellBottom - TEXT_SIZE),
                 paints
             )
@@ -161,18 +157,20 @@ object MonthlyReportGenerator {
     private fun printWorkDays(params: PrintWorkDaysParams) {
         var currentXOffset = ORIGIN_LEFT_FIRST
 
+        val attrCount = params.projectTitles.size
+        // Calculate max rows needed for this page range, ensuring we align with project attribute count
+        val maxRowsRaw = (params.startDate..params.endDate).maxOf { day ->
+            params.preprocessedProjects[day]?.size ?: 0
+        }
+        val maxRows = if (maxRowsRaw <= attrCount) attrCount else ((maxRowsRaw + attrCount - 1) / attrCount) * attrCount
+
         val titleWidth = getMaxLengthOfProjectAttributes(params.projectTitles, paintText)
             .coerceAtLeast(DEFAULT_WIDTH)
         val titleParams = DrawProjectDaysParams(
-            printWorkDaysParams = params,
-            left = currentXOffset,
-            right = currentXOffset + titleWidth,
-            x = currentXOffset,
-            measuredPaintTextRight = titleWidth,
-            projectAttributes = params.projectTitles,
-            day = 0
+            params, currentXOffset, currentXOffset + titleWidth,
+            currentXOffset, titleWidth, params.projectTitles, 0
         )
-        drawProjectTitles(titleParams)
+        drawProjectTitles(titleParams, maxRows)
         currentXOffset += titleWidth
 
         for (day in params.startDate..params.endDate) {
@@ -180,15 +178,10 @@ object MonthlyReportGenerator {
             val dayWidth = getMaxLengthOfProjectAttributes(projectAttrs, paintText)
                 .coerceAtLeast(DEFAULT_WIDTH)
             val dayParams = DrawProjectDaysParams(
-                params,
-                currentXOffset,
-                currentXOffset + dayWidth,
-                currentXOffset,
-                dayWidth,
-                projectAttrs,
-                day
+                params, currentXOffset, currentXOffset + dayWidth,
+                currentXOffset, dayWidth, projectAttrs, day
             )
-            drawProjectDays(dayParams)
+            drawProjectDays(dayParams, maxRows)
             currentXOffset += dayWidth
         }
 
@@ -205,28 +198,20 @@ object MonthlyReportGenerator {
             val bottom = top + rectHeight
 
             drawCell(
-                params.canvas,
-                RectF(startX, top, startX + maxWidth, bottom),
-                pair.first,
-                PointF(startX + PADDING, bottom - TEXT_SIZE),
+                params.canvas, RectF(startX, top, startX + maxWidth, bottom),
+                pair.first, PointF(startX + PADDING, bottom - TEXT_SIZE),
                 PaintGroup(paintRect, paintText)
             )
             drawCell(
-                params.canvas,
-                RectF(startX + maxWidth, top, startX + maxWidth * 2, bottom),
-                pair.second,
-                PointF(startX + maxWidth + PADDING, bottom - TEXT_SIZE),
+                params.canvas, RectF(startX + maxWidth, top, startX + maxWidth * 2, bottom),
+                pair.second, PointF(startX + maxWidth + PADDING, bottom - TEXT_SIZE),
                 PaintGroup(paintRect, paintText)
             )
         }
     }
 
     private fun createPage(pageParams: CreatePageParams) {
-        val myPageInfo = PdfDocument.PageInfo.Builder(
-            PAGE_WIDTH,
-            PAGE_HEIGHT,
-            pageParams.pageNumber
-        ).create()
+        val myPageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageParams.pageNumber).create()
         val myPage = pageParams.pdfDocument.startPage(myPageInfo)
         val canvas = myPage.canvas
 
@@ -254,9 +239,6 @@ object MonthlyReportGenerator {
         pageParams.pdfDocument.finishPage(myPage)
     }
 
-    /**
-     * Entry point for PDF generation.
-     */
     fun generatePdf(params: GeneratePdfParams) {
         val pdfDocument = PdfDocument()
         val titlePaint = Paint().apply {
@@ -265,21 +247,14 @@ object MonthlyReportGenerator {
             color = ContextCompat.getColor(params.ctx, R.color.black)
         }
 
-        // Pre-process all projects once
         val preprocessedProjects = params.projectsByMonth
-            .filter { it.projectStartTime != ZERO_TIME && it.projectEndTime != ZERO_TIME }
+            .filter { it.projectTime != ZERO_TIME }
             .groupBy { parseDate(it.date).toInt() }
             .mapValues { (_, projects) ->
                 projects.flatMap { project ->
-                    val workTime = WorkTimeCalculator.calculateWorkTimeBalance(
-                        project.projectEndTime,
-                        "-" + project.projectStartTime
-                    )
                     listOf(
                         project.projectName,
-                        project.projectStartTime,
-                        project.projectEndTime,
-                        workTime,
+                        project.projectTime,
                         project.allowance,
                         project.workType,
                         "${project.kilometres} km",
@@ -299,15 +274,13 @@ object MonthlyReportGenerator {
         }
 
         val lastDay = LocalDate.parse(params.endOfMonthDate).dayOfMonth
-        createPage(
-            createPageParams(
-                params,
-                pdfDocument,
-                titlePaint,
-                PageInfo(4, DATE_25, lastDay, true),
-                preprocessedProjects
-            )
-        )
+        createPage(createPageParams(
+            params = params,
+            doc = pdfDocument,
+            paint = titlePaint,
+            info = PageInfo(4, DATE_25, lastDay, true),
+            preprocessedProjects = preprocessedProjects
+        ))
 
         savePdf(params.ctx, pdfDocument, params.name, params.endOfMonthDate)
         pdfDocument.close()
@@ -320,34 +293,47 @@ object MonthlyReportGenerator {
         info: PageInfo,
         preprocessedProjects: Map<Int, List<String>>
     ) = CreatePageParams(
-        params.name, params.employer, params.projectsByMonth,
-        params.endOfMonthDate, params.totalSumLabel, params.monthlyReportLabel,
-        doc, paint, info.number, info.start, info.end,
-        info.showTotals, params.projectTitles, preprocessedProjects
+        params.name, params.employer, params.projectsByMonth, params.endOfMonthDate,
+        params.totalSumLabel, params.monthlyReportLabel, doc, paint, info.number,
+        info.start, info.end, info.showTotals, params.projectTitles, preprocessedProjects
     )
 
     private fun savePdf(ctx: Context, doc: PdfDocument, name: String, date: String) {
-        val directory = File(
-            Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS
-            ),
-            getApplicationName(ctx)
-        )
-        if (!directory.exists() && !directory.mkdirs()) {
-            Log.e("PdfGenerator", "Failed to create directory")
-        }
-
-        val formattedDate = LocalDate.parse(date)
-        val yearMonth = DateTimeFormatter.ofPattern("MM_yyyy").format(formattedDate)
-        val fileName = "${name}$yearMonth".replace(" ", "")
-        val file = File(directory, "$fileName.pdf")
-
         try {
-            doc.writeTo(FileOutputStream(file))
-            Toast.makeText(ctx, "PDF generated at: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+            val formattedDate = LocalDate.parse(date)
+            val yearMonth = DateTimeFormatter.ofPattern("MM_yyyy").format(formattedDate)
+            val fileName = "${name.ifEmpty { "Report" }}_${yearMonth}.pdf".replace(" ", "_")
+            val appName = getApplicationName(ctx)
+            
+            Log.d("PdfGenerator", "Starting save for $fileName into folder $appName")
+
+            val relativePath = Environment.DIRECTORY_DOWNLOADS + File.separator + appName
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+
+            val resolver = ctx.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+            if (uri != null) {
+                resolver.openOutputStream(uri)?.use { outputStream ->
+                    doc.writeTo(outputStream)
+                }
+                contentValues.clear()
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(uri, contentValues, null, null)
+                
+                Log.d("PdfGenerator", "PDF saved successfully via MediaStore to: $relativePath/$fileName")
+                Toast.makeText(ctx, "PDF saved to Downloads/$appName", Toast.LENGTH_LONG).show()
+            } else {
+                throw IOException("Failed to create MediaStore entry")
+            }
         } catch (e: IOException) {
-            Log.e("PdfGenerator", "Error saving PDF", e)
-            Toast.makeText(ctx, "Failed to generate PDF", Toast.LENGTH_SHORT).show()
+            Log.e("PdfGenerator", "IO error saving PDF", e)
+            Toast.makeText(ctx, "Failed to generate PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

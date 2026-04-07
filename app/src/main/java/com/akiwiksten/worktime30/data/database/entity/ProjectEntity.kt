@@ -24,8 +24,6 @@ import kotlinx.serialization.Serializable
 data class ProjectEntity(
     @ColumnInfo(name = "date") val date: String,
     @ColumnInfo(name = "project_name") val projectName: String = "",
-    @ColumnInfo(name = "start_time") val projectStartTime: String = "",
-    @ColumnInfo(name = "end_time") val projectEndTime: String = "",
     @ColumnInfo(name = "duration") val projectTime: String = "",
     @ColumnInfo(name = "kilometres") val kilometres: Int = 0,
     @ColumnInfo(name = "allowance") val allowance: String = "",

@@ -58,21 +58,31 @@ fun IntroScreen(
         fontSize = 20.sp
     )
 
-    val targetScaleFactor = calculateTargetScale(
-        appName = appName,
-        textStyle = textStyle,
-        textMeasurer = textMeasurer,
-        windowInfo = windowInfo,
-        density = density
-    )
+    // Ensure we have valid dimensions before calculating the target scale
+    val containerSize = windowInfo.containerSize
+    val hasValidDimensions = containerSize.width > 0 && containerSize.height > 0
+
+    val targetScaleFactor = if (hasValidDimensions) {
+        calculateTargetScale(
+            appName = appName,
+            textStyle = textStyle,
+            textMeasurer = textMeasurer,
+            windowInfo = windowInfo,
+            density = density
+        )
+    } else {
+        DEFAULT_FALLBACK_SCALE
+    }
 
     val currentScale = remember { Animatable(1f) }
 
-    LaunchedEffect(targetScaleFactor) {
-        currentScale.animateTo(
-            targetValue = targetScaleFactor,
-            animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
-        )
+    LaunchedEffect(targetScaleFactor, hasValidDimensions) {
+        if (hasValidDimensions) {
+            currentScale.animateTo(
+                targetValue = targetScaleFactor,
+                animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
+            )
+        }
     }
 
     IntroContent(

@@ -279,8 +279,6 @@ private fun generateReport(
     val titles = listOf(
         R.string.date,
         R.string.project,
-        R.string.start_time,
-        R.string.end_time,
         R.string.work_time_today,
         R.string.allowance,
         R.string.work_type,

@@ -52,7 +52,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
@@ -63,7 +63,7 @@ data class SingleProjectArgs(
     val kilometres: String? = null,
     val allowance: String? = null,
     val workType: String? = null,
-    val workDay: WorkDayEntity? = null,
+    val workday: WorkdayEntity? = null,
     val workStats: WorkStatsEntity? = null
 )
 
@@ -72,7 +72,7 @@ data class SingleProjectArgs(
 fun SingleProjectScreen(
     args: SingleProjectArgs,
     onNavigateBack: () -> Unit,
-    onOpenEditWorkDay: (ProjectDialogState) -> Unit,
+    onOpenWorkday: (ProjectDialogState) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current.findActivity()),
     viewModel: ProjectsViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current.findActivity())
 ) {
@@ -102,7 +102,7 @@ fun SingleProjectScreen(
         args.kilometres?.let { state = state.copy(kilometres = it) }
         args.allowance?.let { state = state.copy(allowance = it) }
         args.workType?.let { state = state.copy(workType = it) }
-        args.workDay?.let { state = state.copy(workDay = it) }
+        args.workday?.let { state = state.copy(workday = it) }
         args.workStats?.let { state = state.copy(workStats = it) }
     }
 
@@ -126,7 +126,7 @@ fun SingleProjectScreen(
             ),
             actions = SingleProjectActions(
                 onStateChange = { state = it },
-                onOpenEditWorkDay = { onOpenEditWorkDay(state) },
+                onOpenWorkday = { onOpenWorkday(state) },
                 onConfirm = {
                     viewModel.saveProject(uiState = state.toUiState())
                     onNavigateBack()
@@ -176,7 +176,7 @@ data class SingleProjectScreenState(
 
 data class SingleProjectActions(
     val onStateChange: (ProjectDialogState) -> Unit,
-    val onOpenEditWorkDay: () -> Unit,
+    val onOpenWorkday: () -> Unit,
     val onConfirm: () -> Unit
 )
 
@@ -206,7 +206,7 @@ private fun SingleProjectContent(
         TimeSelectionSection(
             state = screenState.state,
             workTimeToday = screenState.uiState.workTimeToday,
-            onOpenEditWorkDay = actions.onOpenEditWorkDay,
+            onOpenWorkday = actions.onOpenWorkday,
             onStateChange = actions.onStateChange
         )
 
@@ -284,14 +284,14 @@ private fun DialogMainFields(
 private fun TimeSelectionSection(
     state: ProjectDialogState,
     workTimeToday: String,
-    onOpenEditWorkDay: () -> Unit,
+    onOpenWorkday: () -> Unit,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         CompactTimeRow(
             labelId = R.string.work_time,
             value = state.projectTime,
-            onOpenEditWorkDay = onOpenEditWorkDay,
+            onOpenWorkday = onOpenWorkday,
             onHistoryClick = {
                 onStateChange(state.copy(projectTime = workTimeToday))
             }
@@ -332,7 +332,7 @@ private fun DialogDropdownFields(
 private fun CompactTimeRow(
     labelId: Int,
     value: String,
-    onOpenEditWorkDay: () -> Unit,
+    onOpenWorkday: () -> Unit,
     onHistoryClick: () -> Unit
 ) {
     Row(
@@ -362,7 +362,7 @@ private fun CompactTimeRow(
             )
         }
 
-        IconButton(onClick = onOpenEditWorkDay) {
+        IconButton(onClick = onOpenWorkday) {
             Icon(
                 imageVector = Icons.Default.AccessTime,
                 contentDescription = null,

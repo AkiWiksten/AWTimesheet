@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.editworkday.components
+package com.akiwiksten.worktime30.feature.workday.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,8 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayUiState
-import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayViewModel
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 
 @Composable
 fun ProjectNameField(name: String) {
@@ -75,7 +75,7 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
 }
 
 @Composable
-fun NewDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
+fun NewDayFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         AddTimeRow(
             textFieldValue = uiState.startTime,
@@ -127,7 +127,7 @@ fun NewDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
 }
 
 @Composable
-fun ExistingDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
+fun ExistingDayFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         MainWorkTimeFields(uiState = uiState, viewModel = viewModel)
 
@@ -146,7 +146,7 @@ fun ExistingDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewMod
 }
 
 @Composable
-private fun MainWorkTimeFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
+private fun MainWorkTimeFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
     AddTimeRow(
         textFieldValue = uiState.startTime,
         stringId = R.string.start_time,
@@ -156,7 +156,7 @@ private fun MainWorkTimeFields(uiState: EditWorkDayUiState, viewModel: EditWorkD
     AddTimeRow(
         textFieldValue = uiState.endTime,
         stringId = R.string.end_time,
-        currentTime = viewModel::currentDailyWorkTime,
+        currentTime = viewModel::currentEndTime,
         onConfirmation = viewModel::setEndTime
     )
     AddTimeRow(
@@ -168,7 +168,7 @@ private fun MainWorkTimeFields(uiState: EditWorkDayUiState, viewModel: EditWorkD
 }
 
 @Composable
-private fun LunchAndBreakFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
+private fun LunchAndBreakFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
     AddTimeRow(
         textFieldValue = uiState.lunchStart,
         stringId = R.string.lunch_start,
@@ -196,7 +196,7 @@ private fun LunchAndBreakFields(uiState: EditWorkDayUiState, viewModel: EditWork
 }
 
 @Composable
-private fun DailySummaryFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
+private fun DailySummaryFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
     AddTimeRow(
         textFieldValue = uiState.dailyWorkTime,
         stringId = R.string.daily_work_time,
@@ -212,7 +212,7 @@ private fun DailySummaryFields(uiState: EditWorkDayUiState, viewModel: EditWorkD
 }
 
 @Composable
-private fun BalanceSummaryFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
+private fun BalanceSummaryFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = 12.dp)

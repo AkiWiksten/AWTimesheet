@@ -5,7 +5,7 @@ const val ZERO_TIME = "00:00"
 const val MINUTES_IN_HOUR = 60
 const val TIME_FORMAT = "HH:mm"
 
-// Edit Work day
+// Workday
 const val START_TIME = "start_time"
 const val END_TIME = "end_time"
 const val DAILY_WORK_TIME = "daily_work_time"
@@ -22,7 +22,7 @@ const val BALANCE_TOTAL = "balance_total"
 // Screens
 const val INTRO_SCREEN = "intro_screen"
 const val CALENDAR_SCREEN = "calendar_screen"
-const val EDIT_WORK_DAY_SCREEN = "edit_work_day_screen"
+const val WORKDAY_SCREEN = "workday_screen"
 const val PROJECTS_SCREEN = "projects_screen"
 const val SINGLE_PROJECT_SCREEN = "single_project_screen"
 const val SETTINGS_SCREEN = "settings_screen"

@@ -2,18 +2,16 @@ package com.akiwiksten.worktime30.feature.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.domain.CalendarData
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -67,7 +65,7 @@ class CalendarViewModel @Inject constructor(
                     timePerMonth = data.timePerMonth,
                     timePerWeek = data.timePerWeek,
                     timePerDay = data.timePerDay,
-                    workDaysMonth = data.workDaysMonth
+                    workDaysMonth = data.workdaysMonth
                 )
             }
         }
@@ -79,5 +77,5 @@ data class CalendarUiState(
     val timePerMonth: String = "",
     val timePerWeek: String = "",
     val timePerDay: String = "",
-    val workDaysMonth: List<WorkDayEntity> = emptyList()
+    val workDaysMonth: List<WorkdayEntity> = emptyList()
 )

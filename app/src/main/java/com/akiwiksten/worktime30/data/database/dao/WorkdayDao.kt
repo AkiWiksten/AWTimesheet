@@ -5,28 +5,28 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 
 @Dao
-interface WorkDayDao {
+interface WorkdayDao {
     @Query("SELECT exists (SELECT 1 FROM workday)")
     suspend fun anyRecords(): Boolean
 
     @Query("SELECT * FROM workday")
-    suspend fun getAll(): List<WorkDayEntity>
+    suspend fun getAll(): List<WorkdayEntity>
 
     @Query("SELECT * FROM workday WHERE date = :date AND project_name = :projectName")
-    suspend fun loadWorkDay(date: String, projectName: String): WorkDayEntity?
+    suspend fun loadWorkday(date: String, projectName: String): WorkdayEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWorkDay(workDay: WorkDayEntity)
+    suspend fun insertWorkday(workday: WorkdayEntity)
 
     @Delete
-    suspend fun delete(workDay: WorkDayEntity)
+    suspend fun delete(workday: WorkdayEntity)
 
     @Query("SELECT * FROM workday WHERE date BETWEEN :dateStart AND :dateEnd")
-    suspend fun getWorkDaysByDateRange(dateStart: String, dateEnd: String): List<WorkDayEntity>
+    suspend fun getWorkdaysByDateRange(dateStart: String, dateEnd: String): List<WorkdayEntity>
 }
 
 @Dao

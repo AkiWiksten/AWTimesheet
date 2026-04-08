@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
     tableName = "workday",
     primaryKeys = ["date", "project_name"]
 )
-data class WorkDayEntity(
+data class WorkdayEntity(
     @ColumnInfo(name = "date") val date: String,
     @ColumnInfo(name = "project_name") val projectName: String = "",
     @ColumnInfo(name = "start_time") val startTime: String = "",

@@ -5,17 +5,17 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.data.repository.WorkDayRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import javax.inject.Inject
 
 class GetProjectsScreenDataUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
-    private val workDayRepository: WorkDayRepository,
+    private val workdayRepository: WorkdayRepository,
     private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke(date: String): ProjectsScreenData {
-        val workDay = workDayRepository.getWorkDay(date)
-        val workTimeToday = workDay?.workTimeToday ?: ZERO_TIME
+        val workday = workdayRepository.getWorkday(date)
+        val workTimeToday = workday?.workTimeToday ?: ZERO_TIME
 
         val projects = projectRepository.getProjectsByDateRange(date, date)
         val projectNames = projectRepository.getProjectNames()

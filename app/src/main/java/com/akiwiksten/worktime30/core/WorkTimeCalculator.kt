@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 /**
- * Pure logic for time calculations and work balance.
+ * Pure logic for time calculations and workday balance.
  * This class is stateless and provides calculation results back to the caller.
  */
 @Suppress("TooManyFunctions")
@@ -15,13 +15,13 @@ object WorkTimeCalculator {
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
     private val dayFormatter = DateTimeFormatter.ofPattern("dd")
 
-    fun parseDate(workDay: String): String {
+    fun parseDate(workday: String): String {
         // Optimization: LocalDate.parse is relatively slow.
-        // If workDay is always in ISO format (yyyy-MM-dd), we can just take the last 2 chars.
-        return if (workDay.length >= 10 && workDay[4] == '-' && workDay[7] == '-') {
-            workDay.substring(8, 10)
+        // If workday is always in ISO format (yyyy-MM-dd), we can just take the last 2 chars.
+        return if (workday.length >= 10 && workday[4] == '-' && workday[7] == '-') {
+            workday.substring(8, 10)
         } else {
-            val formattedDate = LocalDate.parse(workDay)
+            val formattedDate = LocalDate.parse(workday)
             dayFormatter.format(formattedDate)
         }
     }

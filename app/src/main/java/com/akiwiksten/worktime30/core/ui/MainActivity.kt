@@ -26,11 +26,11 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
-import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayArgs
-import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
+import com.akiwiksten.worktime30.feature.workday.WorkdayArgs
+import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.ProjectDialogState
 import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
@@ -127,8 +127,8 @@ private fun WorkTimeNavDisplay(
                 )
             }
             entry<Screen.Settings> { SettingsScreen() }
-            entry<Screen.EditWorkDay> { screen ->
-                EditWorkDayEntry(screen = screen, backStack = backStack)
+            entry<Screen.Workday> { screen ->
+                WorkdayEntry(screen = screen, backStack = backStack)
             }
             entry<Screen.SingleProject> { screen ->
                 SingleProjectEntry(screen = screen, backStack = backStack)
@@ -138,16 +138,16 @@ private fun WorkTimeNavDisplay(
 }
 
 @Composable
-private fun EditWorkDayEntry(screen: Screen.EditWorkDay, backStack: SnapshotStateList<Any>) {
-    EditWorkDayScreen(
-        args = EditWorkDayArgs(
+private fun WorkdayEntry(screen: Screen.Workday, backStack: SnapshotStateList<Any>) {
+    WorkdayScreen(
+        args = WorkdayArgs(
             projectName = screen.projectName,
-            workDay = screen.workDay,
+            workday = screen.workday,
             workStats = screen.workStats
         ),
         onNavigateBack = { backStack.pop() },
-        onConfirm = { workDay, workStats ->
-            backStack.updateSingleProjectWorkTime(workDay = workDay, workStats = workStats)
+        onConfirm = { workday, workStats ->
+            backStack.updateSingleProjectWorkTime(workday = workday, workStats = workStats)
         }
     )
 }
@@ -162,16 +162,16 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             kilometres = screen.kilometres,
             allowance = screen.allowance,
             workType = screen.workType,
-            workDay = screen.workDay,
+            workday = screen.workday,
             workStats = screen.workStats
         ),
         onNavigateBack = { backStack.pop() },
-        onOpenEditWorkDay = { state ->
+        onOpenWorkday = { state ->
             backStack.updateSingleProjectState(state = state)
             backStack.add(
-                element = Screen.EditWorkDay(
+                element = Screen.Workday(
                     projectName = state.projectName,
-                    workDay = state.workDay,
+                    workday = state.workday,
                     workStats = state.workStats
                 )
             )
@@ -186,15 +186,15 @@ private fun SnapshotStateList<Any>.pop() {
 }
 
 private fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
-    workDay: WorkDayEntity,
+    workday: WorkdayEntity,
     workStats: WorkStatsEntity
 ) {
     pop()
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
-            projectTime = workDay.workTimeToday,
-            workDay = workDay,
+            projectTime = workday.workTimeToday,
+            workday = workday,
             workStats = workStats
         )
     }
@@ -210,7 +210,7 @@ private fun SnapshotStateList<Any>.updateSingleProjectState(state: ProjectDialog
             kilometres = state.kilometres,
             allowance = state.allowance,
             workType = state.workType,
-            workDay = state.workDay,
+            workday = state.workday,
             workStats = state.workStats
         )
     }

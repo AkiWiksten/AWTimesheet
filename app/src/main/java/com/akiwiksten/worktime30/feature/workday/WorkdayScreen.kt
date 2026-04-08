@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.editworkday
+package com.akiwiksten.worktime30.feature.workday
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -26,22 +26,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
-import com.akiwiksten.worktime30.feature.editworkday.components.ExistingDayFields
-import com.akiwiksten.worktime30.feature.editworkday.components.FooterSection
-import com.akiwiksten.worktime30.feature.editworkday.components.HeaderSection
-import com.akiwiksten.worktime30.feature.editworkday.components.NewDayFields
-import com.akiwiksten.worktime30.feature.editworkday.components.ProjectNameField
+import com.akiwiksten.worktime30.feature.workday.components.ExistingDayFields
+import com.akiwiksten.worktime30.feature.workday.components.FooterSection
+import com.akiwiksten.worktime30.feature.workday.components.HeaderSection
+import com.akiwiksten.worktime30.feature.workday.components.NewDayFields
+import com.akiwiksten.worktime30.feature.workday.components.ProjectNameField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditWorkDayScreen(
-    args: EditWorkDayArgs,
+fun WorkdayScreen(
+    args: WorkdayArgs,
     onNavigateBack: () -> Unit,
-    onConfirm: (WorkDayEntity, WorkStatsEntity) -> Unit,
-    viewModel: EditWorkDayViewModel = hiltViewModel(),
+    onConfirm: (WorkdayEntity, WorkStatsEntity) -> Unit,
+    viewModel: WorkdayViewModel = hiltViewModel(),
 ) {
     val calendarViewModel: CalendarViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
@@ -51,23 +51,23 @@ fun EditWorkDayScreen(
     LaunchedEffect(Unit) {
         viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
-        viewModel.loadWorkDay(workDayArg = args.workDay, workStatsArg = args.workStats)
+        viewModel.loadWorkday(workdayArg = args.workday, workStatsArg = args.workStats)
     }
 
     Scaffold(
         topBar = {
-            EditWorkDayTopBar(onNavigateBack = onNavigateBack)
+            WorkdayTopBar(onNavigateBack = onNavigateBack)
         }
     ) { padding ->
-        EditWorkDayContent(
+        WorkdayContent(
             padding = padding,
             uiState = uiState,
             projectName = args.projectName,
             viewModel = viewModel,
             onConfirm = {
-                val workDayResult = viewModel.getWorkDayEntity()
+                val workdayResult = viewModel.getWorkdayEntity()
                 val workStatsResult = viewModel.getWorkStatsEntity()
-                onConfirm(workDayResult, workStatsResult)
+                onConfirm(workdayResult, workStatsResult)
             }
         )
     }
@@ -75,7 +75,7 @@ fun EditWorkDayScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditWorkDayTopBar(onNavigateBack: () -> Unit) {
+private fun WorkdayTopBar(onNavigateBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Header(
@@ -93,11 +93,11 @@ private fun EditWorkDayTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-private fun EditWorkDayContent(
+private fun WorkdayContent(
     padding: PaddingValues,
-    uiState: EditWorkDayUiState,
+    uiState: WorkdayUiState,
     projectName: String?,
-    viewModel: EditWorkDayViewModel,
+    viewModel: WorkdayViewModel,
     onConfirm: () -> Unit
 ) {
     Column(
@@ -125,8 +125,8 @@ private fun EditWorkDayContent(
     }
 }
 
-data class EditWorkDayArgs(
+data class WorkdayArgs(
     val projectName: String? = null,
-    val workDay: WorkDayEntity? = null,
+    val workday: WorkdayEntity? = null,
     val workStats: WorkStatsEntity? = null
 )

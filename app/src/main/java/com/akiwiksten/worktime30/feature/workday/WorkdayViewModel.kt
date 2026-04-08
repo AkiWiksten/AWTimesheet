@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.editworkday
+package com.akiwiksten.worktime30.feature.workday
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,9 +7,9 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.repository.WorkDayRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-data class EditWorkDayUiState(
+data class WorkdayUiState(
     val date: String = "",
     val projectName: String = "",
     val startTime: String = ZERO_TIME,
@@ -40,16 +40,16 @@ data class EditWorkDayUiState(
 )
 
 /**
- * ViewModel for managing the edit/add work day screen.
+ * ViewModel for managing the workday screen.
  */
 @Suppress("TooManyFunctions")
 @HiltViewModel
-class EditWorkDayViewModel @Inject constructor(
-    private val workDayRepository: WorkDayRepository
+class WorkdayViewModel @Inject constructor(
+    private val workdayRepository: WorkdayRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(EditWorkDayUiState())
-    val uiState: StateFlow<EditWorkDayUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(WorkdayUiState())
+    val uiState: StateFlow<WorkdayUiState> = _uiState.asStateFlow()
 
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
@@ -247,9 +247,9 @@ class EditWorkDayViewModel @Inject constructor(
     }
 
     private fun applyUpdateToState(
-        state: EditWorkDayUiState,
+        state: WorkdayUiState,
         result: WorkTimeCalculator.TimeUpdateResult
-    ): EditWorkDayUiState {
+    ): WorkdayUiState {
         var nextState = state.copy(
             endTime = result.endTime ?: state.endTime,
             lunchStart = result.lunchStart ?: state.lunchStart,
@@ -267,11 +267,11 @@ class EditWorkDayViewModel @Inject constructor(
     }
 
     private fun calculateBalanceUpdatesInState(
-        state: EditWorkDayUiState,
+        state: WorkdayUiState,
         oldWorkTimeToday: LocalTime,
         oldBalanceToday: String?,
         calculateToday: Boolean
-    ): EditWorkDayUiState {
+    ): WorkdayUiState {
         var nextState = state
         var balanceToRevert = oldBalanceToday
         if (calculateToday) {
@@ -314,9 +314,9 @@ class EditWorkDayViewModel @Inject constructor(
         return nextState
     }
 
-    fun getWorkDayEntity(): WorkDayEntity {
+    fun getWorkdayEntity(): WorkdayEntity {
         val state = _uiState.value
-        return WorkDayEntity(
+        return WorkdayEntity(
             date = state.date,
             projectName = state.projectName,
             startTime = state.startTime,
@@ -340,11 +340,11 @@ class EditWorkDayViewModel @Inject constructor(
         )
     }
 
-    fun loadWorkDay(workDayArg: WorkDayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
+    fun loadWorkday(workdayArg: WorkdayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
         viewModelScope.launch {
             val state = _uiState.value
-            val workDay = workDayArg ?: workDayRepository.getWorkDay(state.date, state.projectName)
-            val workStats = workStatsArg ?: workDayRepository.getWorkStats()
+            val workday = workdayArg ?: workdayRepository.getWorkday(state.date, state.projectName)
+            val workStats = workStatsArg ?: workdayRepository.getWorkStats()
 
             _uiState.update { currentState ->
                 var nextState = currentState
@@ -364,18 +364,18 @@ class EditWorkDayViewModel @Inject constructor(
                     )
                 }
 
-                if (workDay != null) {
+                if (workday != null) {
                     nextState = nextState.copy(
-                        startTime = workDay.startTime,
-                        endTime = workDay.endTime,
-                        lunchStart = workDay.lunchStart,
-                        lunchEnd = workDay.lunchEnd,
-                        breakStart = workDay.breakStart,
-                        breakEnd = workDay.breakEnd,
-                        workTimeToday = workDay.workTimeToday,
-                        balanceToday = workDay.balanceToday,
-                        oldBalanceToday = workDay.balanceToday,
-                        isNewDay = isNewDay(workDay)
+                        startTime = workday.startTime,
+                        endTime = workday.endTime,
+                        lunchStart = workday.lunchStart,
+                        lunchEnd = workday.lunchEnd,
+                        breakStart = workday.breakStart,
+                        breakEnd = workday.breakEnd,
+                        workTimeToday = workday.workTimeToday,
+                        balanceToday = workday.balanceToday,
+                        oldBalanceToday = workday.balanceToday,
+                        isNewDay = isNewDay(workday)
                     )
                 } else {
                     nextState = nextState.copy(
@@ -428,14 +428,14 @@ class EditWorkDayViewModel @Inject constructor(
         }
     }
 
-    private fun isNewDay(workDay: WorkDayEntity): Boolean {
-        return workDay.startTime == ZERO_TIME &&
-            workDay.endTime == ZERO_TIME &&
-            workDay.lunchEnd == ZERO_TIME &&
-            workDay.lunchStart == ZERO_TIME &&
-            workDay.workTimeToday == ZERO_TIME &&
-            workDay.breakStart == ZERO_TIME &&
-            workDay.breakEnd == ZERO_TIME
+    private fun isNewDay(workday: WorkdayEntity): Boolean {
+        return workday.startTime == ZERO_TIME &&
+            workday.endTime == ZERO_TIME &&
+            workday.lunchEnd == ZERO_TIME &&
+            workday.lunchStart == ZERO_TIME &&
+            workday.workTimeToday == ZERO_TIME &&
+            workday.breakStart == ZERO_TIME &&
+            workday.breakEnd == ZERO_TIME
     }
 
     @Suppress("UNUSED_PARAMETER")

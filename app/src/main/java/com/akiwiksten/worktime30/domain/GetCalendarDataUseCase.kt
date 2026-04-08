@@ -3,9 +3,9 @@ package com.akiwiksten.worktime30.domain
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.WorkDayRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -15,7 +15,7 @@ import javax.inject.Inject
  * UseCase that provides all calculated data and work logs required by the Calendar screen.
  */
 class GetCalendarDataUseCase @Inject constructor(
-    private val workDayRepository: WorkDayRepository,
+    private val workdayRepository: WorkdayRepository,
     private val projectRepository: ProjectRepository
 ) {
     suspend operator fun invoke(date: String): CalendarData {
@@ -28,29 +28,29 @@ class GetCalendarDataUseCase @Inject constructor(
         val endOfWeek = startOfWeek.plusDays(6)
 
         // Optimization: Fetch all needed data for the month in one go
-        val workDaysMonth = workDayRepository.getWorkDaysByDateRange(startMonth, endMonth)
+        val workdaysMonth = workdayRepository.getWorkdaysByDateRange(startMonth, endMonth)
         val projectTimesMonth = projectRepository.getProjectsByDateRange(startMonth, endMonth)
 
-        val timePerMonth = calculateTotalTime(workDaysMonth, projectTimesMonth)
+        val timePerMonth = calculateTotalTime(workdaysMonth, projectTimesMonth)
 
         // Filter for week from already fetched monthly data if possible, else fetch
-        val (workDaysWeek, projectTimesWeek) = if (
+        val (workdaysWeek, projectTimesWeek) = if (
             startOfWeek.toString() >= startMonth &&
             endOfWeek.toString() <= endMonth
         ) {
             val startStr = startOfWeek.toString()
             val endStr = endOfWeek.toString()
-            workDaysMonth.filter { it.date in startStr..endStr } to
+            workdaysMonth.filter { it.date in startStr..endStr } to
                 projectTimesMonth.filter { it.date in startStr..endStr }
         } else {
-            workDayRepository.getWorkDaysByDateRange(startOfWeek.toString(), endOfWeek.toString()) to
+            workdayRepository.getWorkdaysByDateRange(startOfWeek.toString(), endOfWeek.toString()) to
                 projectRepository.getProjectsByDateRange(startOfWeek.toString(), endOfWeek.toString())
         }
 
-        val timePerWeek = calculateTotalTime(workDaysWeek, projectTimesWeek)
+        val timePerWeek = calculateTotalTime(workdaysWeek, projectTimesWeek)
 
         val timePerDay = calculateTotalTime(
-            workDaysMonth.filter { it.date == date },
+            workdaysMonth.filter { it.date == date },
             projectTimesMonth.filter { it.date == date }
         )
 
@@ -58,23 +58,23 @@ class GetCalendarDataUseCase @Inject constructor(
             timePerMonth = timePerMonth,
             timePerWeek = timePerWeek,
             timePerDay = timePerDay,
-            workDaysMonth = workDaysMonth
+            workdaysMonth = workdaysMonth
         )
     }
 
-    private fun calculateTotalTime(workDays: List<WorkDayEntity>, projects: List<ProjectEntity>): String {
+    private fun calculateTotalTime(workdays: List<WorkdayEntity>, projects: List<ProjectEntity>): String {
         var totalTime = ZERO_TIME
 
         // Map work logs by date for fast lookup
-        val workDayDates = workDays.associateBy { it.date }
+        val workdayDates = workdays.associateBy { it.date }
 
         // Sum up work days
-        for (workDay in workDays) {
-            totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, workDay.workTimeToday)
+        for (workday in workdays) {
+            totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, workday.workTimeToday)
         }
 
-        // Sum up projects for dates that DON'T have a work day entry
-        projects.filter { it.date !in workDayDates }.forEach { project ->
+        // Sum up projects for dates that DON'T have a workday entry
+        projects.filter { it.date !in workdayDates }.forEach { project ->
             totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, project.projectTime)
         }
 
@@ -86,5 +86,5 @@ data class CalendarData(
     val timePerMonth: String,
     val timePerWeek: String,
     val timePerDay: String,
-    val workDaysMonth: List<WorkDayEntity>
+    val workdaysMonth: List<WorkdayEntity>
 )

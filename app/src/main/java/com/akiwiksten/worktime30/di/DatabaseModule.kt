@@ -6,15 +6,15 @@ import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
-import com.akiwiksten.worktime30.data.database.dao.WorkDayDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.WorkDayRepository
-import com.akiwiksten.worktime30.data.repository.WorkDayRepositoryImpl
+import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -30,7 +30,7 @@ abstract class DatabaseModule {
 
     @Binds
     @Singleton
-    abstract fun bindWorkDayRepository(impl: WorkDayRepositoryImpl): WorkDayRepository
+    abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
 
     @Binds
     @Singleton
@@ -52,7 +52,7 @@ abstract class DatabaseModule {
         }
 
         @Provides
-        fun provideWorkDayDao(database: AppDatabase): WorkDayDao = database.workDayDao()
+        fun provideWorkdayDao(database: AppDatabase): WorkdayDao = database.workdayDao()
 
         @Provides
         fun provideWorkStatsDao(database: AppDatabase): WorkStatsDao = database.workStatsDao()

@@ -20,9 +20,9 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import androidx.compose.foundation.Canvas as ComposeCanvas
 
 @Composable
-fun PrintWorkDaysComposable(params: PrintWorkDaysComposableParams) {
+fun PrintWorkdaysComposable(params: PrintWorkdaysComposableParams) {
     val paints = rememberReportPaints()
-    val endOfMonth = parseDate(workDay = params.endOfMonthDate).toInt()
+    val endOfMonth = parseDate(workday = params.endOfMonthDate).toInt()
 
     ComposeCanvas(
         modifier = Modifier
@@ -142,7 +142,7 @@ private fun drawCell(
 }
 
 private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int): List<String> {
-    return projects.filter { parseDate(workDay = it.date).toInt() == day && it.projectTime != ZERO_TIME }
+    return projects.filter { parseDate(workday = it.date).toInt() == day && it.projectTime != ZERO_TIME }
         .flatMap { project ->
             listOf(
                 project.projectName,
@@ -157,7 +157,7 @@ private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int):
 
 private fun drawTotalsSection(
     canvas: Canvas,
-    params: PrintWorkDaysComposableParams,
+    params: PrintWorkdaysComposableParams,
     endDay: Int,
     startX: Float,
     paints: ReportPaints
@@ -190,7 +190,7 @@ private fun drawTotalsSection(
 private fun calculateTotals(projects: List<ProjectEntity>, endDay: Int): Map<String, String> {
     val totals = mutableMapOf<String, String>()
     for (day in 1..endDay) {
-        projects.filter { parseDate(workDay = it.date).toInt() == day && it.projectTime != ZERO_TIME }
+        projects.filter { parseDate(workday = it.date).toInt() == day && it.projectTime != ZERO_TIME }
             .forEach { p ->
                 totals[p.projectName] = WorkTimeCalculator.calculateWorkTimeBalance(
                     initialTime = totals[p.projectName] ?: ZERO_TIME,
@@ -211,7 +211,7 @@ private data class ReportPaints(
 private data class ColumnBounds(val x: Float, val width: Float)
 private data class PaintPair(val rect: Paint, val text: Paint)
 
-data class PrintWorkDaysComposableParams(
+data class PrintWorkdaysComposableParams(
     val projectsByMonth: List<ProjectEntity>,
     val endOfMonthDate: String,
     val startDate: Int,

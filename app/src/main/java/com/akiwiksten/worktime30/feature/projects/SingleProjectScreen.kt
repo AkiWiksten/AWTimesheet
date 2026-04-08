@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -74,16 +73,16 @@ fun SingleProjectScreen(
     args: SingleProjectArgs,
     onNavigateBack: () -> Unit,
     onOpenEditWorkDay: (ProjectDialogState) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(LocalContext.current.findActivity()),
-    viewModel: ProjectsViewModel = hiltViewModel(LocalContext.current.findActivity())
+    calendarViewModel: CalendarViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current.findActivity()),
+    viewModel: ProjectsViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current.findActivity())
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val date = calendarUiState.date
 
-    LaunchedEffect(date) {
+    LaunchedEffect(key1 = date) {
         if (date.isNotEmpty()) {
-            viewModel.loadData(date)
+            viewModel.loadData(date = date)
         }
     }
 
@@ -95,9 +94,9 @@ fun SingleProjectScreen(
         }
     }
 
-    var state by remember(initialUiState) { mutableStateOf(ProjectDialogState(initialUiState)) }
+    var state by remember(initialUiState) { mutableStateOf(value = ProjectDialogState(uiState = initialUiState)) }
 
-    LaunchedEffect(initialUiState, args) {
+    LaunchedEffect(key1 = initialUiState, key2 = args) {
         args.projectName?.let { state = state.copy(projectName = it) }
         args.workTime?.let { state = state.copy(projectTime = it) }
         args.kilometres?.let { state = state.copy(kilometres = it) }
@@ -129,7 +128,7 @@ fun SingleProjectScreen(
                 onStateChange = { state = it },
                 onOpenEditWorkDay = { onOpenEditWorkDay(state) },
                 onConfirm = {
-                    viewModel.saveProject(state.toUiState())
+                    viewModel.saveProject(uiState = state.toUiState())
                     onNavigateBack()
                 }
             )
@@ -152,17 +151,17 @@ private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Header(
-                title = stringResource(R.string.project_customer),
+                title = stringResource(id = R.string.project_customer),
                 modifier = Modifier.padding(top = 0.dp)
             )
         },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
         },
         actions = {
-            Spacer(modifier = Modifier.width(48.dp))
+            Spacer(modifier = Modifier.width(width = 48.dp))
         }
     )
 }
@@ -190,10 +189,10 @@ private fun SingleProjectContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding)
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(paddingValues = padding)
+            .padding(all = 24.dp)
+            .verticalScroll(state = rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         HeaderSection(date = screenState.date)
@@ -217,15 +216,15 @@ private fun SingleProjectContent(
             onStateChange = actions.onStateChange
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(weight = 1f))
 
         Button(
             onClick = actions.onConfirm,
             enabled = screenState.isConfirmEnabled,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(size = 12.dp)
         ) {
-            Text(stringResource(R.string.save), style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -236,9 +235,9 @@ private fun HeaderSection(date: String) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
             Text(
                 text = date,
@@ -258,25 +257,25 @@ private fun DialogMainFields(
     isAddMode: Boolean,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         OutlinedTextField(
             value = state.projectName,
             onValueChange = { onStateChange(state.copy(projectName = it)) },
-            label = { Text(stringResource(R.string.project_name)) },
+            label = { Text(text = stringResource(id = R.string.project_name)) },
             modifier = Modifier.fillMaxWidth(),
             enabled = isAddMode,
             singleLine = true,
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(size = 12.dp)
         )
 
         OutlinedTextField(
             value = state.kilometres,
             onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-            label = { Text(stringResource(R.string.kilometres)) },
+            label = { Text(text = stringResource(id = R.string.kilometres)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(size = 12.dp)
         )
     }
 }
@@ -288,7 +287,7 @@ private fun TimeSelectionSection(
     onOpenEditWorkDay: () -> Unit,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         CompactTimeRow(
             labelId = R.string.work_time,
             value = state.projectTime,
@@ -306,12 +305,12 @@ private fun DialogDropdownFields(
     workTypeDropDownList: List<String>,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         DropdownMenuBox(
             items = listOf(
-                stringResource(R.string.no_allowance),
-                stringResource(R.string.daily_allowance),
-                stringResource(R.string.half_day_allowance)
+                stringResource(id = R.string.no_allowance),
+                stringResource(id = R.string.daily_allowance),
+                stringResource(id = R.string.half_day_allowance)
             ),
             onItemSelected = { onStateChange(state.copy(allowance = it)) },
             labelId = R.string.allowance,
@@ -338,21 +337,21 @@ private fun CompactTimeRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         OutlinedTextField(
             value = value,
             onValueChange = {},
-            label = { Text(stringResource(labelId)) },
+            label = { Text(text = stringResource(id = labelId)) },
             readOnly = true,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weight = 1f),
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledBorderColor = MaterialTheme.colorScheme.outline,
             ),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(size = 12.dp)
         )
 
         IconButton(onClick = onHistoryClick) {

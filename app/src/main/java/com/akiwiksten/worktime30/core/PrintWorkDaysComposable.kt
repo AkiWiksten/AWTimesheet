@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.settings
+package com.akiwiksten.worktime30.core
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -12,37 +12,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.worktime30.core.MonthlyReportGenerator
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator.ORIGIN_LEFT_FIRST
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator.ORIGIN_TOP_FIRST
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator.TEXT_SIZE
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import androidx.compose.foundation.Canvas as ComposeCanvas
 
 @Composable
 fun PrintWorkDaysComposable(params: PrintWorkDaysComposableParams) {
     val paints = rememberReportPaints()
-    val endOfMonth = parseDate(params.endOfMonthDate).toInt()
+    val endOfMonth = parseDate(workDay = params.endOfMonthDate).toInt()
 
     ComposeCanvas(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(all = 16.dp)
     ) {
         val nativeCanvas = drawContext.canvas.nativeCanvas
         var currentX = ORIGIN_LEFT_FIRST
         var prevWidth = 0f
 
         for (day in params.startDate..params.endDate) {
-            val projectAttrs = getProjectAttributesForDay(params.projectsByMonth, day)
+            val projectAttrs = getProjectAttributesForDay(projects = params.projectsByMonth, day = day)
             if (projectAttrs.isEmpty()) continue
 
             val dayWidth = MonthlyReportGenerator.getMaxLengthOfProjectAttributes(
-                projectAttrs,
-                paints.textPaint
+                list = projectAttrs,
+                paint = paints.textPaint
             ).coerceAtLeast(40f)
 
             currentX += prevWidth
@@ -50,14 +47,20 @@ fun PrintWorkDaysComposable(params: PrintWorkDaysComposableParams) {
                 canvas = nativeCanvas,
                 day = day,
                 attrs = projectAttrs,
-                bounds = ColumnBounds(currentX, dayWidth),
+                bounds = ColumnBounds(x = currentX, width = dayWidth),
                 paints = paints
             )
             prevWidth = dayWidth
         }
 
         if (params.showTotals) {
-            drawTotalsSection(nativeCanvas, params, endOfMonth, currentX + prevWidth, paints)
+            drawTotalsSection(
+                canvas = nativeCanvas,
+                params = params,
+                endDay = endOfMonth,
+                startX = currentX + prevWidth,
+                paints = paints
+            )
         }
     }
 }
@@ -66,10 +69,18 @@ fun PrintWorkDaysComposable(params: PrintWorkDaysComposableParams) {
 private fun rememberReportPaints(): ReportPaints {
     val black = Color.Black.toArgb()
     return ReportPaints(
-        textPaint = createPaint(Typeface.NORMAL, Paint.Style.FILL, black),
-        boldTextPaint = createPaint(Typeface.BOLD, Paint.Style.FILL, black),
-        rectPaint = createPaint(Typeface.NORMAL, Paint.Style.STROKE, black, 1f),
-        boldRectPaint = createPaint(Typeface.NORMAL, Paint.Style.STROKE, black, 2f)
+        textPaint = createPaint(style = Typeface.NORMAL, paintStyle = Paint.Style.FILL, color = black),
+        boldTextPaint = createPaint(style = Typeface.BOLD, paintStyle = Paint.Style.FILL, color = black),
+        rectPaint = createPaint(
+            style = Typeface.NORMAL,
+            paintStyle = Paint.Style.STROKE,
+            color = black,
+            strokeWidth = 1f),
+        boldRectPaint = createPaint(
+            style = Typeface.NORMAL,
+            paintStyle = Paint.Style.STROKE,
+            color = black,
+            strokeWidth = 2f)
     )
 }
 
@@ -100,7 +111,7 @@ private fun drawDayColumn(
         canvas = canvas,
         rect = headerRect,
         text = day.toString(),
-        paints = PaintPair(paints.boldRectPaint, paints.boldTextPaint),
+        paints = PaintPair(rect = paints.boldRectPaint, text = paints.boldTextPaint),
         centerText = true
     )
 
@@ -112,7 +123,7 @@ private fun drawDayColumn(
             canvas = canvas,
             rect = rect,
             text = attr,
-            paints = PaintPair(paints.rectPaint, paints.textPaint),
+            paints = PaintPair(rect = paints.rectPaint, text = paints.textPaint),
             centerText = false
         )
     }
@@ -131,7 +142,7 @@ private fun drawCell(
 }
 
 private fun getProjectAttributesForDay(projects: List<ProjectEntity>, day: Int): List<String> {
-    return projects.filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
+    return projects.filter { parseDate(workDay = it.date).toInt() == day && it.projectTime != ZERO_TIME }
         .flatMap { project ->
             listOf(
                 project.projectName,
@@ -151,8 +162,8 @@ private fun drawTotalsSection(
     startX: Float,
     paints: ReportPaints
 ) {
-    val totals = calculateTotals(params.projectsByMonth, endDay)
-    val maxWidth = MonthlyReportGenerator.getMaxLengthOfProjectAttributesMap(totals, paints.textPaint)
+    val totals = calculateTotals(projects = params.projectsByMonth, endDay = endDay)
+    val maxWidth = MonthlyReportGenerator.getMaxLengthOfProjectAttributesMap(map = totals, paint = paints.textPaint)
 
     totals.toList().forEachIndexed { index, (name, value) ->
         val top = ORIGIN_TOP_FIRST + TEXT_SIZE * 2 * (index + 1)
@@ -163,14 +174,14 @@ private fun drawTotalsSection(
             canvas = canvas,
             rect = nameRect,
             text = name,
-            paints = PaintPair(paints.rectPaint, paints.textPaint),
+            paints = PaintPair(rect = paints.rectPaint, text = paints.textPaint),
             centerText = false
         )
         drawCell(
             canvas = canvas,
             rect = valRect,
             text = value,
-            paints = PaintPair(paints.rectPaint, paints.textPaint),
+            paints = PaintPair(rect = paints.rectPaint, text = paints.textPaint),
             centerText = false
         )
     }
@@ -179,10 +190,11 @@ private fun drawTotalsSection(
 private fun calculateTotals(projects: List<ProjectEntity>, endDay: Int): Map<String, String> {
     val totals = mutableMapOf<String, String>()
     for (day in 1..endDay) {
-        projects.filter { parseDate(it.date).toInt() == day && it.projectTime != ZERO_TIME }
+        projects.filter { parseDate(workDay = it.date).toInt() == day && it.projectTime != ZERO_TIME }
             .forEach { p ->
-                totals[p.projectName] = WorkTimeCalculator.calculateTotalMinutes(
-                    totals[p.projectName] ?: ZERO_TIME, p.projectTime, false, false
+                totals[p.projectName] = WorkTimeCalculator.calculateWorkTimeBalance(
+                    initialTime = totals[p.projectName] ?: ZERO_TIME,
+                    addedTime = p.projectTime
                 )
             }
     }

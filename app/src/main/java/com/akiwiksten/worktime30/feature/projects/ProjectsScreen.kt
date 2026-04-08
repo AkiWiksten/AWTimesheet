@@ -54,27 +54,31 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 @Composable
 fun ProjectsScreen(
     onNavigateToSingleProject: (Int) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner),
-    projectsViewModel: ProjectsViewModel = hiltViewModel(LocalActivity.current as ViewModelStoreOwner),
+    calendarViewModel: CalendarViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
+    ),
+    projectsViewModel: ProjectsViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
+    ),
 ) {
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
     val date = calendarUiState.date
 
-    var selectedItemIndex by remember { mutableIntStateOf(-1) }
+    var selectedItemIndex by remember { mutableIntStateOf(value = -1) }
 
-    LaunchedEffect(date) {
+    LaunchedEffect(key1 = date) {
         if (date.isNotEmpty()) {
-            projectsViewModel.loadData(date)
+            projectsViewModel.loadData(date = date)
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(all = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 16.dp)
     ) {
         ProjectsHeader(date = date, workTime = projectsUiState.workTimeToday)
 
@@ -82,7 +86,7 @@ fun ProjectsScreen(
             items = projectsUiState.projects,
             selectedIndex = selectedItemIndex,
             onItemSelected = { selectedItemIndex = it },
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(weight = 1f)
         )
 
         ProjectsActionButtons(
@@ -91,8 +95,8 @@ fun ProjectsScreen(
             onAddClick = { onNavigateToSingleProject(-1) },
             onEditClick = { onNavigateToSingleProject(selectedItemIndex) },
             onDeleteClick = {
-                projectsUiState.projects.getOrNull(selectedItemIndex)?.let {
-                    projectsViewModel.deleteProject(it)
+                projectsUiState.projects.getOrNull(index = selectedItemIndex)?.let {
+                    projectsViewModel.deleteProject(uiState = it)
                     selectedItemIndex = -1
                 }
             }
@@ -104,11 +108,11 @@ fun ProjectsScreen(
 private fun ProjectsHeader(date: String, workTime: String) {
     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
-            Header(stringResource(R.string.projects_customers))
+            Header(title = stringResource(id = R.string.projects_customers))
             Text(
                 text = date,
                 style = MaterialTheme.typography.headlineMedium,
@@ -116,7 +120,7 @@ private fun ProjectsHeader(date: String, workTime: String) {
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "${stringResource(R.string.work_time_today)}: $workTime",
+                text = "${stringResource(id = R.string.work_time_today)}: $workTime",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
@@ -137,21 +141,25 @@ private fun ProjectsListSection(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = stringResource(R.string.no_projects_available),
+                text = stringResource(id = R.string.no_projects_available),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(32.dp)
+                modifier = Modifier.padding(all = 32.dp)
             )
         }
     } else {
         LazyColumn(
             modifier = modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
+                .clip(shape = RoundedCornerShape(size = 12.dp))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = RoundedCornerShape(size = 12.dp)
+                )
                 .selectableGroup(),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
             items(
                 items = items,
@@ -183,11 +191,15 @@ private fun ProjectListItem(
             .fillMaxWidth()
             .selectable(selected = isSelected, onClick = onClick)
             .background(
-                if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else Color.Transparent
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                } else {
+                    Color.Transparent
+                }
             )
-            .padding(16.dp)
+            .padding(all = 16.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(space = 4.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -213,7 +225,11 @@ private fun ProjectListItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ProjectDetails(item.workType, item.allowance, Modifier.weight(1f))
+                ProjectDetails(
+                    workType = item.workType,
+                    allowance = item.allowance,
+                    modifier = Modifier.weight(weight = 1f)
+                )
                 Text(
                     text = "${item.kilometres} km",
                     style = MaterialTheme.typography.labelLarge,
@@ -253,50 +269,50 @@ private fun ProjectsActionButtons(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val selectedProject = items.getOrNull(selectedIndex)
+    val selectedProject = items.getOrNull(index = selectedIndex)
     val deleteButtonText = if (selectedProject?.projectTime != ZERO_TIME) {
-        stringResource(R.string.nullify)
+        stringResource(id = R.string.nullify)
     } else {
-        stringResource(R.string.delete)
+        stringResource(id = R.string.delete)
     }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(space = 12.dp)
     ) {
         Button(
             onClick = onAddClick,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(weight = 1f)
         ) {
-            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.add))
+            Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
+            Spacer(modifier = Modifier.width(width = 8.dp))
+            Text(text = stringResource(id = R.string.add))
         }
         Button(
             onClick = onEditClick,
             enabled = selectedIndex != -1,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weight = 1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
             )
         ) {
-            Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.edit))
+            Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(size = 18.dp))
+            Spacer(modifier = Modifier.width(width = 8.dp))
+            Text(text = stringResource(id = R.string.edit))
         }
         Button(
             onClick = onDeleteClick,
             enabled = selectedIndex != -1,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weight = 1f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer
             )
         ) {
-            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(deleteButtonText)
+            Icon(imageVector = Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(size = 18.dp))
+            Spacer(modifier = Modifier.width(width = 8.dp))
+            Text(text = deleteButtonText)
         }
     }
 }

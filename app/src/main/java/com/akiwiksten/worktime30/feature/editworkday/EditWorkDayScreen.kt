@@ -2,30 +2,19 @@ package com.akiwiksten.worktime30.feature.editworkday
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,8 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
@@ -42,13 +29,16 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
+import com.akiwiksten.worktime30.feature.editworkday.components.ExistingDayFields
+import com.akiwiksten.worktime30.feature.editworkday.components.FooterSection
+import com.akiwiksten.worktime30.feature.editworkday.components.HeaderSection
+import com.akiwiksten.worktime30.feature.editworkday.components.NewDayFields
+import com.akiwiksten.worktime30.feature.editworkday.components.ProjectNameField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditWorkDayScreen(
-    projectName: String? = null,
-    workDay: WorkDayEntity? = null,
-    workStats: WorkStatsEntity? = null,
+    args: EditWorkDayArgs,
     onNavigateBack: () -> Unit,
     onConfirm: (WorkDayEntity, WorkStatsEntity) -> Unit,
     viewModel: EditWorkDayViewModel = hiltViewModel(),
@@ -56,12 +46,12 @@ fun EditWorkDayScreen(
     val calendarViewModel: CalendarViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
-    BackHandler { onNavigateBack() }
+    BackHandler(onBack = onNavigateBack)
 
     LaunchedEffect(Unit) {
         viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
-        projectName?.let { viewModel.setProjectName(it) }
-        viewModel.loadWorkDay(workDay, workStats)
+        args.projectName?.let { viewModel.setProjectName(projectName = it) }
+        viewModel.loadWorkDay(workDayArg = args.workDay, workStatsArg = args.workStats)
     }
 
     Scaffold(
@@ -72,7 +62,7 @@ fun EditWorkDayScreen(
         EditWorkDayContent(
             padding = padding,
             uiState = uiState,
-            projectName = projectName,
+            projectName = args.projectName,
             viewModel = viewModel,
             onConfirm = {
                 val workDayResult = viewModel.getWorkDayEntity()
@@ -89,14 +79,14 @@ private fun EditWorkDayTopBar(onNavigateBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Header(
-                title = stringResource(R.string.work_day),
+                title = stringResource(id = R.string.work_day),
                 modifier = Modifier.padding(top = 0.dp),
                 fillMaxWidth = false
             )
         },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }
         }
     )
@@ -113,10 +103,10 @@ private fun EditWorkDayContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(paddingValues = padding)
+            .padding(all = 16.dp)
+            .verticalScroll(state = rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
@@ -135,146 +125,8 @@ private fun EditWorkDayContent(
     }
 }
 
-@Composable
-private fun ProjectNameField(name: String) {
-    OutlinedTextField(
-        value = name,
-        onValueChange = {},
-        label = { Text(stringResource(R.string.project_name)) },
-        modifier = Modifier.fillMaxWidth(),
-        readOnly = true,
-        enabled = false,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-        )
-    )
-}
-
-@Composable
-private fun HeaderSection(date: String, onClearDay: () -> Unit) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = date,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Button(
-                onClick = onClearDay,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            ) {
-                Text(stringResource(R.string.clear_day))
-            }
-        }
-    }
-}
-
-@Composable
-private fun NewDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        AddTimeRow(uiState.startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
-        AddTimeRow(
-            uiState.dailyWorkTime,
-            R.string.daily_work_time,
-            viewModel::currentDailyWorkTime,
-            viewModel::setDailyWorkTime
-        )
-        AddTimeRow(uiState.lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(modifier = Modifier.weight(1f)) {
-                AddCustomTimeRow(uiState.balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
-            }
-            Box(modifier = Modifier.weight(1f)) {
-                AddCustomTimeRow(uiState.workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
-            }
-        }
-        Text(
-            text = stringResource(R.string.new_day),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-    }
-}
-
-@Composable
-private fun ExistingDayFields(uiState: EditWorkDayUiState, viewModel: EditWorkDayViewModel) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AddTimeRow(uiState.startTime, R.string.start_time, viewModel::currentStartTime, viewModel::setStartTime)
-        AddTimeRow(uiState.endTime, R.string.end_time, viewModel::currentEndTime, viewModel::setEndTime)
-        AddTimeRow(
-            uiState.workTimeToday,
-            R.string.work_time_today,
-            viewModel::currentWorkTimeToday,
-            viewModel::setWorkTimeToday
-        )
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-        AddTimeRow(uiState.lunchStart, R.string.lunch_start, viewModel::currentLunchStart, viewModel::setLunchStart)
-        AddTimeRow(uiState.lunchEnd, R.string.lunch_end, viewModel::currentLunchEnd, viewModel::setLunchEnd)
-        AddTimeRow(uiState.breakStart, R.string.break_start, viewModel::currentBreakStart, viewModel::setBreakStart)
-        AddTimeRow(uiState.breakEnd, R.string.break_end, viewModel::currentBreakEnd, viewModel::setBreakEnd)
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-        AddTimeRow(
-            textFieldValue = uiState.dailyWorkTime,
-            stringId = R.string.daily_work_time,
-            currentTime = viewModel::currentDailyWorkTime,
-            onConfirmation = viewModel::setDailyWorkTime
-        )
-        AddTimeRow(uiState.lunchTime, R.string.lunch_time, viewModel::currentLunchTime, viewModel::setLunchTime)
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(modifier = Modifier.weight(1f)) {
-                    AddCustomTimeRow(uiState.balanceToday, viewModel::setBalanceToday, R.string.balance_today)
-                }
-                Box(modifier = Modifier.weight(1f)) {
-                    AddCustomTimeRow(uiState.balanceTotal, viewModel::setBalanceTotal, R.string.balance_total)
-                }
-            }
-            AddCustomTimeRow(uiState.workTimeTotal, viewModel::setWorkTimeTotal, R.string.work_time_total)
-        }
-    }
-}
-
-@Composable
-private fun FooterSection(onConfirm: () -> Unit) {
-    Button(
-        onClick = onConfirm,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        shape = MaterialTheme.shapes.large
-    ) {
-        Text(stringResource(R.string.confirm), style = MaterialTheme.typography.titleLarge)
-    }
-}
+data class EditWorkDayArgs(
+    val projectName: String? = null,
+    val workDay: WorkDayEntity? = null,
+    val workStats: WorkStatsEntity? = null
+)

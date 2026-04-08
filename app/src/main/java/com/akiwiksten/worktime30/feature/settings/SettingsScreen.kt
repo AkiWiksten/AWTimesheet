@@ -51,11 +51,11 @@ fun SettingsScreen(
     val date = calendarUiState.date
     val ctx = LocalContext.current
 
-    LaunchedEffect(date) {
+    LaunchedEffect(key1 = date) {
         settingsViewModel.loadSettings()
         if (date.isNotEmpty()) {
-            settingsViewModel.loadProjectsByMonth(date)
-            settingsViewModel.setEndMonthDate(date)
+            settingsViewModel.loadProjectsByMonth(date = date)
+            settingsViewModel.setEndMonthDate(selectedDate = date)
         }
     }
 
@@ -69,12 +69,18 @@ fun SettingsScreen(
                 settingsViewModel.saveSettings()
             },
             onGeneratePdf = {
-                generateReport(ctx, uiState.projectsByMonth, uiState.endMonthDate, uiState.name, uiState.employer)
+                generateReport(
+                    ctx = ctx,
+                    projectsByMonth = uiState.projectsByMonth,
+                    endOfMonthDate = uiState.endMonthDate,
+                    name = uiState.name,
+                    employer = uiState.employer
+                )
             }
         )
     }
 
-    SettingsContent(uiState, date, actions)
+    SettingsContent(uiState = uiState, calendarDate = date, actions = actions)
 }
 
 data class SettingsActions(
@@ -92,10 +98,10 @@ private fun SettingsContent(
     calendarDate: String,
     actions: SettingsActions
 ) {
-    var showAddWorkTypeDialog by remember { mutableStateOf(false) }
-    var selectedWorkType by remember { mutableStateOf("") }
+    var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
+    var selectedWorkType by remember { mutableStateOf(value = "") }
 
-    LaunchedEffect(uiState.workTypes) {
+    LaunchedEffect(key1 = uiState.workTypes) {
         if (selectedWorkType.isEmpty() || !uiState.workTypes.contains(selectedWorkType)) {
             selectedWorkType = uiState.workTypes.firstOrNull() ?: ""
         }
@@ -104,14 +110,14 @@ private fun SettingsContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .verticalScroll(state = rememberScrollState())
+            .padding(all = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 24.dp)
     ) {
         HeaderSection(date = calendarDate)
 
-        SettingsCard(title = stringResource(R.string.name) + " & " + stringResource(R.string.employer)) {
+        SettingsCard(title = stringResource(id = R.string.name) + " & " + stringResource(id = R.string.employer)) {
             ProfileSection(
                 name = uiState.name,
                 employer = uiState.employer,
@@ -120,7 +126,7 @@ private fun SettingsContent(
             )
         }
 
-        SettingsCard(title = stringResource(R.string.work_type)) {
+        SettingsCard(title = stringResource(id = R.string.work_type)) {
             WorkTypeSection(
                 workTypes = uiState.workTypes,
                 selectedWorkType = selectedWorkType,
@@ -146,7 +152,7 @@ private fun SettingsContent(
                     actions.onWorkTypeAdded(it)
                     showAddWorkTypeDialog = false
                 },
-                label = stringResource(R.string.work_type)
+                label = stringResource(id = R.string.work_type)
             )
         }
     }
@@ -159,7 +165,7 @@ private fun SettingsCard(title: String, content: @Composable () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(modifier = Modifier.padding(all = 16.dp), verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
             Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             HorizontalDivider()
             content()
@@ -170,7 +176,7 @@ private fun SettingsCard(title: String, content: @Composable () -> Unit) {
 @Composable
 private fun HeaderSection(date: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Header(stringResource(R.string.settings))
+        Header(title = stringResource(id = R.string.settings))
         Text(
             text = date,
             style = MaterialTheme.typography.headlineMedium,
@@ -187,7 +193,7 @@ private fun ProfileSection(
     onNameChange: (String) -> Unit,
     onEmployerChange: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         SettingsTextField(value = name, label = R.string.name, onValueChange = onNameChange)
         SettingsTextField(value = employer, label = R.string.employer, onValueChange = onEmployerChange)
     }
@@ -199,7 +205,7 @@ private fun SettingsTextField(value: String, label: Int, onValueChange: (String)
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        label = { Text(stringResource(label)) },
+        label = { Text(text = stringResource(id = label)) },
         modifier = Modifier.fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyLarge
     )
@@ -215,7 +221,7 @@ private fun WorkTypeSection(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
         DropdownMenuBox(
             items = workTypes,
@@ -224,17 +230,17 @@ private fun WorkTypeSection(
             labelId = R.string.work_type,
             modifier = Modifier.fillMaxWidth()
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = onAddClick, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.add))
+        Row(horizontalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+            Button(onClick = onAddClick, modifier = Modifier.weight(weight = 1f)) {
+                Text(text = stringResource(id = R.string.add))
             }
             Button(
                 onClick = onDeleteClick,
                 enabled = selectedWorkType.isNotEmpty(),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text(stringResource(R.string.delete))
+                Text(text = stringResource(id = R.string.delete))
             }
         }
     }
@@ -248,23 +254,23 @@ private fun ActionButtonsSection(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 12.dp)
     ) {
         Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.save), fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.save), fontSize = 18.sp)
         }
         Button(
             onClick = onGeneratePdf,
             enabled = isPdfEnabled,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(stringResource(R.string.generate_pdf), fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.generate_pdf), fontSize = 18.sp)
         }
         Text(
-            text = stringResource(R.string.monthly_help),
+            text = stringResource(id = R.string.monthly_help),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         )
     }
 }
@@ -286,7 +292,7 @@ private fun generateReport(
     ).map { ctx.getString(it) }
 
     MonthlyReportGenerator.generatePdf(
-        GeneratePdfParams(
+        params = GeneratePdfParams(
             ctx = ctx,
             projectsByMonth = projectsByMonth,
             endOfMonthDate = endOfMonthDate,

@@ -39,8 +39,8 @@ fun DropdownMenuBox(
     modifier: Modifier = Modifier,
     selectedText: String = "",
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var textFieldSize by remember { mutableStateOf(Size.Zero) }
+    var expanded by remember { mutableStateOf(value = false) }
+    var textFieldSize by remember { mutableStateOf(value = Size.Zero) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -58,14 +58,14 @@ fun DropdownMenuBox(
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .clickable { expanded = !expanded }
+                    .clickable(onClick = { expanded = !expanded })
             )
         }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() })
+            modifier = Modifier.width(width = with(LocalDensity.current) { textFieldSize.width.toDp() })
         ) {
             items.forEach { label ->
                 DropdownMenuItem(
@@ -99,7 +99,7 @@ private fun DropdownTextField(
             },
         label = {
             Text(
-                text = stringResource(labelId),
+                text = stringResource(id = labelId),
                 style = MaterialTheme.typography.bodyLarge
             )
         },

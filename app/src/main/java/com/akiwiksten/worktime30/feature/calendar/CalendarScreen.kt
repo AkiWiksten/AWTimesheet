@@ -66,26 +66,26 @@ fun CalendarScreen(
     CompositionLocalProvider(LocalConfiguration provides configuration) {
         val datePickerState = rememberDatePickerState()
 
-        LaunchedEffect(Unit) {
-            calendarViewModel.onDateSelected(uiState.date)
+        LaunchedEffect(key1 = Unit) {
+            calendarViewModel.onDateSelected(selectedDate = uiState.date)
         }
 
-        LaunchedEffect(datePickerState.selectedDateMillis) {
+        LaunchedEffect(key1 = datePickerState.selectedDateMillis) {
             datePickerState.selectedDateMillis?.let {
-                val selectedDate = calendarViewModel.convertMillisToDate(it)
+                val selectedDate = calendarViewModel.convertMillisToDate(millis = it)
                 if (selectedDate != uiState.date) {
-                    calendarViewModel.onDateSelected(selectedDate)
+                    calendarViewModel.onDateSelected(selectedDate = selectedDate)
                 }
             }
         }
 
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(state = rememberScrollState())
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(all = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
         ) {
             DatePickerSection(
                 selectedDate = uiState.date,
@@ -105,23 +105,23 @@ private fun DatePickerSection(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = Modifier.padding(5.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+        modifier = Modifier.padding(all = 5.dp)
     ) {
-        Header(stringResource(R.string.select_work_day_date))
+        Header(title = stringResource(id = R.string.select_work_day_date))
 
         OutlinedTextField(
             value = selectedDate,
             onValueChange = { },
-            label = { Text(stringResource(R.string.selected_date), fontSize = 20.sp) },
+            label = { Text(text = stringResource(id = R.string.selected_date), fontSize = 20.sp) },
             readOnly = true,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.DateRange,
-                    contentDescription = stringResource(R.string.select_date)
+                    contentDescription = stringResource(id = R.string.select_date)
                 )
             },
-            modifier = Modifier.height(64.dp),
+            modifier = Modifier.height(height = 64.dp),
             textStyle = TextStyle.Default.copy(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -131,7 +131,7 @@ private fun DatePickerSection(
         Box(
             modifier = Modifier
                 .shadow(elevation = 4.dp)
-                .background(MaterialTheme.colorScheme.surface)
+                .background(color = MaterialTheme.colorScheme.surface)
         ) {
             DatePicker(
                 state = datePickerState,
@@ -148,18 +148,18 @@ private fun WorkTimeSummarySection(uiState: CalendarUiState) {
             .padding(vertical = 20.dp)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 10.dp)
     ) {
         SummaryItem(
-            label = stringResource(R.string.selected_work_day),
+            label = stringResource(id = R.string.selected_work_day),
             value = uiState.timePerDay
         )
         SummaryItem(
-            label = stringResource(R.string.selected_work_week),
+            label = stringResource(id = R.string.selected_work_week),
             value = uiState.timePerWeek
         )
         SummaryItem(
-            label = stringResource(R.string.selected_work_month),
+            label = stringResource(id = R.string.selected_work_month),
             value = uiState.timePerMonth
         )
     }

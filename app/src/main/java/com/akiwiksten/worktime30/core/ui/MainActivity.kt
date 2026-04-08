@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.core
+package com.akiwiksten.worktime30.core.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -29,6 +29,7 @@ import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.data.database.entity.WorkDayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
+import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayArgs
 import com.akiwiksten.worktime30.feature.editworkday.EditWorkDayScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.ProjectDialogState
@@ -58,11 +59,11 @@ fun WorkTime30App() {
     val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
 
     Scaffold(
-        bottomBar = { WorkTimeNavigationBar(backStack) }
+        bottomBar = { WorkTimeNavigationBar(backStack = backStack) }
     ) { padding ->
         WorkTimeNavDisplay(
             backStack = backStack,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(paddingValues = padding)
         )
     }
 }
@@ -75,9 +76,9 @@ private fun WorkTimeNavigationBar(backStack: SnapshotStateList<Any>) {
             val isSelected = backStack.lastOrNull() == screen
             NavigationBarItem(
                 selected = isSelected,
-                onClick = { if (!isSelected) backStack.add(screen) },
-                icon = { ScreenIcon(screen) },
-                label = { ScreenLabel(screen) }
+                onClick = { if (!isSelected) backStack.add(element = screen) },
+                icon = { ScreenIcon(screen = screen) },
+                label = { ScreenLabel(screen = screen) }
             )
         }
     }
@@ -96,8 +97,8 @@ private fun ScreenIcon(screen: Screen) {
 
 @Composable
 private fun ScreenLabel(screen: Screen) {
-    val label = screen.titleResId?.let { stringResource(it) } ?: screen.route
-    Text(label)
+    val label = screen.titleResId?.let { stringResource(id = it) } ?: screen.route
+    Text(text = label)
 }
 
 @Composable
@@ -115,20 +116,22 @@ private fun WorkTimeNavDisplay(
         ),
         entryProvider = entryProvider {
             entry<Screen.Intro> {
-                IntroScreen(onItemClick = { backStack.add(Screen.Calendar) })
+                IntroScreen(onItemClick = { backStack.add(element = Screen.Calendar) })
             }
             entry<Screen.Calendar> { CalendarScreen() }
             entry<Screen.Projects> {
                 ProjectsScreen(
-                    onNavigateToSingleProject = { index -> backStack.add(Screen.SingleProject(index)) }
+                    onNavigateToSingleProject = { index ->
+                        backStack.add(element = Screen.SingleProject(index = index))
+                    }
                 )
             }
             entry<Screen.Settings> { SettingsScreen() }
             entry<Screen.EditWorkDay> { screen ->
-                EditWorkDayEntry(screen, backStack)
+                EditWorkDayEntry(screen = screen, backStack = backStack)
             }
             entry<Screen.SingleProject> { screen ->
-                SingleProjectEntry(screen, backStack)
+                SingleProjectEntry(screen = screen, backStack = backStack)
             }
         }
     )
@@ -137,12 +140,14 @@ private fun WorkTimeNavDisplay(
 @Composable
 private fun EditWorkDayEntry(screen: Screen.EditWorkDay, backStack: SnapshotStateList<Any>) {
     EditWorkDayScreen(
-        projectName = screen.projectName,
-        workDay = screen.workDay,
-        workStats = screen.workStats,
+        args = EditWorkDayArgs(
+            projectName = screen.projectName,
+            workDay = screen.workDay,
+            workStats = screen.workStats
+        ),
         onNavigateBack = { backStack.pop() },
         onConfirm = { workDay, workStats ->
-            backStack.updateSingleProjectWorkTime(workDay, workStats)
+            backStack.updateSingleProjectWorkTime(workDay = workDay, workStats = workStats)
         }
     )
 }
@@ -162,9 +167,9 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         ),
         onNavigateBack = { backStack.pop() },
         onOpenEditWorkDay = { state ->
-            backStack.updateSingleProjectState(state)
+            backStack.updateSingleProjectState(state = state)
             backStack.add(
-                Screen.EditWorkDay(
+                element = Screen.EditWorkDay(
                     projectName = state.projectName,
                     workDay = state.workDay,
                     workStats = state.workStats
@@ -176,7 +181,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
 
 private fun SnapshotStateList<Any>.pop() {
     if (isNotEmpty()) {
-        removeAt(size - 1)
+        removeAt(index = size - 1)
     }
 }
 
@@ -197,7 +202,7 @@ private fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
 
 private fun SnapshotStateList<Any>.updateSingleProjectState(state: ProjectDialogState) {
     val index = size - 1
-    val current = getOrNull(index)
+    val current = getOrNull(index = index)
     if (current is Screen.SingleProject) {
         this[index] = current.copy(
             projectName = state.projectName,

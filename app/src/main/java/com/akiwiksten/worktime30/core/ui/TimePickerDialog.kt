@@ -34,8 +34,8 @@ fun TimePickerDialog(
     time: String,
     modifier: Modifier = Modifier
 ) {
-    val initialHour = time.substringBefore(':', "0").toIntOrNull() ?: 0
-    val initialMinute = time.substringAfter(':', "0").toIntOrNull() ?: 0
+    val initialHour = time.substringBefore(delimiter = ':', missingDelimiterValue = "0").toIntOrNull() ?: 0
+    val initialMinute = time.substringAfter(delimiter = ':', missingDelimiterValue = "0").toIntOrNull() ?: 0
 
     val timePickerState = rememberTimePickerState(
         initialHour = initialHour,
@@ -48,17 +48,17 @@ fun TimePickerDialog(
             modifier = modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(16.dp),
-            shape = RoundedCornerShape(28.dp),
+                .padding(all = 16.dp),
+            shape = RoundedCornerShape(size = 28.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(all = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(space = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(titleId),
+                    text = stringResource(id = titleId),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -74,16 +74,16 @@ fun TimePickerDialog(
                     TextButton(
                         onClick = onDismissRequest
                     ) {
-                        Text(stringResource(R.string.dismiss))
+                        Text(text = stringResource(id = R.string.dismiss))
                     }
                     TextButton(
                         onClick = {
                             onConfirmation(
-                                formatTime(timePickerState.hour, timePickerState.minute)
+                                formatTime(hour = timePickerState.hour, minute = timePickerState.minute)
                             )
                         }
                     ) {
-                        Text(stringResource(R.string.confirm))
+                        Text(text = stringResource(id = R.string.confirm))
                     }
                 }
             }

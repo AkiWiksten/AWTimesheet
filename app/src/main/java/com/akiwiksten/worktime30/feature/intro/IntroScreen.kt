@@ -74,9 +74,9 @@ fun IntroScreen(
         DEFAULT_FALLBACK_SCALE
     }
 
-    val currentScale = remember { Animatable(1f) }
+    val currentScale = remember { Animatable(initialValue = 1f) }
 
-    LaunchedEffect(targetScaleFactor, hasValidDimensions) {
+    LaunchedEffect(key1 = targetScaleFactor, key2 = hasValidDimensions) {
         if (hasValidDimensions) {
             currentScale.animateTo(
                 targetValue = targetScaleFactor,
@@ -101,7 +101,7 @@ private fun calculateTargetScale(
     windowInfo: WindowInfo,
     density: Density
 ): Float = remember(appName, windowInfo.containerSize, density) {
-    val textLayoutResult = textMeasurer.measure(appName, textStyle)
+    val textLayoutResult = textMeasurer.measure(text = appName, style = textStyle)
     val textWidthPx = textLayoutResult.size.width
     val screenWidthPx = windowInfo.containerSize.width
 
@@ -122,7 +122,7 @@ private fun IntroContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary),
+            .background(color = MaterialTheme.colorScheme.secondary),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -138,7 +138,7 @@ private fun IntroContent(
             color = Color.White
         )
 
-        Spacer(modifier = Modifier.padding(80.dp))
+        Spacer(modifier = Modifier.padding(all = 80.dp))
 
         Button(
             onClick = onItemClick,
@@ -152,9 +152,9 @@ private fun IntroContent(
                 }
         ) {
             Text(
-                text = stringResource(R.string.continueFromIntro),
+                text = stringResource(id = R.string.continueFromIntro),
                 fontSize = 24.sp,
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(all = 4.dp),
                 style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
             )
         }

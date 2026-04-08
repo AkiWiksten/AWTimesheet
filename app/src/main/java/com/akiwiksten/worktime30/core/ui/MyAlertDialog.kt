@@ -48,7 +48,7 @@ fun MyAlertDialog(
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         icon = {
-            Icon(icon, contentDescription = null)
+            Icon(imageVector = icon, contentDescription = null)
         },
         title = {
             Text(text = dialogTitle)
@@ -58,12 +58,12 @@ fun MyAlertDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirmation) {
-                Text(stringResource(R.string.confirm))
+                Text(text = stringResource(id = R.string.confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(stringResource(R.string.dismiss))
+                Text(text = stringResource(id = R.string.dismiss))
             }
         }
     )
@@ -77,21 +77,21 @@ fun AddTextFieldDialog(
     modifier: Modifier = Modifier
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        var addText by remember { mutableStateOf("") }
+        var addText by remember { mutableStateOf(value = "") }
 
         Card(
             modifier = modifier
                 .fillMaxWidth()
-                .width(280.dp)
-                .height(IntrinsicSize.Min)
-                .padding(16.dp),
-            shape = RoundedCornerShape(28.dp),
+                .width(width = 280.dp)
+                .height(intrinsicSize = IntrinsicSize.Min)
+                .padding(all = 16.dp),
+            shape = RoundedCornerShape(size = 28.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(all = 24.dp)
+                    .verticalScroll(state = rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(space = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
@@ -102,7 +102,7 @@ fun AddTextFieldDialog(
                 OutlinedTextField(
                     value = addText,
                     onValueChange = { addText = it },
-                    label = { Text(label) },
+                    label = { Text(text = label) },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                     singleLine = true,
@@ -115,13 +115,13 @@ fun AddTextFieldDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismissRequest) {
-                        Text(stringResource(R.string.dismiss))
+                        Text(text = stringResource(id = R.string.dismiss))
                     }
                     TextButton(
                         onClick = { onConfirmation(addText) },
                         enabled = addText.isNotBlank()
                     ) {
-                        Text(stringResource(R.string.confirm))
+                        Text(text = stringResource(id = R.string.confirm))
                     }
                 }
             }
@@ -138,7 +138,7 @@ fun UnsavedChangesDialog(
     MyAlertDialog(
         onDismissRequest = onDismiss,
         onConfirmation = onConfirm,
-        dialogTitle = stringResource(R.string.unsaved_data_title),
+        dialogTitle = stringResource(id = R.string.unsaved_data_title),
         dialogText = dialogText,
         icon = Icons.Default.Info
     )

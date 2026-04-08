@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.editworkday
+package com.akiwiksten.worktime30.feature.editworkday.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 
 fun isValidText(text: String): Boolean {
-    return text.matches(Regex("-?[1-9][0-9]+:[0-5][0-9]")) ||
-        text.matches(Regex("-?0[0-9]:[0-5][0-9]"))
+    return text.matches(regex = Regex(pattern = "-?[1-9][0-9]+:[0-5][0-9]")) ||
+        text.matches(regex = Regex(pattern = "-?0[0-9]:[0-5][0-9]"))
 }
 
 @Composable
@@ -35,12 +35,12 @@ fun AddCustomTimeRow(
 ) {
     OutlinedTextField(
         value = customTime,
-        onValueChange = { customTimeFunction(it, isValidText(it)) },
+        onValueChange = { customTimeFunction(it, isValidText(text = it)) },
         singleLine = true,
-        label = { Text(stringResource(stringId)) },
+        label = { Text(text = stringResource(id = stringId)) },
         modifier = Modifier.fillMaxWidth(),
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        isError = !isValidText(customTime)
+        isError = !isValidText(text = customTime)
     )
 }
 
@@ -51,7 +51,7 @@ fun AddTimeRow(
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
 ) {
-    val openTimePickerDialog = remember { mutableStateOf(false) }
+    val openTimePickerDialog = remember { mutableStateOf(value = false) }
 
     if (openTimePickerDialog.value) {
         TimePickerDialog(
@@ -68,15 +68,15 @@ fun AddTimeRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
         OutlinedTextField(
             value = textFieldValue,
             onValueChange = {},
-            label = { Text(stringResource(stringId)) },
+            label = { Text(text = stringResource(id = stringId)) },
             readOnly = true,
             enabled = false,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(weight = 1f),
             textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,

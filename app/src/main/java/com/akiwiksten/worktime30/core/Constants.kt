@@ -27,18 +27,8 @@ const val PROJECTS_SCREEN = "projects_screen"
 const val SINGLE_PROJECT_SCREEN = "single_project_screen"
 const val SETTINGS_SCREEN = "settings_screen"
 
-// Json generator
-// const val WORK_DAYS_FILE_NAME = "jsonWorkDaysBackup.txt"
-// const val WORK_DAYS_ONE_ROW_FILE_NAME = "jsonWorkDaysDailyBackup.txt"
-// const val PROJECTS_FILE_NAME = "jsonProjectsBackup.txt"
-// const val PROJECT_NAMES_FILE_NAME = "jsonProjectNamesBackup.txt"
-// const val SETTINGS_FILE_NAME = "jsonSettingsBackup.txt"
-// const val WORK_TYPES_FILE_NAME = "jsonWorkTypesBackup.txt"
-
 // Project
 const val PROJECT_NAME = "project_name"
-const val PROJECT_START_TIME = "project_start_time"
-const val PROJECT_END_TIME = "project_end_time"
 const val PROJECT_TIME = "project_time"
 const val KILOMETRES = "kilometres"
 const val ALLOWANCE = "allowance"
@@ -47,3 +37,12 @@ const val WORK_TYPE = "workType"
 // Settings
 const val NAME = "name"
 const val EMPLOYER = "employer"
+
+// Database Tables
+const val WORKDAY_TABLE = "workday"
+const val WORK_STATS_TABLE = "work_stats"
+const val PROJECT_TABLE = "project"
+const val PROJECT_NAME_TABLE = "project_name"
+const val SETTINGS_TABLE = "settings"
+const val WORK_TYPE_TABLE = "work_type"
+const val ID = "id"

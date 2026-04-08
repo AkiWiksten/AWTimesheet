@@ -5,33 +5,42 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.akiwiksten.worktime30.core.ALLOWANCE
+import com.akiwiksten.worktime30.core.DATE
+import com.akiwiksten.worktime30.core.KILOMETRES
+import com.akiwiksten.worktime30.core.NAME
+import com.akiwiksten.worktime30.core.PROJECT_NAME
+import com.akiwiksten.worktime30.core.PROJECT_NAME_TABLE
+import com.akiwiksten.worktime30.core.PROJECT_TABLE
+import com.akiwiksten.worktime30.core.PROJECT_TIME
+import com.akiwiksten.worktime30.core.WORK_TYPE
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Entity(
-    tableName = "project",
-    primaryKeys = ["date", "project_name"],
+    tableName = PROJECT_TABLE,
+    primaryKeys = [DATE, PROJECT_NAME],
     foreignKeys = [
         ForeignKey(
             entity = ProjectNameEntity::class,
-            parentColumns = ["name"],
-            childColumns = ["project_name"],
+            parentColumns = [NAME],
+            childColumns = [PROJECT_NAME],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["project_name"])]
+    indices = [Index(value = [PROJECT_NAME])]
 )
 data class ProjectEntity(
-    @ColumnInfo(name = "date") val date: String,
-    @ColumnInfo(name = "project_name") val projectName: String = "",
-    @ColumnInfo(name = "duration") val projectTime: String = "",
-    @ColumnInfo(name = "kilometres") val kilometres: Int = 0,
-    @ColumnInfo(name = "allowance") val allowance: String = "",
-    @ColumnInfo(name = "work_type") val workType: String = "",
+    @ColumnInfo(name = DATE) val date: String,
+    @ColumnInfo(name = PROJECT_NAME) val projectName: String = "",
+    @ColumnInfo(name = PROJECT_TIME) val projectTime: String = "",
+    @ColumnInfo(name = KILOMETRES) val kilometres: Int = 0,
+    @ColumnInfo(name = ALLOWANCE) val allowance: String = "",
+    @ColumnInfo(name = WORK_TYPE) val workType: String = "",
 )
 
 @Serializable
-@Entity(tableName = "project_name")
+@Entity(tableName = PROJECT_NAME_TABLE)
 data class ProjectNameEntity(
-    @PrimaryKey @ColumnInfo(name = "name") val name: String,
+    @PrimaryKey @ColumnInfo(name = NAME) val name: String,
 )

@@ -75,7 +75,7 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
 }
 
 @Composable
-fun NewDayFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
+fun NewDayFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         AddTimeRow(
             textFieldValue = uiState.startTime,
@@ -127,7 +127,7 @@ fun NewDayFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
 }
 
 @Composable
-fun ExistingDayFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
+fun ExistingDayFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         MainWorkTimeFields(uiState = uiState, viewModel = viewModel)
 
@@ -146,7 +146,7 @@ fun ExistingDayFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
 }
 
 @Composable
-private fun MainWorkTimeFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
+private fun MainWorkTimeFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
     AddTimeRow(
         textFieldValue = uiState.startTime,
         stringId = R.string.start_time,
@@ -168,7 +168,7 @@ private fun MainWorkTimeFields(uiState: WorkdayUiState, viewModel: WorkdayViewMo
 }
 
 @Composable
-private fun LunchAndBreakFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
+private fun LunchAndBreakFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
     AddTimeRow(
         textFieldValue = uiState.lunchStart,
         stringId = R.string.lunch_start,
@@ -196,7 +196,7 @@ private fun LunchAndBreakFields(uiState: WorkdayUiState, viewModel: WorkdayViewM
 }
 
 @Composable
-private fun DailySummaryFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
+private fun DailySummaryFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
     AddTimeRow(
         textFieldValue = uiState.dailyWorkTime,
         stringId = R.string.daily_work_time,
@@ -212,7 +212,7 @@ private fun DailySummaryFields(uiState: WorkdayUiState, viewModel: WorkdayViewMo
 }
 
 @Composable
-private fun BalanceSummaryFields(uiState: WorkdayUiState, viewModel: WorkdayViewModel) {
+private fun BalanceSummaryFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = 12.dp)

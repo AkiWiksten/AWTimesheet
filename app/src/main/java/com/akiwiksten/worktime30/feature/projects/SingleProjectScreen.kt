@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -54,6 +56,7 @@ import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 data class SingleProjectArgs(
@@ -78,7 +81,9 @@ fun SingleProjectScreen(
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val date = calendarUiState.date
+    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
+    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
+    val currentProjectsState = projectsUiState  // Store in local variable for smart cast
 
     LaunchedEffect(key1 = date) {
         if (date.isNotEmpty()) {
@@ -86,9 +91,9 @@ fun SingleProjectScreen(
         }
     }
 
-    val initialUiState = remember(args.index, projectsUiState.projects) {
-        if (args.index != -1) {
-            projectsUiState.projects.find { it.index == args.index } ?: ProjectListItemUiState()
+    val initialUiState = remember(args.index, currentProjectsState) {
+        if (args.index != -1 && currentProjectsState is ProjectsUiState.Success) {
+            currentProjectsState.projects.find { it.index == args.index } ?: ProjectListItemUiState()
         } else {
             ProjectListItemUiState()
         }
@@ -115,24 +120,53 @@ fun SingleProjectScreen(
     Scaffold(
         topBar = { SingleProjectTopBar(onNavigateBack = onNavigateBack) }
     ) { padding ->
-        SingleProjectContent(
-            padding = padding,
-            screenState = SingleProjectScreenState(
-                date = date,
-                state = state,
-                isAddMode = args.index == -1,
-                uiState = projectsUiState,
-                isConfirmEnabled = isConfirmEnabled
-            ),
-            actions = SingleProjectActions(
-                onStateChange = { state = it },
-                onOpenWorkday = { onOpenWorkday(state) },
-                onConfirm = {
-                    viewModel.saveProject(uiState = state.toUiState())
-                    onNavigateBack()
+        when (currentProjectsState) {
+            is ProjectsUiState.Loading -> {
+                // Show loading while fetching data
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-            )
-        )
+            }
+            is ProjectsUiState.Success -> {
+                SingleProjectContent(
+                    padding = padding,
+                    screenState = SingleProjectScreenState(
+                        date = date,
+                        state = state,
+                        isAddMode = args.index == -1,
+                        uiState = currentProjectsState,
+                        isConfirmEnabled = isConfirmEnabled
+                    ),
+                    actions = SingleProjectActions(
+                        onStateChange = { state = it },
+                        onOpenWorkday = { onOpenWorkday(state) },
+                        onConfirm = {
+                            viewModel.saveProject(uiState = state.toUiState())
+                            onNavigateBack()
+                        }
+                    )
+                )
+            }
+            is ProjectsUiState.Error -> {
+                // Show error state
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues = padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Error: ${currentProjectsState.message}",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -203,16 +237,16 @@ private fun SingleProjectContent(
             onStateChange = actions.onStateChange
         )
 
-        TimeSelectionSection(
+         TimeSelectionSection(
             state = screenState.state,
-            workTimeToday = screenState.uiState.workTimeToday,
+            workTimeToday = (screenState.uiState as? ProjectsUiState.Success)?.workTimeToday ?: "",
             onOpenWorkday = actions.onOpenWorkday,
             onStateChange = actions.onStateChange
         )
 
         DialogDropdownFields(
             state = screenState.state,
-            workTypeDropDownList = screenState.uiState.workTypes,
+            workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes ?: emptyList(),
             onStateChange = actions.onStateChange
         )
 

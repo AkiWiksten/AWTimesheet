@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -26,7 +25,7 @@ class CalendarViewModel @Inject constructor(
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CalendarUiState())
+    private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Loading)
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
@@ -34,7 +33,7 @@ class CalendarViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
-                _uiState.update { it.copy(date = date) }
+                _uiState.value = CalendarUiState.Loading
                 calculateSums(date)
             }
         }
@@ -59,23 +58,32 @@ class CalendarViewModel @Inject constructor(
 
     private fun calculateSums(date: String) {
         viewModelScope.launch {
-            val data: CalendarData = getCalendarDataUseCase(date)
-            _uiState.update {
-                it.copy(
+            try {
+                val data: CalendarData = getCalendarDataUseCase(date)
+                _uiState.value = CalendarUiState.Success(
+                    date = date,
                     timePerMonth = data.timePerMonth,
                     timePerWeek = data.timePerWeek,
                     timePerDay = data.timePerDay,
                     workDaysMonth = data.workdaysMonth
                 )
+            } catch (e: Exception) {
+                _uiState.value = CalendarUiState.Error(e.message ?: "Failed to load calendar data")
             }
         }
     }
 }
 
-data class CalendarUiState(
-    val date: String = "",
-    val timePerMonth: String = "",
-    val timePerWeek: String = "",
-    val timePerDay: String = "",
-    val workDaysMonth: List<WorkdayEntity> = emptyList()
-)
+sealed class CalendarUiState {
+    object Loading : CalendarUiState()
+
+    data class Success(
+        val date: String = "",
+        val timePerMonth: String = "",
+        val timePerWeek: String = "",
+        val timePerDay: String = "",
+        val workDaysMonth: List<WorkdayEntity> = emptyList()
+    ) : CalendarUiState()
+
+    data class Error(val message: String) : CalendarUiState()
+}

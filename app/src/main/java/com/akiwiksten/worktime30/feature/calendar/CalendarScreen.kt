@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +47,8 @@ fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
-    
+    val currentUiState = uiState  // Store in local variable for smart cast
+
     // Get the current application locale from the configuration
     val appLocale = LocalConfiguration.current.locales[0]
     
@@ -67,13 +69,16 @@ fun CalendarScreen(
         val datePickerState = rememberDatePickerState()
 
         LaunchedEffect(key1 = Unit) {
-            calendarViewModel.onDateSelected(selectedDate = uiState.date)
+            if (currentUiState is CalendarUiState.Success) {
+                calendarViewModel.onDateSelected(selectedDate = currentUiState.date)
+            }
         }
 
         LaunchedEffect(key1 = datePickerState.selectedDateMillis) {
             datePickerState.selectedDateMillis?.let {
                 val selectedDate = calendarViewModel.convertMillisToDate(millis = it)
-                if (selectedDate != uiState.date) {
+                val currentDate = (currentUiState as? CalendarUiState.Success)?.date ?: ""
+                if (selectedDate != currentDate) {
                     calendarViewModel.onDateSelected(selectedDate = selectedDate)
                 }
             }
@@ -87,12 +92,36 @@ fun CalendarScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = 20.dp)
         ) {
-            DatePickerSection(
-                selectedDate = uiState.date,
-                datePickerState = datePickerState
-            )
+            when (currentUiState) {
+                is CalendarUiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+                is CalendarUiState.Success -> {
+                    DatePickerSection(
+                        selectedDate = currentUiState.date,
+                        datePickerState = datePickerState
+                    )
 
-            WorkTimeSummarySection(uiState = uiState)
+                    WorkTimeSummarySection(uiState = currentUiState)
+                }
+                is CalendarUiState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error: ${currentUiState.message}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(all = 32.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -142,7 +171,7 @@ private fun DatePickerSection(
 }
 
 @Composable
-private fun WorkTimeSummarySection(uiState: CalendarUiState) {
+private fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     Column(
         modifier = Modifier
             .padding(vertical = 20.dp)

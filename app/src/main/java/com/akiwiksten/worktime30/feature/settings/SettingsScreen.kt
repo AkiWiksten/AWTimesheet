@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -39,6 +40,7 @@ import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Composable
@@ -48,7 +50,8 @@ fun SettingsScreen(
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val date = calendarUiState.date
+    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
+    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
     val ctx = LocalContext.current
 
     LaunchedEffect(key1 = date) {
@@ -59,28 +62,62 @@ fun SettingsScreen(
         }
     }
 
-    val actions = remember(settingsViewModel, uiState, ctx) {
-        SettingsActions(
-            onNameChange = settingsViewModel::setName,
-            onEmployerChange = settingsViewModel::setEmployer,
-            onWorkTypeAdded = settingsViewModel::addWorkType,
-            onWorkTypeRemoved = settingsViewModel::removeWorkType,
-            onSave = {
-                settingsViewModel.saveSettings()
-            },
-            onGeneratePdf = {
-                generateReport(
-                    ctx = ctx,
-                    projectsByMonth = uiState.projectsByMonth,
-                    endOfMonthDate = uiState.endMonthDate,
-                    name = uiState.name,
-                    employer = uiState.employer
+    when (uiState) {
+        is SettingsUiState.Loading -> {
+            // Show loading while settings are being loaded
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        is SettingsUiState.Success -> {
+            val successState = uiState as SettingsUiState.Success
+            val actions = remember(settingsViewModel, successState, ctx) {
+                SettingsActions(
+                    onNameChange = settingsViewModel::setName,
+                    onEmployerChange = settingsViewModel::setEmployer,
+                    onWorkTypeAdded = settingsViewModel::addWorkType,
+                    onWorkTypeRemoved = settingsViewModel::removeWorkType,
+                    onSave = {
+                        settingsViewModel.saveSettings()
+                    },
+                    onGeneratePdf = {
+                        generateReport(
+                            ctx = ctx,
+                            projectsByMonth = successState.projectsByMonth,
+                            endOfMonthDate = successState.endMonthDate,
+                            name = successState.name,
+                            employer = successState.employer
+                        )
+                    }
                 )
             }
-        )
-    }
 
-    SettingsContent(uiState = uiState, calendarDate = date, actions = actions)
+            SettingsContent(uiState = successState, calendarDate = date, actions = actions)
+        }
+        is SettingsUiState.Error -> {
+            val errorState = uiState as SettingsUiState.Error
+            // Show error state
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Error: ${errorState.message}",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+    }
 }
 
 data class SettingsActions(
@@ -94,7 +131,7 @@ data class SettingsActions(
 
 @Composable
 private fun SettingsContent(
-    uiState: SettingsUiState,
+    uiState: SettingsUiState.Success,
     calendarDate: String,
     actions: SettingsActions
 ) {

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +50,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Composable
@@ -63,7 +65,8 @@ fun ProjectsScreen(
 ) {
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
-    val date = calendarUiState.date
+    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
+    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
 
     var selectedItemIndex by remember { mutableIntStateOf(value = -1) }
 
@@ -80,27 +83,61 @@ fun ProjectsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 16.dp)
     ) {
-        ProjectsHeader(date = date, workTime = projectsUiState.workTimeToday)
-
-        ProjectsListSection(
-            items = projectsUiState.projects,
-            selectedIndex = selectedItemIndex,
-            onItemSelected = { selectedItemIndex = it },
-            modifier = Modifier.weight(weight = 1f)
-        )
-
-        ProjectsActionButtons(
-            items = projectsUiState.projects,
-            selectedIndex = selectedItemIndex,
-            onAddClick = { onNavigateToSingleProject(-1) },
-            onEditClick = { onNavigateToSingleProject(selectedItemIndex) },
-            onDeleteClick = {
-                projectsUiState.projects.getOrNull(index = selectedItemIndex)?.let {
-                    projectsViewModel.deleteProject(uiState = it)
-                    selectedItemIndex = -1
+        when (projectsUiState) {
+            is ProjectsUiState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
-        )
+            is ProjectsUiState.Success -> {
+                val successState = projectsUiState as ProjectsUiState.Success
+                ProjectsHeader(date = successState.date, workTime = successState.workTimeToday)
+
+                ProjectsListSection(
+                    items = successState.projects,
+                    selectedIndex = selectedItemIndex,
+                    onItemSelected = { selectedItemIndex = it },
+                    modifier = Modifier.weight(weight = 1f)
+                )
+
+                ProjectsActionButtons(
+                    items = successState.projects,
+                    selectedIndex = selectedItemIndex,
+                    onAddClick = { onNavigateToSingleProject(-1) },
+                    onEditClick = { onNavigateToSingleProject(selectedItemIndex) },
+                    onDeleteClick = {
+                        successState.projects.getOrNull(index = selectedItemIndex)?.let {
+                            projectsViewModel.deleteProject(uiState = it)
+                            selectedItemIndex = -1
+                        }
+                    }
+                )
+            }
+            is ProjectsUiState.Error -> {
+                val errorState = projectsUiState as ProjectsUiState.Error
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Error: ${errorState.message}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(all = 32.dp)
+                    )
+                    Button(
+                        onClick = { projectsViewModel.loadData(date = date) }
+                    ) {
+                        Text(text = stringResource(id = R.string.retry))
+                    }
+                }
+            }
+        }
     }
 }
 

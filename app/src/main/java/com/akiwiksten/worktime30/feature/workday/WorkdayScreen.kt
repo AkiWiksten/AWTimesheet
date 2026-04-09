@@ -11,10 +11,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +31,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.workday.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.workday.components.FooterSection
@@ -45,11 +49,14 @@ fun WorkdayScreen(
 ) {
     val calendarViewModel: CalendarViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val calendarUiState by calendarViewModel.uiState.collectAsState()
+    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
+    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
 
     BackHandler(onBack = onNavigateBack)
 
     LaunchedEffect(Unit) {
-        viewModel.setDate(date0 = calendarViewModel.uiState.value.date)
+        viewModel.setDate(date0 = date)
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
         viewModel.loadWorkday(workdayArg = args.workday, workStatsArg = args.workStats)
     }
@@ -59,17 +66,51 @@ fun WorkdayScreen(
             WorkdayTopBar(onNavigateBack = onNavigateBack)
         }
     ) { padding ->
-        WorkdayContent(
-            padding = padding,
-            uiState = uiState,
-            projectName = args.projectName,
-            viewModel = viewModel,
-            onConfirm = {
-                val workdayResult = viewModel.getWorkdayEntity()
-                val workStatsResult = viewModel.getWorkStatsEntity()
-                onConfirm(workdayResult, workStatsResult)
+        when (uiState) {
+            is WorkdayUiState.Loading -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        )
+            is WorkdayUiState.Success -> {
+                val successState = uiState as WorkdayUiState.Success
+                WorkdayContent(
+                    padding = padding,
+                    uiState = successState,
+                    projectName = args.projectName,
+                    viewModel = viewModel,
+                    onConfirm = {
+                        val workdayResult = viewModel.getWorkdayEntity()
+                        val workStatsResult = viewModel.getWorkStatsEntity()
+                        onConfirm(workdayResult, workStatsResult)
+                    }
+                )
+            }
+            is WorkdayUiState.Error -> {
+                val errorState = uiState as WorkdayUiState.Error
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Error: ${errorState.message}",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -95,7 +136,7 @@ private fun WorkdayTopBar(onNavigateBack: () -> Unit) {
 @Composable
 private fun WorkdayContent(
     padding: PaddingValues,
-    uiState: WorkdayUiState,
+    uiState: WorkdayUiState.Success,
     projectName: String?,
     viewModel: WorkdayViewModel,
     onConfirm: () -> Unit

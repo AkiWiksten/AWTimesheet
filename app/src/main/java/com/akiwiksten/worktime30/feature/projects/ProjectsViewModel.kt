@@ -16,7 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,14 +33,19 @@ data class ProjectListItemUiState(
     val workStats: WorkStatsEntity? = null
 )
 
-data class ProjectsUiState(
-    val date: String = "",
-    val workTimeToday: String = ZERO_TIME,
-    val projects: List<ProjectListItemUiState> = emptyList(),
-    val projectNames: List<ProjectNameEntity> = emptyList(),
-    val workTypes: List<String> = emptyList(),
-    val isLoading: Boolean = false
-)
+sealed class ProjectsUiState {
+    object Loading : ProjectsUiState()
+
+    data class Success(
+        val date: String = "",
+        val workTimeToday: String = ZERO_TIME,
+        val projects: List<ProjectListItemUiState> = emptyList(),
+        val projectNames: List<ProjectNameEntity> = emptyList(),
+        val workTypes: List<String> = emptyList()
+    ) : ProjectsUiState()
+
+    data class Error(val message: String) : ProjectsUiState()
+}
 
 data class ProjectDialogState(
     val projectName: String,
@@ -81,7 +85,7 @@ class ProjectsViewModel @Inject constructor(
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProjectsUiState())
+    private val _uiState = MutableStateFlow<ProjectsUiState>(ProjectsUiState.Loading)
     val uiState: StateFlow<ProjectsUiState> = _uiState.asStateFlow()
 
     init {
@@ -94,9 +98,10 @@ class ProjectsViewModel @Inject constructor(
 
     fun loadData(date: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, date = date) }
-            val data = getProjectsScreenDataUseCase(date)
-            _uiState.update { currentState ->
+            try {
+                _uiState.value = ProjectsUiState.Loading
+                val data = getProjectsScreenDataUseCase(date)
+
                 val recordedProjects = data.projects.map { entity ->
                     ProjectListItemUiState(
                         projectName = entity.projectName,
@@ -123,62 +128,76 @@ class ProjectsViewModel @Inject constructor(
                     WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
                 }
 
-                currentState.copy(
+                _uiState.value = ProjectsUiState.Success(
+                    date = date,
                     workTimeToday = totalProjectTime,
                     projects = combinedList,
                     projectNames = data.projectNames,
-                    workTypes = data.workTypes,
-                    isLoading = false
+                    workTypes = data.workTypes
                 )
+            } catch (e: Exception) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
 
     fun saveProject(uiState: ProjectListItemUiState) {
         viewModelScope.launch {
-            val date = _uiState.value.date
-            val entity = ProjectEntity(
-                date = date,
-                projectName = uiState.projectName,
-                projectTime = uiState.projectTime,
-                kilometres = uiState.kilometres,
-                allowance = uiState.allowance,
-                workType = uiState.workType
-            )
-            
-            val workdayToSave = uiState.workday?.copy(
-                date = date,
-                projectName = uiState.projectName,
-                workTimeToday = uiState.projectTime
-            ) ?: WorkdayEntity(
-                date = date,
-                projectName = uiState.projectName,
-                workTimeToday = uiState.projectTime,
-                balanceToday = ZERO_TIME 
-            )
+            try {
+                val currentState = _uiState.value
+                val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
 
-            saveProjectsUseCase(
-                date = date,
-                projectsToSave = listOf(entity),
-                projectNamesToDelete = emptyList(),
-                workdayToSave = workdayToSave
-            )
-            
-            uiState.workStats?.let { workdayRepository.insertWorkStats(it) }
+                val entity = ProjectEntity(
+                    date = date,
+                    projectName = uiState.projectName,
+                    projectTime = uiState.projectTime,
+                    kilometres = uiState.kilometres,
+                    allowance = uiState.allowance,
+                    workType = uiState.workType
+                )
 
-            loadData(date)
+                val workdayToSave = uiState.workday?.copy(
+                    date = date,
+                    projectName = uiState.projectName,
+                    workTimeToday = uiState.projectTime
+                ) ?: WorkdayEntity(
+                    date = date,
+                    projectName = uiState.projectName,
+                    workTimeToday = uiState.projectTime,
+                    balanceToday = ZERO_TIME
+                )
+
+                saveProjectsUseCase(
+                    date = date,
+                    projectsToSave = listOf(entity),
+                    projectNamesToDelete = emptyList(),
+                    workdayToSave = workdayToSave
+                )
+
+                uiState.workStats?.let { workdayRepository.insertWorkStats(it) }
+
+                loadData(date)
+            } catch (e: Exception) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: "Failed to save project")
+            }
         }
     }
 
     fun deleteProject(uiState: ProjectListItemUiState) {
         viewModelScope.launch {
-            val date = _uiState.value.date
-            saveProjectsUseCase(
-                date = date,
-                projectsToSave = emptyList(),
-                projectNamesToDelete = listOf(uiState.projectName)
-            )
-            loadData(date)
+            try {
+                val currentState = _uiState.value
+                val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
+
+                saveProjectsUseCase(
+                    date = date,
+                    projectsToSave = emptyList(),
+                    projectNamesToDelete = listOf(uiState.projectName)
+                )
+                loadData(date)
+            } catch (e: Exception) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: "Failed to delete project")
+            }
         }
     }
 }

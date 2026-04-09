@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,7 +49,52 @@ fun IntroScreen(
     onItemClick: () -> Unit,
     viewModel: IntroViewModel = hiltViewModel()
 ) {
-    val appName by viewModel.appName.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val currentUiState = uiState  // Store in local variable for smart cast
+
+    when (currentUiState) {
+        is IntroUiState.Loading -> {
+            // Show loading while preparing the intro
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.secondary),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        }
+        is IntroUiState.Success -> {
+            IntroAnimatedContent(
+                appName = currentUiState.appName,
+                onItemClick = onItemClick
+            )
+        }
+        is IntroUiState.Error -> {
+            // Show error state
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.secondary),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "Error: ${currentUiState.message}",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IntroAnimatedContent(
+    appName: String,
+    onItemClick: () -> Unit
+) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
     val windowInfo = LocalWindowInfo.current

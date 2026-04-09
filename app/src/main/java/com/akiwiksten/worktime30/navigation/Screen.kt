@@ -2,13 +2,13 @@ package com.akiwiksten.worktime30.navigation
 
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.CALENDAR_SCREEN
-import com.akiwiksten.worktime30.core.WORKDAY_SCREEN
 import com.akiwiksten.worktime30.core.INTRO_SCREEN
 import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
+import com.akiwiksten.worktime30.core.WORKDAY_SCREEN
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 
 // Navigation routes
 sealed class Screen(val route: String, val titleResId: Int? = null) {

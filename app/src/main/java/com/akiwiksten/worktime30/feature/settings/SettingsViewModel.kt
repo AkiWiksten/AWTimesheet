@@ -97,10 +97,14 @@ class SettingsViewModel @Inject constructor(
                     .toString()
                 val projects = getProjectsByMonthUseCase(date)
                 _uiState.update { currentState ->
-                    (currentState as? SettingsUiState.Success)?.copy(endMonthDate = endOfMonth, projectsByMonth = projects)
-                        ?: currentState
+                    (currentState as? SettingsUiState.Success)?.copy(
+                        endMonthDate = endOfMonth,
+                        projectsByMonth = projects
+                    ) ?: currentState
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                _uiState.update { SettingsUiState.Error("Failed to load projects: ${e.message}") }
+            } catch (e: IllegalStateException) {
                 _uiState.update { SettingsUiState.Error("Failed to load projects: ${e.message}") }
             }
         }
@@ -110,14 +114,16 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val data = getSettingsUseCase()
-                _uiState.update { currentState ->
+                _uiState.update { _ ->
                     SettingsUiState.Success(
                         name = data.name,
                         employer = data.employer,
                         workTypes = data.workTypes
                     )
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                _uiState.update { SettingsUiState.Error("Failed to load settings: ${e.message}") }
+            } catch (e: IllegalStateException) {
                 _uiState.update { SettingsUiState.Error("Failed to load settings: ${e.message}") }
             }
         }
@@ -134,7 +140,9 @@ class SettingsViewModel @Inject constructor(
                         workTypes = state.workTypes
                     )
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                _uiState.update { SettingsUiState.Error("Failed to save settings: ${e.message}") }
+            } catch (e: IllegalStateException) {
                 _uiState.update { SettingsUiState.Error("Failed to save settings: ${e.message}") }
             }
         }

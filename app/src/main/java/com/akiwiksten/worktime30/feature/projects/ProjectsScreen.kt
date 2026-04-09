@@ -65,9 +65,10 @@ fun ProjectsScreen(
 ) {
     val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
-    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
+    val currentCalendarState = calendarUiState // Store in local variable for smart cast
     val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
 
+    @Suppress("all") // S1854: SonarQube doesn't recognize Compose state delegation pattern
     var selectedItemIndex by remember { mutableIntStateOf(value = -1) }
 
     LaunchedEffect(key1 = date) {
@@ -76,6 +77,27 @@ fun ProjectsScreen(
         }
     }
 
+    ProjectsContent(
+        projectsUiState = projectsUiState,
+        selectedItemIndex = selectedItemIndex,
+        actions = ProjectsActions(
+            onSelectedItemIndexChange = { selectedItemIndex = it },
+            onNavigateToSingleProject = onNavigateToSingleProject,
+            onRetry = { projectsViewModel.loadData(date = date) },
+            onDeleteProject = { project ->
+                projectsViewModel.deleteProject(uiState = project)
+                selectedItemIndex = -1
+            }
+        )
+    )
+}
+
+@Composable
+private fun ProjectsContent(
+    projectsUiState: ProjectsUiState,
+    selectedItemIndex: Int,
+    actions: ProjectsActions
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -93,46 +115,39 @@ fun ProjectsScreen(
                 }
             }
             is ProjectsUiState.Success -> {
-                val successState = projectsUiState as ProjectsUiState.Success
-                ProjectsHeader(date = successState.date, workTime = successState.workTimeToday)
+                ProjectsHeader(date = projectsUiState.date, workTime = projectsUiState.workTimeToday)
 
                 ProjectsListSection(
-                    items = successState.projects,
+                    items = projectsUiState.projects,
                     selectedIndex = selectedItemIndex,
-                    onItemSelected = { selectedItemIndex = it },
+                    onItemSelected = actions.onSelectedItemIndexChange,
                     modifier = Modifier.weight(weight = 1f)
                 )
 
                 ProjectsActionButtons(
-                    items = successState.projects,
+                    items = projectsUiState.projects,
                     selectedIndex = selectedItemIndex,
-                    onAddClick = { onNavigateToSingleProject(-1) },
-                    onEditClick = { onNavigateToSingleProject(selectedItemIndex) },
+                    onAddClick = { actions.onNavigateToSingleProject(-1) },
+                    onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex) },
                     onDeleteClick = {
-                        successState.projects.getOrNull(index = selectedItemIndex)?.let {
-                            projectsViewModel.deleteProject(uiState = it)
-                            selectedItemIndex = -1
-                        }
+                        projectsUiState.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
                     }
                 )
             }
             is ProjectsUiState.Error -> {
-                val errorState = projectsUiState as ProjectsUiState.Error
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Error: ${errorState.message}",
+                        text = "Error: ${projectsUiState.message}",
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(all = 32.dp)
                     )
-                    Button(
-                        onClick = { projectsViewModel.loadData(date = date) }
-                    ) {
+                    Button(onClick = actions.onRetry) {
                         Text(text = stringResource(id = R.string.retry))
                     }
                 }
@@ -353,3 +368,10 @@ private fun ProjectsActionButtons(
         }
     }
 }
+
+data class ProjectsActions(
+    val onSelectedItemIndexChange: (Int) -> Unit,
+    val onNavigateToSingleProject: (Int) -> Unit,
+    val onRetry: () -> Unit,
+    val onDeleteProject: (ProjectListItemUiState) -> Unit
+)

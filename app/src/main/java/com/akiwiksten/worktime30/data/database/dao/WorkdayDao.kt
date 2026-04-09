@@ -7,8 +7,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 
 @Dao
 interface WorkdayDao {

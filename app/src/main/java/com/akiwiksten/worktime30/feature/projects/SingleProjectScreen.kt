@@ -1,8 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects
 
-import android.content.Context
-import android.content.ContextWrapper
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,11 +48,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
@@ -76,14 +74,18 @@ fun SingleProjectScreen(
     args: SingleProjectArgs,
     onNavigateBack: () -> Unit,
     onOpenWorkday: (ProjectDialogState) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current.findActivity()),
-    viewModel: ProjectsViewModel = hiltViewModel(viewModelStoreOwner = LocalContext.current.findActivity())
+    calendarViewModel: CalendarViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
+    ),
+    viewModel: ProjectsViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
+    )
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
+    val currentCalendarState = calendarUiState // Store in local variable for smart cast
     val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
-    val currentProjectsState = projectsUiState  // Store in local variable for smart cast
+    val currentProjectsState = projectsUiState // Store in local variable for smart cast
 
     LaunchedEffect(key1 = date) {
         if (date.isNotEmpty()) {
@@ -117,12 +119,31 @@ fun SingleProjectScreen(
         }
     }
 
+    SingleProjectScreenContent(
+        params = SingleProjectScreenContentParams(
+            date = date,
+            state = state,
+            isAddMode = args.index == -1,
+            projectsUiState = currentProjectsState,
+            isConfirmEnabled = isConfirmEnabled,
+            onStateChange = { state = it },
+            onNavigateBack = onNavigateBack,
+            onOpenWorkday = { onOpenWorkday(state) },
+            onConfirm = {
+                viewModel.saveProject(uiState = state.toUiState())
+                onNavigateBack()
+            }
+        )
+    )
+}
+
+@Composable
+private fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
     Scaffold(
-        topBar = { SingleProjectTopBar(onNavigateBack = onNavigateBack) }
+        topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
     ) { padding ->
-        when (currentProjectsState) {
+        when (params.projectsUiState) {
             is ProjectsUiState.Loading -> {
-                // Show loading while fetching data
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -136,24 +157,20 @@ fun SingleProjectScreen(
                 SingleProjectContent(
                     padding = padding,
                     screenState = SingleProjectScreenState(
-                        date = date,
-                        state = state,
-                        isAddMode = args.index == -1,
-                        uiState = currentProjectsState,
-                        isConfirmEnabled = isConfirmEnabled
+                        date = params.date,
+                        state = params.state,
+                        isAddMode = params.isAddMode,
+                        uiState = params.projectsUiState,
+                        isConfirmEnabled = params.isConfirmEnabled
                     ),
                     actions = SingleProjectActions(
-                        onStateChange = { state = it },
-                        onOpenWorkday = { onOpenWorkday(state) },
-                        onConfirm = {
-                            viewModel.saveProject(uiState = state.toUiState())
-                            onNavigateBack()
-                        }
+                        onStateChange = params.onStateChange,
+                        onOpenWorkday = params.onOpenWorkday,
+                        onConfirm = params.onConfirm
                     )
                 )
             }
             is ProjectsUiState.Error -> {
-                // Show error state
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -161,22 +178,13 @@ fun SingleProjectScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Error: ${currentProjectsState.message}",
+                        text = "Error: ${params.projectsUiState.message}",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         }
     }
-}
-
-private fun Context.findActivity(): ComponentActivity {
-    var context = this
-    while (context is ContextWrapper) {
-        if (context is ComponentActivity) return context
-        context = context.baseContext
-    }
-    error("Context does not have an Activity")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -237,7 +245,7 @@ private fun SingleProjectContent(
             onStateChange = actions.onStateChange
         )
 
-         TimeSelectionSection(
+        TimeSelectionSection(
             state = screenState.state,
             workTimeToday = (screenState.uiState as? ProjectsUiState.Success)?.workTimeToday ?: "",
             onOpenWorkday = actions.onOpenWorkday,
@@ -321,15 +329,42 @@ private fun TimeSelectionSection(
     onOpenWorkday: () -> Unit,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
-        CompactTimeRow(
-            labelId = R.string.work_time,
-            value = state.projectTime,
-            onOpenWorkday = onOpenWorkday,
-            onHistoryClick = {
-                onStateChange(state.copy(projectTime = workTimeToday))
-            }
+    Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+        Text(
+            text = "${stringResource(id = R.string.work_time_today)}: $workTimeToday",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.secondary
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = state.projectTime,
+                onValueChange = { onStateChange(state.copy(projectTime = it)) },
+                label = { Text(text = stringResource(id = R.string.project_time)) },
+                modifier = Modifier.weight(weight = 1f),
+                readOnly = true,
+                leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
+                shape = RoundedCornerShape(size = 12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                )
+            )
+
+            Button(
+                onClick = onOpenWorkday,
+                modifier = Modifier.padding(top = 8.dp),
+                shape = RoundedCornerShape(size = 12.dp)
+            ) {
+                Icon(imageVector = Icons.Default.History, contentDescription = null)
+                Spacer(modifier = Modifier.width(width = 4.dp))
+                Text(text = stringResource(id = R.string.confirm))
+            }
+        }
     }
 }
 
@@ -339,69 +374,31 @@ private fun DialogDropdownFields(
     workTypeDropDownList: List<String>,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         DropdownMenuBox(
-            items = listOf(
-                stringResource(id = R.string.no_allowance),
-                stringResource(id = R.string.daily_allowance),
-                stringResource(id = R.string.half_day_allowance)
-            ),
-            onItemSelected = { onStateChange(state.copy(allowance = it)) },
-            labelId = R.string.allowance,
-            selectedText = state.allowance,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        DropdownMenuBox(
-            items = workTypeDropDownList,
-            onItemSelected = { onStateChange(state.copy(workType = it)) },
             labelId = R.string.work_type,
+            items = workTypeDropDownList,
             selectedText = state.workType,
-            modifier = Modifier.fillMaxWidth()
+            onItemSelected = { onStateChange(state.copy(workType = it)) }
+        )
+
+        DropdownMenuBox(
+            labelId = R.string.allowance,
+            items = listOf("No allowance", "Full allowance", "Half allowance"),
+            selectedText = state.allowance,
+            onItemSelected = { onStateChange(state.copy(allowance = it)) }
         )
     }
 }
 
-@Composable
-private fun CompactTimeRow(
-    labelId: Int,
-    value: String,
-    onOpenWorkday: () -> Unit,
-    onHistoryClick: () -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = {},
-            label = { Text(text = stringResource(id = labelId)) },
-            readOnly = true,
-            modifier = Modifier.weight(weight = 1f),
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledBorderColor = MaterialTheme.colorScheme.outline,
-            ),
-            shape = RoundedCornerShape(size = 12.dp)
-        )
-
-        IconButton(onClick = onHistoryClick) {
-            Icon(
-                imageVector = Icons.Default.History,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        IconButton(onClick = onOpenWorkday) {
-            Icon(
-                imageVector = Icons.Default.AccessTime,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
+data class SingleProjectScreenContentParams(
+    val date: String,
+    val state: ProjectDialogState,
+    val isAddMode: Boolean,
+    val projectsUiState: ProjectsUiState,
+    val isConfirmEnabled: Boolean,
+    val onStateChange: (ProjectDialogState) -> Unit,
+    val onNavigateBack: () -> Unit,
+    val onOpenWorkday: () -> Unit,
+    val onConfirm: () -> Unit
+)

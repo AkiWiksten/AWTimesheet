@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.workday.components.ExistingDayFields
@@ -50,8 +50,7 @@ fun WorkdayScreen(
     val calendarViewModel: CalendarViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val currentCalendarState = calendarUiState  // Store in local variable for smart cast
-    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
+    val date = (calendarUiState as? CalendarUiState.Success)?.date ?: ""
 
     BackHandler(onBack = onNavigateBack)
 
@@ -67,18 +66,7 @@ fun WorkdayScreen(
         }
     ) { padding ->
         when (uiState) {
-            is WorkdayUiState.Loading -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(all = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
+            is WorkdayUiState.Loading -> WorkdayLoadingState(padding = padding)
             is WorkdayUiState.Success -> {
                 val successState = uiState as WorkdayUiState.Success
                 WorkdayContent(
@@ -93,24 +81,43 @@ fun WorkdayScreen(
                     }
                 )
             }
-            is WorkdayUiState.Error -> {
-                val errorState = uiState as WorkdayUiState.Error
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(all = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Error: ${errorState.message}",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
+            is WorkdayUiState.Error -> WorkdayErrorState(
+                padding = padding,
+                errorMessage = (uiState as WorkdayUiState.Error).message
+            )
         }
+    }
+}
+
+@Composable
+private fun WorkdayLoadingState(padding: PaddingValues) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(all = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+private fun WorkdayErrorState(padding: PaddingValues, errorMessage: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(all = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Error: $errorMessage",
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 

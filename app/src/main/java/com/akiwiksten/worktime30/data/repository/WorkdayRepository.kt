@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.data.repository
 
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 
 interface WorkdayRepository {
     suspend fun getWorkday(date: String, projectName: String = ""): WorkdayEntity?

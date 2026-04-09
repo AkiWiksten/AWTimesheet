@@ -2,12 +2,12 @@ package com.akiwiksten.worktime30.feature.projects
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
@@ -88,6 +88,11 @@ class ProjectsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ProjectsUiState>(ProjectsUiState.Loading)
     val uiState: StateFlow<ProjectsUiState> = _uiState.asStateFlow()
 
+    companion object {
+        private const val ERROR_INVALID_ARGUMENT = "Invalid argument provided"
+        private const val ERROR_INVALID_STATE = "Invalid state"
+    }
+
     init {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
@@ -135,8 +140,10 @@ class ProjectsViewModel @Inject constructor(
                     projectNames = data.projectNames,
                     workTypes = data.workTypes
                 )
-            } catch (e: Exception) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: "Unknown error occurred")
+            } catch (e: IllegalArgumentException) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
+            } catch (e: IllegalStateException) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
             }
         }
     }
@@ -177,8 +184,10 @@ class ProjectsViewModel @Inject constructor(
                 uiState.workStats?.let { workdayRepository.insertWorkStats(it) }
 
                 loadData(date)
-            } catch (e: Exception) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: "Failed to save project")
+            } catch (e: IllegalArgumentException) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
+            } catch (e: IllegalStateException) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
             }
         }
     }
@@ -195,8 +204,10 @@ class ProjectsViewModel @Inject constructor(
                     projectNamesToDelete = listOf(uiState.projectName)
                 )
                 loadData(date)
-            } catch (e: Exception) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: "Failed to delete project")
+            } catch (e: IllegalArgumentException) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
+            } catch (e: IllegalStateException) {
+                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
             }
         }
     }

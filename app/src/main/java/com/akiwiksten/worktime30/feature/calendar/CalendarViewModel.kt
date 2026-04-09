@@ -67,8 +67,10 @@ class CalendarViewModel @Inject constructor(
                     timePerDay = data.timePerDay,
                     workDaysMonth = data.workdaysMonth
                 )
-            } catch (e: Exception) {
-                _uiState.value = CalendarUiState.Error(e.message ?: "Failed to load calendar data")
+            } catch (e: IllegalArgumentException) {
+                _uiState.value = CalendarUiState.Error(e.message ?: "Invalid argument provided")
+            } catch (e: IllegalStateException) {
+                _uiState.value = CalendarUiState.Error(e.message ?: "Invalid state")
             }
         }
     }

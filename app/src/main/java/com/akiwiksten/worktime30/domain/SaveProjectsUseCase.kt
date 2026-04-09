@@ -22,17 +22,17 @@ class SaveProjectsUseCase @Inject constructor(
             projectRepository.insertProjectName(ProjectNameEntity(project.projectName))
             projectRepository.insertProject(project)
         }
-        
+
         workdayToSave?.let {
             workdayRepository.insertWorkday(it)
         }
-        
+
         projectNamesToDelete.forEach { name ->
             projectRepository.deleteProject(
                 ProjectEntity(date = date, projectName = name, projectTime = ZERO_TIME)
             )
             workdayRepository.deleteWorkday(WorkdayEntity(date = date, projectName = name))
-            
+
             if (!projectRepository.isProjectNameUsed(name)) {
                 projectRepository.deleteProjectName(ProjectNameEntity(name))
             }

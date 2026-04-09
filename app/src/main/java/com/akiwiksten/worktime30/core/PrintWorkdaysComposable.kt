@@ -75,12 +75,14 @@ private fun rememberReportPaints(): ReportPaints {
             style = Typeface.NORMAL,
             paintStyle = Paint.Style.STROKE,
             color = black,
-            strokeWidth = 1f),
+            strokeWidth = 1f
+        ),
         boldRectPaint = createPaint(
             style = Typeface.NORMAL,
             paintStyle = Paint.Style.STROKE,
             color = black,
-            strokeWidth = 2f)
+            strokeWidth = 2f
+        )
     )
 }
 

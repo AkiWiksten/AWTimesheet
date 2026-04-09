@@ -50,7 +50,7 @@ fun IntroScreen(
     viewModel: IntroViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currentUiState = uiState  // Store in local variable for smart cast
+    val currentUiState = uiState // Store in local variable for smart cast
 
     when (currentUiState) {
         is IntroUiState.Loading -> {

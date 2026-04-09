@@ -26,17 +26,17 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
-import com.akiwiksten.worktime30.feature.workday.WorkdayArgs
-import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.ProjectDialogState
 import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
 import com.akiwiksten.worktime30.feature.projects.SingleProjectArgs
 import com.akiwiksten.worktime30.feature.projects.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
+import com.akiwiksten.worktime30.feature.workday.WorkdayArgs
+import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
 import com.akiwiksten.worktime30.navigation.Screen
 import dagger.hilt.android.AndroidEntryPoint
 

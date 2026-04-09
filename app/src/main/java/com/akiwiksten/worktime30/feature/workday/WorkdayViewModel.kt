@@ -7,8 +7,8 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -146,7 +146,8 @@ class WorkdayViewModel @Inject constructor(
     fun setLunchStart(lunchStart0: String) {
         _uiState.update { currentState ->
             val oldLunchStart = WorkTimeCalculator.stringToLocalTime(
-                (currentState as WorkdayUiState.Success).lunchStart)
+                (currentState as WorkdayUiState.Success).lunchStart
+            )
             val update = WorkTimeCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
                 lunchTime = WorkTimeCalculator.stringToLocalTime(currentState.lunchTime),
@@ -199,7 +200,9 @@ class WorkdayViewModel @Inject constructor(
 
     fun setBreakStart(breakStart0: String) {
         _uiState.update { currentState ->
-            val oldBreakStart = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).breakStart)
+            val oldBreakStart = WorkTimeCalculator.stringToLocalTime(
+                (currentState as WorkdayUiState.Success).breakStart
+            )
             val update = WorkTimeCalculator.calculateBreakStartUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 breakStart = WorkTimeCalculator.stringToLocalTime(breakStart0),
@@ -234,7 +237,9 @@ class WorkdayViewModel @Inject constructor(
 
     fun setWorkTimeToday(workTimeToday0: String) {
         _uiState.update { currentState ->
-            val oldWorkTimeToday = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).workTimeToday)
+            val oldWorkTimeToday = WorkTimeCalculator.stringToLocalTime(
+                (currentState as WorkdayUiState.Success).workTimeToday
+            )
             val update = WorkTimeCalculator.calculateWorkTimeTodayUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 dailyWorkTime = WorkTimeCalculator.stringToLocalTime(currentState.dailyWorkTime),
@@ -416,8 +421,10 @@ class WorkdayViewModel @Inject constructor(
                     )
                 }
                 _uiState.value = nextState
-            } catch (e: Exception) {
-                _uiState.value = WorkdayUiState.Error(e.message ?: "Unknown error")
+            } catch (e: IllegalArgumentException) {
+                _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid argument")
+            } catch (e: IllegalStateException) {
+                _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid state")
             }
         }
     }

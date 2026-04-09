@@ -1,9 +1,9 @@
 package com.akiwiksten.worktime30.data.repository
 
-import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import javax.inject.Inject
 import javax.inject.Singleton
 

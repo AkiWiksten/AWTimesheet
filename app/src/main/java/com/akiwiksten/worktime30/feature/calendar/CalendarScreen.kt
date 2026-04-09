@@ -47,23 +47,9 @@ fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
-    val currentUiState = uiState  // Store in local variable for smart cast
+    val currentUiState = uiState // Store in local variable for smart cast
 
-    // Get the current application locale from the configuration
-    val appLocale = LocalConfiguration.current.locales[0]
-    
-    // Create a modified locale that uses the app's language/country 
-    // but ensures Monday is the first day of the week (fw=mon)
-    val mondayFirstLocale = remember(appLocale) {
-        Locale.Builder()
-            .setLocale(appLocale)
-            .setUnicodeLocaleKeyword("fw", "mon")
-            .build()
-    }
-
-    val configuration = Configuration(LocalConfiguration.current).apply {
-        setLocale(mondayFirstLocale)
-    }
+    val configuration = createMondayFirstConfiguration()
 
     CompositionLocalProvider(LocalConfiguration provides configuration) {
         val datePickerState = rememberDatePickerState()
@@ -84,42 +70,73 @@ fun CalendarScreen(
             }
         }
 
-        Column(
-            modifier = Modifier
-                .verticalScroll(state = rememberScrollState())
-                .fillMaxWidth()
-                .padding(all = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
-        ) {
-            when (currentUiState) {
-                is CalendarUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is CalendarUiState.Success -> {
-                    DatePickerSection(
-                        selectedDate = currentUiState.date,
-                        datePickerState = datePickerState
-                    )
+        CalendarContent(
+            uiState = currentUiState,
+            datePickerState = datePickerState
+        )
+    }
+}
 
-                    WorkTimeSummarySection(uiState = currentUiState)
+@Composable
+private fun createMondayFirstConfiguration(): Configuration {
+    // Get the current application locale from the configuration
+    val appLocale = LocalConfiguration.current.locales[0]
+
+    // Create a modified locale that uses the app's language/country
+    // but ensures Monday is the first day of the week (fw=mon)
+    val mondayFirstLocale = remember(appLocale) {
+        Locale.Builder()
+            .setLocale(appLocale)
+            .setUnicodeLocaleKeyword("fw", "mon")
+            .build()
+    }
+
+    return Configuration(LocalConfiguration.current).apply {
+        setLocale(mondayFirstLocale)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CalendarContent(
+    uiState: CalendarUiState,
+    datePickerState: DatePickerState
+) {
+    Column(
+        modifier = Modifier
+            .verticalScroll(state = rememberScrollState())
+            .fillMaxWidth()
+            .padding(all = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+    ) {
+        when (uiState) {
+            is CalendarUiState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-                is CalendarUiState.Error -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Error: ${currentUiState.message}",
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(all = 32.dp)
-                        )
-                    }
+            }
+            is CalendarUiState.Success -> {
+                DatePickerSection(
+                    selectedDate = uiState.date,
+                    datePickerState = datePickerState
+                )
+
+                WorkTimeSummarySection(uiState = uiState)
+            }
+            is CalendarUiState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Error: ${uiState.message}",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(all = 32.dp)
+                    )
                 }
             }
         }

@@ -15,6 +15,8 @@ hiltNavigationCompose = "1.3.0"
 room = "2.8.4"
 detekt = "1.23.8"
 navigation3 = "1.0.1"
+robolectric = "4.14"
+kotlin-test = "2.3.20"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +47,8 @@ androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-
 androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
 androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleRuntimeKtx" }
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin-test" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

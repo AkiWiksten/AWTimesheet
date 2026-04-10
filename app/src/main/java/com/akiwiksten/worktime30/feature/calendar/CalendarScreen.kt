@@ -26,7 +26,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -39,6 +41,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,9 +59,17 @@ fun CalendarScreen(
     CompositionLocalProvider(LocalConfiguration provides configuration) {
         val datePickerState = rememberDatePickerState()
 
-        LaunchedEffect(key1 = Unit) {
+        // Sync the date picker to the ViewModel's date whenever the state first becomes Success
+        // (or changes to a new Success value, e.g. after a background recalculation).
+        LaunchedEffect(key1 = currentUiState) {
             if (currentUiState is CalendarUiState.Success) {
-                calendarViewModel.onDateSelected(selectedDate = currentUiState.date)
+                val millis = LocalDate.parse(currentUiState.date)
+                    .atStartOfDay(ZoneId.of("UTC"))
+                    .toInstant()
+                    .toEpochMilli()
+                if (datePickerState.selectedDateMillis != millis) {
+                    datePickerState.selectedDateMillis = millis
+                }
             }
         }
 
@@ -102,6 +115,18 @@ internal fun CalendarContent(
     uiState: CalendarUiState,
     datePickerState: DatePickerState
 ) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = uiState is CalendarUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<CalendarUiState.Success?>(value = null) }
+    val fallbackSuccessState = remember { CalendarUiState.Success() }
+
+    LaunchedEffect(uiState) {
+        if (uiState is CalendarUiState.Success) {
+            lastSuccessState = uiState
+        }
+    }
+
     Column(
         modifier = Modifier
             .verticalScroll(state = rememberScrollState())
@@ -112,11 +137,21 @@ internal fun CalendarContent(
     ) {
         when (uiState) {
             is CalendarUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                if (showLoadingIndicator) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    val cachedState = lastSuccessState ?: fallbackSuccessState
+                    DatePickerSection(
+                        selectedDate = cachedState.date,
+                        datePickerState = datePickerState
+                    )
+
+                    WorkTimeSummarySection(uiState = cachedState)
                 }
             }
             is CalendarUiState.Success -> {

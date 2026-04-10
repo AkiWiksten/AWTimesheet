@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
@@ -85,7 +88,7 @@ fun WorkdayScreen(
 }
 
 @Composable
-internal fun WorkdayLoadingState(padding: PaddingValues) {
+internal fun WorkdayLoadingState(padding: PaddingValues, showLoadingIndicator: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,7 +97,9 @@ internal fun WorkdayLoadingState(padding: PaddingValues) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        CircularProgressIndicator()
+        if (showLoadingIndicator) {
+            CircularProgressIndicator()
+        }
     }
 }
 
@@ -174,8 +179,35 @@ internal fun WorkdayStateContent(
     projectName: String?,
     actions: WorkdayScreenActions
 ) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = uiState is WorkdayUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
+
+    LaunchedEffect(uiState) {
+        if (uiState is WorkdayUiState.Success) {
+            lastSuccessState = uiState
+        }
+    }
+
     when (uiState) {
-        is WorkdayUiState.Loading -> WorkdayLoadingState(padding = padding)
+        is WorkdayUiState.Loading -> {
+            if (showLoadingIndicator) {
+                WorkdayLoadingState(
+                    padding = padding,
+                    showLoadingIndicator = showLoadingIndicator
+                )
+            } else {
+                lastSuccessState?.let { cachedState ->
+                    WorkdayContent(
+                        padding = padding,
+                        uiState = cachedState,
+                        projectName = projectName,
+                        actions = actions
+                    )
+                }
+            }
+        }
         is WorkdayUiState.Success -> WorkdayContent(
             padding = padding,
             uiState = uiState,

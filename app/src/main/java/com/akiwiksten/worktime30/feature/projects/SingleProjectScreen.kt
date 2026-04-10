@@ -52,6 +52,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
@@ -139,18 +140,47 @@ fun SingleProjectScreen(
 
 @Composable
 internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = params.projectsUiState is ProjectsUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<ProjectsUiState.Success?>(value = null) }
+
+    LaunchedEffect(params.projectsUiState) {
+        if (params.projectsUiState is ProjectsUiState.Success) {
+            lastSuccessState = params.projectsUiState
+        }
+    }
+
     Scaffold(
         topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
     ) { padding ->
         when (params.projectsUiState) {
             is ProjectsUiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues = padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                if (showLoadingIndicator) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues = padding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    SingleProjectContent(
+                        padding = padding,
+                        screenState = SingleProjectScreenState(
+                            date = params.date,
+                            state = params.state,
+                            isAddMode = params.isAddMode,
+                            uiState = lastSuccessState ?: ProjectsUiState.Success(date = params.date),
+                            isConfirmEnabled = params.isConfirmEnabled
+                        ),
+                        actions = SingleProjectActions(
+                            onStateChange = params.onStateChange,
+                            onOpenWorkday = params.onOpenWorkday,
+                            onConfirm = params.onConfirm
+                        )
+                    )
                 }
             }
             is ProjectsUiState.Success -> {

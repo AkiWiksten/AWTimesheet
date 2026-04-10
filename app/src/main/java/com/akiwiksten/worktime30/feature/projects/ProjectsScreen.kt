@@ -34,8 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +51,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
@@ -98,6 +101,17 @@ internal fun ProjectsContent(
     selectedItemIndex: Int,
     actions: ProjectsActions
 ) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = projectsUiState is ProjectsUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<ProjectsUiState.Success?>(value = null) }
+
+    LaunchedEffect(projectsUiState) {
+        if (projectsUiState is ProjectsUiState.Success) {
+            lastSuccessState = projectsUiState
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -107,11 +121,35 @@ internal fun ProjectsContent(
     ) {
         when (projectsUiState) {
             is ProjectsUiState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                if (showLoadingIndicator) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    lastSuccessState?.let { cachedState ->
+                        ProjectsHeader(date = cachedState.date, workTime = cachedState.workTimeToday)
+
+                        ProjectsListSection(
+                            items = cachedState.projects,
+                            selectedIndex = selectedItemIndex,
+                            onItemSelected = actions.onSelectedItemIndexChange,
+                            modifier = Modifier.weight(weight = 1f)
+                        )
+
+                        ProjectsActionButtons(
+                            items = cachedState.projects,
+                            selectedIndex = selectedItemIndex,
+                            onAddClick = { actions.onNavigateToSingleProject(-1) },
+                            onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex) },
+                            onDeleteClick = {
+                                cachedState.projects.getOrNull(index = selectedItemIndex)
+                                    ?.let(actions.onDeleteProject)
+                            }
+                        )
+                    }
                 }
             }
             is ProjectsUiState.Success -> {

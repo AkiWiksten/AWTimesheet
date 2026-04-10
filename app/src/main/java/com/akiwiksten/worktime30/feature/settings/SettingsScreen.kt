@@ -37,6 +37,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
@@ -77,16 +78,36 @@ internal fun SettingsStateContent(
     calendarDate: String,
     createActions: (SettingsUiState.Success) -> SettingsActions
 ) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = uiState is SettingsUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<SettingsUiState.Success?>(value = null) }
+
+    LaunchedEffect(uiState) {
+        if (uiState is SettingsUiState.Success) {
+            lastSuccessState = uiState
+        }
+    }
+
     when (uiState) {
         is SettingsUiState.Loading -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                CircularProgressIndicator()
+            if (showLoadingIndicator) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                lastSuccessState?.let { cachedState ->
+                    val actions = remember(cachedState) {
+                        createActions(cachedState)
+                    }
+                    SettingsContent(uiState = cachedState, calendarDate = calendarDate, actions = actions)
+                }
             }
         }
         is SettingsUiState.Success -> {

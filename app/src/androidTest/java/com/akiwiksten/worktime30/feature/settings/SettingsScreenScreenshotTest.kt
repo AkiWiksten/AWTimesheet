@@ -7,6 +7,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import org.junit.Rule
@@ -22,9 +23,22 @@ class SettingsScreenScreenshotTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun loadingState_screenshot() {
+    fun loadingState_beforeDelay_screenshot() {
+        composeTestRule.mainClock.autoAdvance = false
         setSettingsContent(uiState = SettingsUiState.Loading)
-        saveRootScreenshot(fileName = "settings_loading")
+        composeTestRule.waitForIdle()
+        saveRootScreenshot(fileName = "settings_loading_before_delay")
+        composeTestRule.mainClock.autoAdvance = true
+    }
+
+    @Test
+    fun loadingState_afterDelay_screenshot() {
+        composeTestRule.mainClock.autoAdvance = false
+        setSettingsContent(uiState = SettingsUiState.Loading)
+        composeTestRule.mainClock.advanceTimeBy(LOADING_INDICATOR_DELAY_MS + 50L)
+        composeTestRule.waitForIdle()
+        saveRootScreenshot(fileName = "settings_loading_after_delay")
+        composeTestRule.mainClock.autoAdvance = true
     }
 
     @Test

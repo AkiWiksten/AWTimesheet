@@ -19,7 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
 private const val ANIMATION_DURATION = 3000
 private const val SCREEN_FILL_RATIO = 0.9f
@@ -63,9 +66,19 @@ internal fun IntroStateContent(
     uiState: IntroUiState,
     onItemClick: () -> Unit
 ) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = uiState is IntroUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<IntroUiState.Success?>(value = null) }
+
+    LaunchedEffect(uiState) {
+        if (uiState is IntroUiState.Success) {
+            lastSuccessState = uiState
+        }
+    }
+
     when (uiState) {
         is IntroUiState.Loading -> {
-            // Show loading while preparing the intro
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -73,7 +86,16 @@ internal fun IntroStateContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                CircularProgressIndicator(color = Color.White)
+                if (showLoadingIndicator) {
+                    CircularProgressIndicator(color = Color.White)
+                } else {
+                    lastSuccessState?.let {
+                        IntroAnimatedContent(
+                            appName = it.appName,
+                            onItemClick = onItemClick
+                        )
+                    }
+                }
             }
         }
         is IntroUiState.Success -> {

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import org.junit.Rule
 import org.junit.Test
@@ -21,7 +22,8 @@ class SingleProjectScreenScreenshotTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun loadingState_screenshot() {
+    fun loadingState_beforeDelay_screenshot() {
+        composeTestRule.mainClock.autoAdvance = false
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
@@ -35,7 +37,31 @@ class SingleProjectScreenScreenshotTest {
                 onConfirm = {}
             )
         )
-        saveRootScreenshot(fileName = "single_project_loading")
+        composeTestRule.waitForIdle()
+        saveRootScreenshot(fileName = "single_project_loading_before_delay")
+        composeTestRule.mainClock.autoAdvance = true
+    }
+
+    @Test
+    fun loadingState_afterDelay_screenshot() {
+        composeTestRule.mainClock.autoAdvance = false
+        setSingleProjectContent(
+            params = SingleProjectScreenContentParams(
+                date = "2026-04-10",
+                state = ProjectDialogState(uiState = ProjectListItemUiState()),
+                isAddMode = true,
+                projectsUiState = ProjectsUiState.Loading,
+                isConfirmEnabled = false,
+                onStateChange = {},
+                onNavigateBack = {},
+                onOpenWorkday = {},
+                onConfirm = {}
+            )
+        )
+        composeTestRule.mainClock.advanceTimeBy(LOADING_INDICATOR_DELAY_MS + 50L)
+        composeTestRule.waitForIdle()
+        saveRootScreenshot(fileName = "single_project_loading_after_delay")
+        composeTestRule.mainClock.autoAdvance = true
     }
 
     @Test

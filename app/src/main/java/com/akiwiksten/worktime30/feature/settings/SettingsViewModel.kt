@@ -114,12 +114,20 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val data = getSettingsUseCase()
-                _uiState.update { _ ->
-                    SettingsUiState.Success(
-                        name = data.name,
-                        employer = data.employer,
-                        workTypes = data.workTypes
-                    )
+                _uiState.update { currentState ->
+                    if (currentState is SettingsUiState.Success) {
+                        currentState.copy(
+                            name = data.name,
+                            employer = data.employer,
+                            workTypes = data.workTypes
+                        )
+                    } else {
+                        SettingsUiState.Success(
+                            name = data.name,
+                            employer = data.employer,
+                            workTypes = data.workTypes
+                        )
+                    }
                 }
             } catch (e: IllegalArgumentException) {
                 _uiState.update { SettingsUiState.Error("Failed to load settings: ${e.message}") }

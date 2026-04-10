@@ -98,7 +98,7 @@ private fun createMondayFirstConfiguration(): Configuration {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CalendarContent(
+internal fun CalendarContent(
     uiState: CalendarUiState,
     datePickerState: DatePickerState
 ) {
@@ -145,7 +145,7 @@ private fun CalendarContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DatePickerSection(
+internal fun DatePickerSection(
     selectedDate: String,
     datePickerState: DatePickerState
 ) {
@@ -188,7 +188,7 @@ private fun DatePickerSection(
 }
 
 @Composable
-private fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
+internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     Column(
         modifier = Modifier
             .padding(vertical = 20.dp)
@@ -212,7 +212,7 @@ private fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
 }
 
 @Composable
-private fun SummaryItem(label: String, value: String) {
+internal fun SummaryItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = label,

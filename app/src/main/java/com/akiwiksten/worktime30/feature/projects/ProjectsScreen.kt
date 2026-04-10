@@ -36,7 +36,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +52,7 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
+@Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
 fun ProjectsScreen(
     onNavigateToSingleProject: (Int) -> Unit,
@@ -68,8 +68,8 @@ fun ProjectsScreen(
     val currentCalendarState = calendarUiState // Store in local variable for smart cast
     val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
 
-    @Suppress("all") // S1854: SonarQube doesn't recognize Compose state delegation pattern
-    var selectedItemIndex by remember { mutableIntStateOf(value = -1) }
+    // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
+    val selectedItemIndexState = remember { mutableIntStateOf(value = -1) }
 
     LaunchedEffect(key1 = date) {
         if (date.isNotEmpty()) {
@@ -79,21 +79,21 @@ fun ProjectsScreen(
 
     ProjectsContent(
         projectsUiState = projectsUiState,
-        selectedItemIndex = selectedItemIndex,
+        selectedItemIndex = selectedItemIndexState.intValue,
         actions = ProjectsActions(
-            onSelectedItemIndexChange = { selectedItemIndex = it },
+            onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onNavigateToSingleProject = onNavigateToSingleProject,
             onRetry = { projectsViewModel.loadData(date = date) },
             onDeleteProject = { project ->
                 projectsViewModel.deleteProject(uiState = project)
-                selectedItemIndex = -1
+                selectedItemIndexState.intValue = -1 // NOSONAR
             }
         )
     )
 }
 
 @Composable
-private fun ProjectsContent(
+internal fun ProjectsContent(
     projectsUiState: ProjectsUiState,
     selectedItemIndex: Int,
     actions: ProjectsActions

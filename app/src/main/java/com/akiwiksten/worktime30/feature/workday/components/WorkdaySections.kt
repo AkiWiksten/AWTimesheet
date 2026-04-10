@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
-import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 
 @Composable
 fun ProjectNameField(name: String) {
@@ -75,25 +74,25 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
 }
 
 @Composable
-fun NewDayFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
+fun NewDayFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         AddTimeRow(
             textFieldValue = uiState.startTime,
             stringId = R.string.start_time,
-            currentTime = viewModel::currentStartTime,
-            onConfirmation = viewModel::setStartTime
+            currentTime = actions.onCurrentStartTime,
+            onConfirmation = actions.onSetStartTime
         )
         AddTimeRow(
             textFieldValue = uiState.dailyWorkTime,
             stringId = R.string.daily_work_time,
-            currentTime = viewModel::currentDailyWorkTime,
-            onConfirmation = viewModel::setDailyWorkTime
+            currentTime = actions.onCurrentDailyWorkTime,
+            onConfirmation = actions.onSetDailyWorkTime
         )
         AddTimeRow(
             textFieldValue = uiState.lunchTime,
             stringId = R.string.lunch_time,
-            currentTime = viewModel::currentLunchTime,
-            onConfirmation = viewModel::setLunchTime
+            currentTime = actions.onCurrentLunchTime,
+            onConfirmation = actions.onSetLunchTime
         )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -105,14 +104,14 @@ fun NewDayFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
                     customTime = uiState.balanceTotal,
-                    customTimeFunction = viewModel::setBalanceTotal,
+                    customTimeFunction = actions.onSetBalanceTotal,
                     stringId = R.string.balance_total
                 )
             }
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
                     customTime = uiState.workTimeTotal,
-                    customTimeFunction = viewModel::setWorkTimeTotal,
+                    customTimeFunction = actions.onSetWorkTimeTotal,
                     stringId = R.string.work_time_total
                 )
             }
@@ -127,92 +126,92 @@ fun NewDayFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
 }
 
 @Composable
-fun ExistingDayFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
+fun ExistingDayFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
-        MainWorkTimeFields(uiState = uiState, viewModel = viewModel)
+        MainWorkTimeFields(uiState = uiState, actions = actions)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-        LunchAndBreakFields(uiState = uiState, viewModel = viewModel)
+        LunchAndBreakFields(uiState = uiState, actions = actions)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-        DailySummaryFields(uiState = uiState, viewModel = viewModel)
+        DailySummaryFields(uiState = uiState, actions = actions)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        BalanceSummaryFields(uiState = uiState, viewModel = viewModel)
+        BalanceSummaryFields(uiState = uiState, actions = actions)
     }
 }
 
 @Composable
-private fun MainWorkTimeFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
+private fun MainWorkTimeFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
     AddTimeRow(
         textFieldValue = uiState.startTime,
         stringId = R.string.start_time,
-        currentTime = viewModel::currentStartTime,
-        onConfirmation = viewModel::setStartTime
+        currentTime = actions.onCurrentStartTime,
+        onConfirmation = actions.onSetStartTime
     )
     AddTimeRow(
         textFieldValue = uiState.endTime,
         stringId = R.string.end_time,
-        currentTime = viewModel::currentEndTime,
-        onConfirmation = viewModel::setEndTime
+        currentTime = actions.onCurrentEndTime,
+        onConfirmation = actions.onSetEndTime
     )
     AddTimeRow(
         textFieldValue = uiState.workTimeToday,
         stringId = R.string.work_time_today,
-        currentTime = viewModel::currentWorkTimeToday,
-        onConfirmation = viewModel::setWorkTimeToday
+        currentTime = actions.onCurrentWorkTimeToday,
+        onConfirmation = actions.onSetWorkTimeToday
     )
 }
 
 @Composable
-private fun LunchAndBreakFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
+private fun LunchAndBreakFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
     AddTimeRow(
         textFieldValue = uiState.lunchStart,
         stringId = R.string.lunch_start,
-        currentTime = viewModel::currentLunchStart,
-        onConfirmation = viewModel::setLunchStart
+        currentTime = actions.onCurrentLunchStart,
+        onConfirmation = actions.onSetLunchStart
     )
     AddTimeRow(
         textFieldValue = uiState.lunchEnd,
         stringId = R.string.lunch_end,
-        currentTime = viewModel::currentLunchEnd,
-        onConfirmation = viewModel::setLunchEnd
+        currentTime = actions.onCurrentLunchEnd,
+        onConfirmation = actions.onSetLunchEnd
     )
     AddTimeRow(
         textFieldValue = uiState.breakStart,
         stringId = R.string.break_start,
-        currentTime = viewModel::currentBreakStart,
-        onConfirmation = viewModel::setBreakStart
+        currentTime = actions.onCurrentBreakStart,
+        onConfirmation = actions.onSetBreakStart
     )
     AddTimeRow(
         textFieldValue = uiState.breakEnd,
         stringId = R.string.break_end,
-        currentTime = viewModel::currentBreakEnd,
-        onConfirmation = viewModel::setBreakEnd
+        currentTime = actions.onCurrentBreakEnd,
+        onConfirmation = actions.onSetBreakEnd
     )
 }
 
 @Composable
-private fun DailySummaryFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
+private fun DailySummaryFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
     AddTimeRow(
         textFieldValue = uiState.dailyWorkTime,
         stringId = R.string.daily_work_time,
-        currentTime = viewModel::currentDailyWorkTime,
-        onConfirmation = viewModel::setDailyWorkTime
+        currentTime = actions.onCurrentDailyWorkTime,
+        onConfirmation = actions.onSetDailyWorkTime
     )
     AddTimeRow(
         textFieldValue = uiState.lunchTime,
         stringId = R.string.lunch_time,
-        currentTime = viewModel::currentLunchTime,
-        onConfirmation = viewModel::setLunchTime
+        currentTime = actions.onCurrentLunchTime,
+        onConfirmation = actions.onSetLunchTime
     )
 }
 
 @Composable
-private fun BalanceSummaryFields(uiState: WorkdayUiState.Success, viewModel: WorkdayViewModel) {
+private fun BalanceSummaryFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = 12.dp)
@@ -221,21 +220,21 @@ private fun BalanceSummaryFields(uiState: WorkdayUiState.Success, viewModel: Wor
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
                     customTime = uiState.balanceToday,
-                    customTimeFunction = viewModel::setBalanceToday,
+                    customTimeFunction = actions.onSetBalanceToday,
                     stringId = R.string.balance_today
                 )
             }
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
                     customTime = uiState.balanceTotal,
-                    customTimeFunction = viewModel::setBalanceTotal,
+                    customTimeFunction = actions.onSetBalanceTotal,
                     stringId = R.string.balance_total
                 )
             }
         }
         AddCustomTimeRow(
             customTime = uiState.workTimeTotal,
-            customTimeFunction = viewModel::setWorkTimeTotal,
+            customTimeFunction = actions.onSetWorkTimeTotal,
             stringId = R.string.work_time_total
         )
     }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,6 +39,7 @@ import com.akiwiksten.worktime30.feature.workday.components.FooterSection
 import com.akiwiksten.worktime30.feature.workday.components.HeaderSection
 import com.akiwiksten.worktime30.feature.workday.components.NewDayFields
 import com.akiwiksten.worktime30.feature.workday.components.ProjectNameField
+import com.akiwiksten.worktime30.feature.workday.components.WorkdayFieldActions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,32 +67,25 @@ fun WorkdayScreen(
             WorkdayTopBar(onNavigateBack = onNavigateBack)
         }
     ) { padding ->
-        when (uiState) {
-            is WorkdayUiState.Loading -> WorkdayLoadingState(padding = padding)
-            is WorkdayUiState.Success -> {
-                val successState = uiState as WorkdayUiState.Success
-                WorkdayContent(
-                    padding = padding,
-                    uiState = successState,
-                    projectName = args.projectName,
-                    viewModel = viewModel,
-                    onConfirm = {
-                        val workdayResult = viewModel.getWorkdayEntity()
-                        val workStatsResult = viewModel.getWorkStatsEntity()
-                        onConfirm(workdayResult, workStatsResult)
-                    }
-                )
+        val actions = remember(viewModel, onConfirm) {
+            createWorkdayScreenActions(viewModel = viewModel) {
+                val workdayResult = viewModel.getWorkdayEntity()
+                val workStatsResult = viewModel.getWorkStatsEntity()
+                onConfirm(workdayResult, workStatsResult)
             }
-            is WorkdayUiState.Error -> WorkdayErrorState(
-                padding = padding,
-                errorMessage = (uiState as WorkdayUiState.Error).message
-            )
         }
+
+        WorkdayStateContent(
+            padding = padding,
+            uiState = uiState,
+            projectName = args.projectName,
+            actions = actions
+        )
     }
 }
 
 @Composable
-private fun WorkdayLoadingState(padding: PaddingValues) {
+internal fun WorkdayLoadingState(padding: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -104,7 +99,7 @@ private fun WorkdayLoadingState(padding: PaddingValues) {
 }
 
 @Composable
-private fun WorkdayErrorState(padding: PaddingValues, errorMessage: String) {
+internal fun WorkdayErrorState(padding: PaddingValues, errorMessage: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -123,7 +118,7 @@ private fun WorkdayErrorState(padding: PaddingValues, errorMessage: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WorkdayTopBar(onNavigateBack: () -> Unit) {
+internal fun WorkdayTopBar(onNavigateBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Header(
@@ -141,12 +136,11 @@ private fun WorkdayTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-private fun WorkdayContent(
+internal fun WorkdayContent(
     padding: PaddingValues,
     uiState: WorkdayUiState.Success,
     projectName: String?,
-    viewModel: WorkdayViewModel,
-    onConfirm: () -> Unit
+    actions: WorkdayScreenActions
 ) {
     Column(
         modifier = Modifier
@@ -157,20 +151,81 @@ private fun WorkdayContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderSection(date = uiState.date, onClearDay = viewModel::clearDay)
+        HeaderSection(date = uiState.date, onClearDay = actions.onClearDay)
 
         projectName?.let {
             ProjectNameField(name = it)
         }
 
         if (uiState.isNewDay) {
-            NewDayFields(uiState = uiState, viewModel = viewModel)
+            NewDayFields(uiState = uiState, actions = actions.fieldActions)
         } else {
-            ExistingDayFields(uiState = uiState, viewModel = viewModel)
+            ExistingDayFields(uiState = uiState, actions = actions.fieldActions)
         }
 
-        FooterSection(onConfirm = onConfirm)
+        FooterSection(onConfirm = actions.onConfirm)
     }
+}
+
+@Composable
+internal fun WorkdayStateContent(
+    padding: PaddingValues,
+    uiState: WorkdayUiState,
+    projectName: String?,
+    actions: WorkdayScreenActions
+) {
+    when (uiState) {
+        is WorkdayUiState.Loading -> WorkdayLoadingState(padding = padding)
+        is WorkdayUiState.Success -> WorkdayContent(
+            padding = padding,
+            uiState = uiState,
+            projectName = projectName,
+            actions = actions
+        )
+        is WorkdayUiState.Error -> WorkdayErrorState(
+            padding = padding,
+            errorMessage = uiState.message
+        )
+    }
+}
+
+internal data class WorkdayScreenActions(
+    val onClearDay: () -> Unit = {},
+    val onConfirm: () -> Unit = {},
+    val fieldActions: WorkdayFieldActions = WorkdayFieldActions()
+)
+
+private fun createWorkdayScreenActions(
+    viewModel: WorkdayViewModel,
+    onConfirm: () -> Unit
+): WorkdayScreenActions {
+    return WorkdayScreenActions(
+        onClearDay = viewModel::clearDay,
+        onConfirm = onConfirm,
+        fieldActions = WorkdayFieldActions(
+            onCurrentStartTime = viewModel::currentStartTime,
+            onSetStartTime = viewModel::setStartTime,
+            onCurrentDailyWorkTime = viewModel::currentDailyWorkTime,
+            onSetDailyWorkTime = viewModel::setDailyWorkTime,
+            onCurrentLunchTime = viewModel::currentLunchTime,
+            onSetLunchTime = viewModel::setLunchTime,
+            onSetBalanceTotal = viewModel::setBalanceTotal,
+            onSetWorkTimeTotal = viewModel::setWorkTimeTotal,
+            onCurrentEndTime = viewModel::currentEndTime,
+            onSetEndTime = viewModel::setEndTime,
+            onCurrentWorkTimeToday = viewModel::currentWorkTimeToday,
+            onSetWorkTimeToday = viewModel::setWorkTimeToday,
+            onCurrentLunchStart = viewModel::currentLunchStart,
+            onSetLunchStart = viewModel::setLunchStart,
+            onCurrentLunchEnd = viewModel::currentLunchEnd,
+            onSetLunchEnd = viewModel::setLunchEnd,
+            onCurrentBreakStart = viewModel::currentBreakStart,
+            onSetBreakStart = viewModel::setBreakStart,
+            onCurrentBreakEnd = viewModel::currentBreakEnd,
+            onSetBreakEnd = viewModel::setBreakEnd,
+            onSetBalanceToday = viewModel::setBalanceToday
+        )
+    )
 }
 
 data class WorkdayArgs(

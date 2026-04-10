@@ -50,9 +50,20 @@ fun IntroScreen(
     viewModel: IntroViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currentUiState = uiState // Store in local variable for smart cast
+    val currentUiState = uiState
 
-    when (currentUiState) {
+    IntroStateContent(
+        uiState = currentUiState,
+        onItemClick = onItemClick
+    )
+}
+
+@Composable
+internal fun IntroStateContent(
+    uiState: IntroUiState,
+    onItemClick: () -> Unit
+) {
+    when (uiState) {
         is IntroUiState.Loading -> {
             // Show loading while preparing the intro
             Column(
@@ -67,7 +78,7 @@ fun IntroScreen(
         }
         is IntroUiState.Success -> {
             IntroAnimatedContent(
-                appName = currentUiState.appName,
+                appName = uiState.appName,
                 onItemClick = onItemClick
             )
         }
@@ -81,7 +92,7 @@ fun IntroScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = "Error: ${currentUiState.message}",
+                    text = "Error: ${uiState.message}",
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge
                 )

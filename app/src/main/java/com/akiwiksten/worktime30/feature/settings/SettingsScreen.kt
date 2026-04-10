@@ -34,12 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.core.GeneratePdfParams
-import com.akiwiksten.worktime30.core.MonthlyReportGenerator
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
@@ -61,6 +58,25 @@ fun SettingsScreen(
         }
     }
 
+    SettingsStateContent(
+        uiState = uiState,
+        calendarDate = date,
+        createActions = { successState ->
+            createSettingsActions(
+                settingsViewModel = settingsViewModel,
+                successState = successState,
+                ctx = ctx
+            )
+        }
+    )
+}
+
+@Composable
+internal fun SettingsStateContent(
+    uiState: SettingsUiState,
+    calendarDate: String,
+    createActions: (SettingsUiState.Success) -> SettingsActions
+) {
     when (uiState) {
         is SettingsUiState.Loading -> {
             Column(
@@ -74,11 +90,11 @@ fun SettingsScreen(
             }
         }
         is SettingsUiState.Success -> {
-            val successState = uiState as SettingsUiState.Success
-            val actions = remember(settingsViewModel, successState, ctx) {
-                createSettingsActions(settingsViewModel, successState, ctx)
+            val successState = uiState
+            val actions = remember(successState) {
+                createActions(successState)
             }
-            SettingsContent(uiState = successState, calendarDate = date, actions = actions)
+            SettingsContent(uiState = successState, calendarDate = calendarDate, actions = actions)
         }
         is SettingsUiState.Error -> {
             Column(
@@ -89,7 +105,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Error: ${(uiState as SettingsUiState.Error).message}",
+                    text = "Error: ${uiState.message}",
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -131,7 +147,7 @@ data class SettingsActions(
 )
 
 @Composable
-private fun SettingsContent(
+internal fun SettingsContent(
     uiState: SettingsUiState.Success,
     calendarDate: String,
     actions: SettingsActions
@@ -311,34 +327,4 @@ private fun ActionButtonsSection(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         )
     }
-}
-
-private fun generateReport(
-    ctx: Context,
-    projectsByMonth: List<ProjectEntity>,
-    endOfMonthDate: String,
-    name: String,
-    employer: String
-) {
-    val titles = listOf(
-        R.string.date,
-        R.string.project,
-        R.string.work_time_today,
-        R.string.allowance,
-        R.string.work_type,
-        R.string.kilometres
-    ).map { ctx.getString(it) }
-
-    MonthlyReportGenerator.generatePdf(
-        params = GeneratePdfParams(
-            ctx = ctx,
-            projectsByMonth = projectsByMonth,
-            endOfMonthDate = endOfMonthDate,
-            totalSumLabel = ctx.getString(R.string.total_sum),
-            monthlyReportLabel = ctx.getString(R.string.monthly_report),
-            name = name,
-            employer = employer,
-            projectTitles = titles
-        )
-    )
 }

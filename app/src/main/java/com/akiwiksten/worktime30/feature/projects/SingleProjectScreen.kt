@@ -138,7 +138,7 @@ fun SingleProjectScreen(
 }
 
 @Composable
-private fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
+internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
     Scaffold(
         topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
     ) { padding ->

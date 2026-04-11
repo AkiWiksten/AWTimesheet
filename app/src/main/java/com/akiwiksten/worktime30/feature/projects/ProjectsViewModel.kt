@@ -16,6 +16,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -87,6 +90,7 @@ class ProjectsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<ProjectsUiState>(ProjectsUiState.Loading)
     val uiState: StateFlow<ProjectsUiState> = _uiState.asStateFlow()
+    private val reloadTrigger = MutableStateFlow(0)
 
     companion object {
         private const val ERROR_INVALID_ARGUMENT = "Invalid argument provided"
@@ -95,57 +99,66 @@ class ProjectsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            dateRepository.selectedDate.collect { date ->
-                loadData(date)
+            combine(dateRepository.selectedDate, reloadTrigger) { date, trigger -> date to trigger }
+                .collectLatest { (date, _) ->
+                    loadDataInternal(date)
+                }
+        }
+    }
+
+    private suspend fun loadDataInternal(date: String) {
+        try {
+            _uiState.value = ProjectsUiState.Loading
+            val data = getProjectsScreenDataUseCase(date)
+
+            val recordedProjects = data.projects.map { entity ->
+                ProjectListItemUiState(
+                    projectName = entity.projectName,
+                    projectTime = entity.projectTime,
+                    kilometres = entity.kilometres,
+                    allowance = entity.allowance,
+                    workType = entity.workType,
+                )
             }
+
+            val recordedNames = data.projects.map { it.projectName }.toSet()
+
+            val unrecordedProjects = data.projectNames
+                .filter { it.name !in recordedNames }
+                .map { entity ->
+                    ProjectListItemUiState(projectName = entity.name)
+                }
+
+            val combinedList = (recordedProjects + unrecordedProjects)
+                .sortedBy { it.projectName }
+                .mapIndexed { index, item -> item.copy(index = index) }
+
+            val totalProjectTime = combinedList.fold(ZERO_TIME) { acc, project ->
+                WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
+            }
+
+            _uiState.value = ProjectsUiState.Success(
+                date = date,
+                workTimeToday = totalProjectTime,
+                projects = combinedList,
+                projectNames = data.projectNames,
+                workTypes = data.workTypes
+            )
+        } catch (e: IllegalArgumentException) {
+            _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
+        } catch (e: IllegalStateException) {
+            _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
         }
     }
 
     fun loadData(date: String) {
         viewModelScope.launch {
-            try {
-                _uiState.value = ProjectsUiState.Loading
-                val data = getProjectsScreenDataUseCase(date)
-
-                val recordedProjects = data.projects.map { entity ->
-                    ProjectListItemUiState(
-                        projectName = entity.projectName,
-                        projectTime = entity.projectTime,
-                        kilometres = entity.kilometres,
-                        allowance = entity.allowance,
-                        workType = entity.workType,
-                    )
-                }
-
-                val recordedNames = data.projects.map { it.projectName }.toSet()
-
-                val unrecordedProjects = data.projectNames
-                    .filter { it.name !in recordedNames }
-                    .map { entity ->
-                        ProjectListItemUiState(projectName = entity.name)
-                    }
-
-                val combinedList = (recordedProjects + unrecordedProjects)
-                    .sortedBy { it.projectName }
-                    .mapIndexed { index, item -> item.copy(index = index) }
-
-                val totalProjectTime = combinedList.fold(ZERO_TIME) { acc, project ->
-                    WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
-                }
-
-                _uiState.value = ProjectsUiState.Success(
-                    date = date,
-                    workTimeToday = totalProjectTime,
-                    projects = combinedList,
-                    projectNames = data.projectNames,
-                    workTypes = data.workTypes
-                )
-            } catch (e: IllegalArgumentException) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
-            } catch (e: IllegalStateException) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
-            }
+            loadDataInternal(date)
         }
+    }
+
+    private fun requestReload() {
+        reloadTrigger.update { it + 1 }
     }
 
     fun saveProject(uiState: ProjectListItemUiState) {
@@ -183,7 +196,7 @@ class ProjectsViewModel @Inject constructor(
 
                 uiState.workStats?.let { workdayRepository.insertWorkStats(it) }
 
-                loadData(date)
+                requestReload()
             } catch (e: IllegalArgumentException) {
                 _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
             } catch (e: IllegalStateException) {
@@ -203,7 +216,7 @@ class ProjectsViewModel @Inject constructor(
                     projectsToSave = emptyList(),
                     projectNamesToDelete = listOf(uiState.projectName)
                 )
-                loadData(date)
+                requestReload()
             } catch (e: IllegalArgumentException) {
                 _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
             } catch (e: IllegalStateException) {

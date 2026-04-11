@@ -14,6 +14,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -56,10 +58,17 @@ class WorkdayViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<WorkdayUiState>(WorkdayUiState.Loading)
     val uiState: StateFlow<WorkdayUiState> = _uiState.asStateFlow()
+    private val selectedDate = MutableStateFlow("")
+    private val selectedProjectName = MutableStateFlow("")
 
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
+    init {
+        observeSelectionChanges()
+    }
+
     fun setDate(date0: String) {
+        selectedDate.value = date0
         _uiState.update { currentState ->
             when (currentState) {
                 is WorkdayUiState.Success -> currentState.copy(date = date0)
@@ -69,11 +78,29 @@ class WorkdayViewModel @Inject constructor(
     }
 
     fun setProjectName(projectName: String) {
+        selectedProjectName.value = projectName
         _uiState.update { currentState ->
             when (currentState) {
                 is WorkdayUiState.Success -> currentState.copy(projectName = projectName)
                 else -> WorkdayUiState.Success(projectName = projectName)
             }
+        }
+    }
+
+    private fun observeSelectionChanges() {
+        viewModelScope.launch {
+            combine(selectedDate, selectedProjectName) { date, projectName -> date to projectName }
+                .distinctUntilChanged()
+                .collect { (date, projectName) ->
+                    if (date.isNotEmpty()) {
+                        loadWorkdayInternal(
+                            baseState = (uiState.value as? WorkdayUiState.Success) ?: WorkdayUiState.Success(),
+                            date = date,
+                            projectName = projectName,
+                            showLoading = false
+                        )
+                    }
+                }
         }
     }
 
@@ -369,63 +396,87 @@ class WorkdayViewModel @Inject constructor(
     }
 
     fun loadWorkday(workdayArg: WorkdayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
-        _uiState.value = WorkdayUiState.Loading
+        val baseState = (_uiState.value as? WorkdayUiState.Success) ?: WorkdayUiState.Success()
+        val date = baseState.date
+        val projectName = baseState.projectName
         viewModelScope.launch {
-            try {
-                val currentState = _uiState.value as? WorkdayUiState.Success ?: WorkdayUiState.Success()
-                val workday = workdayArg ?: workdayRepository.getWorkday(currentState.date, currentState.projectName)
-                val workStats = workStatsArg ?: workdayRepository.getWorkStats()
+            loadWorkdayInternal(
+                baseState = baseState,
+                date = date,
+                projectName = projectName,
+                workdayArg = workdayArg,
+                workStatsArg = workStatsArg,
+                showLoading = true
+            )
+        }
+    }
 
-                var nextState = currentState
-                if (workStats != null) {
-                    nextState = nextState.copy(
-                        dailyWorkTime = workStats.dailyWorkTime,
-                        lunchTime = workStats.lunchTime,
-                        workTimeTotal = workStats.workTimeTotal,
-                        balanceTotal = workStats.balanceTotal
-                    )
-                } else {
-                    nextState = nextState.copy(
-                        dailyWorkTime = "07:30",
-                        lunchTime = ZERO_TIME,
-                        workTimeTotal = ZERO_TIME,
-                        balanceTotal = ZERO_TIME
-                    )
-                }
+    private suspend fun loadWorkdayInternal(
+        baseState: WorkdayUiState.Success,
+        date: String,
+        projectName: String,
+        workdayArg: WorkdayEntity? = null,
+        workStatsArg: WorkStatsEntity? = null,
+        showLoading: Boolean
+    ) {
+        if (showLoading) {
+            _uiState.value = WorkdayUiState.Loading
+        }
 
-                if (workday != null) {
-                    nextState = nextState.copy(
-                        startTime = workday.startTime,
-                        endTime = workday.endTime,
-                        lunchStart = workday.lunchStart,
-                        lunchEnd = workday.lunchEnd,
-                        breakStart = workday.breakStart,
-                        breakEnd = workday.breakEnd,
-                        workTimeToday = workday.workTimeToday,
-                        balanceToday = workday.balanceToday,
-                        oldBalanceToday = workday.balanceToday,
-                        isNewDay = isNewDay(workday)
-                    )
-                } else {
-                    nextState = nextState.copy(
-                        isNewDay = true,
-                        startTime = ZERO_TIME,
-                        endTime = ZERO_TIME,
-                        lunchStart = ZERO_TIME,
-                        lunchEnd = ZERO_TIME,
-                        breakStart = ZERO_TIME,
-                        breakEnd = ZERO_TIME,
-                        workTimeToday = ZERO_TIME,
-                        balanceToday = ZERO_TIME,
-                        oldBalanceToday = ZERO_TIME
-                    )
-                }
-                _uiState.value = nextState
-            } catch (e: IllegalArgumentException) {
-                _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid argument")
-            } catch (e: IllegalStateException) {
-                _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid state")
+        try {
+            val workday = workdayArg ?: workdayRepository.getWorkday(date, projectName)
+            val workStats = workStatsArg ?: workdayRepository.getWorkStats()
+
+            var nextState = baseState.copy(date = date, projectName = projectName)
+            if (workStats != null) {
+                nextState = nextState.copy(
+                    dailyWorkTime = workStats.dailyWorkTime,
+                    lunchTime = workStats.lunchTime,
+                    workTimeTotal = workStats.workTimeTotal,
+                    balanceTotal = workStats.balanceTotal
+                )
+            } else {
+                nextState = nextState.copy(
+                    dailyWorkTime = "07:30",
+                    lunchTime = ZERO_TIME,
+                    workTimeTotal = ZERO_TIME,
+                    balanceTotal = ZERO_TIME
+                )
             }
+
+            nextState = if (workday != null) {
+                nextState.copy(
+                    startTime = workday.startTime,
+                    endTime = workday.endTime,
+                    lunchStart = workday.lunchStart,
+                    lunchEnd = workday.lunchEnd,
+                    breakStart = workday.breakStart,
+                    breakEnd = workday.breakEnd,
+                    workTimeToday = workday.workTimeToday,
+                    balanceToday = workday.balanceToday,
+                    oldBalanceToday = workday.balanceToday,
+                    isNewDay = isNewDay(workday)
+                )
+            } else {
+                nextState.copy(
+                    isNewDay = true,
+                    startTime = ZERO_TIME,
+                    endTime = ZERO_TIME,
+                    lunchStart = ZERO_TIME,
+                    lunchEnd = ZERO_TIME,
+                    breakStart = ZERO_TIME,
+                    breakEnd = ZERO_TIME,
+                    workTimeToday = ZERO_TIME,
+                    balanceToday = ZERO_TIME,
+                    oldBalanceToday = ZERO_TIME
+                )
+            }
+
+            _uiState.value = nextState
+        } catch (e: IllegalArgumentException) {
+            _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid argument")
+        } catch (e: IllegalStateException) {
+            _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid state")
         }
     }
 

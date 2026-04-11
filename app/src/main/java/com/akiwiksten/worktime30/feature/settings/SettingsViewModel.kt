@@ -12,6 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -42,46 +44,73 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    private val name = MutableStateFlow("")
+    private val employer = MutableStateFlow("")
+    private val endMonthDate = MutableStateFlow("")
+    private val workTypes = MutableStateFlow<List<String>>(emptyList())
+    private val projectsByMonth = MutableStateFlow<List<ProjectEntity>>(emptyList())
+    private val isLoading = MutableStateFlow(true)
+    private val errorMessage = MutableStateFlow<String?>(null)
+
+    init {
+        observeUiState()
+    }
+
+    private fun observeUiState() {
+        viewModelScope.launch {
+            val successStateFlow = combine(name, employer, endMonthDate, workTypes, projectsByMonth) {
+                    currentName,
+                    currentEmployer,
+                    currentEndMonthDate,
+                    currentWorkTypes,
+                    currentProjects ->
+                SettingsUiState.Success(
+                    name = currentName,
+                    employer = currentEmployer,
+                    endMonthDate = currentEndMonthDate,
+                    workTypes = currentWorkTypes,
+                    projectsByMonth = currentProjects
+                )
+            }
+
+            combine(isLoading, errorMessage, successStateFlow) { loading, error, successState ->
+                when {
+                    !error.isNullOrEmpty() -> SettingsUiState.Error(error)
+                    loading -> SettingsUiState.Loading
+                    else -> successState
+                }
+            }
+                .distinctUntilChanged()
+                .collect { _uiState.value = it }
+        }
+    }
+
     fun setEndMonthDate(selectedDate: String) {
         val initial = LocalDate.parse(selectedDate)
-        val endOfMonth = initial.withDayOfMonth(initial.month.length(initial.isLeapYear)).toString()
-        _uiState.update { currentState ->
-            (currentState as? SettingsUiState.Success)?.copy(endMonthDate = endOfMonth)
-                ?: currentState
-        }
+        endMonthDate.value = initial.withDayOfMonth(initial.month.length(initial.isLeapYear)).toString()
     }
 
     fun setName(name0: String) {
-        _uiState.update { currentState ->
-            (currentState as? SettingsUiState.Success)?.copy(name = name0)
-                ?: currentState
-        }
+        name.value = name0
     }
 
     fun setEmployer(employer0: String) {
-        _uiState.update { currentState ->
-            (currentState as? SettingsUiState.Success)?.copy(employer = employer0)
-                ?: currentState
-        }
+        employer.value = employer0
     }
 
     fun addWorkType(workType: String) {
-        _uiState.update { currentState ->
-            if (currentState is SettingsUiState.Success && !currentState.workTypes.contains(workType)) {
-                currentState.copy(workTypes = (currentState.workTypes + workType).sorted())
+        workTypes.update { currentWorkTypes ->
+            if (workType in currentWorkTypes) {
+                currentWorkTypes
             } else {
-                currentState
+                (currentWorkTypes + workType).sorted()
             }
         }
     }
 
     fun removeWorkType(workType: String) {
-        _uiState.update { currentState ->
-            if (currentState is SettingsUiState.Success) {
-                currentState.copy(workTypes = currentState.workTypes.filter { it != workType })
-            } else {
-                currentState
-            }
+        workTypes.update { currentWorkTypes ->
+            currentWorkTypes.filter { it != workType }
         }
         viewModelScope.launch {
             settingsRepository.deleteWorkType(WorkTypeEntity(workType = workType))
@@ -96,43 +125,33 @@ class SettingsViewModel @Inject constructor(
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
                 val projects = getProjectsByMonthUseCase(date)
-                _uiState.update { currentState ->
-                    (currentState as? SettingsUiState.Success)?.copy(
-                        endMonthDate = endOfMonth,
-                        projectsByMonth = projects
-                    ) ?: currentState
-                }
+                errorMessage.value = null
+                endMonthDate.value = endOfMonth
+                projectsByMonth.value = projects
             } catch (e: IllegalArgumentException) {
-                _uiState.update { SettingsUiState.Error("Failed to load projects: ${e.message}") }
+                errorMessage.value = "Failed to load projects: ${e.message}"
             } catch (e: IllegalStateException) {
-                _uiState.update { SettingsUiState.Error("Failed to load projects: ${e.message}") }
+                errorMessage.value = "Failed to load projects: ${e.message}"
             }
         }
     }
 
     fun loadSettings() {
         viewModelScope.launch {
+            isLoading.value = true
             try {
                 val data = getSettingsUseCase()
-                _uiState.update { currentState ->
-                    if (currentState is SettingsUiState.Success) {
-                        currentState.copy(
-                            name = data.name,
-                            employer = data.employer,
-                            workTypes = data.workTypes
-                        )
-                    } else {
-                        SettingsUiState.Success(
-                            name = data.name,
-                            employer = data.employer,
-                            workTypes = data.workTypes
-                        )
-                    }
-                }
+                errorMessage.value = null
+                name.value = data.name
+                employer.value = data.employer
+                workTypes.value = data.workTypes
+                isLoading.value = false
             } catch (e: IllegalArgumentException) {
-                _uiState.update { SettingsUiState.Error("Failed to load settings: ${e.message}") }
+                isLoading.value = false
+                errorMessage.value = "Failed to load settings: ${e.message}"
             } catch (e: IllegalStateException) {
-                _uiState.update { SettingsUiState.Error("Failed to load settings: ${e.message}") }
+                isLoading.value = false
+                errorMessage.value = "Failed to load settings: ${e.message}"
             }
         }
     }
@@ -140,18 +159,16 @@ class SettingsViewModel @Inject constructor(
     fun saveSettings() {
         viewModelScope.launch {
             try {
-                val state = _uiState.value
-                if (state is SettingsUiState.Success) {
-                    saveSettingsUseCase(
-                        name = state.name,
-                        employer = state.employer,
-                        workTypes = state.workTypes
-                    )
-                }
+                saveSettingsUseCase(
+                    name = name.value,
+                    employer = employer.value,
+                    workTypes = workTypes.value
+                )
+                errorMessage.value = null
             } catch (e: IllegalArgumentException) {
-                _uiState.update { SettingsUiState.Error("Failed to save settings: ${e.message}") }
+                errorMessage.value = "Failed to save settings: ${e.message}"
             } catch (e: IllegalStateException) {
-                _uiState.update { SettingsUiState.Error("Failed to save settings: ${e.message}") }
+                errorMessage.value = "Failed to save settings: ${e.message}"
             }
         }
     }

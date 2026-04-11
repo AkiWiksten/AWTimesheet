@@ -58,4 +58,3 @@ class GetProjectsByMonthUseCaseTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }
-

@@ -34,4 +34,3 @@ class DateRepositoryTest {
         assertEquals(initial, repository.selectedDate.value)
     }
 }
-

@@ -106,4 +106,3 @@ class GetCalendarDataUseCaseTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }
-

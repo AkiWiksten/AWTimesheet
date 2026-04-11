@@ -77,7 +77,7 @@ class CalendarViewModelTest {
         override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> {
-            throw IllegalStateException("boom")
+            error("boom")
         }
     }
 
@@ -119,4 +119,3 @@ class CalendarViewModelTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }
-

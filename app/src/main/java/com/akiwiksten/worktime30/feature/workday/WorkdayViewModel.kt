@@ -94,9 +94,13 @@ class WorkdayViewModel @Inject constructor(
                 .collect { (date, projectName) ->
                     if (date.isNotEmpty()) {
                         loadWorkdayInternal(
-                            baseState = (uiState.value as? WorkdayUiState.Success) ?: WorkdayUiState.Success(),
-                            date = date,
-                            projectName = projectName,
+                            baseState = (
+                                (uiState.value as? WorkdayUiState.Success)
+                                    ?: WorkdayUiState.Success()
+                                ).copy(
+                                date = date,
+                                projectName = projectName
+                            ),
                             showLoading = false
                         )
                     }
@@ -397,13 +401,9 @@ class WorkdayViewModel @Inject constructor(
 
     fun loadWorkday(workdayArg: WorkdayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
         val baseState = (_uiState.value as? WorkdayUiState.Success) ?: WorkdayUiState.Success()
-        val date = baseState.date
-        val projectName = baseState.projectName
         viewModelScope.launch {
             loadWorkdayInternal(
                 baseState = baseState,
-                date = date,
-                projectName = projectName,
                 workdayArg = workdayArg,
                 workStatsArg = workStatsArg,
                 showLoading = true
@@ -413,8 +413,6 @@ class WorkdayViewModel @Inject constructor(
 
     private suspend fun loadWorkdayInternal(
         baseState: WorkdayUiState.Success,
-        date: String,
-        projectName: String,
         workdayArg: WorkdayEntity? = null,
         workStatsArg: WorkStatsEntity? = null,
         showLoading: Boolean
@@ -424,6 +422,8 @@ class WorkdayViewModel @Inject constructor(
         }
 
         try {
+            val date = baseState.date
+            val projectName = baseState.projectName
             val workday = workdayArg ?: workdayRepository.getWorkday(date, projectName)
             val workStats = workStatsArg ?: workdayRepository.getWorkStats()
 

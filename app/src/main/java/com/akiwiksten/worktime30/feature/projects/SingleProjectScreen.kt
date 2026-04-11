@@ -50,13 +50,13 @@ import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
 import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
+import com.akiwiksten.worktime30.feature.projects.components.DialogDropdownFields
 
 data class SingleProjectArgs(
     val index: Int,
@@ -151,69 +151,97 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
         }
     }
 
+    val actions = SingleProjectActions(
+        onStateChange = params.onStateChange,
+        onOpenWorkday = params.onOpenWorkday,
+        onConfirm = params.onConfirm
+    )
+
     Scaffold(
         topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
     ) { padding ->
         when (params.projectsUiState) {
-            is ProjectsUiState.Loading -> {
-                if (showLoadingIndicator) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues = padding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    SingleProjectContent(
-                        padding = padding,
-                        screenState = SingleProjectScreenState(
-                            date = params.date,
-                            state = params.state,
-                            isAddMode = params.isAddMode,
-                            uiState = lastSuccessState ?: ProjectsUiState.Success(date = params.date),
-                            isConfirmEnabled = params.isConfirmEnabled
-                        ),
-                        actions = SingleProjectActions(
-                            onStateChange = params.onStateChange,
-                            onOpenWorkday = params.onOpenWorkday,
-                            onConfirm = params.onConfirm
-                        )
-                    )
-                }
-            }
-            is ProjectsUiState.Success -> {
-                SingleProjectContent(
-                    padding = padding,
-                    screenState = SingleProjectScreenState(
-                        date = params.date,
-                        state = params.state,
-                        isAddMode = params.isAddMode,
-                        uiState = params.projectsUiState,
-                        isConfirmEnabled = params.isConfirmEnabled
-                    ),
-                    actions = SingleProjectActions(
-                        onStateChange = params.onStateChange,
-                        onOpenWorkday = params.onOpenWorkday,
-                        onConfirm = params.onConfirm
-                    )
-                )
-            }
-            is ProjectsUiState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues = padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Error: ${params.projectsUiState.message}",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
+            is ProjectsUiState.Loading -> SingleProjectLoadingContent(
+                padding = padding,
+                params = params,
+                actions = actions,
+                showLoadingIndicator = showLoadingIndicator,
+                cachedSuccessState = lastSuccessState
+            )
+            is ProjectsUiState.Success -> SingleProjectSuccessContent(
+                padding = padding,
+                params = params,
+                actions = actions,
+                uiState = params.projectsUiState
+            )
+            is ProjectsUiState.Error -> SingleProjectErrorContent(
+                padding = padding,
+                message = params.projectsUiState.message
+            )
         }
+    }
+}
+
+@Composable
+private fun SingleProjectLoadingContent(
+    padding: PaddingValues,
+    params: SingleProjectScreenContentParams,
+    actions: SingleProjectActions,
+    showLoadingIndicator: Boolean,
+    cachedSuccessState: ProjectsUiState.Success?
+) {
+    if (showLoadingIndicator) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = padding),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    SingleProjectSuccessContent(
+        padding = padding,
+        params = params,
+        actions = actions,
+        uiState = cachedSuccessState ?: ProjectsUiState.Success(date = params.date)
+    )
+}
+
+@Composable
+private fun SingleProjectSuccessContent(
+    padding: PaddingValues,
+    params: SingleProjectScreenContentParams,
+    actions: SingleProjectActions,
+    uiState: ProjectsUiState
+) {
+    SingleProjectContent(
+        padding = padding,
+        screenState = SingleProjectScreenState(
+            date = params.date,
+            state = params.state,
+            isAddMode = params.isAddMode,
+            uiState = uiState,
+            isConfirmEnabled = params.isConfirmEnabled
+        ),
+        actions = actions
+    )
+}
+
+@Composable
+private fun SingleProjectErrorContent(padding: PaddingValues, message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues = padding),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Error: $message",
+            color = MaterialTheme.colorScheme.error
+        )
     }
 }
 
@@ -284,7 +312,8 @@ private fun SingleProjectContent(
 
         DialogDropdownFields(
             state = screenState.state,
-            workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes ?: emptyList(),
+            workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
+                ?: emptyList(),
             onStateChange = actions.onStateChange
         )
 
@@ -395,29 +424,6 @@ private fun TimeSelectionSection(
                 Text(text = stringResource(id = R.string.confirm))
             }
         }
-    }
-}
-
-@Composable
-private fun DialogDropdownFields(
-    state: ProjectDialogState,
-    workTypeDropDownList: List<String>,
-    onStateChange: (ProjectDialogState) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
-        DropdownMenuBox(
-            labelId = R.string.work_type,
-            items = workTypeDropDownList,
-            selectedText = state.workType,
-            onItemSelected = { onStateChange(state.copy(workType = it)) }
-        )
-
-        DropdownMenuBox(
-            labelId = R.string.allowance,
-            items = listOf("No allowance", "Full allowance", "Half allowance"),
-            selectedText = state.allowance,
-            onItemSelected = { onStateChange(state.copy(allowance = it)) }
-        )
     }
 }
 

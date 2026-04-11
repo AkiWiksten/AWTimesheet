@@ -1,9 +1,9 @@
 package com.akiwiksten.worktime30.core
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 /**
  * Unit tests for MonthlyReportGenerator.kt
@@ -149,7 +149,6 @@ class MonthlyReportGeneratorTest {
         assertEquals(3, params.projectTitles.size)
     }
 
-
     @Test
     fun testPrintWorkDaysParams_withDataRange() {
         val params = PrintWorkDaysParams(
@@ -242,4 +241,3 @@ class MonthlyReportGeneratorTest {
         val showTotals: Boolean
     )
 }
-

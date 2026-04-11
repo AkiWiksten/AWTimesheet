@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,8 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -120,76 +121,89 @@ internal fun ProjectsContent(
         verticalArrangement = Arrangement.spacedBy(space = 16.dp)
     ) {
         when (projectsUiState) {
-            is ProjectsUiState.Loading -> {
-                if (showLoadingIndicator) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    lastSuccessState?.let { cachedState ->
-                        ProjectsHeader(date = cachedState.date, workTime = cachedState.workTimeToday)
+            is ProjectsUiState.Loading -> ProjectsLoadingContent(
+                showLoadingIndicator = showLoadingIndicator,
+                cachedState = lastSuccessState,
+                selectedItemIndex = selectedItemIndex,
+                actions = actions
+            )
+            is ProjectsUiState.Success -> ProjectsSuccessContent(
+                state = projectsUiState,
+                selectedItemIndex = selectedItemIndex,
+                actions = actions
+            )
+            is ProjectsUiState.Error -> ProjectsErrorContent(
+                message = projectsUiState.message,
+                onRetry = actions.onRetry
+            )
+        }
+    }
+}
 
-                        ProjectsListSection(
-                            items = cachedState.projects,
-                            selectedIndex = selectedItemIndex,
-                            onItemSelected = actions.onSelectedItemIndexChange,
-                            modifier = Modifier.weight(weight = 1f)
-                        )
+@Composable
+private fun ColumnScope.ProjectsLoadingContent(
+    showLoadingIndicator: Boolean,
+    cachedState: ProjectsUiState.Success?,
+    selectedItemIndex: Int,
+    actions: ProjectsActions
+) {
+    if (showLoadingIndicator) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
-                        ProjectsActionButtons(
-                            items = cachedState.projects,
-                            selectedIndex = selectedItemIndex,
-                            onAddClick = { actions.onNavigateToSingleProject(-1) },
-                            onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex) },
-                            onDeleteClick = {
-                                cachedState.projects.getOrNull(index = selectedItemIndex)
-                                    ?.let(actions.onDeleteProject)
-                            }
-                        )
-                    }
-                }
-            }
-            is ProjectsUiState.Success -> {
-                ProjectsHeader(date = projectsUiState.date, workTime = projectsUiState.workTimeToday)
+    cachedState?.let {
+        ProjectsSuccessContent(state = it, selectedItemIndex = selectedItemIndex, actions = actions)
+    }
+}
 
-                ProjectsListSection(
-                    items = projectsUiState.projects,
-                    selectedIndex = selectedItemIndex,
-                    onItemSelected = actions.onSelectedItemIndexChange,
-                    modifier = Modifier.weight(weight = 1f)
-                )
+@Composable
+private fun ColumnScope.ProjectsSuccessContent(
+    state: ProjectsUiState.Success,
+    selectedItemIndex: Int,
+    actions: ProjectsActions
+) {
+    ProjectsHeader(date = state.date, workTime = state.workTimeToday)
 
-                ProjectsActionButtons(
-                    items = projectsUiState.projects,
-                    selectedIndex = selectedItemIndex,
-                    onAddClick = { actions.onNavigateToSingleProject(-1) },
-                    onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex) },
-                    onDeleteClick = {
-                        projectsUiState.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
-                    }
-                )
-            }
-            is ProjectsUiState.Error -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Error: ${projectsUiState.message}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(all = 32.dp)
-                    )
-                    Button(onClick = actions.onRetry) {
-                        Text(text = stringResource(id = R.string.retry))
-                    }
-                }
-            }
+    ProjectsListSection(
+        items = state.projects,
+        selectedIndex = selectedItemIndex,
+        onItemSelected = actions.onSelectedItemIndexChange,
+        modifier = Modifier.weight(weight = 1f)
+    )
+
+    ProjectsActionButtons(
+        items = state.projects,
+        selectedIndex = selectedItemIndex,
+        onAddClick = { actions.onNavigateToSingleProject(-1) },
+        onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex) },
+        onDeleteClick = {
+            state.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
+        }
+    )
+}
+
+@Composable
+private fun ProjectsErrorContent(message: String, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Error: $message",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(all = 32.dp)
+        )
+        Button(onClick = onRetry) {
+            Text(text = stringResource(id = R.string.retry))
         }
     }
 }

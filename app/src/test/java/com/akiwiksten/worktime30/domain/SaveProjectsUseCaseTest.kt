@@ -36,7 +36,15 @@ class SaveProjectsUseCaseTest {
         )
         assertEquals(listOf(ProjectNameEntity(name = "Beta")), projectRepository.deletedProjectNames)
         assertEquals(1, workdayRepository.insertedWorkdays.size)
-        assertEquals(listOf(WorkdayEntity(date = "2026-04-10", projectName = "Beta")), workdayRepository.deletedWorkdays)
+        assertEquals(
+            listOf(
+                WorkdayEntity(
+                    date = "2026-04-10",
+                    projectName = "Beta"
+                )
+            ),
+            workdayRepository.deletedWorkdays
+        )
     }
 
     @Test
@@ -109,4 +117,3 @@ class SaveProjectsUseCaseTest {
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
     }
 }
-

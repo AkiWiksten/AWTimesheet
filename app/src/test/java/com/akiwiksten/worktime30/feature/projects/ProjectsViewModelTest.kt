@@ -181,4 +181,3 @@ class ProjectsViewModelTest {
         override suspend fun clearWorkTypes() = Unit
     }
 }
-

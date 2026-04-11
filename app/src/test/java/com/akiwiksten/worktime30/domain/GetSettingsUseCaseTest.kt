@@ -59,4 +59,3 @@ class GetSettingsUseCaseTest {
         override suspend fun clearWorkTypes() = Unit
     }
 }
-

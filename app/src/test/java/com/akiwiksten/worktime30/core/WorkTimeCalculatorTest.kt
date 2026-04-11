@@ -378,4 +378,3 @@ class WorkTimeCalculatorTest {
         assertEquals("-08:00", result)
     }
 }
-

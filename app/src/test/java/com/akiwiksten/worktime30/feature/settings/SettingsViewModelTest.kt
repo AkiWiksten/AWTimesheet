@@ -143,4 +143,3 @@ class SettingsViewModelTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }
-

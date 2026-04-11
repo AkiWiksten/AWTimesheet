@@ -112,4 +112,3 @@ class WorkdayViewModelTest {
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
     }
 }
-

@@ -16,4 +16,3 @@ class IntroViewModelTest {
         assertEquals("WorkTime30", (state as IntroUiState.Success).appName)
     }
 }
-

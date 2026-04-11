@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -57,14 +58,22 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun WorkTime30App() {
     val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
+    val isIntroRoute = backStack.lastOrNull() is Screen.Intro
 
-    Scaffold(
-        bottomBar = { WorkTimeNavigationBar(backStack = backStack) }
-    ) { padding ->
+    if (isIntroRoute) {
         WorkTimeNavDisplay(
             backStack = backStack,
-            modifier = Modifier.padding(paddingValues = padding)
+            modifier = Modifier.fillMaxSize()
         )
+    } else {
+        Scaffold(
+            bottomBar = { WorkTimeNavigationBar(backStack = backStack) }
+        ) { padding ->
+            WorkTimeNavDisplay(
+                backStack = backStack,
+                modifier = Modifier.padding(paddingValues = padding)
+            )
+        }
     }
 }
 

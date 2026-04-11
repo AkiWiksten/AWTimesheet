@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.intro
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -16,6 +17,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,6 +41,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
@@ -52,6 +57,31 @@ fun IntroScreen(
     onItemClick: () -> Unit,
     viewModel: IntroViewModel = hiltViewModel()
 ) {
+    val activity = LocalActivity.current
+
+    DisposableEffect(activity) {
+        val window = activity?.window
+        val decorView = window?.decorView
+        val previousDecorFits = true
+
+        if (window != null && decorView != null) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowInsetsControllerCompat(window, decorView).apply {
+                hide(WindowInsetsCompat.Type.systemBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+
+        onDispose {
+            if (window != null && decorView != null) {
+                WindowInsetsControllerCompat(window, decorView)
+                    .show(WindowInsetsCompat.Type.systemBars())
+                WindowCompat.setDecorFitsSystemWindows(window, previousDecorFits)
+            }
+        }
+    }
+
     val uiState by viewModel.uiState.collectAsState()
     val currentUiState = uiState
 

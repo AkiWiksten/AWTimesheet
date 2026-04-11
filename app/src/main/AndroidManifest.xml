@@ -17,7 +17,7 @@
         <activity
             android:name=".core.ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.WorkTime30">
+            android:theme="@style/Theme.WorkTime30.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

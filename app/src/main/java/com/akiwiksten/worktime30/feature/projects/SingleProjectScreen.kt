@@ -50,7 +50,10 @@ import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
@@ -122,6 +125,7 @@ fun SingleProjectScreen(
 
     SingleProjectScreenContent(
         params = SingleProjectScreenContentParams(
+            index = args.index,
             date = date,
             state = state,
             isAddMode = args.index == -1,
@@ -221,6 +225,7 @@ private fun SingleProjectSuccessContent(
         padding = padding,
         screenState = SingleProjectScreenState(
             date = params.date,
+            editedProjectIndex = params.index,
             state = params.state,
             isAddMode = params.isAddMode,
             uiState = uiState,
@@ -268,6 +273,7 @@ private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
 
 data class SingleProjectScreenState(
     val date: String,
+    val editedProjectIndex: Int,
     val state: ProjectDialogState,
     val isAddMode: Boolean,
     val uiState: ProjectsUiState,
@@ -286,6 +292,21 @@ private fun SingleProjectContent(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
+    val successState = screenState.uiState as? ProjectsUiState.Success
+    val originalProjectTime = successState
+        ?.projects
+        ?.find { it.index == screenState.editedProjectIndex }
+        ?.projectTime
+        ?: ZERO_TIME
+    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
+        initialTime = successState?.workTimeToday ?: ZERO_TIME,
+        addedTime = "-$originalProjectTime"
+    )
+    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+        initialTime = baseWithoutCurrent,
+        addedTime = screenState.state.projectTime
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -305,7 +326,7 @@ private fun SingleProjectContent(
 
         TimeSelectionSection(
             state = screenState.state,
-            workTimeToday = (screenState.uiState as? ProjectsUiState.Success)?.workTimeToday ?: "",
+            workTimeToday = workTimeToday,
             onOpenWorkday = actions.onOpenWorkday,
             onStateChange = actions.onStateChange
         )
@@ -388,6 +409,20 @@ private fun TimeSelectionSection(
     onOpenWorkday: () -> Unit,
     onStateChange: (ProjectDialogState) -> Unit
 ) {
+    val openTimePickerDialogState = remember { mutableStateOf(false) }
+
+    if (openTimePickerDialogState.value) {
+        TimePickerDialog(
+            onDismissRequest = { openTimePickerDialogState.value = false },
+            onConfirmation = {
+                onStateChange(state.copy(projectTime = it))
+                openTimePickerDialogState.value = false
+            },
+            titleId = R.string.project_time,
+            time = state.projectTime
+        )
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
         Text(
             text = "${stringResource(id = R.string.work_time_today)}: $workTimeToday",
@@ -421,13 +456,25 @@ private fun TimeSelectionSection(
             ) {
                 Icon(imageVector = Icons.Default.History, contentDescription = null)
                 Spacer(modifier = Modifier.width(width = 4.dp))
-                Text(text = stringResource(id = R.string.confirm))
+                Text(text = stringResource(id = R.string.workday))
+            }
+
+            Button(
+                onClick = { openTimePickerDialogState.value = true },
+                modifier = Modifier.padding(top = 8.dp),
+                shape = RoundedCornerShape(size = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccessTime,
+                    contentDescription = stringResource(id = R.string.go_to_time_picker)
+                )
             }
         }
     }
 }
 
 data class SingleProjectScreenContentParams(
+    val index: Int = -1,
     val date: String,
     val state: ProjectDialogState,
     val isAddMode: Boolean,

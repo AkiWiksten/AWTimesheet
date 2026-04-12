@@ -74,4 +74,5 @@
     <string name="no_projects_available">Ei projekteja saatavilla. Lisää sellainen napilla.</string>
     <string name="nullify">Nollaa</string>
     <string name="retry">Yritä uudelleen</string>
+    <string name="workday">Työpäivä</string>
 </resources>

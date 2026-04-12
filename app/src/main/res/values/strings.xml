@@ -15,7 +15,7 @@
 <string name="lunch_time">Lunch time</string>
 <string name="break_start">Break start</string>
 <string name="break_end">Break end</string>
-<string name="work_time_today">Work time</string>
+<string name="work_time_today">Work time today</string>
 <string name="work_time_total">Work time total</string>
 <string name="balance_today">Balance today</string>
 <string name="balance_total">Balance total</string>
@@ -73,4 +73,5 @@
 <string name="no_projects_available">No projects available. Add one with the button.</string>
 <string name="nullify">Nullify</string>
 <string name="retry">Retry</string>
+<string name="workday">Workday</string>
 </resources>

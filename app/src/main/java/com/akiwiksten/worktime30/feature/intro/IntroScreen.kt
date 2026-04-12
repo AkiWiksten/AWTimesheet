@@ -58,6 +58,7 @@ private const val ANIMATION_DURATION = 3000
 private const val SCREEN_FILL_RATIO = 0.9f
 private const val BUTTON_SCALE_DIVIDER = 2.4f
 private const val DEFAULT_FALLBACK_SCALE = 3.1f
+private const val MIN_INITIAL_SCALE = 0.01f
 
 @Composable
 fun IntroScreen(
@@ -203,7 +204,7 @@ private fun IntroAnimatedContent(
         DEFAULT_FALLBACK_SCALE
     }
 
-    val currentScale = remember { Animatable(initialValue = 1f) }
+    val currentScale = remember { Animatable(initialValue = MIN_INITIAL_SCALE) }
 
     LaunchedEffect(key1 = targetScaleFactor, key2 = hasValidDimensions) {
         if (hasValidDimensions) {

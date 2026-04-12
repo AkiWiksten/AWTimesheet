@@ -4,12 +4,16 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,9 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -96,6 +103,7 @@ internal fun IntroStateContent(
     uiState: IntroUiState,
     onItemClick: () -> Unit
 ) {
+    IntroBackgroundContainer {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = uiState is IntroUiState.Loading
     )
@@ -111,8 +119,7 @@ internal fun IntroStateContent(
         is IntroUiState.Loading -> {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.secondary),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -138,8 +145,7 @@ internal fun IntroStateContent(
             // Show error state
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.secondary),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -150,6 +156,20 @@ internal fun IntroStateContent(
                 )
             }
         }
+    }
+    }
+}
+
+@Composable
+private fun IntroBackgroundContainer(content: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.core_ui_work_time30),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        content()
     }
 }
 
@@ -196,7 +216,6 @@ private fun IntroAnimatedContent(
 
     IntroContent(
         appName = appName,
-        textStyle = textStyle,
         currentScale = currentScale.value,
         onItemClick = onItemClick
     )
@@ -224,27 +243,23 @@ private fun calculateTargetScale(
 @Composable
 private fun IntroContent(
     appName: String,
-    textStyle: TextStyle,
     currentScale: Float,
     onItemClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.secondary),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
+        StrokeText(
             text = appName,
             modifier = Modifier
                 .graphicsLayer {
                     scaleX = currentScale
                     scaleY = currentScale
                     transformOrigin = TransformOrigin.Center
-                },
-            style = textStyle,
-            color = Color.White
+                }
         )
 
         Spacer(modifier = Modifier.padding(all = 80.dp))
@@ -267,5 +282,33 @@ private fun IntroContent(
                 style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
             )
         }
+    }
+
+}
+
+@Composable
+private fun StrokeText(text: String, modifier: Modifier = Modifier) {
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp)
+    ) {
+        val paint = android.graphics.Paint().apply {
+            isAntiAlias = true
+            textSize = 64f
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = 10f
+            color = android.graphics.Color.BLACK
+            textAlign = android.graphics.Paint.Align.CENTER
+        }
+
+        val centerX = size.width / 2f
+        val baselineY = size.height * 0.7f
+
+        drawContext.canvas.nativeCanvas.drawText(text, centerX, baselineY, paint)
+
+        paint.style = android.graphics.Paint.Style.FILL
+        paint.color = android.graphics.Color.WHITE
+        drawContext.canvas.nativeCanvas.drawText(text, centerX, baselineY, paint)
     }
 }

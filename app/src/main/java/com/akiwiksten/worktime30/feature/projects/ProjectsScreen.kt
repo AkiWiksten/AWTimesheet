@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects
 
 import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,9 +24,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -76,7 +74,7 @@ fun ProjectsScreen(
             onRetry = projectsViewModel::retryLoad,
             onDeleteProject = { project ->
                 projectsViewModel.deleteProject(uiState = project)
-                selectedItemIndexState.intValue = -1 // NOSONAR
+                selectedItemIndexState.intValue = -1
             }
         )
     )
@@ -196,7 +194,10 @@ private fun ProjectsErrorContent(message: String, onRetry: () -> Unit) {
 
 @Composable
 private fun ProjectsHeader(date: String, workTime: String) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+    ) {
         Column(
             modifier = Modifier.padding(all = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -260,11 +261,6 @@ private fun ProjectsListSection(
                     isSelected = selectedIndex == item.index,
                     onClick = { onItemSelected(item.index) }
                 )
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
             }
         }
     }
@@ -276,20 +272,23 @@ private fun ProjectListItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Box(
+    ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .selectable(selected = isSelected, onClick = onClick)
-            .background(
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
-                } else {
-                    Color.Transparent
-                }
-            )
-            .padding(all = 16.dp)
+            .selectable(selected = isSelected, onClick = onClick),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
+        )
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(space = 4.dp)) {
+        Column(
+            modifier = Modifier.padding(all = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

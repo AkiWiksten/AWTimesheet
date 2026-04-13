@@ -12,7 +12,7 @@ fun PreviewSingleProjectLoading() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
-            state = ProjectDialogState(uiState = ProjectListItemUiState()),
+            state = SingleProjectState(uiState = ProjectListItemUiState()),
             isAddMode = true,
             projectsUiState = ProjectsUiState.Loading,
             isConfirmEnabled = false,
@@ -30,7 +30,7 @@ fun PreviewSingleProjectSuccessAdd() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
-            state = ProjectDialogState(
+            state = SingleProjectState(
                 projectName = "",
                 projectTime = "00:00",
                 kilometres = "",
@@ -58,7 +58,7 @@ fun PreviewSingleProjectSuccessEdit() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
-            state = ProjectDialogState(
+            state = SingleProjectState(
                 projectName = "Beta Support",
                 projectTime = "03:30",
                 kilometres = "18",
@@ -86,7 +86,7 @@ fun PreviewSingleProjectError() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
-            state = ProjectDialogState(uiState = ProjectListItemUiState()),
+            state = SingleProjectState(uiState = ProjectListItemUiState()),
             isAddMode = true,
             projectsUiState = ProjectsUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,

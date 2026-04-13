@@ -16,9 +16,8 @@ import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.ProjectDialogState
+import com.akiwiksten.worktime30.feature.projects.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
-import com.akiwiksten.worktime30.feature.projects.SingleProjectArgs
 import com.akiwiksten.worktime30.feature.projects.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayArgs
@@ -100,16 +99,7 @@ private fun WorkdayEntry(screen: Screen.Workday, backStack: SnapshotStateList<An
 @Composable
 private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
     SingleProjectScreen(
-        args = SingleProjectArgs(
-            index = screen.index,
-            projectName = screen.projectName,
-            workTime = screen.projectTime,
-            kilometres = screen.kilometres,
-            allowance = screen.allowance,
-            workType = screen.workType,
-            workday = screen.workday,
-            workStats = screen.workStats
-        ),
+        index = screen.index,
         onNavigateBack = { backStack.pop() },
         onOpenWorkday = { state ->
             backStack.updateSingleProjectState(state = state)
@@ -145,7 +135,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     }
 }
 
-internal fun SnapshotStateList<Any>.updateSingleProjectState(state: ProjectDialogState) {
+internal fun SnapshotStateList<Any>.updateSingleProjectState(state: SingleProjectState) {
     val index = size - 1
     val current = getOrNull(index = index)
     if (current is Screen.SingleProject) {

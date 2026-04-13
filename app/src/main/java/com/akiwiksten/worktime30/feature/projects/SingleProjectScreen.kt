@@ -55,27 +55,14 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.projects.components.DialogDropdownFields
-
-data class SingleProjectArgs(
-    val index: Int,
-    val projectName: String? = null,
-    val workTime: String? = null,
-    val kilometres: String? = null,
-    val allowance: String? = null,
-    val workType: String? = null,
-    val workday: WorkdayEntity? = null,
-    val workStats: WorkStatsEntity? = null
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
-    args: SingleProjectArgs,
+    index: Int,
     onNavigateBack: () -> Unit,
-    onOpenWorkday: (ProjectDialogState) -> Unit,
+    onOpenWorkday: (SingleProjectState) -> Unit,
     viewModel: ProjectsViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
@@ -84,25 +71,15 @@ fun SingleProjectScreen(
     val currentProjectsState = projectsUiState
     val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
 
-    val initialUiState = remember(args.index, currentProjectsState) {
-        if (args.index != -1 && currentProjectsState is ProjectsUiState.Success) {
-            currentProjectsState.projects.find { it.index == args.index } ?: ProjectListItemUiState()
+    val initialUiState = remember(index, currentProjectsState) {
+        if (index != -1 && currentProjectsState is ProjectsUiState.Success) {
+            currentProjectsState.projects.find { it.index == index } ?: ProjectListItemUiState()
         } else {
             ProjectListItemUiState()
         }
     }
 
-    var state by remember(initialUiState) { mutableStateOf(value = ProjectDialogState(uiState = initialUiState)) }
-
-    LaunchedEffect(key1 = initialUiState, key2 = args) {
-        args.projectName?.let { state = state.copy(projectName = it) }
-        args.workTime?.let { state = state.copy(projectTime = it) }
-        args.kilometres?.let { state = state.copy(kilometres = it) }
-        args.allowance?.let { state = state.copy(allowance = it) }
-        args.workType?.let { state = state.copy(workType = it) }
-        args.workday?.let { state = state.copy(workday = it) }
-        args.workStats?.let { state = state.copy(workStats = it) }
-    }
+    var state by remember(initialUiState) { mutableStateOf(value = SingleProjectState(uiState = initialUiState)) }
 
     val isConfirmEnabled by remember {
         derivedStateOf {
@@ -112,10 +89,10 @@ fun SingleProjectScreen(
 
     SingleProjectScreenContent(
         params = SingleProjectScreenContentParams(
-            index = args.index,
+            index = index,
             date = date,
             state = state,
-            isAddMode = args.index == -1,
+            isAddMode = index == -1,
             projectsUiState = currentProjectsState,
             isConfirmEnabled = isConfirmEnabled,
             onStateChange = { state = it },
@@ -261,14 +238,14 @@ private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
 data class SingleProjectScreenState(
     val date: String,
     val editedProjectIndex: Int,
-    val state: ProjectDialogState,
+    val state: SingleProjectState,
     val isAddMode: Boolean,
     val uiState: ProjectsUiState,
     val isConfirmEnabled: Boolean
 )
 
 data class SingleProjectActions(
-    val onStateChange: (ProjectDialogState) -> Unit,
+    val onStateChange: (SingleProjectState) -> Unit,
     val onOpenWorkday: () -> Unit,
     val onConfirm: () -> Unit
 )
@@ -362,9 +339,9 @@ private fun HeaderSection(date: String) {
 
 @Composable
 private fun DialogMainFields(
-    state: ProjectDialogState,
+    state: SingleProjectState,
     isAddMode: Boolean,
-    onStateChange: (ProjectDialogState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         OutlinedTextField(
@@ -391,10 +368,10 @@ private fun DialogMainFields(
 
 @Composable
 private fun TimeSelectionSection(
-    state: ProjectDialogState,
+    state: SingleProjectState,
     workTimeToday: String,
     onOpenWorkday: () -> Unit,
-    onStateChange: (ProjectDialogState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit
 ) {
     val openTimePickerDialogState = remember { mutableStateOf(false) }
 
@@ -463,11 +440,11 @@ private fun TimeSelectionSection(
 data class SingleProjectScreenContentParams(
     val index: Int = -1,
     val date: String,
-    val state: ProjectDialogState,
+    val state: SingleProjectState,
     val isAddMode: Boolean,
     val projectsUiState: ProjectsUiState,
     val isConfirmEnabled: Boolean,
-    val onStateChange: (ProjectDialogState) -> Unit,
+    val onStateChange: (SingleProjectState) -> Unit,
     val onNavigateBack: () -> Unit,
     val onOpenWorkday: () -> Unit,
     val onConfirm: () -> Unit

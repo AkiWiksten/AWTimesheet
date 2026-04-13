@@ -51,7 +51,7 @@ sealed class ProjectsUiState {
     data class Error(val message: String) : ProjectsUiState()
 }
 
-data class ProjectDialogState(
+data class SingleProjectState(
     val projectName: String,
     val projectTime: String,
     val kilometres: String,

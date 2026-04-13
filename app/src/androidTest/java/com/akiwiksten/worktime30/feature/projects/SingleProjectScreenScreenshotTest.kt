@@ -27,7 +27,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = ProjectDialogState(uiState = ProjectListItemUiState()),
+                state = SingleProjectState(uiState = ProjectListItemUiState()),
                 isAddMode = true,
                 projectsUiState = ProjectsUiState.Loading,
                 isConfirmEnabled = false,
@@ -48,7 +48,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = ProjectDialogState(uiState = ProjectListItemUiState()),
+                state = SingleProjectState(uiState = ProjectListItemUiState()),
                 isAddMode = true,
                 projectsUiState = ProjectsUiState.Loading,
                 isConfirmEnabled = false,
@@ -69,7 +69,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = ProjectDialogState(
+                state = SingleProjectState(
                     projectName = "Beta Support",
                     projectTime = "03:30",
                     kilometres = "18",
@@ -97,7 +97,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = ProjectDialogState(uiState = ProjectListItemUiState()),
+                state = SingleProjectState(uiState = ProjectListItemUiState()),
                 isAddMode = true,
                 projectsUiState = ProjectsUiState.Error(message = "Failed to load project"),
                 isConfirmEnabled = false,

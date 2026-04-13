@@ -6,13 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
-import com.akiwiksten.worktime30.feature.projects.ProjectDialogState
+import com.akiwiksten.worktime30.feature.projects.SingleProjectState
 
 @Composable
 internal fun DialogDropdownFields(
-    state: ProjectDialogState,
+    state: SingleProjectState,
     workTypeDropDownList: List<String>,
-    onStateChange: (ProjectDialogState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         DropdownMenuBox(

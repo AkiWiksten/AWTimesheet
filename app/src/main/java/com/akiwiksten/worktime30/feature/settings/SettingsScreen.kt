@@ -2,7 +2,9 @@ package com.akiwiksten.worktime30.feature.settings
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,30 +40,20 @@ import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
-import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Composable
 fun SettingsScreen(
-    calendarViewModel: CalendarViewModel = hiltViewModel(),
     settingsViewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
-    val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val date = (calendarUiState as? CalendarUiState.Success)?.date ?: ""
     val ctx = LocalContext.current
 
-    LaunchedEffect(key1 = date) {
+    LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
-        if (date.isNotEmpty()) {
-            settingsViewModel.loadProjectsByMonth(date = date)
-            settingsViewModel.setEndMonthDate(selectedDate = date)
-        }
     }
 
     SettingsStateContent(
         uiState = uiState,
-        calendarDate = date,
         createActions = { successState ->
             createSettingsActions(
                 settingsViewModel = settingsViewModel,
@@ -75,7 +67,6 @@ fun SettingsScreen(
 @Composable
 internal fun SettingsStateContent(
     uiState: SettingsUiState,
-    calendarDate: String,
     createActions: (SettingsUiState.Success) -> SettingsActions
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -102,20 +93,18 @@ internal fun SettingsStateContent(
                     CircularProgressIndicator()
                 }
             } else {
-                lastSuccessState?.let { cachedState ->
-                    val actions = remember(cachedState) {
-                        createActions(cachedState)
-                    }
-                    SettingsContent(uiState = cachedState, calendarDate = calendarDate, actions = actions)
+                val cachedState = lastSuccessState
+                if (cachedState != null) {
+                    val actions = remember(cachedState) { createActions(cachedState) }
+                    SettingsContent(uiState = cachedState, actions = actions)
+                } else {
+                    Box(modifier = Modifier.fillMaxSize())
                 }
             }
         }
         is SettingsUiState.Success -> {
-            val successState = uiState
-            val actions = remember(successState) {
-                createActions(successState)
-            }
-            SettingsContent(uiState = successState, calendarDate = calendarDate, actions = actions)
+            val actions = remember(uiState) { createActions(uiState) }
+            SettingsContent(uiState = uiState, actions = actions)
         }
         is SettingsUiState.Error -> {
             Column(
@@ -170,7 +159,6 @@ data class SettingsActions(
 @Composable
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
-    calendarDate: String,
     actions: SettingsActions
 ) {
     var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
@@ -190,7 +178,7 @@ internal fun SettingsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 24.dp)
     ) {
-        HeaderSection(date = calendarDate)
+        HeaderSection(date = uiState.selectedDate)
 
         SettingsCard(title = stringResource(id = R.string.name) + " & " + stringResource(id = R.string.employer)) {
             ProfileSection(

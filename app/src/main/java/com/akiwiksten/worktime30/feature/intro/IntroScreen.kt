@@ -303,7 +303,7 @@ private fun StrokeText(text: String, modifier: Modifier = Modifier) {
         }
 
         val centerX = size.width / 2f
-        val baselineY = size.height * 0.7f
+        val baselineY = size.height * 0.8f
 
         drawContext.canvas.nativeCanvas.drawText(text, centerX, baselineY, paint)
 

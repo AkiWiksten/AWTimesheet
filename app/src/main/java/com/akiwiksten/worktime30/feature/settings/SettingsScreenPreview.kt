@@ -45,7 +45,6 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
     WorkTime30Theme(dynamicColor = false) {
         SettingsStateContent(
             uiState = uiState,
-            calendarDate = "2026-04-10",
             createActions = {
                 SettingsActions(
                     onNameChange = {},

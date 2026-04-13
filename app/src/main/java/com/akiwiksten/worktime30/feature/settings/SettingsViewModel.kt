@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
@@ -25,6 +26,7 @@ sealed class SettingsUiState {
     data class Success(
         val name: String = "",
         val employer: String = "",
+        val selectedDate: String = "",
         val endMonthDate: String = "",
         val workTypes: List<String> = emptyList(),
         val projectsByMonth: List<ProjectEntity> = emptyList()
@@ -38,7 +40,8 @@ class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val saveSettingsUseCase: SaveSettingsUseCase,
     private val getProjectsByMonthUseCase: GetProjectsByMonthUseCase,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val dateRepository: DateRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
@@ -46,6 +49,7 @@ class SettingsViewModel @Inject constructor(
 
     private val name = MutableStateFlow("")
     private val employer = MutableStateFlow("")
+    private val currentSelectedDate = MutableStateFlow("")
     private val endMonthDate = MutableStateFlow("")
     private val workTypes = MutableStateFlow<List<String>>(emptyList())
     private val projectsByMonth = MutableStateFlow<List<ProjectEntity>>(emptyList())
@@ -54,23 +58,34 @@ class SettingsViewModel @Inject constructor(
 
     init {
         observeUiState()
+        observeDate()
+    }
+
+    private fun observeDate() {
+        viewModelScope.launch {
+            dateRepository.selectedDate.collect { date ->
+                if (date.isNotEmpty()) {
+                    currentSelectedDate.value = date
+                    loadProjectsByMonth(date)
+                }
+            }
+        }
     }
 
     private fun observeUiState() {
         viewModelScope.launch {
-            val successStateFlow = combine(name, employer, endMonthDate, workTypes, projectsByMonth) {
-                    currentName,
-                    currentEmployer,
-                    currentEndMonthDate,
-                    currentWorkTypes,
-                    currentProjects ->
+            val baseFlow = combine(name, employer, endMonthDate, workTypes, projectsByMonth) {
+                    n, e, em, wt, pm ->
                 SettingsUiState.Success(
-                    name = currentName,
-                    employer = currentEmployer,
-                    endMonthDate = currentEndMonthDate,
-                    workTypes = currentWorkTypes,
-                    projectsByMonth = currentProjects
+                    name = n,
+                    employer = e,
+                    endMonthDate = em,
+                    workTypes = wt,
+                    projectsByMonth = pm
                 )
+            }
+            val successStateFlow = combine(baseFlow, currentSelectedDate) { base, date ->
+                base.copy(selectedDate = date)
             }
 
             combine(isLoading, errorMessage, successStateFlow) { loading, error, successState ->
@@ -85,10 +100,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setEndMonthDate(selectedDate: String) {
-        val initial = LocalDate.parse(selectedDate)
-        endMonthDate.value = initial.withDayOfMonth(initial.month.length(initial.isLeapYear)).toString()
-    }
 
     fun setName(name0: String) {
         name.value = name0

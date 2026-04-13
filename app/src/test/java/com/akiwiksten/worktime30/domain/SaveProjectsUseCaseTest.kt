@@ -1,6 +1,5 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
@@ -14,63 +13,38 @@ import org.junit.Test
 class SaveProjectsUseCaseTest {
 
     @Test
-    fun invoke_savesProjectsAndWorkday_andDeletesUnusedProjectName() = runBlocking {
-        val projectRepository = FakeProjectRepository().apply {
-            isProjectNameUsedByName["Beta"] = false
-        }
+    fun invoke_savesProjectsAndWorkday() = runBlocking {
+        val projectRepository = FakeProjectRepository()
         val workdayRepository = FakeWorkdayRepository()
         val useCase = SaveProjectsUseCase(projectRepository, workdayRepository)
 
         useCase(
-            date = "2026-04-10",
             projectsToSave = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")),
-            projectNamesToDelete = listOf("Beta"),
             workdayToSave = WorkdayEntity(date = "2026-04-10", projectName = "Alpha", workTimeToday = "07:00")
         )
 
         assertEquals(listOf(ProjectNameEntity(name = "Alpha")), projectRepository.insertedProjectNames)
         assertEquals(1, projectRepository.insertedProjects.size)
-        assertEquals(
-            listOf(ProjectEntity(date = "2026-04-10", projectName = "Beta", projectTime = ZERO_TIME)),
-            projectRepository.deletedProjects
-        )
-        assertEquals(listOf(ProjectNameEntity(name = "Beta")), projectRepository.deletedProjectNames)
         assertEquals(1, workdayRepository.insertedWorkdays.size)
-        assertEquals(
-            listOf(
-                WorkdayEntity(
-                    date = "2026-04-10",
-                    projectName = "Beta"
-                )
-            ),
-            workdayRepository.deletedWorkdays
-        )
     }
 
     @Test
-    fun invoke_doesNotDeleteProjectName_whenStillUsed() = runBlocking {
-        val projectRepository = FakeProjectRepository().apply {
-            isProjectNameUsedByName["Beta"] = true
-        }
+    fun invoke_doesNotInsertWorkday_whenWorkdayIsNull() = runBlocking {
+        val projectRepository = FakeProjectRepository()
         val workdayRepository = FakeWorkdayRepository()
         val useCase = SaveProjectsUseCase(projectRepository, workdayRepository)
 
         useCase(
-            date = "2026-04-10",
-            projectsToSave = emptyList(),
-            projectNamesToDelete = listOf("Beta"),
+            projectsToSave = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "01:00")),
             workdayToSave = null
         )
 
-        assertEquals(emptyList<ProjectNameEntity>(), projectRepository.deletedProjectNames)
+        assertEquals(emptyList<WorkdayEntity>(), workdayRepository.insertedWorkdays)
     }
 
     private class FakeProjectRepository : ProjectRepository {
         val insertedProjects = mutableListOf<ProjectEntity>()
-        val deletedProjects = mutableListOf<ProjectEntity>()
         val insertedProjectNames = mutableListOf<ProjectNameEntity>()
-        val deletedProjectNames = mutableListOf<ProjectNameEntity>()
-        val isProjectNameUsedByName = mutableMapOf<String, Boolean>()
 
         override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> = emptyList()
 
@@ -78,9 +52,7 @@ class SaveProjectsUseCaseTest {
             insertedProjects += project
         }
 
-        override suspend fun deleteProject(project: ProjectEntity) {
-            deletedProjects += project
-        }
+        override suspend fun deleteProject(project: ProjectEntity) = Unit
 
         override suspend fun getProjectNames(): List<ProjectNameEntity> = emptyList()
 
@@ -88,17 +60,14 @@ class SaveProjectsUseCaseTest {
             insertedProjectNames += projectName
         }
 
-        override suspend fun deleteProjectName(projectName: ProjectNameEntity) {
-            deletedProjectNames += projectName
-        }
+        override suspend fun deleteProjectName(projectName: ProjectNameEntity) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean =
-            isProjectNameUsedByName[projectName] ?: false
+            false
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {
         val insertedWorkdays = mutableListOf<WorkdayEntity>()
-        val deletedWorkdays = mutableListOf<WorkdayEntity>()
 
         override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = null
 
@@ -106,9 +75,7 @@ class SaveProjectsUseCaseTest {
             insertedWorkdays += workday
         }
 
-        override suspend fun deleteWorkday(workday: WorkdayEntity) {
-            deletedWorkdays += workday
-        }
+        override suspend fun deleteWorkday(workday: WorkdayEntity) = Unit
 
         override suspend fun getWorkStats(): WorkStatsEntity? = null
 

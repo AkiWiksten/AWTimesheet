@@ -9,6 +9,7 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,7 +54,8 @@ sealed class WorkdayUiState {
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class WorkdayViewModel @Inject constructor(
-    private val workdayRepository: WorkdayRepository
+    private val workdayRepository: WorkdayRepository,
+    private val dateRepository: DateRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<WorkdayUiState>(WorkdayUiState.Loading)
@@ -65,6 +67,15 @@ class WorkdayViewModel @Inject constructor(
 
     init {
         observeSelectionChanges()
+        observeDateRepository()
+    }
+
+    private fun observeDateRepository() {
+        viewModelScope.launch {
+            dateRepository.selectedDate.collect { date ->
+                setDate(date0 = date)
+            }
+        }
     }
 
     fun setDate(date0: String) {

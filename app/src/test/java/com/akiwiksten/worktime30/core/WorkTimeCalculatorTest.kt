@@ -12,8 +12,8 @@ import java.time.LocalTime
 class WorkTimeCalculatorTest {
 
     @Test
-    fun `parseDate returns day for iso date`() {
-        val result = WorkTimeCalculator.parseDate("2026-04-10")
+    fun `extractDayOfMonth returns day for iso date`() {
+        val result = WorkTimeCalculator.extractDayOfMonth("2026-04-10")
 
         assertEquals("10", result)
     }

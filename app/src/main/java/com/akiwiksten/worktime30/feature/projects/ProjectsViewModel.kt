@@ -10,6 +10,7 @@ import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -84,6 +85,7 @@ data class ProjectDialogState(
 class ProjectsViewModel @Inject constructor(
     private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
     private val saveProjectsUseCase: SaveProjectsUseCase,
+    private val deleteProjectsUseCase: DeleteProjectsUseCase,
     private val workdayRepository: WorkdayRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -151,14 +153,12 @@ class ProjectsViewModel @Inject constructor(
         }
     }
 
-    fun loadData(date: String) {
-        viewModelScope.launch {
-            loadDataInternal(date)
-        }
-    }
-
     private fun requestReload() {
         reloadTrigger.update { it + 1 }
+    }
+
+    fun retryLoad() {
+        requestReload()
     }
 
     fun saveProject(uiState: ProjectListItemUiState) {
@@ -188,9 +188,7 @@ class ProjectsViewModel @Inject constructor(
                 )
 
                 saveProjectsUseCase(
-                    date = date,
                     projectsToSave = listOf(entity),
-                    projectNamesToDelete = emptyList(),
                     workdayToSave = workdayToSave
                 )
 
@@ -211,11 +209,7 @@ class ProjectsViewModel @Inject constructor(
                 val currentState = _uiState.value
                 val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
 
-                saveProjectsUseCase(
-                    date = date,
-                    projectsToSave = emptyList(),
-                    projectNamesToDelete = listOf(uiState.projectName)
-                )
+                deleteProjectsUseCase(date = date, projectName = uiState.projectName)
                 requestReload()
             } catch (e: IllegalArgumentException) {
                 _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)

@@ -2,6 +2,7 @@ package com.akiwiksten.worktime30.feature.workday
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,8 +36,6 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
-import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
-import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.workday.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.workday.components.FooterSection
 import com.akiwiksten.worktime30.feature.workday.components.HeaderSection
@@ -52,15 +51,11 @@ fun WorkdayScreen(
     onConfirm: (WorkdayEntity, WorkStatsEntity) -> Unit,
     viewModel: WorkdayViewModel = hiltViewModel(),
 ) {
-    val calendarViewModel: CalendarViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
-    val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val date = (calendarUiState as? CalendarUiState.Success)?.date ?: ""
 
     BackHandler(onBack = onNavigateBack)
 
     LaunchedEffect(Unit) {
-        viewModel.setDate(date0 = date)
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
         viewModel.loadWorkday(workdayArg = args.workday, workStatsArg = args.workStats)
     }
@@ -205,7 +200,11 @@ internal fun WorkdayStateContent(
                         projectName = projectName,
                         actions = actions
                     )
-                }
+                } ?: Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                )
             }
         }
         is WorkdayUiState.Success -> WorkdayContent(

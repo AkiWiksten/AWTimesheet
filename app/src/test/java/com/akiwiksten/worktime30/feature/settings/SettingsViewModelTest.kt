@@ -4,6 +4,7 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
@@ -91,7 +92,8 @@ class SettingsViewModelTest {
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
             saveSettingsUseCase = SaveSettingsUseCase(settingsRepository),
             getProjectsByMonthUseCase = GetProjectsByMonthUseCase(projectRepository),
-            settingsRepository = settingsRepository
+            settingsRepository = settingsRepository,
+            dateRepository = DateRepository()
         )
     }
 

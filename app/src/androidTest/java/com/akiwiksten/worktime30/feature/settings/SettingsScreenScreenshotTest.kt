@@ -26,7 +26,9 @@ class SettingsScreenScreenshotTest {
     fun loadingState_beforeDelay_screenshot() {
         composeTestRule.mainClock.autoAdvance = false
         setSettingsContent(uiState = SettingsUiState.Loading)
-        composeTestRule.waitForIdle()
+        composeTestRule.runOnIdle {
+            // Ensure composition and layout are complete
+        }
         saveRootScreenshot(fileName = "settings_loading_before_delay")
         composeTestRule.mainClock.autoAdvance = true
     }
@@ -75,8 +77,7 @@ class SettingsScreenScreenshotTest {
             WorkTime30Theme(dynamicColor = false) {
                 SettingsStateContent(
                     uiState = uiState,
-                    calendarDate = "2026-04-10",
-                    createActions = {
+                    createActions = { _ ->
                         SettingsActions(
                             onNameChange = {},
                             onEmployerChange = {},

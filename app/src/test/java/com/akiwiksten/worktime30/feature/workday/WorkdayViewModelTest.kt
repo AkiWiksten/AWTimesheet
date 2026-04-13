@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.workday
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,7 +38,7 @@ class WorkdayViewModelTest {
                 balanceTotal = "01:00"
             )
         }
-        val viewModel = WorkdayViewModel(repository)
+        val viewModel = WorkdayViewModel(repository, DateRepository())
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
@@ -54,7 +55,7 @@ class WorkdayViewModelTest {
 
     @Test
     fun loadWorkday_withArgs_mapsEntities_andClearDayResetsDailyFields() = runTest {
-        val viewModel = WorkdayViewModel(FakeWorkdayRepository())
+        val viewModel = WorkdayViewModel(FakeWorkdayRepository(), DateRepository())
 
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")

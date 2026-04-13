@@ -53,33 +53,19 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
-import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
 fun ProjectsScreen(
     onNavigateToSingleProject: (Int) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(
-        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
-    ),
     projectsViewModel: ProjectsViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     ),
 ) {
-    val calendarUiState by calendarViewModel.uiState.collectAsState()
     val projectsUiState by projectsViewModel.uiState.collectAsState()
-    val currentCalendarState = calendarUiState // Store in local variable for smart cast
-    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
     val selectedItemIndexState = remember { mutableIntStateOf(value = -1) }
-
-    LaunchedEffect(key1 = date) {
-        if (date.isNotEmpty()) {
-            projectsViewModel.loadData(date = date)
-        }
-    }
 
     ProjectsContent(
         projectsUiState = projectsUiState,
@@ -87,7 +73,7 @@ fun ProjectsScreen(
         actions = ProjectsActions(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onNavigateToSingleProject = onNavigateToSingleProject,
-            onRetry = { projectsViewModel.loadData(date = date) },
+            onRetry = projectsViewModel::retryLoad,
             onDeleteProject = { project ->
                 projectsViewModel.deleteProject(uiState = project)
                 selectedItemIndexState.intValue = -1 // NOSONAR

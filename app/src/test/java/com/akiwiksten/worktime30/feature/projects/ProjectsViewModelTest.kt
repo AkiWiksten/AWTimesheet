@@ -10,6 +10,7 @@ import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
@@ -91,6 +92,10 @@ class ProjectsViewModelTest {
                 settingsRepository = settingsRepository
             ),
             saveProjectsUseCase = SaveProjectsUseCase(
+                projectRepository = projectRepository,
+                workdayRepository = workdayRepository
+            ),
+            deleteProjectsUseCase = DeleteProjectsUseCase(
                 projectRepository = projectRepository,
                 workdayRepository = workdayRepository
             ),

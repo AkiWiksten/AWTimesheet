@@ -57,8 +57,6 @@ import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
-import com.akiwiksten.worktime30.feature.calendar.CalendarUiState
-import com.akiwiksten.worktime30.feature.calendar.CalendarViewModel
 import com.akiwiksten.worktime30.feature.projects.components.DialogDropdownFields
 
 data class SingleProjectArgs(
@@ -78,24 +76,13 @@ fun SingleProjectScreen(
     args: SingleProjectArgs,
     onNavigateBack: () -> Unit,
     onOpenWorkday: (ProjectDialogState) -> Unit,
-    calendarViewModel: CalendarViewModel = hiltViewModel(
-        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
-    ),
     viewModel: ProjectsViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
 ) {
     val projectsUiState by viewModel.uiState.collectAsState()
-    val calendarUiState by calendarViewModel.uiState.collectAsState()
-    val currentCalendarState = calendarUiState // Store in local variable for smart cast
-    val date = (currentCalendarState as? CalendarUiState.Success)?.date ?: ""
-    val currentProjectsState = projectsUiState // Store in local variable for smart cast
-
-    LaunchedEffect(key1 = date) {
-        if (date.isNotEmpty()) {
-            viewModel.loadData(date = date)
-        }
-    }
+    val currentProjectsState = projectsUiState
+    val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
 
     val initialUiState = remember(args.index, currentProjectsState) {
         if (args.index != -1 && currentProjectsState is ProjectsUiState.Success) {

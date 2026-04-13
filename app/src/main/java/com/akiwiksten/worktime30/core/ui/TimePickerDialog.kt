@@ -59,7 +59,7 @@ fun TimePickerDialog(
             ) {
                 Text(
                     text = stringResource(id = titleId),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 

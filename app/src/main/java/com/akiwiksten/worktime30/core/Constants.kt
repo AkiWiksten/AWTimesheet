@@ -4,7 +4,9 @@ const val DATE = "date"
 const val ZERO_TIME = "00:00"
 const val MINUTES_IN_HOUR = 60
 const val TIME_FORMAT = "HH:mm"
+const val DATE_FORMAT = "yyyy-MM-dd"
 const val LOADING_INDICATOR_DELAY_MS = 1_000L
+const val APP_NAME_QUALIFIER = "app_name"
 
 // Workday
 const val START_TIME = "start_time"

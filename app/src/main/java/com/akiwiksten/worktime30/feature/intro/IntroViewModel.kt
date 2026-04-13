@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.intro
 
 import androidx.lifecycle.ViewModel
+import com.akiwiksten.worktime30.core.APP_NAME_QUALIFIER
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,7 @@ sealed class IntroUiState {
 
 @HiltViewModel
 class IntroViewModel @Inject constructor(
-    @Named("app_name") appNameStr: String
+    @Named(APP_NAME_QUALIFIER) appNameStr: String
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<IntroUiState>(IntroUiState.Loading)

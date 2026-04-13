@@ -2,6 +2,7 @@ package com.akiwiksten.worktime30.feature.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.worktime30.core.DATE_FORMAT
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.domain.CalendarData
@@ -28,7 +29,7 @@ class CalendarViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Loading)
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
-    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
 
     init {
         viewModelScope.launch {

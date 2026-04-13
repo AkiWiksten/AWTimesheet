@@ -16,7 +16,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.core.WorkTimeCalculator.parseDate
+import com.akiwiksten.worktime30.core.WorkTimeCalculator.extractDayOfMonth
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import java.io.File
 import java.io.IOException
@@ -265,7 +265,7 @@ object MonthlyReportGenerator {
 
         val preprocessedProjects = params.projectsByMonth
             .filter { it.projectTime != ZERO_TIME }
-            .groupBy { parseDate(it.date).toInt() }
+            .groupBy { extractDayOfMonth(it.date).toInt() }
             .mapValues { (_, projects) ->
                 projects.flatMap { project ->
                     listOf(

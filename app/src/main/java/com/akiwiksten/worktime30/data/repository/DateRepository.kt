@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.data.repository
 
+import com.akiwiksten.worktime30.core.DATE_FORMAT
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class DateRepository @Inject constructor() {
-    private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
     private val today = LocalDate.now().format(dateFormatter)
 
     private val _selectedDate = MutableStateFlow(today)

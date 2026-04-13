@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.di
 
 import android.content.Context
+import com.akiwiksten.worktime30.core.APP_NAME_QUALIFIER
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +16,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    @Named("app_name")
+    @Named(APP_NAME_QUALIFIER)
     fun provideAppName(@ApplicationContext context: Context): String {
         val applicationInfo = context.applicationInfo
         return if (applicationInfo.labelRes == 0) {

@@ -15,7 +15,13 @@ object WorkTimeCalculator {
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
     private val dayFormatter = DateTimeFormatter.ofPattern("dd")
 
-    fun parseDate(workday: String): String {
+    /**
+     * Returns day-of-month (`dd`) extracted from [workday].
+     *
+     * Expected [workday] format: `yyyy-MM-dd` (for example `2026-04-13`).
+     * For this exact ISO format, the function uses substring extraction for performance.
+     */
+    fun extractDayOfMonth(workday: String): String {
         // Optimization: LocalDate.parse is relatively slow.
         // If workday is always in ISO format (yyyy-MM-dd), we can just take the last 2 chars.
         return if (workday.length >= 10 && workday[4] == '-' && workday[7] == '-') {

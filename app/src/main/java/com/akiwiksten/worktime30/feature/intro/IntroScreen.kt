@@ -9,11 +9,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,10 +47,10 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
@@ -105,59 +105,59 @@ internal fun IntroStateContent(
     onItemClick: () -> Unit
 ) {
     IntroBackgroundContainer {
-    val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = uiState is IntroUiState.Loading
-    )
-    var lastSuccessState by remember { mutableStateOf<IntroUiState.Success?>(value = null) }
+        val showLoadingIndicator = rememberDelayedLoadingVisibility(
+            isLoading = uiState is IntroUiState.Loading
+        )
+        var lastSuccessState by remember { mutableStateOf<IntroUiState.Success?>(value = null) }
 
-    LaunchedEffect(uiState) {
-        if (uiState is IntroUiState.Success) {
-            lastSuccessState = uiState
+        LaunchedEffect(uiState) {
+            if (uiState is IntroUiState.Success) {
+                lastSuccessState = uiState
+            }
         }
-    }
 
-    when (uiState) {
-        is IntroUiState.Loading -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                if (showLoadingIndicator) {
-                    CircularProgressIndicator(color = Color.White)
-                } else {
-                    lastSuccessState?.let {
-                        IntroAnimatedContent(
-                            appName = it.appName,
-                            onItemClick = onItemClick
-                        )
+        when (uiState) {
+            is IntroUiState.Loading -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    if (showLoadingIndicator) {
+                        CircularProgressIndicator(color = Color.White)
+                    } else {
+                        lastSuccessState?.let {
+                            IntroAnimatedContent(
+                                appName = it.appName,
+                                onItemClick = onItemClick
+                            )
+                        }
                     }
                 }
             }
-        }
-        is IntroUiState.Success -> {
-            IntroAnimatedContent(
-                appName = uiState.appName,
-                onItemClick = onItemClick
-            )
-        }
-        is IntroUiState.Error -> {
-            // Show error state
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = "Error: ${uiState.message}",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge
+            is IntroUiState.Success -> {
+                IntroAnimatedContent(
+                    appName = uiState.appName,
+                    onItemClick = onItemClick
                 )
             }
+            is IntroUiState.Error -> {
+                // Show error state
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "Error: ${uiState.message}",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
         }
-    }
     }
 }
 
@@ -284,7 +284,6 @@ private fun IntroContent(
             )
         }
     }
-
 }
 
 @Composable

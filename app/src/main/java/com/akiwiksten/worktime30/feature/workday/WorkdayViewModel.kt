@@ -73,17 +73,17 @@ class WorkdayViewModel @Inject constructor(
     private fun observeDateRepository() {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
-                setDate(date0 = date)
+                setDate(date = date)
             }
         }
     }
 
-    fun setDate(date0: String) {
-        selectedDate.value = date0
+    fun setDate(date: String) {
+        selectedDate.value = date
         _uiState.update { currentState ->
             when (currentState) {
-                is WorkdayUiState.Success -> currentState.copy(date = date0)
-                else -> WorkdayUiState.Success(date = date0)
+                is WorkdayUiState.Success -> currentState.copy(date = date)
+                else -> WorkdayUiState.Success(date = date)
             }
         }
     }
@@ -119,12 +119,12 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun setStartTime(startTime0: String) {
+    fun setStartTime(startTime: String) {
         _uiState.update { currentState ->
             val oldStart = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).startTime)
             val update = WorkTimeCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
-                    start = WorkTimeCalculator.stringToLocalTime(startTime0),
+                    start = WorkTimeCalculator.stringToLocalTime(startTime),
                     dailyWorkTime = WorkTimeCalculator.stringToLocalTime(currentState.dailyWorkTime),
                     lunchTime = WorkTimeCalculator.stringToLocalTime(currentState.lunchTime),
                     workTimeToday = WorkTimeCalculator.stringToLocalTime(currentState.workTimeToday),
@@ -133,7 +133,7 @@ class WorkdayViewModel @Inject constructor(
                 )
             )
             val nextState = currentState.copy(
-                startTime = startTime0,
+                startTime = startTime,
                 isNewDay = false
             )
             applyUpdateToState(nextState, update)
@@ -144,13 +144,13 @@ class WorkdayViewModel @Inject constructor(
         setStartTime(LocalTime.now().format(timeFormatter))
     }
 
-    fun setEndTime(endTime0: String) {
+    fun setEndTime(endTime: String) {
         _uiState.update { currentState ->
             val oldEnd = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).endTime)
             val update = WorkTimeCalculator.calculateEndTimeUpdate(
                 EndTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(currentState.startTime),
-                    end = WorkTimeCalculator.stringToLocalTime(endTime0),
+                    end = WorkTimeCalculator.stringToLocalTime(endTime),
                     lunchStart = WorkTimeCalculator.stringToLocalTime(currentState.lunchStart),
                     lunchEnd = WorkTimeCalculator.stringToLocalTime(currentState.lunchEnd),
                     breakStart = WorkTimeCalculator.stringToLocalTime(currentState.breakStart),
@@ -159,7 +159,7 @@ class WorkdayViewModel @Inject constructor(
                     oldEndTime = oldEnd
                 )
             )
-            applyUpdateToState(currentState.copy(endTime = endTime0), update)
+            applyUpdateToState(currentState.copy(endTime = endTime), update)
         }
     }
 
@@ -167,17 +167,17 @@ class WorkdayViewModel @Inject constructor(
         setEndTime(LocalTime.now().format(timeFormatter))
     }
 
-    fun setDailyWorkTime(dailyWorkTime0: String) {
+    fun setDailyWorkTime(dailyWorkTime: String) {
         _uiState.update { currentState ->
             val oldDaily = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).dailyWorkTime)
             val update = WorkTimeCalculator.calculateDailyWorkTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
-                dailyWorkTime = WorkTimeCalculator.stringToLocalTime(dailyWorkTime0),
+                dailyWorkTime = WorkTimeCalculator.stringToLocalTime(dailyWorkTime),
                 workTimeToday = WorkTimeCalculator.stringToLocalTime(currentState.workTimeToday),
                 oldDailyWorkTime = oldDaily,
                 isNewDay = currentState.isNewDay
             )
-            applyUpdateToState(currentState.copy(dailyWorkTime = dailyWorkTime0), update)
+            applyUpdateToState(currentState.copy(dailyWorkTime = dailyWorkTime), update)
         }
     }
 
@@ -205,16 +205,16 @@ class WorkdayViewModel @Inject constructor(
         setLunchStart(LocalTime.now().format(timeFormatter))
     }
 
-    fun setLunchEnd(lunchEnd0: String) {
+    fun setLunchEnd(lunchEnd: String) {
         _uiState.update { currentState ->
             val oldLunchEnd = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).lunchEnd)
             val update = WorkTimeCalculator.calculateLunchEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
-                lunchEnd = WorkTimeCalculator.stringToLocalTime(lunchEnd0),
+                lunchEnd = WorkTimeCalculator.stringToLocalTime(lunchEnd),
                 workTimeToday = WorkTimeCalculator.stringToLocalTime(currentState.workTimeToday),
                 oldLunchEnd = oldLunchEnd
             )
-            applyUpdateToState(currentState.copy(lunchEnd = lunchEnd0), update)
+            applyUpdateToState(currentState.copy(lunchEnd = lunchEnd), update)
         }
     }
 
@@ -222,17 +222,17 @@ class WorkdayViewModel @Inject constructor(
         setLunchEnd(LocalTime.now().format(timeFormatter))
     }
 
-    fun setLunchTime(lunchTime0: String) {
+    fun setLunchTime(lunchTime: String) {
         _uiState.update { currentState ->
             val oldLunchTime = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).lunchTime)
             val update = WorkTimeCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 lunchStart = WorkTimeCalculator.stringToLocalTime(currentState.lunchStart),
-                lunchTime = WorkTimeCalculator.stringToLocalTime(lunchTime0),
+                lunchTime = WorkTimeCalculator.stringToLocalTime(lunchTime),
                 workTimeToday = WorkTimeCalculator.stringToLocalTime(currentState.workTimeToday),
                 oldLunchTime = oldLunchTime
             )
-            applyUpdateToState(currentState.copy(lunchTime = lunchTime0), update)
+            applyUpdateToState(currentState.copy(lunchTime = lunchTime), update)
         }
     }
 

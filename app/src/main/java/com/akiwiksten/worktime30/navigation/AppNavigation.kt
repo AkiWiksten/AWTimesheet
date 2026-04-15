@@ -16,9 +16,9 @@ import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
 import com.akiwiksten.worktime30.feature.projects.SingleProjectScreen
+import com.akiwiksten.worktime30.feature.projects.SingleProjectState
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayArgs
 import com.akiwiksten.worktime30.feature.workday.WorkdayScreen

@@ -80,7 +80,8 @@ class CalendarScreenScreenshotTest {
 
     private fun saveRootScreenshot(fileName: String) {
         val bitmap = composeTestRule.onRoot().captureToImage().asAndroidBitmap()
-        val outputDir = File(composeTestRule.activity.filesDir, "test-screenshots/calendar").apply {
+        // Use getExternalFilesDir so the files can be pulled via adb
+        val outputDir = File(composeTestRule.activity.getExternalFilesDir(null), "screenshots/calendar").apply {
             mkdirs()
         }
         val outputFile = File(outputDir, "$fileName.png")

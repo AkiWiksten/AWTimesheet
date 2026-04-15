@@ -88,7 +88,8 @@ class WorkdayScreenScreenshotTest {
 
     private fun saveRootScreenshot(fileName: String) {
         val bitmap = composeTestRule.onRoot().captureToImage().asAndroidBitmap()
-        val outputDir = File(composeTestRule.activity.filesDir, "test-screenshots/workday").apply {
+        // Use getExternalFilesDir so the files can be pulled via adb
+        val outputDir = File(composeTestRule.activity.getExternalFilesDir(null), "screenshots/workday").apply {
             mkdirs()
         }
         val outputFile = File(outputDir, "$fileName.png")

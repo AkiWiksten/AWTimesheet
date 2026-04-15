@@ -99,8 +99,6 @@ class SettingsViewModel @Inject constructor(
                 .collect { _uiState.value = it }
         }
     }
-
-
     fun setName(name0: String) {
         name.value = name0
     }

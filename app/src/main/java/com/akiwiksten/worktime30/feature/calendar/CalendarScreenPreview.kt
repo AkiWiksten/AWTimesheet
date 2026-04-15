@@ -4,7 +4,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 
 private const val PREVIEW_MONTH_TIME = "170:00 h"
 private const val PREVIEW_WEEK_TIME = "42:30 h"
@@ -29,12 +28,7 @@ fun PreviewCalendarContentSuccess() {
         date = PREVIEW_DATE,
         timePerDay = PREVIEW_DAY_TIME,
         timePerWeek = PREVIEW_WEEK_TIME,
-        timePerMonth = PREVIEW_MONTH_TIME,
-        workDaysMonth = listOf(
-            WorkdayEntity(date = "2026-04-01", workTimeToday = "8:00"),
-            WorkdayEntity(date = "2026-04-02", workTimeToday = "8:30"),
-            WorkdayEntity(date = "2026-04-03", workTimeToday = "9:00")
-        )
+        timePerMonth = PREVIEW_MONTH_TIME
     )
     CalendarContent(
         uiState = successState,
@@ -70,8 +64,7 @@ fun PreviewWorkTimeSummarySection() {
             date = PREVIEW_DATE,
             timePerDay = PREVIEW_DAY_TIME,
             timePerWeek = PREVIEW_WEEK_TIME,
-            timePerMonth = PREVIEW_MONTH_TIME,
-            workDaysMonth = emptyList()
+            timePerMonth = PREVIEW_MONTH_TIME
         )
     )
 }

@@ -3,7 +3,6 @@ package com.akiwiksten.worktime30.feature.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.DATE_FORMAT
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.domain.CalendarData
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
@@ -65,8 +64,7 @@ class CalendarViewModel @Inject constructor(
                     date = date,
                     timePerMonth = data.timePerMonth,
                     timePerWeek = data.timePerWeek,
-                    timePerDay = data.timePerDay,
-                    workDaysMonth = data.workdaysMonth
+                    timePerDay = data.timePerDay
                 )
             } catch (e: IllegalArgumentException) {
                 _uiState.value = CalendarUiState.Error(e.message ?: "Invalid argument provided")
@@ -84,8 +82,7 @@ sealed class CalendarUiState {
         val date: String = "",
         val timePerMonth: String = "",
         val timePerWeek: String = "",
-        val timePerDay: String = "",
-        val workDaysMonth: List<WorkdayEntity> = emptyList()
+        val timePerDay: String = ""
     ) : CalendarUiState()
 
     data class Error(val message: String) : CalendarUiState()

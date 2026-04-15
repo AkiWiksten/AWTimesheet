@@ -1,7 +1,7 @@
 # WorkTime 3.0
 ## Purpose
 + An app for work time management
-### Features
+## Features
 + **Intro** for a fancy introduction animation
 + **Calendar** to select a date to manage
 + **Projects** to manage projects for selected date
@@ -9,8 +9,8 @@
     + **Workday** to feed and calculate start, end, work time, balance, breaks and lunch.
 + **Settings** to manage settings, like name, employer work type choices (Coding, Installation, Design etc.)
   + **Pdf monthly report** shows your daily work time per projects in a table. Calculates also monthly statistics.
-## Technologies
-+ Android, Jetpack Compose, Kotlin, SQLite are the main technologies used
+## Main Technologies
++ Android, Jetpack Compose, Kotlin, SQLite
 ## Modern App Architecture
 ### Navigation3
 ### Hilt
@@ -34,6 +34,9 @@ A clean, scalable example of this is:
         + login/
     + navigation/
         + NavGraph.kt
++ Unit tests
++ Instrumented Integration Tests (DAO tests, AndroidJUnit4)
++ Screenshot tests (AndroidJUnit4)
 
 This is called feature-based packaging.
 ## Features to be implemented yet

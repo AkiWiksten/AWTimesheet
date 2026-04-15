@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,11 +49,7 @@ class CalendarScreenScreenshotTest {
                 date = "2026-04-10",
                 timePerDay = "08:30 h",
                 timePerWeek = "42:30 h",
-                timePerMonth = "170:00 h",
-                workDaysMonth = listOf(
-                    WorkdayEntity(date = "2026-04-09", workTimeToday = "08:00"),
-                    WorkdayEntity(date = "2026-04-10", workTimeToday = "08:30")
-                )
+                timePerMonth = "170:00 h"
             )
         )
         saveRootScreenshot(fileName = "calendar_success")

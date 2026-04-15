@@ -39,6 +39,13 @@ A clean, scalable example of this is:
 + Screenshot tests (AndroidJUnit4)
 
 This is called feature-based packaging.
+## Code analysis and testing
++ ./gradlew detekt
++ ./gradlew lint
++ Run SonarCube
++ Run androidTest (Screenshot tests, DAO tests)
++ Run test (Unit tests)
+
 ## Features to be implemented yet
 + create full backup support.
 + unify Headers for Screens

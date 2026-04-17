@@ -59,6 +59,7 @@ class WorkdayDaoTest {
         assertEquals(3, result.size)
         assertTrue(result.any { it.date == "2026-04-01" })
         assertTrue(result.any { it.date == "2026-04-30" })
+        assertTrue(result.any { it.date == "2026-04-10" })
         assertTrue(result.none { it.date == "2026-05-01" })
     }
 }

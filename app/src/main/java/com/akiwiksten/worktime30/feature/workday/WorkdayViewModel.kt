@@ -321,7 +321,7 @@ class WorkdayViewModel @Inject constructor(
         result: WorkTimeCalculator.TimeUpdateResult
     ): WorkdayUiState.Success {
         var nextState = state.copy(
-            endTime = result.endTime ?: state.endTime,
+            endTime = result.end ?: state.endTime,
             lunchStart = result.lunchStart ?: state.lunchStart,
             lunchEnd = result.lunchEnd ?: state.lunchEnd,
             breakStart = result.breakStart ?: state.breakStart,

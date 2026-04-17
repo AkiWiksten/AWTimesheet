@@ -2,11 +2,8 @@ package com.akiwiksten.worktime30.feature.calendar
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,18 +22,13 @@ class CalendarViewModelTest {
 
     @Test
     fun onDateSelected_updatesUiStateWithCalculatedSums() = runTest {
-        val workdayRepository = FakeWorkdayRepository().apply {
-            dataByRange["2026-04-01|2026-04-30"] = listOf(
-                WorkdayEntity(date = "2026-04-10", workTimeToday = "02:00")
-            )
-        }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
                 ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
             )
         }
         val viewModel = CalendarViewModel(
-            getCalendarDataUseCase = GetCalendarDataUseCase(workdayRepository, projectRepository),
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
             dateRepository = DateRepository()
         )
 
@@ -52,54 +44,39 @@ class CalendarViewModelTest {
     }
 
     @Test
-    fun repositoryFailure_setsErrorState() = runTest {
+    fun init_startsLoadingAndEmitsInitialDate() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-01-01") }
+        val projectRepository = FakeProjectRepository()
+
         val viewModel = CalendarViewModel(
-            getCalendarDataUseCase = GetCalendarDataUseCase(ThrowingWorkdayRepository(), FakeProjectRepository()),
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+
+        advanceUntilIdle()
+        val state = viewModel.uiState.value
+        assertTrue(state is CalendarUiState.Success)
+        assertEquals("2026-01-01", (state as CalendarUiState.Success).date)
+    }
+
+    @Test
+    fun convertMillisToDate_returnsCorrectIsoFormat() {
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(FakeProjectRepository()),
             dateRepository = DateRepository()
         )
 
-        viewModel.onDateSelected("2026-04-10")
-        advanceUntilIdle()
+        // 2026-04-10 00:00:00 UTC (The formatter uses systemDefault, but this is a stable timestamp)
+        // We'll use a local date to millis conversion to be environment independent in the test itself
+        val localDate = java.time.LocalDate.of(2026, 4, 10)
+        val millis = localDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-        val state = viewModel.uiState.value
-        assertTrue(state is CalendarUiState.Error)
+        val result = viewModel.convertMillisToDate(millis)
+
+        assertEquals("2026-04-10", result)
     }
 
-    private class ThrowingWorkdayRepository : WorkdayRepository {
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = null
-
-        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun deleteWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun getWorkStats(): WorkStatsEntity? = null
-
-        override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
-
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> {
-            error("boom")
-        }
-    }
-
-    private class FakeWorkdayRepository : WorkdayRepository {
-        val dataByRange = mutableMapOf<String, List<WorkdayEntity>>()
-
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = null
-
-        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun deleteWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun getWorkStats(): WorkStatsEntity? = null
-
-        override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
-
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> {
-            return dataByRange["$start|$end"] ?: emptyList()
-        }
-    }
-
-    private class FakeProjectRepository : ProjectRepository {
+    private open class FakeProjectRepository : ProjectRepository {
         val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
 
         override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> {

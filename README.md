@@ -1,6 +1,8 @@
 # WorkTime 3.0
 ## Purpose
 + An app for work time management
+## Branches
++ main: default "working" branch, master: "construction" branch
 ## Features
 + **Intro** for a fancy introduction animation
 + **Calendar** to select a date to manage
@@ -58,6 +60,7 @@ This is called feature-based packaging.
 + Validation
 + Design patterns to implement. Already implemented? Where?
 + GetCalendarDataUseCase: only calculate from projects, not at all from workdays.
++ "Note! Automatic calculations for fields below."
 + Test all features in all screens
   + Intro,
   + Calendar,

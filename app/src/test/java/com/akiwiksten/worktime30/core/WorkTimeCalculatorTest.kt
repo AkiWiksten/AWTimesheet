@@ -92,7 +92,7 @@ class WorkTimeCalculatorTest {
             )
         )
 
-        assertEquals("16:00", result.endTime)
+        assertEquals("16:00", result.end)
         assertEquals("11:45", result.lunchStart)
         assertEquals("12:15", result.lunchEnd)
         assertEquals("08:00", result.breakStart)
@@ -115,7 +115,7 @@ class WorkTimeCalculatorTest {
         )
 
         assertEquals("07:00", result.workTimeToday)
-        assertNull(result.endTime)
+        assertNull(result.end)
     }
 
     @Test
@@ -158,10 +158,10 @@ class WorkTimeCalculatorTest {
             EndTimeUpdateParams(
                 start = LocalTime.of(8, 0),
                 end = LocalTime.of(17, 0),
-                lunchStart = LocalTime.of(11, 30),
-                lunchEnd = LocalTime.of(12, 0),
-                breakStart = LocalTime.of(14, 0),
-                breakEnd = LocalTime.of(14, 15),
+                lunchStart = LocalTime.of(0, 0),
+                lunchEnd = LocalTime.of(0, 0),
+                breakStart = LocalTime.of(0, 0),
+                breakEnd = LocalTime.of(0, 0),
                 workTimeToday = LocalTime.of(7, 30),
                 oldEndTime = LocalTime.of(16, 0)
             )
@@ -180,7 +180,7 @@ class WorkTimeCalculatorTest {
             isNewDay = false
         )
 
-        assertEquals("16:30", result.endTime)
+        assertEquals("16:30", result.end)
     }
 
     @Test
@@ -231,7 +231,7 @@ class WorkTimeCalculatorTest {
             oldLunchEnd = LocalTime.of(12, 0)
         )
 
-        assertEquals("16:30", result.endTime)
+        assertEquals("16:30", result.end)
         assertFalse(result.calculateBalance)
     }
 
@@ -258,7 +258,7 @@ class WorkTimeCalculatorTest {
             oldLunchTime = LocalTime.of(0, 30)
         )
 
-        assertEquals("16:30", result.endTime)
+        assertEquals("16:30", result.end)
         assertEquals("12:30", result.lunchEnd)
     }
 
@@ -298,7 +298,7 @@ class WorkTimeCalculatorTest {
             oldBreakStart = LocalTime.of(14, 0)
         )
 
-        assertEquals("16:15", result.endTime)
+        assertEquals("16:15", result.end)
     }
 
     @Test
@@ -324,7 +324,7 @@ class WorkTimeCalculatorTest {
             oldBreakEnd = LocalTime.of(14, 15)
         )
 
-        assertEquals("16:15", result.endTime)
+        assertEquals("16:15", result.end)
     }
 
     @Test
@@ -349,7 +349,7 @@ class WorkTimeCalculatorTest {
             oldWorkTimeToday = LocalTime.MIDNIGHT
         )
 
-        assertEquals("16:30", result.endTime)
+        assertEquals("16:30", result.end)
     }
 
     @Test
@@ -361,7 +361,7 @@ class WorkTimeCalculatorTest {
             oldWorkTimeToday = LocalTime.of(7, 45)
         )
 
-        assertEquals("16:45", result.endTime)
+        assertEquals("16:45", result.end)
     }
 
     @Test

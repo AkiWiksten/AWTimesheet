@@ -86,7 +86,7 @@ class WorkTimeCalculatorTest {
                 start = LocalTime.of(8, 0),
                 dailyWorkTime = LocalTime.of(7, 30),
                 lunchTime = LocalTime.of(0, 30),
-                workTimeToday = LocalTime.MIDNIGHT,
+                projectTime = LocalTime.MIDNIGHT,
                 oldStartTime = LocalTime.of(8, 0),
                 isNewDay = true
             )
@@ -97,7 +97,7 @@ class WorkTimeCalculatorTest {
         assertEquals("12:15", result.lunchEnd)
         assertEquals("08:00", result.breakStart)
         assertEquals("08:00", result.breakEnd)
-        assertNull(result.workTimeToday)
+        assertNull(result.projectTime)
         assertFalse(result.calculateBalance)
     }
 
@@ -108,13 +108,13 @@ class WorkTimeCalculatorTest {
                 start = LocalTime.of(9, 0),
                 dailyWorkTime = LocalTime.of(7, 30),
                 lunchTime = LocalTime.of(0, 30),
-                workTimeToday = LocalTime.of(8, 0),
+                projectTime = LocalTime.of(8, 0),
                 oldStartTime = LocalTime.of(8, 0),
                 isNewDay = false
             )
         )
 
-        assertEquals("07:00", result.workTimeToday)
+        assertEquals("07:00", result.projectTime)
         assertNull(result.end)
     }
 
@@ -125,7 +125,7 @@ class WorkTimeCalculatorTest {
                 start = LocalTime.of(8, 0),
                 dailyWorkTime = LocalTime.of(7, 30),
                 lunchTime = LocalTime.of(0, 30),
-                workTimeToday = LocalTime.MIDNIGHT,
+                projectTime = LocalTime.MIDNIGHT,
                 oldStartTime = LocalTime.of(8, 0),
                 isNewDay = false
             )
@@ -144,12 +144,12 @@ class WorkTimeCalculatorTest {
                 lunchEnd = LocalTime.of(12, 0),
                 breakStart = LocalTime.of(14, 0),
                 breakEnd = LocalTime.of(14, 15),
-                workTimeToday = LocalTime.MIDNIGHT,
+                projectTime = LocalTime.MIDNIGHT,
                 oldEndTime = LocalTime.of(16, 0)
             )
         )
 
-        assertEquals("07:45", result.workTimeToday)
+        assertEquals("07:45", result.projectTime)
     }
 
     @Test
@@ -162,12 +162,12 @@ class WorkTimeCalculatorTest {
                 lunchEnd = LocalTime.of(0, 0),
                 breakStart = LocalTime.of(0, 0),
                 breakEnd = LocalTime.of(0, 0),
-                workTimeToday = LocalTime.of(7, 30),
+                projectTime = LocalTime.of(7, 30),
                 oldEndTime = LocalTime.of(16, 0)
             )
         )
 
-        assertEquals("08:30", result.workTimeToday)
+        assertEquals("08:30", result.projectTime)
     }
 
     @Test
@@ -175,7 +175,7 @@ class WorkTimeCalculatorTest {
         val result = WorkTimeCalculator.calculateDailyWorkTimeUpdate(
             end = LocalTime.of(16, 0),
             dailyWorkTime = LocalTime.of(8, 0),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldDailyWorkTime = LocalTime.of(7, 30),
             isNewDay = false
         )
@@ -188,7 +188,7 @@ class WorkTimeCalculatorTest {
         val result = WorkTimeCalculator.calculateDailyWorkTimeUpdate(
             end = LocalTime.of(16, 0),
             dailyWorkTime = LocalTime.of(8, 0),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldDailyWorkTime = LocalTime.of(7, 30),
             isNewDay = true
         )
@@ -201,7 +201,7 @@ class WorkTimeCalculatorTest {
         val result = WorkTimeCalculator.calculateLunchStartUpdate(
             lunchStart = LocalTime.of(11, 45),
             lunchTime = LocalTime.of(0, 30),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldLunchStart = LocalTime.of(11, 30),
             currentLunchEnd = LocalTime.of(12, 0)
         )
@@ -214,7 +214,7 @@ class WorkTimeCalculatorTest {
         val result = WorkTimeCalculator.calculateLunchStartUpdate(
             lunchStart = LocalTime.of(11, 0),
             lunchTime = LocalTime.of(0, 30),
-            workTimeToday = LocalTime.of(7, 30),
+            projectTime = LocalTime.of(7, 30),
             oldLunchStart = LocalTime.of(11, 30),
             currentLunchEnd = LocalTime.of(12, 0)
         )
@@ -227,7 +227,7 @@ class WorkTimeCalculatorTest {
         val result = WorkTimeCalculator.calculateLunchEndUpdate(
             end = LocalTime.of(16, 0),
             lunchEnd = LocalTime.of(12, 30),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldLunchEnd = LocalTime.of(12, 0)
         )
 
@@ -240,11 +240,11 @@ class WorkTimeCalculatorTest {
         val result = WorkTimeCalculator.calculateLunchEndUpdate(
             end = LocalTime.of(16, 0),
             lunchEnd = LocalTime.of(12, 30),
-            workTimeToday = LocalTime.of(7, 30),
+            projectTime = LocalTime.of(7, 30),
             oldLunchEnd = LocalTime.of(12, 0)
         )
 
-        assertEquals("07:00", result.workTimeToday)
+        assertEquals("07:00", result.projectTime)
         assertTrue(result.calculateBalance)
     }
 
@@ -254,7 +254,7 @@ class WorkTimeCalculatorTest {
             end = LocalTime.of(16, 0),
             lunchStart = LocalTime.of(11, 30),
             lunchTime = LocalTime.of(1, 0),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldLunchTime = LocalTime.of(0, 30)
         )
 
@@ -268,7 +268,7 @@ class WorkTimeCalculatorTest {
             end = LocalTime.of(16, 0),
             lunchStart = LocalTime.of(11, 30),
             lunchTime = LocalTime.of(1, 0),
-            workTimeToday = LocalTime.of(7, 30),
+            projectTime = LocalTime.of(7, 30),
             oldLunchTime = LocalTime.of(0, 30)
         )
 
@@ -281,7 +281,7 @@ class WorkTimeCalculatorTest {
             end = LocalTime.of(16, 0),
             breakStart = LocalTime.of(14, 15),
             breakEnd = LocalTime.of(14, 0),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldBreakStart = LocalTime.of(14, 0)
         )
 
@@ -294,7 +294,7 @@ class WorkTimeCalculatorTest {
             end = LocalTime.of(16, 0),
             breakStart = LocalTime.of(14, 10),
             breakEnd = LocalTime.of(14, 15),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             oldBreakStart = LocalTime.of(14, 0)
         )
 
@@ -307,11 +307,11 @@ class WorkTimeCalculatorTest {
             end = LocalTime.of(16, 0),
             breakStart = LocalTime.of(14, 15),
             breakEnd = LocalTime.of(14, 30),
-            workTimeToday = LocalTime.of(7, 30),
+            projectTime = LocalTime.of(7, 30),
             oldBreakStart = LocalTime.of(14, 0)
         )
 
-        assertEquals("07:45", result.workTimeToday)
+        assertEquals("07:45", result.projectTime)
         assertTrue(result.calculateBalance)
     }
 
@@ -319,7 +319,7 @@ class WorkTimeCalculatorTest {
     fun `calculateBreakEndUpdate updates end time when work time is zero`() {
         val result = WorkTimeCalculator.calculateBreakEndUpdate(
             end = LocalTime.of(16, 0),
-            workTimeToday = LocalTime.MIDNIGHT,
+            projectTime = LocalTime.MIDNIGHT,
             breakEnd = LocalTime.of(14, 30),
             oldBreakEnd = LocalTime.of(14, 15)
         )
@@ -331,34 +331,34 @@ class WorkTimeCalculatorTest {
     fun `calculateBreakEndUpdate updates work time and balance when work time exists`() {
         val result = WorkTimeCalculator.calculateBreakEndUpdate(
             end = LocalTime.of(16, 0),
-            workTimeToday = LocalTime.of(7, 30),
+            projectTime = LocalTime.of(7, 30),
             breakEnd = LocalTime.of(14, 30),
             oldBreakEnd = LocalTime.of(14, 15)
         )
 
-        assertEquals("07:15", result.workTimeToday)
+        assertEquals("07:15", result.projectTime)
         assertTrue(result.calculateBalance)
     }
 
     @Test
-    fun `calculateWorkTimeTodayUpdate uses daily work time when previous work time was zero`() {
-        val result = WorkTimeCalculator.calculateWorkTimeTodayUpdate(
+    fun `calculateProjectTimeUpdate uses daily work time when previous work time was zero`() {
+        val result = WorkTimeCalculator.calculateProjectTimeUpdate(
             end = LocalTime.of(16, 0),
             dailyWorkTime = LocalTime.of(7, 30),
-            workTimeToday = LocalTime.of(8, 0),
-            oldWorkTimeToday = LocalTime.MIDNIGHT
+            projectTime = LocalTime.of(8, 0),
+            oldProjectTime = LocalTime.MIDNIGHT
         )
 
         assertEquals("16:30", result.end)
     }
 
     @Test
-    fun `calculateWorkTimeTodayUpdate uses old work time when previous work time exists`() {
-        val result = WorkTimeCalculator.calculateWorkTimeTodayUpdate(
+    fun `calculateProjectTimeUpdate uses old work time when previous work time exists`() {
+        val result = WorkTimeCalculator.calculateProjectTimeUpdate(
             end = LocalTime.of(16, 30),
             dailyWorkTime = LocalTime.of(7, 30),
-            workTimeToday = LocalTime.of(8, 0),
-            oldWorkTimeToday = LocalTime.of(7, 45)
+            projectTime = LocalTime.of(8, 0),
+            oldProjectTime = LocalTime.of(7, 45)
         )
 
         assertEquals("16:45", result.end)

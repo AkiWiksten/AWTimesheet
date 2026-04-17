@@ -15,10 +15,10 @@ import com.akiwiksten.worktime30.core.LUNCH_END
 import com.akiwiksten.worktime30.core.LUNCH_START
 import com.akiwiksten.worktime30.core.LUNCH_TIME
 import com.akiwiksten.worktime30.core.PROJECT_NAME
+import com.akiwiksten.worktime30.core.PROJECT_TIME
 import com.akiwiksten.worktime30.core.START_TIME
 import com.akiwiksten.worktime30.core.WORKDAY_TABLE
 import com.akiwiksten.worktime30.core.WORK_STATS_TABLE
-import com.akiwiksten.worktime30.core.WORK_TIME_TODAY
 import com.akiwiksten.worktime30.core.WORK_TIME_TOTAL
 import kotlinx.serialization.Serializable
 
@@ -36,7 +36,7 @@ data class WorkdayEntity(
     @ColumnInfo(name = LUNCH_END) val lunchEnd: String = "",
     @ColumnInfo(name = BREAK_START) val breakStart: String = "",
     @ColumnInfo(name = BREAK_END) val breakEnd: String = "",
-    @ColumnInfo(name = WORK_TIME_TODAY) val workTimeToday: String = "",
+    @ColumnInfo(name = PROJECT_TIME) val projectTime: String = "",
     @ColumnInfo(name = BALANCE_TODAY) val balanceToday: String = "",
 )
 

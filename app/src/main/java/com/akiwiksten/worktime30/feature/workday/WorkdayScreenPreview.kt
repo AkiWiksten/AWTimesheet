@@ -42,7 +42,7 @@ fun PreviewWorkdaySuccessExistingDay() {
             lunchEnd = "12:00",
             breakStart = "14:15",
             breakEnd = "14:30",
-            workTimeToday = "08:00",
+            projectTime = "08:00",
             dailyWorkTime = "07:30",
             lunchTime = "00:30",
             balanceToday = "+00:30",

@@ -179,11 +179,11 @@ class ProjectsViewModel @Inject constructor(
                 val workdayToSave = uiState.workday?.copy(
                     date = date,
                     projectName = uiState.projectName,
-                    workTimeToday = uiState.projectTime
+                    projectTime = uiState.projectTime
                 ) ?: WorkdayEntity(
                     date = date,
                     projectName = uiState.projectName,
-                    workTimeToday = uiState.projectTime,
+                    projectTime = uiState.projectTime,
                     balanceToday = ZERO_TIME
                 )
 

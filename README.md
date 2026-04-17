@@ -69,9 +69,10 @@ This is called feature-based packaging.
   + Workday,
   + Settings
 + Orientation support
-  + detekt, lint, sonarcube run regularly, preferrably before pushing code
-  + In “WorkdayScreen”
++ detekt, lint, sonarcube run regularly, preferrably before pushing code
++ In “WorkdayScreen”
   + move “Daily work time” and “Lunch time” to SettingsScreen. Add estimate to the strings.
   + move “Balance today” and “Balance total” to ProjectsScreen. Show them in a same way as “Work time today”.
   + Edit “Balance total” in SettingsScreen.
   + Remove “Work time total”
+  + DailyWorkTime to ExpectedProjectTime

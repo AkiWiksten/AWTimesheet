@@ -28,7 +28,7 @@ class WorkdayViewModelTest {
                 projectName = "Alpha",
                 startTime = "08:00",
                 endTime = "16:00",
-                workTimeToday = "08:00",
+                projectTime = "08:00",
                 balanceToday = "00:30"
             )
             workStats = WorkStatsEntity(
@@ -65,7 +65,7 @@ class WorkdayViewModelTest {
                 projectName = "Alpha",
                 startTime = "08:00",
                 endTime = "16:00",
-                workTimeToday = "08:00",
+                projectTime = "08:00",
                 balanceToday = "00:30"
             ),
             workStatsArg = WorkStatsEntity(
@@ -87,7 +87,7 @@ class WorkdayViewModelTest {
         val cleared = viewModel.uiState.value as WorkdayUiState.Success
         assertEquals(ZERO_TIME, cleared.startTime)
         assertEquals(ZERO_TIME, cleared.endTime)
-        assertEquals(ZERO_TIME, cleared.workTimeToday)
+        assertEquals(ZERO_TIME, cleared.projectTime)
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {

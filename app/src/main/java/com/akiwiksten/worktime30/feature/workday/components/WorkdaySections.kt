@@ -159,10 +159,10 @@ private fun MainWorkTimeFields(uiState: WorkdayUiState.Success, actions: Workday
         onConfirmation = actions.onSetEndTime
     )
     AddTimeRow(
-        textFieldValue = uiState.workTimeToday,
-        stringId = R.string.work_time_today,
-        currentTime = actions.onCurrentWorkTimeToday,
-        onConfirmation = actions.onSetWorkTimeToday
+        textFieldValue = uiState.projectTime,
+        stringId = R.string.project_time,
+        currentTime = actions.onCurrentProjectTime,
+        onConfirmation = actions.onSetProjectTime
     )
 }
 

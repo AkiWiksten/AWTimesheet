@@ -93,32 +93,32 @@ object WorkTimeCalculator {
                 breakStart = params.start.toString(),
                 breakEnd = params.start.toString()
             )
-        } else if (params.workTimeToday != LocalTime.MIDNIGHT) {
-            val newWorkTimeToday = params.workTimeToday.subtract(params.start).add(params.oldStartTime)
-            TimeUpdateResult(workTimeToday = newWorkTimeToday.toString())
+        } else if (params.projectTime != LocalTime.MIDNIGHT) {
+            val newProjectTime = params.projectTime.subtract(params.start).add(params.oldStartTime)
+            TimeUpdateResult(projectTime = newProjectTime.toString())
         } else {
             TimeUpdateResult()
         }
     }
 
     fun calculateEndTimeUpdate(params: EndTimeUpdateParams): TimeUpdateResult {
-        val newWorkTimeToday = if (params.workTimeToday == LocalTime.MIDNIGHT) {
+        val newProjectTime = if (params.projectTime == LocalTime.MIDNIGHT) {
             params.end.subtract(params.start).subtract(params.lunchEnd).add(params.lunchStart)
                 .subtract(params.breakEnd).add(params.breakStart)
         } else {
-            params.workTimeToday.subtract(params.oldEndTime).add(params.end)
+            params.projectTime.subtract(params.oldEndTime).add(params.end)
         }
-        return TimeUpdateResult(workTimeToday = newWorkTimeToday.toString())
+        return TimeUpdateResult(projectTime = newProjectTime.toString())
     }
 
     fun calculateDailyWorkTimeUpdate(
         end: LocalTime,
         dailyWorkTime: LocalTime,
-        workTimeToday: LocalTime,
+        projectTime: LocalTime,
         oldDailyWorkTime: LocalTime,
         isNewDay: Boolean
     ): TimeUpdateResult {
-        return if (!isNewDay && workTimeToday == LocalTime.MIDNIGHT) {
+        return if (!isNewDay && projectTime == LocalTime.MIDNIGHT) {
             val newEnd = end.subtract(oldDailyWorkTime).add(dailyWorkTime)
             TimeUpdateResult(end = newEnd.toString())
         } else {
@@ -129,11 +129,11 @@ object WorkTimeCalculator {
     fun calculateLunchStartUpdate(
         lunchStart: LocalTime,
         lunchTime: LocalTime,
-        workTimeToday: LocalTime,
+        projectTime: LocalTime,
         oldLunchStart: LocalTime,
         currentLunchEnd: LocalTime
     ): TimeUpdateResult {
-        val newLunchEnd = if (workTimeToday == LocalTime.MIDNIGHT) {
+        val newLunchEnd = if (projectTime == LocalTime.MIDNIGHT) {
             lunchStart.add(lunchTime)
         } else {
             currentLunchEnd.subtract(oldLunchStart).add(lunchStart)
@@ -144,15 +144,15 @@ object WorkTimeCalculator {
     fun calculateLunchEndUpdate(
         end: LocalTime,
         lunchEnd: LocalTime,
-        workTimeToday: LocalTime,
+        projectTime: LocalTime,
         oldLunchEnd: LocalTime
     ): TimeUpdateResult {
-        return if (workTimeToday == LocalTime.MIDNIGHT) {
+        return if (projectTime == LocalTime.MIDNIGHT) {
             val newEnd = end.subtract(oldLunchEnd).add(lunchEnd)
             TimeUpdateResult(end = newEnd.toString())
         } else {
-            val newWorkTimeToday = workTimeToday.subtract(lunchEnd).add(oldLunchEnd)
-            TimeUpdateResult(workTimeToday = newWorkTimeToday.toString(), calculateBalance = true)
+            val newProjectTime = projectTime.subtract(lunchEnd).add(oldLunchEnd)
+            TimeUpdateResult(projectTime = newProjectTime.toString(), calculateBalance = true)
         }
     }
 
@@ -160,10 +160,10 @@ object WorkTimeCalculator {
         end: LocalTime,
         lunchStart: LocalTime,
         lunchTime: LocalTime,
-        workTimeToday: LocalTime,
+        projectTime: LocalTime,
         oldLunchTime: LocalTime
     ): TimeUpdateResult {
-        return if (workTimeToday == LocalTime.MIDNIGHT) {
+        return if (projectTime == LocalTime.MIDNIGHT) {
             val newEnd = end.add(lunchTime).subtract(oldLunchTime)
             val newLunchEnd = lunchStart.add(lunchTime)
             TimeUpdateResult(end = newEnd.toString(), lunchEnd = newLunchEnd.toString())
@@ -176,47 +176,47 @@ object WorkTimeCalculator {
         end: LocalTime,
         breakStart: LocalTime,
         breakEnd: LocalTime,
-        workTimeToday: LocalTime,
+        projectTime: LocalTime,
         oldBreakStart: LocalTime
     ): TimeUpdateResult {
         return when {
             oldBreakStart == breakEnd -> TimeUpdateResult(breakEnd = breakStart.toString())
-            workTimeToday == LocalTime.MIDNIGHT -> {
+            projectTime == LocalTime.MIDNIGHT -> {
                 val newEnd = end.subtract(oldBreakStart).add(breakEnd)
                 TimeUpdateResult(end = newEnd.toString())
             }
             else -> {
-                val newWorkTimeToday = workTimeToday.subtract(oldBreakStart).add(breakStart)
-                TimeUpdateResult(workTimeToday = newWorkTimeToday.toString(), calculateBalance = true)
+                val newProjectTime = projectTime.subtract(oldBreakStart).add(breakStart)
+                TimeUpdateResult(projectTime = newProjectTime.toString(), calculateBalance = true)
             }
         }
     }
 
     fun calculateBreakEndUpdate(
         end: LocalTime,
-        workTimeToday: LocalTime,
+        projectTime: LocalTime,
         breakEnd: LocalTime,
         oldBreakEnd: LocalTime
     ): TimeUpdateResult {
-        return if (workTimeToday == LocalTime.MIDNIGHT) {
+        return if (projectTime == LocalTime.MIDNIGHT) {
             val newEnd = end.subtract(oldBreakEnd).add(breakEnd)
             TimeUpdateResult(end = newEnd.toString())
         } else {
-            val newWorkTimeToday = workTimeToday.subtract(breakEnd).add(oldBreakEnd)
-            TimeUpdateResult(workTimeToday = newWorkTimeToday.toString(), calculateBalance = true)
+            val newProjectTime = projectTime.subtract(breakEnd).add(oldBreakEnd)
+            TimeUpdateResult(projectTime = newProjectTime.toString(), calculateBalance = true)
         }
     }
 
-    fun calculateWorkTimeTodayUpdate(
+    fun calculateProjectTimeUpdate(
         end: LocalTime,
         dailyWorkTime: LocalTime,
-        workTimeToday: LocalTime,
-        oldWorkTimeToday: LocalTime
+        projectTime: LocalTime,
+        oldProjectTime: LocalTime
     ): TimeUpdateResult {
-        val newEnd = if (oldWorkTimeToday == LocalTime.MIDNIGHT) {
-            end.subtract(dailyWorkTime).add(workTimeToday)
+        val newEnd = if (oldProjectTime == LocalTime.MIDNIGHT) {
+            end.subtract(dailyWorkTime).add(projectTime)
         } else {
-            end.subtract(oldWorkTimeToday).add(workTimeToday)
+            end.subtract(oldProjectTime).add(projectTime)
         }
         return TimeUpdateResult(end = newEnd.toString())
     }
@@ -252,7 +252,7 @@ object WorkTimeCalculator {
         val lunchEnd: String? = null,
         val breakStart: String? = null,
         val breakEnd: String? = null,
-        val workTimeToday: String? = null,
+        val projectTime: String? = null,
         val calculateBalance: Boolean = false
     )
 
@@ -260,7 +260,7 @@ object WorkTimeCalculator {
         val start: LocalTime,
         val dailyWorkTime: LocalTime,
         val lunchTime: LocalTime,
-        val workTimeToday: LocalTime,
+        val projectTime: LocalTime,
         val oldStartTime: LocalTime,
         val isNewDay: Boolean
     )
@@ -272,7 +272,7 @@ object WorkTimeCalculator {
         val lunchEnd: LocalTime,
         val breakStart: LocalTime,
         val breakEnd: LocalTime,
-        val workTimeToday: LocalTime,
+        val projectTime: LocalTime,
         val oldEndTime: LocalTime
     )
 }

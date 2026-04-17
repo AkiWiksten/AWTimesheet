@@ -15,7 +15,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(date: String): ProjectsScreenData {
         val workday = workdayRepository.getWorkday(date)
-        val workTimeToday = workday?.workTimeToday ?: ZERO_TIME
+        val projectTime = workday?.projectTime ?: ZERO_TIME
 
         val projects = projectRepository.getProjectsByDateRange(date, date)
         val projectNames = projectRepository.getProjectNames()
@@ -23,7 +23,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
         val workTypes = settingsRepository.getWorkTypes().map { it.workType }
 
         return ProjectsScreenData(
-            workTimeToday = workTimeToday,
+            projectTime = projectTime,
             projects = projects,
             projectNames = projectNames,
             workTypes = workTypes
@@ -32,7 +32,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
 }
 
 data class ProjectsScreenData(
-    val workTimeToday: String,
+    val projectTime: String,
     val projects: List<ProjectEntity>,
     val projectNames: List<ProjectNameEntity>,
     val workTypes: List<String>

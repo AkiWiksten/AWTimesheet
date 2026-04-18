@@ -138,7 +138,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     )
 
     Scaffold(
-        topBar = { /*SingleProjectTopBar(onNavigateBack = params.onNavigateBack)*/ }
+        topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
     ) { padding ->
         when (params.projectsUiState) {
             is ProjectsUiState.Loading -> SingleProjectLoadingContent(
@@ -271,6 +271,8 @@ private fun SingleProjectContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        HeaderSection(date = screenState.date)
+
         DialogMainFields(
             state = screenState.state,
             isAddMode = screenState.isAddMode,

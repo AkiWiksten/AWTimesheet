@@ -16,16 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -41,9 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,8 +46,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
@@ -88,15 +80,7 @@ fun SingleProjectScreen(
                     it.index == initialSingleProjectState.index
                 } ?: ProjectListItemUiState()
             // If we have initial values from navigation (e.g., after returning from ProjectDetailsScreen), use them
-            fromViewModel.copy(
-                projectName = initialSingleProjectState.projectName ?: fromViewModel.projectName,
-                projectTime = initialSingleProjectState.projectTime ?: fromViewModel.projectTime,
-                kilometres = (initialSingleProjectState.kilometres?.toIntOrNull() ?: fromViewModel.kilometres),
-                allowance = initialSingleProjectState.allowance ?: fromViewModel.allowance,
-                workType = initialSingleProjectState.workType ?: fromViewModel.workType,
-                workday = initialSingleProjectState.workday ?: fromViewModel.workday,
-                workStats = initialSingleProjectState.workStats ?: fromViewModel.workStats
-            )
+            fromViewModel
         } else {
             initialSingleProjectState.toUiState()
         }
@@ -154,7 +138,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     )
 
     Scaffold(
-        topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
+        topBar = { /*SingleProjectTopBar(onNavigateBack = params.onNavigateBack)*/ }
     ) { padding ->
         when (params.projectsUiState) {
             is ProjectsUiState.Loading -> SingleProjectLoadingContent(
@@ -242,27 +226,6 @@ private fun SingleProjectErrorContent(padding: PaddingValues, message: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = {
-            Header(
-                title = stringResource(id = R.string.project_customer),
-                modifier = Modifier.padding(top = 0.dp)
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-            }
-        },
-        actions = {
-            Spacer(modifier = Modifier.width(width = 48.dp))
-        }
-    )
-}
-
 data class SingleProjectScreenState(
     val date: String,
     val editedProjectIndex: Int,
@@ -308,8 +271,6 @@ private fun SingleProjectContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        HeaderSection(date = screenState.date)
-
         DialogMainFields(
             state = screenState.state,
             isAddMode = screenState.isAddMode,
@@ -344,35 +305,13 @@ private fun SingleProjectContent(
 }
 
 @Composable
-private fun HeaderSection(date: String) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(all = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
-        ) {
-            Text(
-                text = date,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
-
-@Composable
 private fun DialogMainFields(
     state: SingleProjectState,
     isAddMode: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
-        state.projectName?.let {
+        state.projectName.let {
             OutlinedTextField(
                 value = it,
                 onValueChange = { onStateChange(state.copy(projectName = it)) },
@@ -384,7 +323,7 @@ private fun DialogMainFields(
             )
         }
 
-        state.kilometres?.let {
+        state.kilometres.let {
             OutlinedTextField(
                 value = it,
                 onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
@@ -407,17 +346,15 @@ private fun TimeSelectionSection(
 ) {
     val openTimePickerDialogState = remember { mutableStateOf(false) }
 
-    if (openTimePickerDialogState.value) {
-        TimePickerDialog(
-            onDismissRequest = { openTimePickerDialogState.value = false },
-            onConfirmation = {
-                onStateChange(state.copy(projectTime = it))
-                openTimePickerDialogState.value = false
-            },
-            titleId = R.string.project_time,
-            time = state.projectTime
-        )
-    }
+    ProjectTimePickerDialog(
+        showDialog = openTimePickerDialogState.value,
+        onDismissRequest = { openTimePickerDialogState.value = false },
+        onConfirmation = { time ->
+            onStateChange(state.copy(projectTime = time))
+            openTimePickerDialogState.value = false
+        },
+        currentTime = state.projectTime
+    )
 
     Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
         Text(
@@ -431,7 +368,7 @@ private fun TimeSelectionSection(
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            state.projectTime?.let {
+            state.projectTime.let {
                 OutlinedTextField(
                     value = it,
                     onValueChange = { onStateChange(state.copy(projectTime = it)) },

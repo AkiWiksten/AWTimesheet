@@ -60,7 +60,6 @@ This is called feature-based packaging.
 + Show Toast when saving data or confirming.
 + Validation
 + Design patterns to implement. Already implemented? Where?
-+ GetCalendarDataUseCase: only calculate from projects, not at all from workdays.
 + "Note! Automatic calculations for fields below."
 + Test all features in all screens
   + Intro,
@@ -78,4 +77,3 @@ This is called feature-based packaging.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
 + WorkdayEntity->ProjectDetailsEntity
-+ ProjectListItemUiState->SingleProjectState

@@ -1,8 +1,8 @@
 package com.akiwiksten.worktime30.feature.projects.daily
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
@@ -14,21 +14,23 @@ import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class ProjectListItemUiState(
+data class SingleProjectState(
     val index: Int = 0,
     val projectName: String = "",
     val projectTime: String = ZERO_TIME,
-    val kilometres: Int = 0,
-    val allowance: String = "",
+    val kilometres: String = "0",
+    val allowance: String = "No Allowance",
     val workType: String = "",
     val workday: WorkdayEntity? = null,
     val workStats: WorkStatsEntity? = null
@@ -40,7 +42,7 @@ sealed class ProjectsUiState {
     data class Success(
         val date: String = "",
         val workTimeToday: String = ZERO_TIME,
-        val projects: List<ProjectListItemUiState> = emptyList(),
+        val projects: List<SingleProjectState> = emptyList(),
         val projectNames: List<ProjectNameEntity> = emptyList(),
         val workTypes: List<String> = emptyList()
     ) : ProjectsUiState()
@@ -48,39 +50,7 @@ sealed class ProjectsUiState {
     data class Error(val message: String) : ProjectsUiState()
 }
 
-data class SingleProjectState(
-    val projectName: String,
-    val projectTime: String,
-    val kilometres: String,
-    val allowance: String,
-    val workType: String,
-    val index: Int,
-    val workday: WorkdayEntity? = null,
-    val workStats: WorkStatsEntity? = null
-) {
-    constructor(uiState: ProjectListItemUiState) : this(
-        projectName = uiState.projectName,
-        projectTime = uiState.projectTime,
-        kilometres = uiState.kilometres.toString(),
-        allowance = uiState.allowance.ifEmpty { "No Allowance" },
-        workType = uiState.workType,
-        workday = uiState.workday,
-        workStats = uiState.workStats,
-        index = uiState.index
-    )
-
-    fun toUiState() = ProjectListItemUiState(
-        index = index,
-        projectName = projectName,
-        projectTime = projectTime.ifEmpty { ZERO_TIME },
-        kilometres = kilometres.toIntOrNull() ?: 0,
-        allowance = allowance,
-        workType = workType,
-        workday = workday,
-        workStats = workStats
-    )
-}
-
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ProjectsViewModel @Inject constructor(
     private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
@@ -90,34 +60,17 @@ class ProjectsViewModel @Inject constructor(
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<ProjectsUiState>(ProjectsUiState.Loading)
-    val uiState: StateFlow<ProjectsUiState> = _uiState.asStateFlow()
-    private val reloadTrigger = MutableStateFlow(0)
+    private val refreshTrigger = MutableStateFlow(value = 0)
 
-    companion object {
-        private const val ERROR_INVALID_ARGUMENT = "Invalid argument provided"
-        private const val ERROR_INVALID_STATE = "Invalid state"
-    }
-
-    init {
-        viewModelScope.launch {
-            combine(dateRepository.selectedDate, reloadTrigger) { date, trigger -> date to trigger }
-                .collectLatest { (date, _) ->
-                    loadDataInternal(date)
-                }
-        }
-    }
-
-    private suspend fun loadDataInternal(date: String) {
-        try {
-            _uiState.value = ProjectsUiState.Loading
+    val uiState: StateFlow<ProjectsUiState> = refreshTrigger
+        .flatMapLatest { dateRepository.selectedDate }
+        .map { date ->
             val data = getProjectsScreenDataUseCase(date)
-
             val recordedProjects = data.projects.map { entity ->
-                ProjectListItemUiState(
+                SingleProjectState(
                     projectName = entity.projectName,
                     projectTime = entity.projectTime,
-                    kilometres = entity.kilometres,
+                    kilometres = entity.kilometres.toString(),
                     allowance = entity.allowance,
                     workType = entity.workType,
                 )
@@ -128,62 +81,58 @@ class ProjectsViewModel @Inject constructor(
             val unrecordedProjects = data.projectNames
                 .filter { it.name !in recordedNames }
                 .map { entity ->
-                    ProjectListItemUiState(projectName = entity.name)
+                    SingleProjectState(projectName = entity.name)
                 }
 
-            val combinedList = (recordedProjects + unrecordedProjects)
-                .sortedBy { it.projectName }
-                .mapIndexed { index, item -> item.copy(index = index) }
+            val allProjects = (recordedProjects + unrecordedProjects)
+                .mapIndexed { index, project -> project.copy(index = index) }
 
-            val totalProjectTime = combinedList.fold(ZERO_TIME) { acc, project ->
-                WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
-            }
-
-            _uiState.value = ProjectsUiState.Success(
+            ProjectsUiState.Success(
                 date = date,
-                workTimeToday = totalProjectTime,
-                projects = combinedList,
+                workTimeToday = data.projectTime,
+                projects = allProjects,
                 projectNames = data.projectNames,
                 workTypes = data.workTypes
-            )
-        } catch (e: IllegalArgumentException) {
-            _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
-        } catch (e: IllegalStateException) {
-            _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
+            ) as ProjectsUiState
         }
-    }
-
-    private fun requestReload() {
-        reloadTrigger.update { it + 1 }
-    }
+        .onStart { emit(value = ProjectsUiState.Loading) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+            initialValue = ProjectsUiState.Loading
+        )
 
     fun retryLoad() {
         requestReload()
     }
 
-    fun saveProject(uiState: ProjectListItemUiState) {
+    private fun requestReload() {
+        refreshTrigger.value += 1
+    }
+
+    fun saveProject(state: SingleProjectState) {
         viewModelScope.launch {
             try {
-                val currentState = _uiState.value
+                val currentState = uiState.value
                 val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
 
                 val entity = ProjectEntity(
                     date = date,
-                    projectName = uiState.projectName,
-                    projectTime = uiState.projectTime,
-                    kilometres = uiState.kilometres,
-                    allowance = uiState.allowance,
-                    workType = uiState.workType
+                    projectName = state.projectName,
+                    projectTime = state.projectTime,
+                    kilometres = state.kilometres.toIntOrNull() ?: 0,
+                    allowance = state.allowance,
+                    workType = state.workType
                 )
 
-                val workdayToSave = uiState.workday?.copy(
+                val workdayToSave = state.workday?.copy(
                     date = date,
-                    projectName = uiState.projectName,
-                    projectTime = uiState.projectTime
+                    projectName = state.projectName,
+                    projectTime = state.projectTime
                 ) ?: WorkdayEntity(
                     date = date,
-                    projectName = uiState.projectName,
-                    projectTime = uiState.projectTime,
+                    projectName = state.projectName,
+                    projectTime = state.projectTime,
                     balanceToday = ZERO_TIME
                 )
 
@@ -192,29 +141,29 @@ class ProjectsViewModel @Inject constructor(
                     workdayToSave = workdayToSave
                 )
 
-                uiState.workStats?.let { workdayRepository.insertWorkStats(it) }
+                state.workStats?.let { workdayRepository.insertWorkStats(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
+                Log.e("ProjectsViewModel", "saveProject: ", e)
             } catch (e: IllegalStateException) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
+                Log.e("ProjectsViewModel", "saveProject: ", e)
             }
         }
     }
 
-    fun deleteProject(uiState: ProjectListItemUiState) {
+    fun deleteProject(state: SingleProjectState) {
         viewModelScope.launch {
             try {
-                val currentState = _uiState.value
+                val currentState = uiState.value
                 val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
 
-                deleteProjectsUseCase(date = date, projectName = uiState.projectName)
+                deleteProjectsUseCase(date = date, projectName = state.projectName)
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_ARGUMENT)
+                Log.e("ProjectsViewModel", "deleteProject: ", e)
             } catch (e: IllegalStateException) {
-                _uiState.value = ProjectsUiState.Error(e.message ?: ERROR_INVALID_STATE)
+                Log.e("ProjectsViewModel", "deleteProject: ", e)
             }
         }
     }

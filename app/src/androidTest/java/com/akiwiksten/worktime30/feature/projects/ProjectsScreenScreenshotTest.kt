@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsActions
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsContent
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
@@ -51,19 +51,19 @@ class ProjectsScreenScreenshotTest {
                 date = "2026-04-10",
                 workTimeToday = "07:45",
                 projects = listOf(
-                    ProjectListItemUiState(
+                    SingleProjectState(
                         index = 0,
                         projectName = "Alpha Site",
                         projectTime = "04:15",
-                        kilometres = 24,
+                        kilometres = "24",
                         allowance = "Daily allowance",
                         workType = "Installation"
                     ),
-                    ProjectListItemUiState(
+                    SingleProjectState(
                         index = 1,
                         projectName = "Beta Support",
                         projectTime = "03:30",
-                        kilometres = 8,
+                        kilometres = "8",
                         allowance = "",
                         workType = "Maintenance"
                     )

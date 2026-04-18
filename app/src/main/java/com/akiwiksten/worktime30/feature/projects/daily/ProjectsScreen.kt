@@ -73,7 +73,7 @@ fun ProjectsScreen(
             onNavigateToSingleProject = onNavigateToSingleProject,
             onRetry = projectsViewModel::retryLoad,
             onDeleteProject = { project ->
-                projectsViewModel.deleteProject(uiState = project)
+                projectsViewModel.deleteProject(state = project)
                 selectedItemIndexState.intValue = -1
             }
         )
@@ -221,7 +221,7 @@ private fun ProjectsHeader(date: String, workTime: String) {
 
 @Composable
 private fun ProjectsListSection(
-    items: List<ProjectListItemUiState>,
+    items: List<SingleProjectState>,
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
@@ -268,7 +268,7 @@ private fun ProjectsListSection(
 
 @Composable
 private fun ProjectListItem(
-    item: ProjectListItemUiState,
+    item: SingleProjectState,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -352,7 +352,7 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
 
 @Composable
 private fun ProjectsActionButtons(
-    items: List<ProjectListItemUiState>,
+    items: List<SingleProjectState>,
     selectedIndex: Int,
     onAddClick: () -> Unit,
     onEditClick: () -> Unit,
@@ -410,5 +410,5 @@ data class ProjectsActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
     val onNavigateToSingleProject: (Int) -> Unit,
     val onRetry: () -> Unit,
-    val onDeleteProject: (ProjectListItemUiState) -> Unit
+    val onDeleteProject: (SingleProjectState) -> Unit
 )

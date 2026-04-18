@@ -47,7 +47,6 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
@@ -74,23 +73,22 @@ fun SingleProjectScreen(
         initialSingleProjectState.projectName
     ) {
         if (initialSingleProjectState.index != -1 && currentProjectsState is ProjectsUiState.Success) {
-            val fromViewModel = currentProjectsState
+            currentProjectsState
                 .projects
                 .find {
                     it.index == initialSingleProjectState.index
-                } ?: ProjectListItemUiState()
+                } ?: SingleProjectState()
             // If we have initial values from navigation (e.g., after returning from ProjectDetailsScreen), use them
-            fromViewModel
         } else {
-            initialSingleProjectState.toUiState()
+            initialSingleProjectState
         }
     }
 
-    var state by remember(initialUiState) { mutableStateOf(value = SingleProjectState(uiState = initialUiState)) }
+    var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
 
     // Update state when the ViewModel data changes (e.g., returning from ProjectDetailsScreen)
     LaunchedEffect(initialUiState) {
-        state = SingleProjectState(uiState = initialUiState)
+        state = initialUiState
     }
 
     val isConfirmEnabled by remember {
@@ -111,7 +109,7 @@ fun SingleProjectScreen(
             onNavigateBack = onNavigateBack,
             onOpenWorkday = { onOpenWorkday(state) },
             onConfirm = {
-                viewModel.saveProject(uiState = state.toUiState())
+                viewModel.saveProject(state = state)
                 onNavigateBack()
             }
         )

@@ -9,7 +9,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenContent
@@ -32,7 +31,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = SingleProjectState(uiState = ProjectListItemUiState()),
+                state = SingleProjectState(),
                 isAddMode = true,
                 projectsUiState = ProjectsUiState.Loading,
                 isConfirmEnabled = false,
@@ -53,7 +52,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = SingleProjectState(uiState = ProjectListItemUiState()),
+                state = SingleProjectState(),
                 isAddMode = true,
                 projectsUiState = ProjectsUiState.Loading,
                 isConfirmEnabled = false,
@@ -102,7 +101,7 @@ class SingleProjectScreenScreenshotTest {
         setSingleProjectContent(
             params = SingleProjectScreenContentParams(
                 date = "2026-04-10",
-                state = SingleProjectState(uiState = ProjectListItemUiState()),
+                state = SingleProjectState(),
                 isAddMode = true,
                 projectsUiState = ProjectsUiState.Error(message = "Failed to load project"),
                 isConfirmEnabled = false,

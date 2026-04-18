@@ -13,7 +13,7 @@ import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
@@ -70,7 +70,7 @@ class ProjectsViewModelTest {
         advanceUntilIdle()
 
         viewModel.saveProject(
-            ProjectListItemUiState(
+            SingleProjectState(
                 projectName = "Alpha",
                 projectTime = "01:00",
                 allowance = "No Allowance"

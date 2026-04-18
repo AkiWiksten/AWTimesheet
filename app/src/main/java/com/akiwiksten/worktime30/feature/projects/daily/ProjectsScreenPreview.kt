@@ -21,19 +21,19 @@ fun PreviewProjectsSuccess() {
             date = "2026-04-10",
             workTimeToday = "07:45",
             projects = listOf(
-                ProjectListItemUiState(
+                SingleProjectState(
                     index = 0,
                     projectName = "Alpha Site",
                     projectTime = "04:15",
-                    kilometres = 24,
+                    kilometres = "24",
                     allowance = "Daily allowance",
                     workType = "Installation"
                 ),
-                ProjectListItemUiState(
+                SingleProjectState(
                     index = 1,
                     projectName = "Beta Support",
                     projectTime = "03:30",
-                    kilometres = 8,
+                    kilometres = "8",
                     allowance = "",
                     workType = "Maintenance"
                 )

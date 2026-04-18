@@ -14,3 +14,14 @@ fun ProjectEntity.toDomain(): SingleProjectState {
         workType = workType,
     )
 }
+
+fun SingleProjectState.toEntity(): ProjectEntity {
+    return ProjectEntity(
+        date = date,
+        projectName = projectName,
+        projectTime = projectTime,
+        kilometres = kilometres.toIntOrNull() ?: 0,
+        allowance = allowance,
+        workType = workType,
+    )
+}

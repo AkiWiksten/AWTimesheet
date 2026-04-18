@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
@@ -12,7 +12,7 @@ class SaveProjectsUseCase @Inject constructor(
     private val projectDetailsRepository: ProjectDetailsRepository
 ) {
     suspend operator fun invoke(
-        projectsToSave: List<ProjectEntity>,
+        projectsToSave: List<SingleProjectState>,
         projectDetailsToSave: ProjectDetailsEntity? = null
     ) {
         projectsToSave.forEach { project ->

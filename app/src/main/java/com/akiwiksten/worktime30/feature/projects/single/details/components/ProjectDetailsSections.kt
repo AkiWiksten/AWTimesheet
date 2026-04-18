@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday.components
+package com.akiwiksten.worktime30.feature.projects.single.details.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsUiState
 
 @Composable
 fun ProjectNameField(name: String) {
@@ -74,7 +74,7 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
 }
 
 @Composable
-fun NewDayFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
+fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         AddTimeRow(
             textFieldValue = uiState.startTime,
@@ -126,7 +126,7 @@ fun NewDayFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) 
 }
 
 @Composable
-fun ExistingDayFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
+fun ExistingDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
         MainWorkTimeFields(uiState = uiState, actions = actions)
 
@@ -145,7 +145,7 @@ fun ExistingDayFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActi
 }
 
 @Composable
-private fun MainWorkTimeFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
+private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
         textFieldValue = uiState.startTime,
         stringId = R.string.start_time,
@@ -167,7 +167,7 @@ private fun MainWorkTimeFields(uiState: WorkdayUiState.Success, actions: Workday
 }
 
 @Composable
-private fun LunchAndBreakFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
+private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
         textFieldValue = uiState.lunchStart,
         stringId = R.string.lunch_start,
@@ -195,7 +195,7 @@ private fun LunchAndBreakFields(uiState: WorkdayUiState.Success, actions: Workda
 }
 
 @Composable
-private fun DailySummaryFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
+private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
         textFieldValue = uiState.dailyWorkTime,
         stringId = R.string.daily_work_time,
@@ -211,7 +211,7 @@ private fun DailySummaryFields(uiState: WorkdayUiState.Success, actions: Workday
 }
 
 @Composable
-private fun BalanceSummaryFields(uiState: WorkdayUiState.Success, actions: WorkdayFieldActions) {
+private fun BalanceSummaryFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = 12.dp)

@@ -9,6 +9,11 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenContent
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenContentParams
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

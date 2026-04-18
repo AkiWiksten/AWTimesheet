@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects
+package com.akiwiksten.worktime30.feature.projects.single
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +55,11 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.projects.components.DialogDropdownFields
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

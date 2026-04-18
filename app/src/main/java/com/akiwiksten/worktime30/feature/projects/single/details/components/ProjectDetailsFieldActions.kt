@@ -1,6 +1,6 @@
-package com.akiwiksten.worktime30.feature.workday.components
+package com.akiwiksten.worktime30.feature.projects.single.details.components
 
-data class WorkdayFieldActions(
+data class ProjectDetailsFieldActions(
     val onCurrentStartTime: () -> Unit = {},
     val onSetStartTime: (String) -> Unit = {},
     val onCurrentDailyWorkTime: () -> Unit = {},

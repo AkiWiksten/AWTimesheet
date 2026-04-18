@@ -1,8 +1,11 @@
-package com.akiwiksten.worktime30.feature.projects
+package com.akiwiksten.worktime30.feature.projects.single
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectListItemUiState
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 
 private const val PREVIEW_DATE = "2026-04-10"
 

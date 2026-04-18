@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.projects.single.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,8 +23,8 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-sealed class WorkdayUiState {
-    object Loading : WorkdayUiState()
+sealed class ProjectDetailsUiState {
+    object Loading : ProjectDetailsUiState()
 
     data class Success(
         val date: String = "",
@@ -43,23 +43,23 @@ sealed class WorkdayUiState {
         val oldBalanceToday: String = ZERO_TIME,
         val balanceTotal: String = ZERO_TIME,
         val isNewDay: Boolean = true
-    ) : WorkdayUiState()
+    ) : ProjectDetailsUiState()
 
-    data class Error(val message: String) : WorkdayUiState()
+    data class Error(val message: String) : ProjectDetailsUiState()
 }
 
 /**
- * ViewModel for managing the workday screen.
+ * ViewModel for managing the project details screen.
  */
 @Suppress("TooManyFunctions")
 @HiltViewModel
-class WorkdayViewModel @Inject constructor(
+class ProjectDetailsViewModel @Inject constructor(
     private val workdayRepository: WorkdayRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<WorkdayUiState>(WorkdayUiState.Loading)
-    val uiState: StateFlow<WorkdayUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<ProjectDetailsUiState>(ProjectDetailsUiState.Loading)
+    val uiState: StateFlow<ProjectDetailsUiState> = _uiState.asStateFlow()
     private val selectedDate = MutableStateFlow("")
     private val selectedProjectName = MutableStateFlow("")
 
@@ -82,8 +82,8 @@ class WorkdayViewModel @Inject constructor(
         selectedDate.value = date
         _uiState.update { currentState ->
             when (currentState) {
-                is WorkdayUiState.Success -> currentState.copy(date = date)
-                else -> WorkdayUiState.Success(date = date)
+                is ProjectDetailsUiState.Success -> currentState.copy(date = date)
+                else -> ProjectDetailsUiState.Success(date = date)
             }
         }
     }
@@ -92,8 +92,8 @@ class WorkdayViewModel @Inject constructor(
         selectedProjectName.value = projectName
         _uiState.update { currentState ->
             when (currentState) {
-                is WorkdayUiState.Success -> currentState.copy(projectName = projectName)
-                else -> WorkdayUiState.Success(projectName = projectName)
+                is ProjectDetailsUiState.Success -> currentState.copy(projectName = projectName)
+                else -> ProjectDetailsUiState.Success(projectName = projectName)
             }
         }
     }
@@ -104,10 +104,10 @@ class WorkdayViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collect { (date, projectName) ->
                     if (date.isNotEmpty()) {
-                        loadWorkdayInternal(
+                        loadProjectDetailsInternal(
                             baseState = (
-                                (uiState.value as? WorkdayUiState.Success)
-                                    ?: WorkdayUiState.Success()
+                                (uiState.value as? ProjectDetailsUiState.Success)
+                                    ?: ProjectDetailsUiState.Success()
                                 ).copy(
                                 date = date,
                                 projectName = projectName
@@ -121,7 +121,11 @@ class WorkdayViewModel @Inject constructor(
 
     fun setStartTime(startTime: String) {
         _uiState.update { currentState ->
-            val oldStart = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).startTime)
+            val oldStart = WorkTimeCalculator
+                .stringToLocalTime(
+                    (currentState as ProjectDetailsUiState.Success)
+                        .startTime
+                )
             val update = WorkTimeCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
@@ -146,7 +150,7 @@ class WorkdayViewModel @Inject constructor(
 
     fun setEndTime(endTime: String) {
         _uiState.update { currentState ->
-            val oldEnd = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).endTime)
+            val oldEnd = WorkTimeCalculator.stringToLocalTime((currentState as ProjectDetailsUiState.Success).endTime)
             val update = WorkTimeCalculator.calculateEndTimeUpdate(
                 EndTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(currentState.startTime),
@@ -169,7 +173,11 @@ class WorkdayViewModel @Inject constructor(
 
     fun setDailyWorkTime(dailyWorkTime: String) {
         _uiState.update { currentState ->
-            val oldDaily = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).dailyWorkTime)
+            val oldDaily = WorkTimeCalculator
+                .stringToLocalTime(
+                    (currentState as ProjectDetailsUiState.Success)
+                        .dailyWorkTime
+                )
             val update = WorkTimeCalculator.calculateDailyWorkTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 dailyWorkTime = WorkTimeCalculator.stringToLocalTime(dailyWorkTime),
@@ -188,7 +196,7 @@ class WorkdayViewModel @Inject constructor(
     fun setLunchStart(lunchStart0: String) {
         _uiState.update { currentState ->
             val oldLunchStart = WorkTimeCalculator.stringToLocalTime(
-                (currentState as WorkdayUiState.Success).lunchStart
+                (currentState as ProjectDetailsUiState.Success).lunchStart
             )
             val update = WorkTimeCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
@@ -207,7 +215,11 @@ class WorkdayViewModel @Inject constructor(
 
     fun setLunchEnd(lunchEnd: String) {
         _uiState.update { currentState ->
-            val oldLunchEnd = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).lunchEnd)
+            val oldLunchEnd = WorkTimeCalculator
+                .stringToLocalTime(
+                    (currentState as ProjectDetailsUiState.Success)
+                        .lunchEnd
+                )
             val update = WorkTimeCalculator.calculateLunchEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 lunchEnd = WorkTimeCalculator.stringToLocalTime(lunchEnd),
@@ -224,7 +236,11 @@ class WorkdayViewModel @Inject constructor(
 
     fun setLunchTime(lunchTime: String) {
         _uiState.update { currentState ->
-            val oldLunchTime = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).lunchTime)
+            val oldLunchTime = WorkTimeCalculator
+                .stringToLocalTime(
+                    (currentState as ProjectDetailsUiState.Success)
+                        .lunchTime
+                )
             val update = WorkTimeCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 lunchStart = WorkTimeCalculator.stringToLocalTime(currentState.lunchStart),
@@ -243,7 +259,7 @@ class WorkdayViewModel @Inject constructor(
     fun setBreakStart(breakStart0: String) {
         _uiState.update { currentState ->
             val oldBreakStart = WorkTimeCalculator.stringToLocalTime(
-                (currentState as WorkdayUiState.Success).breakStart
+                (currentState as ProjectDetailsUiState.Success).breakStart
             )
             val update = WorkTimeCalculator.calculateBreakStartUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
@@ -262,7 +278,11 @@ class WorkdayViewModel @Inject constructor(
 
     fun setBreakEnd(breakEnd0: String) {
         _uiState.update { currentState ->
-            val oldBreakEnd = WorkTimeCalculator.stringToLocalTime((currentState as WorkdayUiState.Success).breakEnd)
+            val oldBreakEnd = WorkTimeCalculator
+                .stringToLocalTime(
+                    (currentState as ProjectDetailsUiState.Success)
+                        .breakEnd
+                )
             val update = WorkTimeCalculator.calculateBreakEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(currentState.projectTime),
@@ -281,14 +301,14 @@ class WorkdayViewModel @Inject constructor(
         if (!isValid) {
             _uiState.update { currentState ->
                 when (currentState) {
-                    is WorkdayUiState.Success -> currentState.copy(balanceToday = balanceToday0)
+                    is ProjectDetailsUiState.Success -> currentState.copy(balanceToday = balanceToday0)
                     else -> currentState
                 }
             }
             return
         }
         _uiState.update { currentState ->
-            val successState = currentState as WorkdayUiState.Success
+            val successState = currentState as ProjectDetailsUiState.Success
             val oldProjectTime = WorkTimeCalculator.stringToLocalTime(successState.projectTime)
             val oldBalance = successState.oldBalanceToday
             val nextState = successState.copy(balanceToday = balanceToday0)
@@ -298,9 +318,9 @@ class WorkdayViewModel @Inject constructor(
     }
 
     private fun applyUpdateToState(
-        state: WorkdayUiState.Success,
+        state: ProjectDetailsUiState.Success,
         result: WorkTimeCalculator.TimeUpdateResult
-    ): WorkdayUiState.Success {
+    ): ProjectDetailsUiState.Success {
         var nextState = state.copy(
             endTime = result.end ?: state.endTime,
             lunchStart = result.lunchStart ?: state.lunchStart,
@@ -318,11 +338,11 @@ class WorkdayViewModel @Inject constructor(
     }
 
     private fun calculateBalanceUpdatesInState(
-        state: WorkdayUiState.Success,
+        state: ProjectDetailsUiState.Success,
         oldProjectTime: LocalTime,
         oldBalanceToday: String?,
         calculateToday: Boolean
-    ): WorkdayUiState.Success {
+    ): ProjectDetailsUiState.Success {
         var nextState = state
         var balanceToRevert = oldBalanceToday
         if (calculateToday) {
@@ -365,8 +385,8 @@ class WorkdayViewModel @Inject constructor(
         return nextState
     }
 
-    fun getWorkdayEntity(): WorkdayEntity {
-        val state = (uiState.value as WorkdayUiState.Success)
+    fun getProjectDetailsEntity(): WorkdayEntity {
+        val state = (uiState.value as ProjectDetailsUiState.Success)
         return WorkdayEntity(
             date = state.date,
             projectName = state.projectName,
@@ -382,7 +402,7 @@ class WorkdayViewModel @Inject constructor(
     }
 
     fun getWorkStatsEntity(): WorkStatsEntity {
-        val state = (uiState.value as WorkdayUiState.Success)
+        val state = (uiState.value as ProjectDetailsUiState.Success)
         return WorkStatsEntity(
             dailyWorkTime = state.dailyWorkTime,
             lunchTime = state.lunchTime,
@@ -391,32 +411,32 @@ class WorkdayViewModel @Inject constructor(
         )
     }
 
-    fun loadWorkday(workdayArg: WorkdayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
-        val baseState = (_uiState.value as? WorkdayUiState.Success) ?: WorkdayUiState.Success()
+    fun loadProjectDetails(projectDetailsArg: WorkdayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
+        val baseState = (_uiState.value as? ProjectDetailsUiState.Success) ?: ProjectDetailsUiState.Success()
         viewModelScope.launch {
-            loadWorkdayInternal(
+            loadProjectDetailsInternal(
                 baseState = baseState,
-                workdayArg = workdayArg,
+                projectDetailsArg = projectDetailsArg,
                 workStatsArg = workStatsArg,
                 showLoading = true
             )
         }
     }
 
-    private suspend fun loadWorkdayInternal(
-        baseState: WorkdayUiState.Success,
-        workdayArg: WorkdayEntity? = null,
+    private suspend fun loadProjectDetailsInternal(
+        baseState: ProjectDetailsUiState.Success,
+        projectDetailsArg: WorkdayEntity? = null,
         workStatsArg: WorkStatsEntity? = null,
         showLoading: Boolean
     ) {
         if (showLoading) {
-            _uiState.value = WorkdayUiState.Loading
+            _uiState.value = ProjectDetailsUiState.Loading
         }
 
         try {
             val date = baseState.date
             val projectName = baseState.projectName
-            val workday = workdayArg ?: workdayRepository.getWorkday(date, projectName)
+            val projectDetails = projectDetailsArg ?: workdayRepository.getWorkday(date, projectName)
             val workStats = workStatsArg ?: workdayRepository.getWorkStats()
 
             var nextState = baseState.copy(date = date, projectName = projectName)
@@ -436,18 +456,18 @@ class WorkdayViewModel @Inject constructor(
                 )
             }
 
-            nextState = if (workday != null) {
+            nextState = if (projectDetails != null) {
                 nextState.copy(
-                    startTime = workday.startTime,
-                    endTime = workday.endTime,
-                    lunchStart = workday.lunchStart,
-                    lunchEnd = workday.lunchEnd,
-                    breakStart = workday.breakStart,
-                    breakEnd = workday.breakEnd,
-                    projectTime = workday.projectTime,
-                    balanceToday = workday.balanceToday,
-                    oldBalanceToday = workday.balanceToday,
-                    isNewDay = isNewDay(workday)
+                    startTime = projectDetails.startTime,
+                    endTime = projectDetails.endTime,
+                    lunchStart = projectDetails.lunchStart,
+                    lunchEnd = projectDetails.lunchEnd,
+                    breakStart = projectDetails.breakStart,
+                    breakEnd = projectDetails.breakEnd,
+                    projectTime = projectDetails.projectTime,
+                    balanceToday = projectDetails.balanceToday,
+                    oldBalanceToday = projectDetails.balanceToday,
+                    isNewDay = isNewDay(projectDetails)
                 )
             } else {
                 nextState.copy(
@@ -466,15 +486,15 @@ class WorkdayViewModel @Inject constructor(
 
             _uiState.value = nextState
         } catch (e: IllegalArgumentException) {
-            _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid argument")
+            _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {
-            _uiState.value = WorkdayUiState.Error(e.message ?: "Invalid state")
+            _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid state")
         }
     }
 
     fun clearDay() {
         _uiState.update { currentState ->
-            val successState = currentState as WorkdayUiState.Success
+            val successState = currentState as ProjectDetailsUiState.Success
             var nextState = successState.copy(isNewDay = true)
             if (!(successState.projectTime == ZERO_TIME && successState.balanceToday == ZERO_TIME)) {
                 nextState = nextState.copy(
@@ -505,21 +525,21 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    private fun isNewDay(workday: WorkdayEntity): Boolean {
-        return workday.startTime == ZERO_TIME &&
-            workday.endTime == ZERO_TIME &&
-            workday.lunchEnd == ZERO_TIME &&
-            workday.lunchStart == ZERO_TIME &&
-            workday.projectTime == ZERO_TIME &&
-            workday.breakStart == ZERO_TIME &&
-            workday.breakEnd == ZERO_TIME
+    private fun isNewDay(projectDetails: WorkdayEntity): Boolean {
+        return projectDetails.startTime == ZERO_TIME &&
+            projectDetails.endTime == ZERO_TIME &&
+            projectDetails.lunchEnd == ZERO_TIME &&
+            projectDetails.lunchStart == ZERO_TIME &&
+            projectDetails.projectTime == ZERO_TIME &&
+            projectDetails.breakStart == ZERO_TIME &&
+            projectDetails.breakEnd == ZERO_TIME
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun setBalanceTotal(balanceTotal0: String, isValid: Boolean) {
         _uiState.update { currentState ->
             when (currentState) {
-                is WorkdayUiState.Success -> currentState.copy(balanceTotal = balanceTotal0)
+                is ProjectDetailsUiState.Success -> currentState.copy(balanceTotal = balanceTotal0)
                 else -> currentState
             }
         }
@@ -529,7 +549,7 @@ class WorkdayViewModel @Inject constructor(
     fun setWorkTimeTotal(workTimeTotal0: String, isValid: Boolean) {
         _uiState.update { currentState ->
             when (currentState) {
-                is WorkdayUiState.Success -> currentState.copy(workTimeTotal = workTimeTotal0)
+                is ProjectDetailsUiState.Success -> currentState.copy(workTimeTotal = workTimeTotal0)
                 else -> currentState
             }
         }
@@ -538,7 +558,7 @@ class WorkdayViewModel @Inject constructor(
     fun setProjectTime(projectTime: String) {
         _uiState.update { currentState ->
             val oldProjectTime = WorkTimeCalculator.stringToLocalTime(
-                (currentState as WorkdayUiState.Success).projectTime
+                (currentState as ProjectDetailsUiState.Success).projectTime
             )
             val update = WorkTimeCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(currentState.endTime),

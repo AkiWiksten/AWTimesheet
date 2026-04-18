@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects
+package com.akiwiksten.worktime30.feature.projects.daily
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.border

@@ -23,7 +23,7 @@ class GetProjectsScreenDataUseCaseTest {
             projectNames = listOf(ProjectNameEntity(name = "Alpha"))
         }
         val workdayRepository = FakeWorkdayRepository().apply {
-            workday = WorkdayEntity(date = "2026-04-10", workTimeToday = "07:30")
+            workday = WorkdayEntity(date = "2026-04-10", projectTime = "07:30")
         }
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf(WorkTypeEntity(workType = "Office"), WorkTypeEntity(workType = "Remote"))
@@ -32,7 +32,7 @@ class GetProjectsScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals("07:30", result.workTimeToday)
+        assertEquals("07:30", result.projectTime)
         assertEquals(1, result.projects.size)
         assertEquals(1, result.projectNames.size)
         assertEquals(listOf("Office", "Remote"), result.workTypes)
@@ -48,7 +48,7 @@ class GetProjectsScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals(ZERO_TIME, result.workTimeToday)
+        assertEquals(ZERO_TIME, result.projectTime)
     }
 
     private class FakeProjectRepository : ProjectRepository {

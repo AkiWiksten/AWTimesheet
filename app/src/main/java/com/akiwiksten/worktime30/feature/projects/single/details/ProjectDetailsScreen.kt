@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.projects.single.details
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -36,20 +36,20 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
-import com.akiwiksten.worktime30.feature.workday.components.ExistingDayFields
-import com.akiwiksten.worktime30.feature.workday.components.FooterSection
-import com.akiwiksten.worktime30.feature.workday.components.HeaderSection
-import com.akiwiksten.worktime30.feature.workday.components.NewDayFields
-import com.akiwiksten.worktime30.feature.workday.components.ProjectNameField
-import com.akiwiksten.worktime30.feature.workday.components.WorkdayFieldActions
+import com.akiwiksten.worktime30.feature.projects.single.details.components.ExistingDayFields
+import com.akiwiksten.worktime30.feature.projects.single.details.components.FooterSection
+import com.akiwiksten.worktime30.feature.projects.single.details.components.HeaderSection
+import com.akiwiksten.worktime30.feature.projects.single.details.components.NewDayFields
+import com.akiwiksten.worktime30.feature.projects.single.details.components.ProjectDetailsFieldActions
+import com.akiwiksten.worktime30.feature.projects.single.details.components.ProjectNameField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkdayScreen(
-    args: WorkdayArgs,
+fun ProjectDetailsScreen(
+    args: ProjectDetailsArgs,
     onNavigateBack: () -> Unit,
     onConfirm: (WorkdayEntity, WorkStatsEntity) -> Unit,
-    viewModel: WorkdayViewModel = hiltViewModel(),
+    viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -57,23 +57,23 @@ fun WorkdayScreen(
 
     LaunchedEffect(Unit) {
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
-        viewModel.loadWorkday(workdayArg = args.workday, workStatsArg = args.workStats)
+        viewModel.loadProjectDetails(projectDetailsArg = args.projectDetails, workStatsArg = args.workStats)
     }
 
     Scaffold(
         topBar = {
-            WorkdayTopBar(onNavigateBack = onNavigateBack)
+            ProjectDetailsTopBar(onNavigateBack = onNavigateBack)
         }
     ) { padding ->
         val actions = remember(viewModel, onConfirm) {
-            createWorkdayScreenActions(viewModel = viewModel) {
-                val workdayResult = viewModel.getWorkdayEntity()
+            createProjectDetailsScreenActions(viewModel = viewModel) {
+                val projectDetailsResult = viewModel.getProjectDetailsEntity()
                 val workStatsResult = viewModel.getWorkStatsEntity()
-                onConfirm(workdayResult, workStatsResult)
+                onConfirm(projectDetailsResult, workStatsResult)
             }
         }
 
-        WorkdayStateContent(
+        ProjectDetailsStateContent(
             padding = padding,
             uiState = uiState,
             projectName = args.projectName,
@@ -83,7 +83,7 @@ fun WorkdayScreen(
 }
 
 @Composable
-internal fun WorkdayLoadingState(padding: PaddingValues, showLoadingIndicator: Boolean) {
+internal fun ProjectDetailsLoadingState(padding: PaddingValues, showLoadingIndicator: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -99,7 +99,7 @@ internal fun WorkdayLoadingState(padding: PaddingValues, showLoadingIndicator: B
 }
 
 @Composable
-internal fun WorkdayErrorState(padding: PaddingValues, errorMessage: String) {
+internal fun ProjectDetailsErrorState(padding: PaddingValues, errorMessage: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -118,7 +118,7 @@ internal fun WorkdayErrorState(padding: PaddingValues, errorMessage: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun WorkdayTopBar(onNavigateBack: () -> Unit) {
+internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Header(
@@ -136,11 +136,11 @@ internal fun WorkdayTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-internal fun WorkdayContent(
+internal fun ProjectDetailsContent(
     padding: PaddingValues,
-    uiState: WorkdayUiState.Success,
+    uiState: ProjectDetailsUiState.Success,
     projectName: String?,
-    actions: WorkdayScreenActions
+    actions: ProjectDetailsScreenActions
 ) {
     Column(
         modifier = Modifier
@@ -168,33 +168,33 @@ internal fun WorkdayContent(
 }
 
 @Composable
-internal fun WorkdayStateContent(
+internal fun ProjectDetailsStateContent(
     padding: PaddingValues,
-    uiState: WorkdayUiState,
+    uiState: ProjectDetailsUiState,
     projectName: String?,
-    actions: WorkdayScreenActions
+    actions: ProjectDetailsScreenActions
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = uiState is WorkdayUiState.Loading
+        isLoading = uiState is ProjectDetailsUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
+    var lastSuccessState by remember { mutableStateOf<ProjectDetailsUiState.Success?>(value = null) }
 
     LaunchedEffect(uiState) {
-        if (uiState is WorkdayUiState.Success) {
+        if (uiState is ProjectDetailsUiState.Success) {
             lastSuccessState = uiState
         }
     }
 
     when (uiState) {
-        is WorkdayUiState.Loading -> {
+        is ProjectDetailsUiState.Loading -> {
             if (showLoadingIndicator) {
-                WorkdayLoadingState(
+                ProjectDetailsLoadingState(
                     padding = padding,
                     showLoadingIndicator = showLoadingIndicator
                 )
             } else {
                 lastSuccessState?.let { cachedState ->
-                    WorkdayContent(
+                    ProjectDetailsContent(
                         padding = padding,
                         uiState = cachedState,
                         projectName = projectName,
@@ -207,33 +207,33 @@ internal fun WorkdayStateContent(
                 )
             }
         }
-        is WorkdayUiState.Success -> WorkdayContent(
+        is ProjectDetailsUiState.Success -> ProjectDetailsContent(
             padding = padding,
             uiState = uiState,
             projectName = projectName,
             actions = actions
         )
-        is WorkdayUiState.Error -> WorkdayErrorState(
+        is ProjectDetailsUiState.Error -> ProjectDetailsErrorState(
             padding = padding,
             errorMessage = uiState.message
         )
     }
 }
 
-internal data class WorkdayScreenActions(
+internal data class ProjectDetailsScreenActions(
     val onClearDay: () -> Unit = {},
     val onConfirm: () -> Unit = {},
-    val fieldActions: WorkdayFieldActions = WorkdayFieldActions()
+    val fieldActions: ProjectDetailsFieldActions = ProjectDetailsFieldActions()
 )
 
-private fun createWorkdayScreenActions(
-    viewModel: WorkdayViewModel,
+private fun createProjectDetailsScreenActions(
+    viewModel: ProjectDetailsViewModel,
     onConfirm: () -> Unit
-): WorkdayScreenActions {
-    return WorkdayScreenActions(
+): ProjectDetailsScreenActions {
+    return ProjectDetailsScreenActions(
         onClearDay = viewModel::clearDay,
         onConfirm = onConfirm,
-        fieldActions = WorkdayFieldActions(
+        fieldActions = ProjectDetailsFieldActions(
             onCurrentStartTime = viewModel::currentStartTime,
             onSetStartTime = viewModel::setStartTime,
             onCurrentDailyWorkTime = viewModel::currentDailyWorkTime,
@@ -259,8 +259,8 @@ private fun createWorkdayScreenActions(
     )
 }
 
-data class WorkdayArgs(
+data class ProjectDetailsArgs(
     val projectName: String? = null,
-    val workday: WorkdayEntity? = null,
+    val projectDetails: WorkdayEntity? = null,
     val workStats: WorkStatsEntity? = null
 )

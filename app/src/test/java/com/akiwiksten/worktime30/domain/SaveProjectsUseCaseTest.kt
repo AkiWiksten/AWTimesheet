@@ -20,7 +20,7 @@ class SaveProjectsUseCaseTest {
 
         useCase(
             projectsToSave = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")),
-            workdayToSave = WorkdayEntity(date = "2026-04-10", projectName = "Alpha", workTimeToday = "07:00")
+            workdayToSave = WorkdayEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "07:00")
         )
 
         assertEquals(listOf(ProjectNameEntity(name = "Alpha")), projectRepository.insertedProjectNames)

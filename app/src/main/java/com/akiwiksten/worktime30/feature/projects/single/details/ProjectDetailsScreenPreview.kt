@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.projects.single.details
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
@@ -6,17 +6,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 
-@Preview(showBackground = true, name = "Workday - Loading")
+@Preview(showBackground = true, name = "ProjectDetails - Loading")
 @Composable
-fun PreviewWorkdayLoading() {
-    WorkdayPreviewContent(uiState = WorkdayUiState.Loading)
+fun PreviewProjectDetailsLoading() {
+    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
 }
 
-@Preview(showBackground = true, name = "Workday - Success New Day")
+@Preview(showBackground = true, name = "ProjectDetails - Success New Day")
 @Composable
-fun PreviewWorkdaySuccessNewDay() {
-    WorkdayPreviewContent(
-        uiState = WorkdayUiState.Success(
+fun PreviewProjectDetailsSuccessNewDay() {
+    ProjectDetailsPreviewContent(
+        uiState = ProjectDetailsUiState.Success(
             date = "2026-04-10",
             projectName = "Alpha Site",
             dailyWorkTime = "07:30",
@@ -29,11 +29,11 @@ fun PreviewWorkdaySuccessNewDay() {
     )
 }
 
-@Preview(showBackground = true, name = "Workday - Success Existing Day")
+@Preview(showBackground = true, name = "ProjectDetails - Success Existing Day")
 @Composable
-fun PreviewWorkdaySuccessExistingDay() {
-    WorkdayPreviewContent(
-        uiState = WorkdayUiState.Success(
+fun PreviewProjectDetailsSuccessExistingDay() {
+    ProjectDetailsPreviewContent(
+        uiState = ProjectDetailsUiState.Success(
             date = "2026-04-10",
             projectName = "Beta Support",
             startTime = "08:00",
@@ -54,23 +54,23 @@ fun PreviewWorkdaySuccessExistingDay() {
     )
 }
 
-@Preview(showBackground = true, name = "Workday - Error")
+@Preview(showBackground = true, name = "ProjectDetails - Error")
 @Composable
-fun PreviewWorkdayError() {
-    WorkdayPreviewContent(uiState = WorkdayUiState.Error(message = "Failed to load workday"))
+fun PreviewProjectDetailsError() {
+    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Error(message = "Failed to load project details"))
 }
 
 @Composable
-private fun WorkdayPreviewContent(
-    uiState: WorkdayUiState,
+private fun ProjectDetailsPreviewContent(
+    uiState: ProjectDetailsUiState,
     projectName: String? = null
 ) {
     WorkTime30Theme(dynamicColor = false) {
-        WorkdayStateContent(
+        ProjectDetailsStateContent(
             padding = PaddingValues(0.dp),
             uiState = uiState,
             projectName = projectName,
-            actions = WorkdayScreenActions()
+            actions = ProjectDetailsScreenActions()
         )
     }
 }

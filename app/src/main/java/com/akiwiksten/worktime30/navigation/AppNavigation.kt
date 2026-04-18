@@ -16,12 +16,12 @@ import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.ProjectsScreen
-import com.akiwiksten.worktime30.feature.projects.SingleProjectScreen
-import com.akiwiksten.worktime30.feature.projects.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsArgs
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
-import com.akiwiksten.worktime30.feature.workday.WorkdayArgs
-import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
 
 @Composable
 fun WorkTime30App() {
@@ -72,7 +72,7 @@ internal fun WorkTimeNavDisplay(
             }
             entry<Screen.Settings> { SettingsScreen() }
             entry<Screen.Workday> { screen ->
-                WorkdayEntry(screen = screen, backStack = backStack)
+                ProjectDetailsEntry(screen = screen, backStack = backStack)
             }
             entry<Screen.SingleProject> { screen ->
                 SingleProjectEntry(screen = screen, backStack = backStack)
@@ -82,16 +82,16 @@ internal fun WorkTimeNavDisplay(
 }
 
 @Composable
-private fun WorkdayEntry(screen: Screen.Workday, backStack: SnapshotStateList<Any>) {
-    WorkdayScreen(
-        args = WorkdayArgs(
+private fun ProjectDetailsEntry(screen: Screen.Workday, backStack: SnapshotStateList<Any>) {
+    ProjectDetailsScreen(
+        args = ProjectDetailsArgs(
             projectName = screen.projectName,
-            workday = screen.workday,
+            projectDetails = screen.workday,
             workStats = screen.workStats
         ),
         onNavigateBack = { backStack.pop() },
-        onConfirm = { workday, workStats ->
-            backStack.updateSingleProjectWorkTime(workday = workday, workStats = workStats)
+        onConfirm = { projectDetails, workStats ->
+            backStack.updateSingleProjectWorkTime(workday = projectDetails, workStats = workStats)
         }
     )
 }

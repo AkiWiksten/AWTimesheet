@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects
+package com.akiwiksten.worktime30.feature.projects.daily
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview

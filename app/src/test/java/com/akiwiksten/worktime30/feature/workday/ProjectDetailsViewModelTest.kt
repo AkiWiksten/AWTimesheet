@@ -5,6 +5,8 @@ import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsUiState
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -15,15 +17,15 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class WorkdayViewModelTest {
+class ProjectDetailsViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun setDate_andProjectName_loadsWorkdayData() = runTest {
-        val repository = FakeWorkdayRepository().apply {
-            workday = WorkdayEntity(
+    fun setDate_andProjectName_loadsProjectDetailsData() = runTest {
+        val repository = FakeProjectDetailsRepository().apply {
+            projectDetails = WorkdayEntity(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 startTime = "08:00",
@@ -38,15 +40,15 @@ class WorkdayViewModelTest {
                 balanceTotal = "01:00"
             )
         }
-        val viewModel = WorkdayViewModel(repository, DateRepository())
+        val viewModel = ProjectDetailsViewModel(repository, DateRepository())
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue(state is WorkdayUiState.Success)
-        state as WorkdayUiState.Success
+        assertTrue(state is ProjectDetailsUiState.Success)
+        state as ProjectDetailsUiState.Success
         assertEquals("2026-04-10", state.date)
         assertEquals("Alpha", state.projectName)
         assertEquals("08:00", state.startTime)
@@ -54,13 +56,13 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun loadWorkday_withArgs_mapsEntities_andClearDayResetsDailyFields() = runTest {
-        val viewModel = WorkdayViewModel(FakeWorkdayRepository(), DateRepository())
+    fun loadProjectDetails_withArgs_mapsEntities_andClearDayResetsDailyFields() = runTest {
+        val viewModel = ProjectDetailsViewModel(FakeProjectDetailsRepository(), DateRepository())
 
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
-        viewModel.loadWorkday(
-            workdayArg = WorkdayEntity(
+        viewModel.loadProjectDetails(
+            projectDetailsArg = WorkdayEntity(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 startTime = "08:00",
@@ -77,31 +79,31 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        val workdayEntity = viewModel.getWorkdayEntity()
+        val projectDetailsEntity = viewModel.getProjectDetailsEntity()
         val workStatsEntity = viewModel.getWorkStatsEntity()
-        assertEquals("Alpha", workdayEntity.projectName)
+        assertEquals("Alpha", projectDetailsEntity.projectName)
         assertEquals("12:00", workStatsEntity.workTimeTotal)
 
         viewModel.clearDay()
 
-        val cleared = viewModel.uiState.value as WorkdayUiState.Success
+        val cleared = viewModel.uiState.value as ProjectDetailsUiState.Success
         assertEquals(ZERO_TIME, cleared.startTime)
         assertEquals(ZERO_TIME, cleared.endTime)
         assertEquals(ZERO_TIME, cleared.projectTime)
     }
 
-    private class FakeWorkdayRepository : WorkdayRepository {
-        var workday: WorkdayEntity? = null
+    private class FakeProjectDetailsRepository : WorkdayRepository {
+        var projectDetails: WorkdayEntity? = null
         var workStats: WorkStatsEntity? = null
 
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = workday
+        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = projectDetails
 
         override suspend fun insertWorkday(workday: WorkdayEntity) {
-            this.workday = workday
+            this.projectDetails = workday
         }
 
         override suspend fun deleteWorkday(workday: WorkdayEntity) {
-            this.workday = null
+            this.projectDetails = null
         }
 
         override suspend fun getWorkStats(): WorkStatsEntity? = workStats

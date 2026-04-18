@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday.components
+package com.akiwiksten.worktime30.feature.projects.single.details.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

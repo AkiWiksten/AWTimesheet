@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.components
+package com.akiwiksten.worktime30.feature.projects.single.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
-import com.akiwiksten.worktime30.feature.projects.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 
 @Composable
 internal fun DialogDropdownFields(

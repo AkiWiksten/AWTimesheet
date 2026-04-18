@@ -8,7 +8,6 @@ import androidx.room.Query
 import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 
 @Dao
 interface ProjectDao {
@@ -32,19 +31,4 @@ interface ProjectDao {
 
     @Query("SELECT exists (SELECT 1 FROM project WHERE $PROJECT_NAME = :projectName)")
     suspend fun isProjectNameUsed(projectName: String): Boolean
-}
-
-@Dao
-interface ProjectNameDao {
-    @Query("SELECT exists (SELECT 1 FROM project_name)")
-    suspend fun anyRecords(): Boolean
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertProjectName(project: ProjectNameEntity)
-
-    @Query("SELECT * FROM project_name")
-    suspend fun loadProjectNames(): List<ProjectNameEntity>
-
-    @Delete
-    suspend fun delete(project: ProjectNameEntity)
 }

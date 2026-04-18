@@ -8,7 +8,6 @@ import androidx.room.Query
 import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 
 @Dao
 interface ProjectDetailsDao {
@@ -31,11 +30,4 @@ interface ProjectDetailsDao {
     suspend fun getProjectDetailsByDateRange(dateStart: String, dateEnd: String): List<ProjectDetailsEntity>
 }
 
-@Dao
-interface WorkStatsDao {
-    @Query("SELECT * FROM work_stats WHERE id = 1")
-    suspend fun loadWorkStats(): WorkStatsEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWorkStats(workStats: WorkStatsEntity)
-}

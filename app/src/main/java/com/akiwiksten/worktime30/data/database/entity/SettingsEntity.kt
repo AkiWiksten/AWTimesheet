@@ -7,8 +7,6 @@ import com.akiwiksten.worktime30.core.EMPLOYER
 import com.akiwiksten.worktime30.core.ID
 import com.akiwiksten.worktime30.core.NAME
 import com.akiwiksten.worktime30.core.SETTINGS_TABLE
-import com.akiwiksten.worktime30.core.WORK_TYPE
-import com.akiwiksten.worktime30.core.WORK_TYPE_TABLE
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -19,8 +17,3 @@ data class SettingsEntity(
     @ColumnInfo(name = EMPLOYER) val employer: String = "",
 )
 
-@Serializable
-@Entity(tableName = WORK_TYPE_TABLE)
-data class WorkTypeEntity(
-    @PrimaryKey @ColumnInfo(name = WORK_TYPE) val workType: String = "",
-)

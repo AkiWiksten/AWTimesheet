@@ -4,13 +4,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.PrimaryKey
 import com.akiwiksten.worktime30.core.ALLOWANCE
 import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.KILOMETRES
 import com.akiwiksten.worktime30.core.NAME
 import com.akiwiksten.worktime30.core.PROJECT_NAME
-import com.akiwiksten.worktime30.core.PROJECT_NAME_TABLE
 import com.akiwiksten.worktime30.core.PROJECT_TABLE
 import com.akiwiksten.worktime30.core.PROJECT_TIME
 import com.akiwiksten.worktime30.core.WORK_TYPE
@@ -37,10 +35,4 @@ data class ProjectEntity(
     @ColumnInfo(name = KILOMETRES) val kilometres: Int = 0,
     @ColumnInfo(name = ALLOWANCE) val allowance: String = "",
     @ColumnInfo(name = WORK_TYPE) val workType: String = "",
-)
-
-@Serializable
-@Entity(tableName = PROJECT_NAME_TABLE)
-data class ProjectNameEntity(
-    @PrimaryKey @ColumnInfo(name = NAME) val name: String,
 )

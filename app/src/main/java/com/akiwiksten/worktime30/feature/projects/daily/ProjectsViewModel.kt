@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -44,7 +42,7 @@ sealed class ProjectsUiState {
         val date: String = "",
         val workTimeToday: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
-        val projectNames: List<ProjectNameEntity> = emptyList(),
+        val projectNames: List<String> = emptyList(),
         val workTypes: List<String> = emptyList()
     ) : ProjectsUiState()
 
@@ -70,9 +68,9 @@ class ProjectsViewModel @Inject constructor(
             val recordedNames = data.projects.map { it.projectName }.toSet()
 
             val unrecordedProjects = data.projectNames
-                .filter { it.name !in recordedNames }
-                .map { entity ->
-                    SingleProjectState(projectName = entity.name,)
+                .filter { it !in recordedNames }
+                .map { name ->
+                    SingleProjectState(projectName = name)
                 }
 
             val allProjects = (data.projects + unrecordedProjects)
@@ -108,14 +106,7 @@ class ProjectsViewModel @Inject constructor(
                 val currentState = uiState.value
                 val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
 
-                val entity = ProjectEntity(
-                    date = date,
-                    projectName = state.projectName,
-                    projectTime = state.projectTime,
-                    kilometres = state.kilometres.toIntOrNull() ?: 0,
-                    allowance = state.allowance,
-                    workType = state.workType
-                )
+                val projectToSave = state.copy(date = date)
 
                 val projectDetailsToSave = state.projectDetails?.copy(
                     date = date,
@@ -129,7 +120,7 @@ class ProjectsViewModel @Inject constructor(
                 )
 
                 saveProjectsUseCase(
-                    projectsToSave = listOf(entity),
+                    projectsToSave = listOf(projectToSave),
                     projectDetailsToSave = projectDetailsToSave
                 )
 

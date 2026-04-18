@@ -16,7 +16,7 @@ interface ProjectNameDao {
     suspend fun insertProjectName(project: ProjectNameEntity)
 
     @Query("SELECT * FROM project_name")
-    suspend fun loadProjectNames(): List<String>
+    suspend fun loadProjectNames(): List<ProjectNameEntity>
 
     @Delete
     suspend fun delete(project: ProjectNameEntity)

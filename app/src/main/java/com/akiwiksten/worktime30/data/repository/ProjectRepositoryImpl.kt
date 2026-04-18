@@ -2,8 +2,6 @@ package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
@@ -20,15 +18,17 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override suspend fun insertProject(project: SingleProjectState) = projectDao.insertProject(project.toEntity())
 
-    override suspend fun deleteProject(project: ProjectEntity) = projectDao.delete(project)
+    override suspend fun deleteProject(project: SingleProjectState) = projectDao.delete(project.toEntity())
 
-    override suspend fun getProjectNames(): List<String> = projectNameDao.loadProjectNames()
+    override suspend fun getProjectNames(): List<String> = projectNameDao
+        .loadProjectNames()
+        .map { it.toDomain() }
 
-    override suspend fun insertProjectName(projectName: ProjectNameEntity) =
-        projectNameDao.insertProjectName(projectName)
+    override suspend fun insertProjectName(projectName: String) =
+        projectNameDao.insertProjectName(projectName.toEntity())
 
-    override suspend fun deleteProjectName(projectName: ProjectNameEntity) =
-        projectNameDao.delete(projectName)
+    override suspend fun deleteProjectName(projectName: String) =
+        projectNameDao.delete(projectName.toEntity())
 
     override suspend fun isProjectNameUsed(projectName: String): Boolean =
         projectDao.isProjectNameUsed(projectName)

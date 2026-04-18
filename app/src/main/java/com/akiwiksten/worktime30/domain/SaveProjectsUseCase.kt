@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import javax.inject.Inject
@@ -16,7 +15,7 @@ class SaveProjectsUseCase @Inject constructor(
         projectDetailsToSave: ProjectDetailsEntity? = null
     ) {
         projectsToSave.forEach { project ->
-            projectRepository.insertProjectName(ProjectNameEntity(project.projectName))
+            projectRepository.insertProjectName(project.projectName)
             projectRepository.insertProject(project)
         }
 

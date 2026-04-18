@@ -23,37 +23,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-sealed class ProjectDetailsUiState {
-    object Loading : ProjectDetailsUiState()
-
-    data class Success(
-        val data: ProjectDetailsState
-    ) : ProjectDetailsUiState()
-
-    data class Error(val message: String) : ProjectDetailsUiState()
-}
-
-data class ProjectDetailsState(
-    val date: String = "",
-    val projectName: String = "",
-    val startTime: String = ZERO_TIME,
-    val endTime: String = ZERO_TIME,
-    val dailyWorkTime: String = ZERO_TIME,
-    val lunchStart: String = ZERO_TIME,
-    val lunchEnd: String = ZERO_TIME,
-    val lunchTime: String = ZERO_TIME,
-    val breakStart: String = ZERO_TIME,
-    val breakEnd: String = ZERO_TIME,
-    val projectTime: String = ZERO_TIME,
-    val otherProjectsTotalTime: String = ZERO_TIME,
-    val hasOtherProjects: Boolean = false,
-    val workTimeTotal: String = ZERO_TIME,
-    val balanceToday: String = ZERO_TIME,
-    val oldBalanceToday: String = ZERO_TIME,
-    val balanceTotal: String = ZERO_TIME,
-    val isNewDay: Boolean = true
-)
-
 /**
  * ViewModel for managing the project details screen.
  */
@@ -489,28 +458,12 @@ class ProjectDetailsViewModel @Inject constructor(
 
     fun getProjectDetailsEntity(): ProjectDetailsEntity {
         val state = (uiState.value as ProjectDetailsUiState.Success).data
-        return ProjectDetailsEntity(
-            date = state.date,
-            projectName = state.projectName,
-            startTime = state.startTime,
-            endTime = state.endTime,
-            lunchStart = state.lunchStart,
-            lunchEnd = state.lunchEnd,
-            breakStart = state.breakStart,
-            breakEnd = state.breakEnd,
-            projectTime = state.projectTime,
-            balanceToday = state.balanceToday,
-        )
+        return ProjectDetailsMapper.mapToEntity(state)
     }
 
     fun getWorkStatsEntity(): WorkStatsEntity {
         val state = (uiState.value as ProjectDetailsUiState.Success).data
-        return WorkStatsEntity(
-            dailyWorkTime = state.dailyWorkTime,
-            lunchTime = state.lunchTime,
-            workTimeTotal = state.workTimeTotal,
-            balanceTotal = state.balanceTotal
-        )
+        return ProjectDetailsMapper.mapToWorkStatsEntity(state)
     }
 
     fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsEntity? = null) {
@@ -556,7 +509,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 WorkTimeCalculator.calculateWorkTimeBalance(acc, p.projectTime)
             }
 
-            val nextState = applyEntitiesToState(
+            val nextState = ProjectDetailsMapper.applyEntitiesToState(
                 baseState.copy(
                     data = baseState.data.copy(
                         date = date,
@@ -573,63 +526,6 @@ class ProjectDetailsViewModel @Inject constructor(
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid state")
-        }
-    }
-
-    private fun applyEntitiesToState(
-        baseState: ProjectDetailsUiState.Success,
-        projectDetails: ProjectDetailsState?,
-        workStats: WorkStatsEntity?
-    ): ProjectDetailsUiState.Success {
-        var state = baseState.data
-        state = if (workStats != null) {
-            state.copy(
-                dailyWorkTime = workStats.dailyWorkTime.ifEmpty { "07:30" },
-                lunchTime = workStats.lunchTime.ifEmpty { ZERO_TIME },
-                workTimeTotal = workStats.workTimeTotal.ifEmpty { ZERO_TIME },
-                balanceTotal = workStats.balanceTotal.ifEmpty { ZERO_TIME }
-            )
-        } else {
-            state.copy(
-                dailyWorkTime = "07:30",
-                lunchTime = ZERO_TIME,
-                workTimeTotal = ZERO_TIME,
-                balanceTotal = ZERO_TIME
-            )
-        }
-
-        return if (projectDetails != null) {
-            baseState.copy(
-                data = state.copy(
-                    date = projectDetails.date,
-                    projectName = projectDetails.projectName,
-                    startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },
-                    endTime = projectDetails.endTime.ifEmpty { ZERO_TIME },
-                    lunchStart = projectDetails.lunchStart.ifEmpty { ZERO_TIME },
-                    lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
-                    breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
-                    breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
-                    projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME },
-                    balanceToday = projectDetails.balanceToday.ifEmpty { ZERO_TIME },
-                    oldBalanceToday = projectDetails.balanceToday.ifEmpty { ZERO_TIME },
-                    isNewDay = isNewDay(projectDetails)
-                )
-            )
-        } else {
-            baseState.copy(
-                data = state.copy(
-                    isNewDay = true,
-                    startTime = ZERO_TIME,
-                    endTime = ZERO_TIME,
-                    lunchStart = ZERO_TIME,
-                    lunchEnd = ZERO_TIME,
-                    breakStart = ZERO_TIME,
-                    breakEnd = ZERO_TIME,
-                    projectTime = ZERO_TIME,
-                    balanceToday = ZERO_TIME,
-                    oldBalanceToday = ZERO_TIME
-                )
-            )
         }
     }
 
@@ -677,17 +573,6 @@ class ProjectDetailsViewModel @Inject constructor(
                 )
             )
         }
-    }
-
-    private fun isNewDay(projectDetails: ProjectDetailsState): Boolean {
-        fun isZero(time: String) = time == ZERO_TIME || time.isEmpty()
-        return isZero(projectDetails.startTime) &&
-            isZero(projectDetails.endTime) &&
-            isZero(projectDetails.lunchEnd) &&
-            isZero(projectDetails.lunchStart) &&
-            isZero(projectDetails.projectTime) &&
-            isZero(projectDetails.breakStart) &&
-            isZero(projectDetails.breakEnd)
     }
 
     @Suppress("UNUSED_PARAMETER")

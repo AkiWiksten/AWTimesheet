@@ -34,6 +34,7 @@ fun PreviewSingleProjectSuccessAdd() {
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
             state = SingleProjectState(
+                index = -1,
                 projectName = "",
                 projectTime = "00:00",
                 kilometres = "",
@@ -62,6 +63,7 @@ fun PreviewSingleProjectSuccessEdit() {
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
             state = SingleProjectState(
+                index = 0,
                 projectName = "Beta Support",
                 projectTime = "03:30",
                 kilometres = "18",

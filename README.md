@@ -1,4 +1,4 @@
-# WorkTime 3.0
+# AWWorkTime 3.0
 ## Purpose
 + An app for work time management
 ## Branches
@@ -41,6 +41,7 @@ A clean, scalable example of this is:
 + Screenshot tests (AndroidJUnit4)
 
 This is called feature-based packaging.
+
 ## Code analysis and testing
 + ./gradlew detekt
 + ./gradlew lint
@@ -76,3 +77,4 @@ This is called feature-based packaging.
   + Edit “Balance total” in SettingsScreen.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
++ WorkdayEntity->ProjectDetailsEntity

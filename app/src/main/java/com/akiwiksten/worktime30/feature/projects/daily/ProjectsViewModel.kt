@@ -30,9 +30,6 @@ data class ProjectListItemUiState(
     val kilometres: Int = 0,
     val allowance: String = "",
     val workType: String = "",
-    val titleId: Int = -1,
-    val leftOvers: String = "",
-    val initBalance: String = "",
     val workday: WorkdayEntity? = null,
     val workStats: WorkStatsEntity? = null
 )
@@ -57,6 +54,7 @@ data class SingleProjectState(
     val kilometres: String,
     val allowance: String,
     val workType: String,
+    val index: Int,
     val workday: WorkdayEntity? = null,
     val workStats: WorkStatsEntity? = null
 ) {
@@ -67,7 +65,8 @@ data class SingleProjectState(
         allowance = uiState.allowance.ifEmpty { "No Allowance" },
         workType = uiState.workType,
         workday = uiState.workday,
-        workStats = uiState.workStats
+        workStats = uiState.workStats,
+        index = uiState.index
     )
 
     fun toUiState() = ProjectListItemUiState(

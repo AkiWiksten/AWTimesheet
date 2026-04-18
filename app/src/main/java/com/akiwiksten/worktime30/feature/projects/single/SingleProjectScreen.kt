@@ -33,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
@@ -64,26 +64,50 @@ import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
-    index: Int,
     onNavigateBack: () -> Unit,
     onOpenWorkday: (SingleProjectState) -> Unit,
+    initialSingleProjectState: SingleProjectState,
     viewModel: ProjectsViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
 ) {
-    val projectsUiState by viewModel.uiState.collectAsState()
+    val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentProjectsState = projectsUiState
     val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
 
-    val initialUiState = remember(index, currentProjectsState) {
-        if (index != -1 && currentProjectsState is ProjectsUiState.Success) {
-            currentProjectsState.projects.find { it.index == index } ?: ProjectListItemUiState()
+    val initialUiState = remember(
+        initialSingleProjectState.index,
+        currentProjectsState,
+        initialSingleProjectState.projectTime,
+        initialSingleProjectState.projectName
+    ) {
+        if (initialSingleProjectState.index != -1 && currentProjectsState is ProjectsUiState.Success) {
+            val fromViewModel = currentProjectsState
+                .projects
+                .find {
+                    it.index == initialSingleProjectState.index
+                } ?: ProjectListItemUiState()
+            // If we have initial values from navigation (e.g., after returning from ProjectDetailsScreen), use them
+            fromViewModel.copy(
+                projectName = initialSingleProjectState.projectName ?: fromViewModel.projectName,
+                projectTime = initialSingleProjectState.projectTime ?: fromViewModel.projectTime,
+                kilometres = (initialSingleProjectState.kilometres?.toIntOrNull() ?: fromViewModel.kilometres),
+                allowance = initialSingleProjectState.allowance ?: fromViewModel.allowance,
+                workType = initialSingleProjectState.workType ?: fromViewModel.workType,
+                workday = initialSingleProjectState.workday ?: fromViewModel.workday,
+                workStats = initialSingleProjectState.workStats ?: fromViewModel.workStats
+            )
         } else {
-            ProjectListItemUiState()
+            initialSingleProjectState.toUiState()
         }
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = SingleProjectState(uiState = initialUiState)) }
+
+    // Update state when the ViewModel data changes (e.g., returning from ProjectDetailsScreen)
+    LaunchedEffect(initialUiState) {
+        state = SingleProjectState(uiState = initialUiState)
+    }
 
     val isConfirmEnabled by remember {
         derivedStateOf {
@@ -93,10 +117,10 @@ fun SingleProjectScreen(
 
     SingleProjectScreenContent(
         params = SingleProjectScreenContentParams(
-            index = index,
+            index = initialSingleProjectState.index,
             date = date,
             state = state,
-            isAddMode = index == -1,
+            isAddMode = initialSingleProjectState.index == -1,
             projectsUiState = currentProjectsState,
             isConfirmEnabled = isConfirmEnabled,
             onStateChange = { state = it },
@@ -348,25 +372,29 @@ private fun DialogMainFields(
     onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
-        OutlinedTextField(
-            value = state.projectName,
-            onValueChange = { onStateChange(state.copy(projectName = it)) },
-            label = { Text(text = stringResource(id = R.string.project_name)) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = isAddMode,
-            singleLine = true,
-            shape = RoundedCornerShape(size = 12.dp)
-        )
+        state.projectName?.let {
+            OutlinedTextField(
+                value = it,
+                onValueChange = { onStateChange(state.copy(projectName = it)) },
+                label = { Text(text = stringResource(id = R.string.project_name)) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isAddMode,
+                singleLine = true,
+                shape = RoundedCornerShape(size = 12.dp)
+            )
+        }
 
-        OutlinedTextField(
-            value = state.kilometres,
-            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-            label = { Text(text = stringResource(id = R.string.kilometres)) },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-            shape = RoundedCornerShape(size = 12.dp)
-        )
+        state.kilometres?.let {
+            OutlinedTextField(
+                value = it,
+                onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
+                label = { Text(text = stringResource(id = R.string.kilometres)) },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                shape = RoundedCornerShape(size = 12.dp)
+            )
+        }
     }
 }
 
@@ -403,19 +431,21 @@ private fun TimeSelectionSection(
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
-                value = state.projectTime,
-                onValueChange = { onStateChange(state.copy(projectTime = it)) },
-                label = { Text(text = stringResource(id = R.string.project_time)) },
-                modifier = Modifier.weight(weight = 1f),
-                readOnly = true,
-                leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
-                shape = RoundedCornerShape(size = 12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            state.projectTime?.let {
+                OutlinedTextField(
+                    value = it,
+                    onValueChange = { onStateChange(state.copy(projectTime = it)) },
+                    label = { Text(text = stringResource(id = R.string.project_time)) },
+                    modifier = Modifier.weight(weight = 1f),
+                    readOnly = true,
+                    leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
+                    shape = RoundedCornerShape(size = 12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    )
                 )
-            )
+            }
 
             Button(
                 onClick = onOpenWorkday,
@@ -424,7 +454,7 @@ private fun TimeSelectionSection(
             ) {
                 Icon(imageVector = Icons.Default.History, contentDescription = null)
                 Spacer(modifier = Modifier.width(width = 4.dp))
-                Text(text = stringResource(id = R.string.workday))
+                Text(text = stringResource(id = R.string.details))
             }
 
             Button(

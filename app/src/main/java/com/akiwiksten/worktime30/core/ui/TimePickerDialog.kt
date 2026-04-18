@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun TimePickerDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: (time: String) -> Unit,
+    onConfirmation: (String) -> Unit,
     titleId: Int,
     time: String,
     modifier: Modifier = Modifier

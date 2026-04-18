@@ -73,5 +73,6 @@
 <string name="no_projects_available">No projects available. Add one with the button.</string>
 <string name="nullify">Nullify</string>
 <string name="retry">Retry</string>
-<string name="workday">Workday</string>
+<string name="details">Details</string>
+<string name="project_details">Project details</string>
 </resources>

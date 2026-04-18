@@ -98,8 +98,18 @@ private fun ProjectDetailsEntry(screen: Screen.Workday, backStack: SnapshotState
 
 @Composable
 private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
-    SingleProjectScreen(
+    val initialSingleProjectState = SingleProjectState(
         index = screen.index,
+        projectName = screen.projectName ?: "",
+        projectTime = screen.projectTime ?: "",
+        kilometres = screen.kilometres ?: "",
+        allowance = screen.allowance ?: "",
+        workType = screen.workType ?: "",
+        workday = screen.workday,
+        workStats = screen.workStats
+    )
+    SingleProjectScreen(
+        initialSingleProjectState = initialSingleProjectState,
         onNavigateBack = { backStack.pop() },
         onOpenWorkday = { state ->
             backStack.updateSingleProjectState(state = state)

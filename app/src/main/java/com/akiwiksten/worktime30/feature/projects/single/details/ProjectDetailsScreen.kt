@@ -65,7 +65,7 @@ fun ProjectDetailsScreen(
             ProjectDetailsTopBar(onNavigateBack = onNavigateBack)
         }
     ) { padding ->
-        val actions = remember(viewModel, onConfirm) {
+        val actions = remember(viewModel, onConfirm, uiState) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val projectDetailsResult = viewModel.getProjectDetailsEntity()
                 val workStatsResult = viewModel.getWorkStatsEntity()
@@ -122,7 +122,7 @@ internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Header(
-                title = stringResource(id = R.string.work_day),
+                title = stringResource(id = R.string.project_details),
                 modifier = Modifier.padding(top = 0.dp),
                 fillMaxWidth = false
             )

@@ -97,6 +97,13 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
+        AddTimeRow(
+            textFieldValue = uiState.projectTime,
+            stringId = R.string.project_time,
+            currentTime = actions.onCurrentProjectTime,
+            onConfirmation = actions.onSetProjectTime
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(space = 12.dp)

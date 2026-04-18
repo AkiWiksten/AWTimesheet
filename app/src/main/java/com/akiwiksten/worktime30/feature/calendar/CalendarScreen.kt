@@ -24,6 +24,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -51,7 +51,7 @@ import java.util.Locale
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
-    val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by calendarViewModel.uiState.collectAsState()
     val currentUiState = uiState // Store in local variable for smart cast
 
     val configuration = createMondayFirstConfiguration()

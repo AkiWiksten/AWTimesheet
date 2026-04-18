@@ -1,11 +1,11 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,33 +13,37 @@ import org.junit.Test
 class SaveProjectsUseCaseTest {
 
     @Test
-    fun invoke_savesProjectsAndWorkday() = runBlocking {
+    fun invoke_savesProjectsAndProjectDetails() = runBlocking {
         val projectRepository = FakeProjectRepository()
-        val workdayRepository = FakeWorkdayRepository()
-        val useCase = SaveProjectsUseCase(projectRepository, workdayRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val useCase = SaveProjectsUseCase(projectRepository, projectDetailsRepository)
 
         useCase(
             projectsToSave = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")),
-            workdayToSave = WorkdayEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "07:00")
+            projectDetailsToSave = ProjectDetailsEntity(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "07:00"
+            )
         )
 
         assertEquals(listOf(ProjectNameEntity(name = "Alpha")), projectRepository.insertedProjectNames)
         assertEquals(1, projectRepository.insertedProjects.size)
-        assertEquals(1, workdayRepository.insertedWorkdays.size)
+        assertEquals(1, projectDetailsRepository.insertedProjectDetails.size)
     }
 
     @Test
-    fun invoke_doesNotInsertWorkday_whenWorkdayIsNull() = runBlocking {
+    fun invoke_doesNotInsertProjectDetails_whenProjectDetailsIsNull() = runBlocking {
         val projectRepository = FakeProjectRepository()
-        val workdayRepository = FakeWorkdayRepository()
-        val useCase = SaveProjectsUseCase(projectRepository, workdayRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val useCase = SaveProjectsUseCase(projectRepository, projectDetailsRepository)
 
         useCase(
             projectsToSave = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "01:00")),
-            workdayToSave = null
+            projectDetailsToSave = null
         )
 
-        assertEquals(emptyList<WorkdayEntity>(), workdayRepository.insertedWorkdays)
+        assertEquals(emptyList<ProjectDetailsEntity>(), projectDetailsRepository.insertedProjectDetails)
     }
 
     private class FakeProjectRepository : ProjectRepository {
@@ -66,21 +70,24 @@ class SaveProjectsUseCaseTest {
             false
     }
 
-    private class FakeWorkdayRepository : WorkdayRepository {
-        val insertedWorkdays = mutableListOf<WorkdayEntity>()
+    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+        val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
 
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = null
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsEntity? = null
 
-        override suspend fun insertWorkday(workday: WorkdayEntity) {
-            insertedWorkdays += workday
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
+            insertedProjectDetails += projectDetails
         }
 
-        override suspend fun deleteWorkday(workday: WorkdayEntity) = Unit
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) = Unit
 
         override suspend fun getWorkStats(): WorkStatsEntity? = null
 
         override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
 
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsEntity> = emptyList()
     }
 }

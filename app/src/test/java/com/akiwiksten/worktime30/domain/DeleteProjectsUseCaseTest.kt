@@ -1,12 +1,12 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -14,12 +14,12 @@ import org.junit.Test
 class DeleteProjectsUseCaseTest {
 
     @Test
-    fun invoke_deletesProjectAndWorkday_andDeletesUnusedProjectName() = runBlocking {
+    fun invoke_deletesProjectAndProjectDetails_andDeletesUnusedProjectName() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             isProjectNameUsedByName["Beta"] = false
         }
-        val workdayRepository = FakeWorkdayRepository()
-        val useCase = DeleteProjectsUseCase(projectRepository, workdayRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val useCase = DeleteProjectsUseCase(projectRepository, projectDetailsRepository)
 
         useCase(date = "2026-04-10", projectName = "Beta")
 
@@ -29,8 +29,8 @@ class DeleteProjectsUseCaseTest {
         )
         assertEquals(listOf(ProjectNameEntity(name = "Beta")), projectRepository.deletedProjectNames)
         assertEquals(
-            listOf(WorkdayEntity(date = "2026-04-10", projectName = "Beta")),
-            workdayRepository.deletedWorkdays
+            listOf(ProjectDetailsEntity(date = "2026-04-10", projectName = "Beta")),
+            projectDetailsRepository.deletedProjectDetails
         )
     }
 
@@ -39,8 +39,8 @@ class DeleteProjectsUseCaseTest {
         val projectRepository = FakeProjectRepository().apply {
             isProjectNameUsedByName["Beta"] = true
         }
-        val workdayRepository = FakeWorkdayRepository()
-        val useCase = DeleteProjectsUseCase(projectRepository, workdayRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val useCase = DeleteProjectsUseCase(projectRepository, projectDetailsRepository)
 
         useCase(date = "2026-04-10", projectName = "Beta")
 
@@ -72,21 +72,24 @@ class DeleteProjectsUseCaseTest {
             isProjectNameUsedByName[projectName] ?: false
     }
 
-    private class FakeWorkdayRepository : WorkdayRepository {
-        val deletedWorkdays = mutableListOf<WorkdayEntity>()
+    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+        val deletedProjectDetails = mutableListOf<ProjectDetailsEntity>()
 
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = null
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsEntity? = null
 
-        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) = Unit
 
-        override suspend fun deleteWorkday(workday: WorkdayEntity) {
-            deletedWorkdays += workday
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) {
+            deletedProjectDetails += projectDetails
         }
 
         override suspend fun getWorkStats(): WorkStatsEntity? = null
 
         override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
 
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsEntity> = emptyList()
     }
 }

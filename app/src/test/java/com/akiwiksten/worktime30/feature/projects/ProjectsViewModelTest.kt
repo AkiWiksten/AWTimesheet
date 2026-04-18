@@ -1,21 +1,21 @@
 package com.akiwiksten.worktime30.feature.projects
 
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -37,19 +37,18 @@ class ProjectsViewModelTest {
             projectsByDateRange = listOf(ProjectEntity("2026-04-10", "Beta", "02:30"))
             projectNames = listOf(ProjectNameEntity("Beta"), ProjectNameEntity("Alpha"))
         }
-        val workdayRepository = FakeWorkdayRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf(WorkTypeEntity("Office"))
         }
         val dateRepository = DateRepository()
-
-        val viewModel = createViewModel(projectRepository, workdayRepository, settingsRepository, dateRepository)
-
         dateRepository.updateDate("2026-04-10")
+
+        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue(state is ProjectsUiState.Success)
+        assertTrue("Expected Success state but was $state", state is ProjectsUiState.Success)
         state as ProjectsUiState.Success
         assertEquals("2026-04-10", state.date)
         assertEquals("02:30", state.workTimeToday)
@@ -61,12 +60,12 @@ class ProjectsViewModelTest {
         val projectRepository = FakeProjectRepository().apply {
             projectNames = listOf(ProjectNameEntity("Alpha"))
         }
-        val workdayRepository = FakeWorkdayRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         val settingsRepository = FakeSettingsRepository()
         val dateRepository = DateRepository()
-
-        val viewModel = createViewModel(projectRepository, workdayRepository, settingsRepository, dateRepository)
         dateRepository.updateDate("2026-04-10")
+
+        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
         advanceUntilIdle()
 
         viewModel.saveProject(
@@ -79,30 +78,29 @@ class ProjectsViewModelTest {
         advanceUntilIdle()
 
         assertTrue(projectRepository.insertedProjects.any { it.projectName == "Alpha" })
-        assertTrue(workdayRepository.insertedWorkdays.any { it.projectName == "Alpha" })
+        assertTrue(projectDetailsRepository.insertedProjectDetails.any { it.projectName == "Alpha" })
     }
 
     private fun createViewModel(
         projectRepository: FakeProjectRepository,
-        workdayRepository: FakeWorkdayRepository,
+        projectDetailsRepository: FakeProjectDetailsRepository,
         settingsRepository: FakeSettingsRepository,
         dateRepository: DateRepository
     ): ProjectsViewModel {
         return ProjectsViewModel(
             getProjectsScreenDataUseCase = GetProjectsScreenDataUseCase(
                 projectRepository = projectRepository,
-                workdayRepository = workdayRepository,
                 settingsRepository = settingsRepository
             ),
             saveProjectsUseCase = SaveProjectsUseCase(
                 projectRepository = projectRepository,
-                workdayRepository = workdayRepository
+                projectDetailsRepository = projectDetailsRepository
             ),
             deleteProjectsUseCase = DeleteProjectsUseCase(
                 projectRepository = projectRepository,
-                workdayRepository = workdayRepository
+                projectDetailsRepository = projectDetailsRepository
             ),
-            workdayRepository = workdayRepository,
+            projectDetailsRepository = projectDetailsRepository,
             dateRepository = dateRepository
         )
     }
@@ -148,20 +146,23 @@ class ProjectsViewModelTest {
         }
     }
 
-    private class FakeWorkdayRepository : WorkdayRepository {
+    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var workStats: WorkStatsEntity? = null
-        val insertedWorkdays = mutableListOf<WorkdayEntity>()
+        val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
 
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? {
-            return insertedWorkdays.firstOrNull { it.date == date && it.projectName == projectName }
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsEntity? {
+            return insertedProjectDetails.firstOrNull { it.date == date && it.projectName == projectName }
         }
 
-        override suspend fun insertWorkday(workday: WorkdayEntity) {
-            insertedWorkdays += workday
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
+            insertedProjectDetails += projectDetails
         }
 
-        override suspend fun deleteWorkday(workday: WorkdayEntity) {
-            insertedWorkdays.removeIf { it.date == workday.date && it.projectName == workday.projectName }
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) {
+            insertedProjectDetails
+                .removeIf {
+                    it.date == projectDetails.date && it.projectName == projectDetails.projectName
+                }
         }
 
         override suspend fun getWorkStats(): WorkStatsEntity? = workStats
@@ -170,7 +171,10 @@ class ProjectsViewModelTest {
             this.workStats = workStats
         }
 
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsEntity> = emptyList()
     }
 
     private class FakeSettingsRepository : SettingsRepository {

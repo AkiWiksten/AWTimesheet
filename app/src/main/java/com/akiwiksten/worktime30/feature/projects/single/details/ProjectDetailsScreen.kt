@@ -34,8 +34,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.projects.single.details.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.projects.single.details.components.FooterSection
 import com.akiwiksten.worktime30.feature.projects.single.details.components.HeaderSection
@@ -48,7 +48,7 @@ import com.akiwiksten.worktime30.feature.projects.single.details.components.Proj
 fun ProjectDetailsScreen(
     args: ProjectDetailsArgs,
     onNavigateBack: () -> Unit,
-    onConfirm: (WorkdayEntity, WorkStatsEntity) -> Unit,
+    onConfirm: (ProjectDetailsEntity, WorkStatsEntity) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -261,6 +261,6 @@ private fun createProjectDetailsScreenActions(
 
 data class ProjectDetailsArgs(
     val projectName: String? = null,
-    val projectDetails: WorkdayEntity? = null,
+    val projectDetails: ProjectDetailsEntity? = null,
     val workStats: WorkStatsEntity? = null
 )

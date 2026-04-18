@@ -4,17 +4,17 @@ import android.content.Context
 import androidx.room.Room
 import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.dao.ProjectDao
+import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
-import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -30,7 +30,7 @@ abstract class DatabaseModule {
 
     @Binds
     @Singleton
-    abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
+    abstract fun bindProjectDetailsRepository(impl: ProjectDetailsRepositoryImpl): ProjectDetailsRepository
 
     @Binds
     @Singleton
@@ -52,7 +52,7 @@ abstract class DatabaseModule {
         }
 
         @Provides
-        fun provideWorkdayDao(database: AppDatabase): WorkdayDao = database.workdayDao()
+        fun provideProjectDetailsDao(database: AppDatabase): ProjectDetailsDao = database.projectDetailsDao()
 
         @Provides
         fun provideWorkStatsDao(database: AppDatabase): WorkStatsDao = database.workStatsDao()

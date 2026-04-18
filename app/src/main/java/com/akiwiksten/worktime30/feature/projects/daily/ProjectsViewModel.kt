@@ -4,12 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
@@ -32,7 +32,7 @@ data class SingleProjectState(
     val kilometres: String = "0",
     val allowance: String = "No Allowance",
     val workType: String = "",
-    val workday: WorkdayEntity? = null,
+    val projectDetails: ProjectDetailsEntity? = null,
     val workStats: WorkStatsEntity? = null
 )
 
@@ -56,7 +56,7 @@ class ProjectsViewModel @Inject constructor(
     private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
     private val saveProjectsUseCase: SaveProjectsUseCase,
     private val deleteProjectsUseCase: DeleteProjectsUseCase,
-    private val workdayRepository: WorkdayRepository,
+    private val projectDetailsRepository: ProjectDetailsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -85,6 +85,7 @@ class ProjectsViewModel @Inject constructor(
                 }
 
             val allProjects = (recordedProjects + unrecordedProjects)
+                .sortedBy { it.projectName }
                 .mapIndexed { index, project -> project.copy(index = index) }
 
             ProjectsUiState.Success(
@@ -98,7 +99,7 @@ class ProjectsViewModel @Inject constructor(
         .onStart { emit(value = ProjectsUiState.Loading) }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+            started = SharingStarted.Eagerly,
             initialValue = ProjectsUiState.Loading
         )
 
@@ -125,11 +126,11 @@ class ProjectsViewModel @Inject constructor(
                     workType = state.workType
                 )
 
-                val workdayToSave = state.workday?.copy(
+                val projectDetailsToSave = state.projectDetails?.copy(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime
-                ) ?: WorkdayEntity(
+                ) ?: ProjectDetailsEntity(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime,
@@ -138,10 +139,10 @@ class ProjectsViewModel @Inject constructor(
 
                 saveProjectsUseCase(
                     projectsToSave = listOf(entity),
-                    workdayToSave = workdayToSave
+                    projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { workdayRepository.insertWorkStats(it) }
+                state.workStats?.let { projectDetailsRepository.insertWorkStats(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {

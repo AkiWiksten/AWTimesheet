@@ -1,10 +1,10 @@
 package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
@@ -25,7 +25,7 @@ class ProjectDetailsViewModelTest {
     @Test
     fun setDate_andProjectName_loadsProjectDetailsData() = runTest {
         val repository = FakeProjectDetailsRepository().apply {
-            projectDetails = WorkdayEntity(
+            projectDetails = ProjectDetailsEntity(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 startTime = "08:00",
@@ -62,7 +62,7 @@ class ProjectDetailsViewModelTest {
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
-            projectDetailsArg = WorkdayEntity(
+            projectDetailsArg = ProjectDetailsEntity(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 startTime = "08:00",
@@ -92,17 +92,20 @@ class ProjectDetailsViewModelTest {
         assertEquals(ZERO_TIME, cleared.projectTime)
     }
 
-    private class FakeProjectDetailsRepository : WorkdayRepository {
-        var projectDetails: WorkdayEntity? = null
+    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+        var projectDetails: ProjectDetailsEntity? = null
         var workStats: WorkStatsEntity? = null
 
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = projectDetails
+        override suspend fun getProjectDetails(
+            date: String,
+            projectName: String
+        ): ProjectDetailsEntity? = projectDetails
 
-        override suspend fun insertWorkday(workday: WorkdayEntity) {
-            this.projectDetails = workday
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
+            this.projectDetails = projectDetails
         }
 
-        override suspend fun deleteWorkday(workday: WorkdayEntity) {
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) {
             this.projectDetails = null
         }
 
@@ -112,6 +115,9 @@ class ProjectDetailsViewModelTest {
             this.workStats = workStats
         }
 
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsEntity> = emptyList()
     }
 }

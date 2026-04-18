@@ -7,10 +7,10 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +54,7 @@ sealed class ProjectDetailsUiState {
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class ProjectDetailsViewModel @Inject constructor(
-    private val workdayRepository: WorkdayRepository,
+    private val projectDetailsRepository: ProjectDetailsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -399,9 +399,9 @@ class ProjectDetailsViewModel @Inject constructor(
         return nextState
     }
 
-    fun getProjectDetailsEntity(): WorkdayEntity {
+    fun getProjectDetailsEntity(): ProjectDetailsEntity {
         val state = (uiState.value as ProjectDetailsUiState.Success)
-        return WorkdayEntity(
+        return ProjectDetailsEntity(
             date = state.date,
             projectName = state.projectName,
             startTime = state.startTime,
@@ -425,7 +425,7 @@ class ProjectDetailsViewModel @Inject constructor(
         )
     }
 
-    fun loadProjectDetails(projectDetailsArg: WorkdayEntity? = null, workStatsArg: WorkStatsEntity? = null) {
+    fun loadProjectDetails(projectDetailsArg: ProjectDetailsEntity? = null, workStatsArg: WorkStatsEntity? = null) {
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
         val baseState = (currentState as? ProjectDetailsUiState.Success) ?: ProjectDetailsUiState.Success()
@@ -441,7 +441,7 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
-        projectDetailsArg: WorkdayEntity? = null,
+        projectDetailsArg: ProjectDetailsEntity? = null,
         workStatsArg: WorkStatsEntity? = null,
         showLoading: Boolean
     ) {
@@ -457,8 +457,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
             if (date.isEmpty()) return
 
-            val projectDetails = projectDetailsArg ?: workdayRepository.getWorkday(date, projectName)
-            val workStats = workStatsArg ?: workdayRepository.getWorkStats()
+            val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
+            val workStats = workStatsArg ?: projectDetailsRepository.getWorkStats()
 
             val nextState = applyEntitiesToState(
                 baseState.copy(date = date, projectName = projectName),
@@ -475,7 +475,7 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
-        projectDetails: WorkdayEntity?,
+        projectDetails: ProjectDetailsEntity?,
         workStats: WorkStatsEntity?
     ): ProjectDetailsUiState.Success {
         var state = baseState
@@ -559,7 +559,7 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun isNewDay(projectDetails: WorkdayEntity): Boolean {
+    private fun isNewDay(projectDetails: ProjectDetailsEntity): Boolean {
         fun isZero(time: String) = time == ZERO_TIME || time.isEmpty()
         return isZero(projectDetails.startTime) &&
             isZero(projectDetails.endTime) &&

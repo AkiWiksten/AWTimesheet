@@ -20,7 +20,7 @@ fun PreviewSingleProjectLoading() {
             isConfirmEnabled = false,
             onStateChange = {},
             onNavigateBack = {},
-            onOpenWorkday = {},
+            onOpenProjectDetails = {},
             onConfirm = {}
         )
     )
@@ -49,7 +49,7 @@ fun PreviewSingleProjectSuccessAdd() {
             isConfirmEnabled = false,
             onStateChange = {},
             onNavigateBack = {},
-            onOpenWorkday = {},
+            onOpenProjectDetails = {},
             onConfirm = {}
         )
     )
@@ -78,7 +78,7 @@ fun PreviewSingleProjectSuccessEdit() {
             isConfirmEnabled = true,
             onStateChange = {},
             onNavigateBack = {},
-            onOpenWorkday = {},
+            onOpenProjectDetails = {},
             onConfirm = {}
         )
     )
@@ -96,7 +96,7 @@ fun PreviewSingleProjectError() {
             isConfirmEnabled = false,
             onStateChange = {},
             onNavigateBack = {},
-            onOpenWorkday = {},
+            onOpenProjectDetails = {},
             onConfirm = {}
         )
     )

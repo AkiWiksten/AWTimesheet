@@ -8,7 +8,7 @@
 + **Calendar** to select a date to manage
 + **Projects** to manage projects for selected date
   + **Single project** to manage a single project
-    + **Workday** to feed and calculate start, end, work time, balance, breaks and lunch.
+    + **Project Details** to feed and calculate start, end, work time, balance, breaks and lunch.
 + **Settings** to manage settings, like name, employer work type choices (Coding, Installation, Design etc.)
   + **Pdf monthly report** shows your daily work time per projects in a table. Calculates also monthly statistics.
 ## Main Technologies
@@ -66,14 +66,16 @@ This is called feature-based packaging.
   + Calendar,
   + Projects,
   + Single project,
-  + Workday,
+  + Project Details,
   + Settings
 + Orientation support
 + detekt, lint, sonarcube run regularly, preferrably before pushing code
-+ In “WorkdayScreen”
++ In “ProjectDetailsScreen”
   + move “Daily work time” and “Lunch time” to SettingsScreen. Add estimate to the strings.
   + move “Balance today” and “Balance total” to ProjectsScreen. Show them in a same way as “Work time today”.
   + Edit “Balance total” in SettingsScreen.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
 + WorkdayEntity->ProjectDetailsEntity
++ Unified state model (ProjectListItemUiState consolidated into SingleProjectState)
++ WorkStatsEntity->ProjectStatsEntity

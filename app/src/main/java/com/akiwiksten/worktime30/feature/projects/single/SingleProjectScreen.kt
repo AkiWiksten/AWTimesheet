@@ -56,7 +56,7 @@ import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdo
 @Composable
 fun SingleProjectScreen(
     onNavigateBack: () -> Unit,
-    onOpenWorkday: (SingleProjectState) -> Unit,
+    onOpenProjectDetails: (SingleProjectState) -> Unit,
     initialSingleProjectState: SingleProjectState,
     viewModel: ProjectsViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
@@ -107,7 +107,7 @@ fun SingleProjectScreen(
             isConfirmEnabled = isConfirmEnabled,
             onStateChange = { state = it },
             onNavigateBack = onNavigateBack,
-            onOpenWorkday = { onOpenWorkday(state) },
+            onOpenProjectDetails = { onOpenProjectDetails(state) },
             onConfirm = {
                 viewModel.saveProject(state = state)
                 onNavigateBack()
@@ -131,7 +131,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
 
     val actions = SingleProjectActions(
         onStateChange = params.onStateChange,
-        onOpenWorkday = params.onOpenWorkday,
+        onOpenProjectDetails = params.onOpenProjectDetails,
         onConfirm = params.onConfirm
     )
 
@@ -235,7 +235,7 @@ data class SingleProjectScreenState(
 
 data class SingleProjectActions(
     val onStateChange: (SingleProjectState) -> Unit,
-    val onOpenWorkday: () -> Unit,
+    val onOpenProjectDetails: () -> Unit,
     val onConfirm: () -> Unit
 )
 
@@ -280,7 +280,7 @@ private fun SingleProjectContent(
         TimeSelectionSection(
             state = screenState.state,
             workTimeToday = workTimeToday,
-            onOpenWorkday = actions.onOpenWorkday,
+            onOpenProjectDetails = actions.onOpenProjectDetails,
             onStateChange = actions.onStateChange
         )
 
@@ -341,7 +341,7 @@ private fun DialogMainFields(
 private fun TimeSelectionSection(
     state: SingleProjectState,
     workTimeToday: String,
-    onOpenWorkday: () -> Unit,
+    onOpenProjectDetails: () -> Unit,
     onStateChange: (SingleProjectState) -> Unit
 ) {
     val openTimePickerDialogState = remember { mutableStateOf(false) }
@@ -385,7 +385,7 @@ private fun TimeSelectionSection(
             }
 
             Button(
-                onClick = onOpenWorkday,
+                onClick = onOpenProjectDetails,
                 modifier = Modifier.padding(top = 8.dp),
                 shape = RoundedCornerShape(size = 12.dp)
             ) {
@@ -417,6 +417,6 @@ data class SingleProjectScreenContentParams(
     val isConfirmEnabled: Boolean,
     val onStateChange: (SingleProjectState) -> Unit,
     val onNavigateBack: () -> Unit,
-    val onOpenWorkday: () -> Unit,
+    val onOpenProjectDetails: () -> Unit,
     val onConfirm: () -> Unit
 )

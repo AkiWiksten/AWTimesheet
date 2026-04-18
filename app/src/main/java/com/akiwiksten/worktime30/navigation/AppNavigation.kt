@@ -12,8 +12,8 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
@@ -71,7 +71,7 @@ internal fun WorkTimeNavDisplay(
                 )
             }
             entry<Screen.Settings> { SettingsScreen() }
-            entry<Screen.Workday> { screen ->
+            entry<Screen.ProjectDetails> { screen ->
                 ProjectDetailsEntry(screen = screen, backStack = backStack)
             }
             entry<Screen.SingleProject> { screen ->
@@ -82,16 +82,16 @@ internal fun WorkTimeNavDisplay(
 }
 
 @Composable
-private fun ProjectDetailsEntry(screen: Screen.Workday, backStack: SnapshotStateList<Any>) {
+private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
         args = ProjectDetailsArgs(
             projectName = screen.projectName,
-            projectDetails = screen.workday,
+            projectDetails = screen.projectDetails,
             workStats = screen.workStats
         ),
         onNavigateBack = { backStack.pop() },
         onConfirm = { projectDetails, workStats ->
-            backStack.updateSingleProjectWorkTime(workday = projectDetails, workStats = workStats)
+            backStack.updateSingleProjectWorkTime(projectDetails = projectDetails, workStats = workStats)
         }
     )
 }
@@ -105,18 +105,18 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         kilometres = screen.kilometres ?: "",
         allowance = screen.allowance ?: "",
         workType = screen.workType ?: "",
-        workday = screen.workday,
+        projectDetails = screen.projectDetails,
         workStats = screen.workStats
     )
     SingleProjectScreen(
         initialSingleProjectState = initialSingleProjectState,
         onNavigateBack = { backStack.pop() },
-        onOpenWorkday = { state ->
+        onOpenProjectDetails = { state ->
             backStack.updateSingleProjectState(state = state)
             backStack.add(
-                element = Screen.Workday(
+                element = Screen.ProjectDetails(
                     projectName = state.projectName,
-                    workday = state.workday,
+                    projectDetails = state.projectDetails,
                     workStats = state.workStats
                 )
             )
@@ -131,15 +131,15 @@ internal fun SnapshotStateList<Any>.pop() {
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
-    workday: WorkdayEntity,
+    projectDetails: ProjectDetailsEntity,
     workStats: WorkStatsEntity
 ) {
     pop()
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
-            projectTime = workday.projectTime,
-            workday = workday,
+            projectTime = projectDetails.projectTime,
+            projectDetails = projectDetails,
             workStats = workStats
         )
     }
@@ -155,7 +155,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(state: SingleProjec
             kilometres = state.kilometres,
             allowance = state.allowance,
             workType = state.workType,
-            workday = state.workday,
+            projectDetails = state.projectDetails,
             workStats = state.workStats
         )
     }

@@ -4,12 +4,9 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -17,32 +14,31 @@ import org.junit.Test
 class GetProjectsScreenDataUseCaseTest {
 
     @Test
-    fun invoke_returnsAllDataWithWorkdayTime() = runBlocking {
+    fun invoke_returnsAllDataWithCalculatedProjectTime() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
-            projects = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00"))
-            projectNames = listOf(ProjectNameEntity(name = "Alpha"))
-        }
-        val workdayRepository = FakeWorkdayRepository().apply {
-            workday = WorkdayEntity(date = "2026-04-10", projectTime = "07:30")
+            projects = listOf(
+                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00"),
+                ProjectEntity(date = "2026-04-10", projectName = "Beta", projectTime = "04:30")
+            )
+            projectNames = listOf(ProjectNameEntity(name = "Alpha"), ProjectNameEntity(name = "Beta"))
         }
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf(WorkTypeEntity(workType = "Office"), WorkTypeEntity(workType = "Remote"))
         }
-        val useCase = GetProjectsScreenDataUseCase(projectRepository, workdayRepository, settingsRepository)
+        val useCase = GetProjectsScreenDataUseCase(projectRepository, settingsRepository)
 
         val result = useCase("2026-04-10")
 
         assertEquals("07:30", result.projectTime)
-        assertEquals(1, result.projects.size)
-        assertEquals(1, result.projectNames.size)
+        assertEquals(2, result.projects.size)
+        assertEquals(2, result.projectNames.size)
         assertEquals(listOf("Office", "Remote"), result.workTypes)
     }
 
     @Test
-    fun invoke_usesZeroTimeWhenWorkdayMissing() = runBlocking {
+    fun invoke_usesZeroTimeWhenNoProjects() = runBlocking {
         val useCase = GetProjectsScreenDataUseCase(
             projectRepository = FakeProjectRepository(),
-            workdayRepository = FakeWorkdayRepository().apply { workday = null },
             settingsRepository = FakeSettingsRepository()
         )
 
@@ -68,22 +64,6 @@ class GetProjectsScreenDataUseCaseTest {
         override suspend fun deleteProjectName(projectName: ProjectNameEntity) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
-    }
-
-    private class FakeWorkdayRepository : WorkdayRepository {
-        var workday: WorkdayEntity? = null
-
-        override suspend fun getWorkday(date: String, projectName: String): WorkdayEntity? = workday
-
-        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun deleteWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun getWorkStats(): WorkStatsEntity? = null
-
-        override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
-
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
     }
 
     private class FakeSettingsRepository : SettingsRepository {

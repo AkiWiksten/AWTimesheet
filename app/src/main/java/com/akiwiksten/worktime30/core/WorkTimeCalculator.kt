@@ -33,7 +33,11 @@ object WorkTimeCalculator {
     }
 
     fun stringToLocalTime(time: String): LocalTime {
-        return LocalTime.parse(time, timeFormatter)
+        return if (time.isEmpty()) {
+            LocalTime.parse(ZERO_TIME, timeFormatter)
+        } else {
+            LocalTime.parse(time, timeFormatter)
+        }
     }
 
     fun calculateWorkTimeBalance(initialTime: String, addedTime: String): String {

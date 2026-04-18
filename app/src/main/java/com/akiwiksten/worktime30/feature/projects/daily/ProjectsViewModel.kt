@@ -70,8 +70,9 @@ data class SingleProjectState(
     )
 
     fun toUiState() = ProjectListItemUiState(
+        index = index,
         projectName = projectName,
-        projectTime = projectTime,
+        projectTime = projectTime.ifEmpty { ZERO_TIME },
         kilometres = kilometres.toIntOrNull() ?: 0,
         allowance = allowance,
         workType = workType,

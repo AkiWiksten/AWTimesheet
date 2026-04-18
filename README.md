@@ -78,3 +78,4 @@ This is called feature-based packaging.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
 + WorkdayEntity->ProjectDetailsEntity
++ ProjectListItemUiState->SingleProjectState

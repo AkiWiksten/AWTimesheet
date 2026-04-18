@@ -7,7 +7,6 @@ import com.akiwiksten.worktime30.core.NAME
 import com.akiwiksten.worktime30.core.PROJECT_NAME_TABLE
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 @Entity(tableName = PROJECT_NAME_TABLE)
 data class ProjectNameEntity(

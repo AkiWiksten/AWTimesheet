@@ -29,5 +29,3 @@ interface ProjectDetailsDao {
     @Query("SELECT * FROM project_details WHERE $DATE BETWEEN :dateStart AND :dateEnd")
     suspend fun getProjectDetailsByDateRange(dateStart: String, dateEnd: String): List<ProjectDetailsEntity>
 }
-
-

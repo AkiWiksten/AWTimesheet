@@ -4,6 +4,7 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -20,7 +21,8 @@ class ProjectDetailsRepositoryImplTest {
 
         val result = repository.getProjectDetails("2026-04-10", "Alpha")
 
-        assertEquals(expected, result)
+        val expectedDomain = expected.toDomain()
+        assertEquals(expectedDomain, result)
         assertEquals("2026-04-10", projectDetailsDao.lastDate)
         assertEquals("Alpha", projectDetailsDao.lastProjectName)
     }

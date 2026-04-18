@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.domain
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -12,7 +13,7 @@ class GetProjectsByMonthUseCaseTest {
     @Test
     fun invoke_requestsFullMonthRange_forRegularMonth() = runBlocking {
         val repository = FakeProjectRepository().apply {
-            projectsResult = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha"))
+            projectsResult = listOf(SingleProjectState(date = "2026-04-10", projectName = "Alpha"))
         }
         val useCase = GetProjectsByMonthUseCase(repository)
 
@@ -37,9 +38,9 @@ class GetProjectsByMonthUseCaseTest {
     private class FakeProjectRepository : ProjectRepository {
         var lastStart: String? = null
         var lastEnd: String? = null
-        var projectsResult: List<ProjectEntity> = emptyList()
+        var projectsResult: List<SingleProjectState> = emptyList()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> {
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             lastStart = start
             lastEnd = end
             return projectsResult

@@ -6,6 +6,8 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -50,7 +52,7 @@ class SaveProjectsUseCaseTest {
         val insertedProjects = mutableListOf<ProjectEntity>()
         val insertedProjectNames = mutableListOf<ProjectNameEntity>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> = emptyList()
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> = emptyList()
 
         override suspend fun insertProject(project: ProjectEntity) {
             insertedProjects += project
@@ -73,7 +75,7 @@ class SaveProjectsUseCaseTest {
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
 
-        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsEntity? = null
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
         override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
             insertedProjectDetails += projectDetails

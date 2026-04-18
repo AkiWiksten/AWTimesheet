@@ -26,14 +26,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SingleProjectState(
-    val index: Int = 0,
+    val index: Int = -1,
     val projectName: String = "",
     val projectTime: String = ZERO_TIME,
     val kilometres: String = "0",
     val allowance: String = "No Allowance",
     val workType: String = "",
     val projectDetails: ProjectDetailsEntity? = null,
-    val workStats: WorkStatsEntity? = null
+    val workStats: WorkStatsEntity? = null,
+    val date: String = ""
 )
 
 sealed class ProjectsUiState {
@@ -66,25 +67,15 @@ class ProjectsViewModel @Inject constructor(
         .flatMapLatest { dateRepository.selectedDate }
         .map { date ->
             val data = getProjectsScreenDataUseCase(date)
-            val recordedProjects = data.projects.map { entity ->
-                SingleProjectState(
-                    projectName = entity.projectName,
-                    projectTime = entity.projectTime,
-                    kilometres = entity.kilometres.toString(),
-                    allowance = entity.allowance,
-                    workType = entity.workType,
-                )
-            }
-
             val recordedNames = data.projects.map { it.projectName }.toSet()
 
             val unrecordedProjects = data.projectNames
                 .filter { it.name !in recordedNames }
                 .map { entity ->
-                    SingleProjectState(projectName = entity.name)
+                    SingleProjectState(projectName = entity.name,)
                 }
 
-            val allProjects = (recordedProjects + unrecordedProjects)
+            val allProjects = (data.projects + unrecordedProjects)
                 .sortedBy { it.projectName }
                 .mapIndexed { index, project -> project.copy(index = index) }
 

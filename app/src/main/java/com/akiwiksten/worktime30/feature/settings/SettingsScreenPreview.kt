@@ -3,7 +3,7 @@ package com.akiwiksten.worktime30.feature.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 
 @Preview(showBackground = true, name = "Settings - Loading")
 @Composable
@@ -21,11 +21,11 @@ fun PreviewSettingsSuccess() {
             endMonthDate = "2026-04-30",
             workTypes = listOf("Installation", "Maintenance", "Meeting"),
             projectsByMonth = listOf(
-                ProjectEntity(
+                SingleProjectState(
                     date = "2026-04-10",
                     projectName = "Alpha Site",
                     projectTime = "04:00",
-                    kilometres = 20,
+                    kilometres = 20.toString(),
                     allowance = "Daily allowance",
                     workType = "Installation"
                 )

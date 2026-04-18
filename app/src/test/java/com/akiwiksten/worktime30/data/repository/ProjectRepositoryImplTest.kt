@@ -4,6 +4,7 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -22,7 +23,8 @@ class ProjectRepositoryImplTest {
 
         val result = repository.getProjectsByDateRange("2026-04-01", "2026-04-30")
 
-        assertEquals(expected, result)
+        val expectedDomain = expected.map { it.toDomain() }
+        assertEquals(expectedDomain, result)
         assertEquals("2026-04-01", projectDao.lastDateStart)
         assertEquals("2026-04-30", projectDao.lastDateEnd)
     }

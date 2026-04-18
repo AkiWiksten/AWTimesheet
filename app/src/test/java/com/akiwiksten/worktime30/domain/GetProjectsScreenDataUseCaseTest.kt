@@ -7,6 +7,7 @@ import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -17,8 +18,8 @@ class GetProjectsScreenDataUseCaseTest {
     fun invoke_returnsAllDataWithCalculatedProjectTime() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             projects = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00"),
-                ProjectEntity(date = "2026-04-10", projectName = "Beta", projectTime = "04:30")
+                SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00"),
+                SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "04:30")
             )
             projectNames = listOf(ProjectNameEntity(name = "Alpha"), ProjectNameEntity(name = "Beta"))
         }
@@ -48,10 +49,10 @@ class GetProjectsScreenDataUseCaseTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
-        var projects: List<ProjectEntity> = emptyList()
+        var projects: List<SingleProjectState> = emptyList()
         var projectNames: List<ProjectNameEntity> = emptyList()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> = projects
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> = projects
 
         override suspend fun insertProject(project: ProjectEntity) = Unit
 

@@ -9,10 +9,10 @@ import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.END_TIME
 import com.akiwiksten.worktime30.core.LUNCH_END
 import com.akiwiksten.worktime30.core.LUNCH_START
+import com.akiwiksten.worktime30.core.PROJECT_DETAILS_TABLE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
 import com.akiwiksten.worktime30.core.PROJECT_TIME
 import com.akiwiksten.worktime30.core.START_TIME
-import com.akiwiksten.worktime30.core.PROJECT_DETAILS_TABLE
 import kotlinx.serialization.Serializable
 
 @Serializable

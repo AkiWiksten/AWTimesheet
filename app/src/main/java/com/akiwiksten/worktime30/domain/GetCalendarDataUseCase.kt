@@ -2,8 +2,8 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -54,7 +54,7 @@ class GetCalendarDataUseCase @Inject constructor(
         )
     }
 
-    private fun calculateTotalTime(projects: List<ProjectEntity>): String {
+    private fun calculateTotalTime(projects: List<SingleProjectState>): String {
         var totalTime = ZERO_TIME
 
         // Sum up projects

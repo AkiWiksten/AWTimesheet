@@ -4,6 +4,8 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,8 +14,8 @@ class ProjectRepositoryImpl @Inject constructor(
     private val projectDao: ProjectDao,
     private val projectNameDao: ProjectNameDao
 ) : ProjectRepository {
-    override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> =
-        projectDao.getProjectsByDateRange(start, end)
+    override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> =
+        projectDao.getProjectsByDateRange(start, end).map { it.toDomain() }
 
     override suspend fun insertProject(project: ProjectEntity) = projectDao.insertProject(project)
 

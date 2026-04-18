@@ -37,7 +37,7 @@ class SingleProjectScreenScreenshotTest {
                 isConfirmEnabled = false,
                 onStateChange = {},
                 onNavigateBack = {},
-                onOpenWorkday = {},
+                onOpenProjectDetails = {},
                 onConfirm = {}
             )
         )
@@ -58,7 +58,7 @@ class SingleProjectScreenScreenshotTest {
                 isConfirmEnabled = false,
                 onStateChange = {},
                 onNavigateBack = {},
-                onOpenWorkday = {},
+                onOpenProjectDetails = {},
                 onConfirm = {}
             )
         )
@@ -78,7 +78,7 @@ class SingleProjectScreenScreenshotTest {
                     projectTime = "03:30",
                     kilometres = "18",
                     allowance = "Full allowance",
-                    workType = "Maintenance"
+                    workType = "Maintenance",
                 ),
                 isAddMode = false,
                 projectsUiState = ProjectsUiState.Success(
@@ -89,7 +89,7 @@ class SingleProjectScreenScreenshotTest {
                 isConfirmEnabled = true,
                 onStateChange = {},
                 onNavigateBack = {},
-                onOpenWorkday = {},
+                onOpenProjectDetails = {},
                 onConfirm = {}
             )
         )
@@ -107,7 +107,7 @@ class SingleProjectScreenScreenshotTest {
                 isConfirmEnabled = false,
                 onStateChange = {},
                 onNavigateBack = {},
-                onOpenWorkday = {},
+                onOpenProjectDetails = {},
                 onConfirm = {}
             )
         )

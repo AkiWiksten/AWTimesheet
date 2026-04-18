@@ -3,8 +3,10 @@ package com.akiwiksten.worktime30.feature.workday
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
@@ -49,10 +51,10 @@ class ProjectDetailsViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state is ProjectDetailsUiState.Success)
         state as ProjectDetailsUiState.Success
-        assertEquals("2026-04-10", state.date)
-        assertEquals("Alpha", state.projectName)
-        assertEquals("08:00", state.startTime)
-        assertEquals("20:00", state.workTimeTotal)
+        assertEquals("2026-04-10", state.data.date)
+        assertEquals("Alpha", state.data.projectName)
+        assertEquals("08:00", state.data.startTime)
+        assertEquals("20:00", state.data.workTimeTotal)
     }
 
     @Test
@@ -69,7 +71,7 @@ class ProjectDetailsViewModelTest {
                 endTime = "16:00",
                 projectTime = "08:00",
                 balanceToday = "00:30"
-            ),
+            ).toDomain(),
             workStatsArg = WorkStatsEntity(
                 dailyWorkTime = "07:30",
                 lunchTime = "00:30",
@@ -87,9 +89,9 @@ class ProjectDetailsViewModelTest {
         viewModel.clearDay()
 
         val cleared = viewModel.uiState.value as ProjectDetailsUiState.Success
-        assertEquals(ZERO_TIME, cleared.startTime)
-        assertEquals(ZERO_TIME, cleared.endTime)
-        assertEquals(ZERO_TIME, cleared.projectTime)
+        assertEquals(ZERO_TIME, cleared.data.startTime)
+        assertEquals(ZERO_TIME, cleared.data.endTime)
+        assertEquals(ZERO_TIME, cleared.data.projectTime)
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
@@ -99,7 +101,7 @@ class ProjectDetailsViewModelTest {
         override suspend fun getProjectDetails(
             date: String,
             projectName: String
-        ): ProjectDetailsEntity? = projectDetails
+        ): ProjectDetailsState? = projectDetails?.toDomain()
 
         override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
             this.projectDetails = projectDetails

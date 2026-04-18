@@ -7,7 +7,6 @@ import com.akiwiksten.worktime30.core.WORK_TYPE
 import com.akiwiksten.worktime30.core.WORK_TYPE_TABLE
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 @Entity(tableName = WORK_TYPE_TABLE)
 data class WorkTypeEntity(

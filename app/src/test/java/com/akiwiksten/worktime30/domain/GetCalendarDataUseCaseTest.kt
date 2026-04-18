@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.domain
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,9 +14,9 @@ class GetCalendarDataUseCaseTest {
     fun invoke_usesMonthlyDataForWeek_whenWeekInsideMonth() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             projectsByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00"),
-                ProjectEntity(date = "2026-04-15", projectName = "Alpha", projectTime = "05:00"),
-                ProjectEntity(date = "2026-04-16", projectName = "Beta", projectTime = "03:00")
+                SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00"),
+                SingleProjectState(date = "2026-04-15", projectName = "Alpha", projectTime = "05:00"),
+                SingleProjectState(date = "2026-04-16", projectName = "Beta", projectTime = "03:00")
             )
         }
         val useCase = GetCalendarDataUseCase(projectRepository)
@@ -33,7 +34,7 @@ class GetCalendarDataUseCaseTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByRange["2026-08-01|2026-08-31"] = emptyList()
             projectsByRange["2026-07-27|2026-08-02"] = listOf(
-                ProjectEntity(date = "2026-07-30", projectName = "Alpha", projectTime = "02:00")
+                SingleProjectState(date = "2026-07-30", projectName = "Alpha", projectTime = "02:00")
             )
         }
         val useCase = GetCalendarDataUseCase(projectRepository)
@@ -47,10 +48,10 @@ class GetCalendarDataUseCaseTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
-        val projectsByRange = mutableMapOf<String, List<ProjectEntity>>()
+        val projectsByRange = mutableMapOf<String, List<SingleProjectState>>()
         val requestedRanges = mutableListOf<String>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> {
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             val key = "$start|$end"
             requestedRanges += key
             return projectsByRange[key] ?: emptyList()

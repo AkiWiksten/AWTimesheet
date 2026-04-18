@@ -4,11 +4,11 @@ import android.content.Context
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.GeneratePdfParams
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 
 internal fun generateReport(
     ctx: Context,
-    projectsByMonth: List<ProjectEntity>,
+    projectsByMonth: List<SingleProjectState>,
     endOfMonthDate: String,
     name: String,
     employer: String

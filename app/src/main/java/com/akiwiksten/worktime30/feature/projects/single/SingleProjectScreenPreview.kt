@@ -33,12 +33,10 @@ fun PreviewSingleProjectSuccessAdd() {
         params = SingleProjectScreenContentParams(
             date = PREVIEW_DATE,
             state = SingleProjectState(
-                index = -1,
-                projectName = "",
                 projectTime = "00:00",
                 kilometres = "",
                 allowance = "No allowance",
-                workType = "Installation"
+                workType = "Installation",
             ),
             isAddMode = true,
             projectsUiState = ProjectsUiState.Success(
@@ -67,7 +65,7 @@ fun PreviewSingleProjectSuccessEdit() {
                 projectTime = "03:30",
                 kilometres = "18",
                 allowance = "Full allowance",
-                workType = "Maintenance"
+                workType = "Maintenance",
             ),
             isAddMode = false,
             projectsUiState = ProjectsUiState.Success(

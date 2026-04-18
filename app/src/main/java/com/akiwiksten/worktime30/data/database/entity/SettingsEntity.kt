@@ -16,4 +16,3 @@ data class SettingsEntity(
     @ColumnInfo(name = NAME) val name: String = "",
     @ColumnInfo(name = EMPLOYER) val employer: String = "",
 )
-

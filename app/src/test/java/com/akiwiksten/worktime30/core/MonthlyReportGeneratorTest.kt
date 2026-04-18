@@ -1,6 +1,6 @@
 package com.akiwiksten.worktime30.core
 
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -77,7 +77,7 @@ class MonthlyReportGeneratorTest {
             preprocessedProjects = emptyMap()
         )
 
-        assertEquals(emptyList<ProjectEntity>(), params.projectsByMonth)
+        assertEquals(emptyList<SingleProjectState>(), params.projectsByMonth)
         assertTrue(params.showTotals)
         assertEquals(1, params.startDate)
         assertEquals(31, params.endDate)
@@ -153,11 +153,11 @@ class MonthlyReportGeneratorTest {
     fun testPrintWorkDaysParams_withDataRange() {
         val params = PrintWorkDaysParams(
             projectsByMonth = listOf(
-                ProjectEntity(
+                SingleProjectState(
                     date = "2026-04-01",
                     projectName = "Alpha",
                     projectTime = "08:00",
-                    kilometres = 10,
+                    kilometres = "10",
                     allowance = "Full",
                     workType = "Installation"
                 )

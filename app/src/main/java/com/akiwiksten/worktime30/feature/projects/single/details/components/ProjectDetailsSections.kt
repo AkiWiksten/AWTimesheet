@@ -77,19 +77,19 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
 fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
         AddTimeRow(
-            textFieldValue = uiState.startTime,
+            textFieldValue = uiState.data.startTime,
             stringId = R.string.start_time,
             currentTime = actions.onCurrentStartTime,
             onConfirmation = actions.onSetStartTime
         )
         AddTimeRow(
-            textFieldValue = uiState.dailyWorkTime,
+            textFieldValue = uiState.data.dailyWorkTime,
             stringId = R.string.daily_work_time,
             currentTime = actions.onCurrentDailyWorkTime,
             onConfirmation = actions.onSetDailyWorkTime
         )
         AddTimeRow(
-            textFieldValue = uiState.lunchTime,
+            textFieldValue = uiState.data.lunchTime,
             stringId = R.string.lunch_time,
             currentTime = actions.onCurrentLunchTime,
             onConfirmation = actions.onSetLunchTime
@@ -98,7 +98,7 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         AddTimeRow(
-            textFieldValue = uiState.projectTime,
+            textFieldValue = uiState.data.projectTime,
             stringId = R.string.project_time,
             currentTime = actions.onCurrentProjectTime,
             onConfirmation = actions.onSetProjectTime
@@ -110,14 +110,14 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
         ) {
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.balanceTotal,
+                    customTime = uiState.data.balanceTotal,
                     customTimeFunction = actions.onSetBalanceTotal,
                     stringId = R.string.balance_total
                 )
             }
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.workTimeTotal,
+                    customTime = uiState.data.workTimeTotal,
                     customTimeFunction = actions.onSetWorkTimeTotal,
                     stringId = R.string.work_time_total
                 )
@@ -154,19 +154,19 @@ fun ExistingDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDe
 @Composable
 private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
-        textFieldValue = uiState.startTime,
+        textFieldValue = uiState.data.startTime,
         stringId = R.string.start_time,
         currentTime = actions.onCurrentStartTime,
         onConfirmation = actions.onSetStartTime
     )
     AddTimeRow(
-        textFieldValue = uiState.endTime,
+        textFieldValue = uiState.data.endTime,
         stringId = R.string.end_time,
         currentTime = actions.onCurrentEndTime,
         onConfirmation = actions.onSetEndTime
     )
     AddTimeRow(
-        textFieldValue = uiState.projectTime,
+        textFieldValue = uiState.data.projectTime,
         stringId = R.string.project_time,
         currentTime = actions.onCurrentProjectTime,
         onConfirmation = actions.onSetProjectTime
@@ -176,25 +176,25 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
 @Composable
 private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
-        textFieldValue = uiState.lunchStart,
+        textFieldValue = uiState.data.lunchStart,
         stringId = R.string.lunch_start,
         currentTime = actions.onCurrentLunchStart,
         onConfirmation = actions.onSetLunchStart
     )
     AddTimeRow(
-        textFieldValue = uiState.lunchEnd,
+        textFieldValue = uiState.data.lunchEnd,
         stringId = R.string.lunch_end,
         currentTime = actions.onCurrentLunchEnd,
         onConfirmation = actions.onSetLunchEnd
     )
     AddTimeRow(
-        textFieldValue = uiState.breakStart,
+        textFieldValue = uiState.data.breakStart,
         stringId = R.string.break_start,
         currentTime = actions.onCurrentBreakStart,
         onConfirmation = actions.onSetBreakStart
     )
     AddTimeRow(
-        textFieldValue = uiState.breakEnd,
+        textFieldValue = uiState.data.breakEnd,
         stringId = R.string.break_end,
         currentTime = actions.onCurrentBreakEnd,
         onConfirmation = actions.onSetBreakEnd
@@ -204,13 +204,13 @@ private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions:
 @Composable
 private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
-        textFieldValue = uiState.dailyWorkTime,
+        textFieldValue = uiState.data.dailyWorkTime,
         stringId = R.string.daily_work_time,
         currentTime = actions.onCurrentDailyWorkTime,
         onConfirmation = actions.onSetDailyWorkTime
     )
     AddTimeRow(
-        textFieldValue = uiState.lunchTime,
+        textFieldValue = uiState.data.lunchTime,
         stringId = R.string.lunch_time,
         currentTime = actions.onCurrentLunchTime,
         onConfirmation = actions.onSetLunchTime
@@ -226,21 +226,21 @@ private fun BalanceSummaryFields(uiState: ProjectDetailsUiState.Success, actions
         Row(horizontalArrangement = Arrangement.spacedBy(space = 12.dp)) {
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.balanceToday,
+                    customTime = uiState.data.balanceToday,
                     customTimeFunction = actions.onSetBalanceToday,
                     stringId = R.string.balance_today
                 )
             }
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.balanceTotal,
+                    customTime = uiState.data.balanceTotal,
                     customTimeFunction = actions.onSetBalanceTotal,
                     stringId = R.string.balance_total
                 )
             }
         }
         AddCustomTimeRow(
-            customTime = uiState.workTimeTotal,
+            customTime = uiState.data.workTimeTotal,
             customTimeFunction = actions.onSetWorkTimeTotal,
             stringId = R.string.work_time_total
         )

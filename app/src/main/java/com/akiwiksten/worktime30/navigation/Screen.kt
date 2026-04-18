@@ -4,9 +4,9 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.CALENDAR_SCREEN
 import com.akiwiksten.worktime30.core.INTRO_SCREEN
 import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
+import com.akiwiksten.worktime30.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
-import com.akiwiksten.worktime30.core.WORKDAY_SCREEN
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 
@@ -19,7 +19,7 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
         val projectName: String? = null,
         val projectDetails: ProjectDetailsEntity? = null,
         val workStats: WorkStatsEntity? = null
-    ) : Screen(WORKDAY_SCREEN, R.string.project_details)
+    ) : Screen(PROJECT_DETAILS_SCREEN, R.string.project_details)
     object Intro : Screen(INTRO_SCREEN)
     data class SingleProject(
         val index: Int = -1,

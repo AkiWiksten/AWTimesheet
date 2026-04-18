@@ -2,13 +2,13 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +29,7 @@ sealed class SettingsUiState {
         val selectedDate: String = "",
         val endMonthDate: String = "",
         val workTypes: List<String> = emptyList(),
-        val projectsByMonth: List<ProjectEntity> = emptyList()
+        val projectsByMonth: List<SingleProjectState> = emptyList()
     ) : SettingsUiState()
 
     data class Error(val message: String) : SettingsUiState()
@@ -52,7 +52,7 @@ class SettingsViewModel @Inject constructor(
     private val currentSelectedDate = MutableStateFlow("")
     private val endMonthDate = MutableStateFlow("")
     private val workTypes = MutableStateFlow<List<String>>(emptyList())
-    private val projectsByMonth = MutableStateFlow<List<ProjectEntity>>(emptyList())
+    private val projectsByMonth = MutableStateFlow<List<SingleProjectState>>(emptyList())
     private val isLoading = MutableStateFlow(true)
     private val errorMessage = MutableStateFlow<String?>(null)
 

@@ -17,13 +17,15 @@ fun PreviewProjectDetailsLoading() {
 fun PreviewProjectDetailsSuccessNewDay() {
     ProjectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
-            date = "2026-04-10",
-            projectName = "Alpha Site",
-            dailyWorkTime = "07:30",
-            lunchTime = "00:30",
-            workTimeTotal = "132:00",
-            balanceTotal = "+03:10",
-            isNewDay = true
+            data = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha Site",
+                dailyWorkTime = "07:30",
+                lunchTime = "00:30",
+                workTimeTotal = "132:00",
+                balanceTotal = "+03:10",
+                isNewDay = true
+            )
         ),
         projectName = "Alpha Site"
     )
@@ -34,21 +36,23 @@ fun PreviewProjectDetailsSuccessNewDay() {
 fun PreviewProjectDetailsSuccessExistingDay() {
     ProjectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
-            date = "2026-04-10",
-            projectName = "Beta Support",
-            startTime = "08:00",
-            endTime = "16:30",
-            lunchStart = "11:30",
-            lunchEnd = "12:00",
-            breakStart = "14:15",
-            breakEnd = "14:30",
-            projectTime = "08:00",
-            dailyWorkTime = "07:30",
-            lunchTime = "00:30",
-            balanceToday = "+00:30",
-            workTimeTotal = "140:00",
-            balanceTotal = "+04:10",
-            isNewDay = false
+            data = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Beta Support",
+                startTime = "08:00",
+                endTime = "16:30",
+                lunchStart = "11:30",
+                lunchEnd = "12:00",
+                breakStart = "14:15",
+                breakEnd = "14:30",
+                projectTime = "08:00",
+                dailyWorkTime = "07:30",
+                lunchTime = "00:30",
+                balanceToday = "+00:30",
+                workTimeTotal = "140:00",
+                balanceTotal = "+04:10",
+                isNewDay = false
+            )
         ),
         projectName = "Beta Support"
     )

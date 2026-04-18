@@ -19,4 +19,3 @@ interface SettingsDao {
     @Query("SELECT * FROM $SETTINGS_TABLE WHERE $ID = 1")
     suspend fun loadSettings(): SettingsEntity?
 }
-

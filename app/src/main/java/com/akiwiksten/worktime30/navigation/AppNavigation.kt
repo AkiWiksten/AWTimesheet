@@ -106,7 +106,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         allowance = screen.allowance ?: "",
         workType = screen.workType ?: "",
         projectDetails = screen.projectDetails,
-        workStats = screen.workStats
+        workStats = screen.workStats,
     )
     SingleProjectScreen(
         initialSingleProjectState = initialSingleProjectState,

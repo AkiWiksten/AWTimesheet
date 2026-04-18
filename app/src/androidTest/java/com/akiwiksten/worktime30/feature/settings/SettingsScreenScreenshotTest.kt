@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,11 +52,11 @@ class SettingsScreenScreenshotTest {
                 endMonthDate = "2026-04-30",
                 workTypes = listOf("Installation", "Maintenance", "Meeting"),
                 projectsByMonth = listOf(
-                    ProjectEntity(
+                    SingleProjectState(
                         date = "2026-04-10",
                         projectName = "Alpha Site",
                         projectTime = "04:00",
-                        kilometres = 20,
+                        kilometres = "20",
                         allowance = "Daily allowance",
                         workType = "Installation"
                     )

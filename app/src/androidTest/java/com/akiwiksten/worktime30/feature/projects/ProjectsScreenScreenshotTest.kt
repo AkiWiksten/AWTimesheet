@@ -57,7 +57,7 @@ class ProjectsScreenScreenshotTest {
                         projectTime = "04:15",
                         kilometres = "24",
                         allowance = "Daily allowance",
-                        workType = "Installation"
+                        workType = "Installation",
                     ),
                     SingleProjectState(
                         index = 1,
@@ -65,7 +65,7 @@ class ProjectsScreenScreenshotTest {
                         projectTime = "03:30",
                         kilometres = "8",
                         allowance = "",
-                        workType = "Maintenance"
+                        workType = "Maintenance",
                     )
                 )
             ),

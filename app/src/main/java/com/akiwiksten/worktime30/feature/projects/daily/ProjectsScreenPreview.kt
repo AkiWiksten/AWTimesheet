@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 
+private const val PREVIEW_DATE = "2026-04-10"
+
 @Preview(showBackground = true, name = "Projects - Loading")
 @Composable
 fun PreviewProjectsLoading() {
@@ -18,24 +20,26 @@ fun PreviewProjectsLoading() {
 fun PreviewProjectsSuccess() {
     ProjectsPreviewContent(
         uiState = ProjectsUiState.Success(
-            date = "2026-04-10",
+            date = PREVIEW_DATE,
             workTimeToday = "07:45",
             projects = listOf(
                 SingleProjectState(
+                    date = PREVIEW_DATE,
                     index = 0,
                     projectName = "Alpha Site",
                     projectTime = "04:15",
                     kilometres = "24",
                     allowance = "Daily allowance",
-                    workType = "Installation"
+                    workType = "Installation",
                 ),
                 SingleProjectState(
+                    date = PREVIEW_DATE,
                     index = 1,
                     projectName = "Beta Support",
                     projectTime = "03:30",
                     kilometres = "8",
                     allowance = "",
-                    workType = "Maintenance"
+                    workType = "Maintenance",
                 )
             )
         ),
@@ -48,7 +52,7 @@ fun PreviewProjectsSuccess() {
 fun PreviewProjectsEmpty() {
     ProjectsPreviewContent(
         uiState = ProjectsUiState.Success(
-            date = "2026-04-10",
+            date = PREVIEW_DATE,
             workTimeToday = "00:00",
             projects = emptyList()
         ),

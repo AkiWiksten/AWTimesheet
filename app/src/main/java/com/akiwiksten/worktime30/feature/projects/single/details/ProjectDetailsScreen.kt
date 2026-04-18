@@ -36,6 +36,7 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.feature.projects.single.details.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.projects.single.details.components.FooterSection
 import com.akiwiksten.worktime30.feature.projects.single.details.components.HeaderSection
@@ -57,7 +58,7 @@ fun ProjectDetailsScreen(
 
     LaunchedEffect(Unit) {
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
-        viewModel.loadProjectDetails(projectDetailsArg = args.projectDetails, workStatsArg = args.workStats)
+        viewModel.loadProjectDetails(projectDetailsArg = args.projectDetails?.toDomain(), workStatsArg = args.workStats)
     }
 
     Scaffold(
@@ -151,13 +152,13 @@ internal fun ProjectDetailsContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderSection(date = uiState.date, onClearDay = actions.onClearDay)
+        HeaderSection(date = uiState.data.date, onClearDay = actions.onClearDay)
 
         projectName?.let {
             ProjectNameField(name = it)
         }
 
-        if (uiState.isNewDay) {
+        if (uiState.data.isNewDay) {
             NewDayFields(uiState = uiState, actions = actions.fieldActions)
         } else {
             ExistingDayFields(uiState = uiState, actions = actions.fieldActions)

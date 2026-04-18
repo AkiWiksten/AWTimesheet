@@ -10,6 +10,7 @@ import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -128,8 +129,16 @@ class SettingsViewModelTest {
     private class FakeProjectRepository : ProjectRepository {
         val projectsByRange = mutableMapOf<String, List<ProjectEntity>>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> {
-            return projectsByRange["$start|$end"] ?: emptyList()
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return (projectsByRange["$start|$end"] ?: emptyList()).map { entity ->
+                SingleProjectState(
+                    projectName = entity.projectName,
+                    projectTime = entity.projectTime,
+                    kilometres = entity.kilometres.toString(),
+                    allowance = entity.allowance,
+                    workType = entity.workType
+                )
+            }
         }
 
         override suspend fun insertProject(project: ProjectEntity) = Unit

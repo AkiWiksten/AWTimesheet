@@ -17,7 +17,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.extractDayOfMonth
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
@@ -311,7 +311,8 @@ object MonthlyReportGenerator {
         info: PageInfo,
         preprocessedProjects: Map<Int, List<String>>
     ) = CreatePageParams(
-        params.name, params.employer, params.projectsByMonth, params.endOfMonthDate,
+        params.name,
+        params.employer, params.projectsByMonth, params.endOfMonthDate,
         params.totalSumLabel, params.monthlyReportLabel, doc, paint, info.number,
         info.start, info.end, info.showTotals, params.projectTitles, preprocessedProjects
     )
@@ -364,7 +365,7 @@ object MonthlyReportGenerator {
 }
 
 data class PrintWorkDaysParams(
-    val projectsByMonth: List<ProjectEntity>,
+    val projectsByMonth: List<SingleProjectState>,
     val canvas: Canvas,
     val showTotals: Boolean,
     val startDate: Int,
@@ -388,7 +389,7 @@ data class DrawProjectDaysParams(
 data class CreatePageParams(
     val name: String,
     val employer: String,
-    val projectsByMonth: List<ProjectEntity>,
+    val projectsByMonth: List<SingleProjectState>,
     val endOfMonthDate: String,
     val totalSumLabel: String,
     val monthlyReportLabel: String,
@@ -404,7 +405,7 @@ data class CreatePageParams(
 
 data class GeneratePdfParams(
     val ctx: Context,
-    val projectsByMonth: List<ProjectEntity>,
+    val projectsByMonth: List<SingleProjectState>,
     val endOfMonthDate: String,
     val totalSumLabel: String,
     val monthlyReportLabel: String,

@@ -16,6 +16,7 @@ import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -34,7 +35,7 @@ class ProjectsViewModelTest {
     @Test
     fun selectedDate_loadsProjectsAsSuccessState() = runTest {
         val projectRepository = FakeProjectRepository().apply {
-            projectsByDateRange = listOf(ProjectEntity("2026-04-10", "Beta", "02:30"))
+            projectsByDateRange = listOf(ProjectEntity("2026-04-10", "Beta", "02:30", 0, "", ""))
             projectNames = listOf(ProjectNameEntity("Beta"), ProjectNameEntity("Alpha"))
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
@@ -72,7 +73,6 @@ class ProjectsViewModelTest {
             SingleProjectState(
                 projectName = "Alpha",
                 projectTime = "01:00",
-                allowance = "No Allowance"
             )
         )
         advanceUntilIdle()
@@ -111,8 +111,16 @@ class ProjectsViewModelTest {
         val insertedProjects = mutableListOf<ProjectEntity>()
         val deletedProjects = mutableListOf<ProjectEntity>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> {
-            return projectsByDateRange.filter { it.date in start..end }
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return projectsByDateRange.filter { it.date in start..end }.map { entity ->
+                SingleProjectState(
+                    projectName = entity.projectName,
+                    projectTime = entity.projectTime,
+                    kilometres = entity.kilometres.toString(),
+                    allowance = entity.allowance,
+                    workType = entity.workType
+                )
+            }
         }
 
         override suspend fun insertProject(project: ProjectEntity) {
@@ -150,8 +158,22 @@ class ProjectsViewModelTest {
         var workStats: WorkStatsEntity? = null
         val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
 
-        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsEntity? {
-            return insertedProjectDetails.firstOrNull { it.date == date && it.projectName == projectName }
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? {
+            val entity = insertedProjectDetails.firstOrNull { it.date == date && it.projectName == projectName }
+            return entity?.let {
+                ProjectDetailsState(
+                    date = it.date,
+                    projectName = it.projectName,
+                    startTime = it.startTime,
+                    endTime = it.endTime,
+                    lunchStart = it.lunchStart,
+                    lunchEnd = it.lunchEnd,
+                    breakStart = it.breakStart,
+                    breakEnd = it.breakEnd,
+                    projectTime = it.projectTime,
+                    balanceToday = it.balanceToday
+                )
+            }
         }
 
         override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {

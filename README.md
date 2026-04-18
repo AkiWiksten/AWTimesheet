@@ -76,4 +76,5 @@ This is called feature-based packaging.
   + Edit “Balance total” in SettingsScreen.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
-+ WorkStatsEntity->ProjectStatsEntity
++ Repositories not returning Entities
++ 

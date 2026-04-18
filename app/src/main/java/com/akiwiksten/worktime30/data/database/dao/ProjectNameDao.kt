@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 
-
 @Dao
 interface ProjectNameDao {
     @Query("SELECT exists (SELECT 1 FROM project_name)")

@@ -5,6 +5,7 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -24,7 +25,7 @@ class CalendarViewModelTest {
     fun onDateSelected_updatesUiStateWithCalculatedSums() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
+                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00", 0, "", "")
             )
         }
         val viewModel = CalendarViewModel(
@@ -79,8 +80,17 @@ class CalendarViewModelTest {
     private open class FakeProjectRepository : ProjectRepository {
         val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<ProjectEntity> {
-            return dataByRange["$start|$end"] ?: emptyList()
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return (dataByRange["$start|$end"] ?: emptyList()).map { entity ->
+                SingleProjectState(
+                    date = entity.date,
+                    projectName = entity.projectName,
+                    projectTime = entity.projectTime,
+                    kilometres = entity.kilometres.toString(),
+                    allowance = entity.allowance,
+                    workType = entity.workType
+                )
+            }
         }
 
         override suspend fun insertProject(project: ProjectEntity) = Unit

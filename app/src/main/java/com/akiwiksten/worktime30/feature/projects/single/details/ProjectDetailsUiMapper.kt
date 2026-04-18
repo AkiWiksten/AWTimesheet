@@ -4,7 +4,7 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 
-object ProjectDetailsMapper {
+object ProjectDetailsUiMapper {
 
     fun mapToEntity(state: ProjectDetailsState): ProjectDetailsEntity {
         return ProjectDetailsEntity(

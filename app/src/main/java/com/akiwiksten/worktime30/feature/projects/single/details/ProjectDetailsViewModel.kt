@@ -458,12 +458,12 @@ class ProjectDetailsViewModel @Inject constructor(
 
     fun getProjectDetailsEntity(): ProjectDetailsEntity {
         val state = (uiState.value as ProjectDetailsUiState.Success).data
-        return ProjectDetailsMapper.mapToEntity(state)
+        return ProjectDetailsUiMapper.mapToEntity(state)
     }
 
     fun getWorkStatsEntity(): WorkStatsEntity {
         val state = (uiState.value as ProjectDetailsUiState.Success).data
-        return ProjectDetailsMapper.mapToWorkStatsEntity(state)
+        return ProjectDetailsUiMapper.mapToWorkStatsEntity(state)
     }
 
     fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsEntity? = null) {
@@ -509,7 +509,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 WorkTimeCalculator.calculateWorkTimeBalance(acc, p.projectTime)
             }
 
-            val nextState = ProjectDetailsMapper.applyEntitiesToState(
+            val nextState = ProjectDetailsUiMapper.applyEntitiesToState(
                 baseState.copy(
                     data = baseState.data.copy(
                         date = date,

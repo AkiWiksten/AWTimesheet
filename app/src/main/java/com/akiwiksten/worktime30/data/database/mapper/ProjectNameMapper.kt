@@ -6,7 +6,7 @@ fun ProjectNameEntity.toDomain(): String {
     return name
 }
 
-fun String.toEntity(): ProjectNameEntity {
+fun String.toProjectNameEntity(): ProjectNameEntity {
     return ProjectNameEntity(
         name = this
     )

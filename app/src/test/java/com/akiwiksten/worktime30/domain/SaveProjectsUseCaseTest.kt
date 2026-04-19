@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
@@ -83,15 +84,15 @@ class SaveProjectsUseCaseTest {
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
+        val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) {
             insertedProjectDetails += projectDetails
         }
 
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) = Unit
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) = Unit
 
         override suspend fun getWorkStats(): WorkStatsState? = null
 
@@ -100,6 +101,6 @@ class SaveProjectsUseCaseTest {
         override suspend fun getProjectDetailsByDateRange(
             start: String,
             end: String
-        ): List<ProjectDetailsEntity> = emptyList()
+        ): List<ProjectDetailsState> = emptyList()
     }
 }

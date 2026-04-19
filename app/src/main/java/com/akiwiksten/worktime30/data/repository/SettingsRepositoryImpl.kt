@@ -5,6 +5,7 @@ import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.data.database.mapper.toWorkTypeEntity
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,8 +17,8 @@ class SettingsRepositoryImpl @Inject constructor(
 ) : SettingsRepository {
     override suspend fun getSettings(): SettingsState? = settingsDao.loadSettings()?.toDomain()
     override suspend fun insertSettings(settings: SettingsState) = settingsDao.insertSettings(settings.toEntity())
-    override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypeDao.loadWorkTypes()
-    override suspend fun insertWorkType(workType: WorkTypeEntity) = workTypeDao.insertWorkType(workType)
-    override suspend fun deleteWorkType(workType: WorkTypeEntity) = workTypeDao.delete(workType)
+    override suspend fun getWorkTypes(): List<String> = workTypeDao.loadWorkTypes().map { it.toDomain() }
+    override suspend fun insertWorkType(workType: String) = workTypeDao.insertWorkType(workType.toWorkTypeEntity())
+    override suspend fun deleteWorkType(workType: String) = workTypeDao.delete(workType.toWorkTypeEntity())
     override suspend fun clearWorkTypes() = workTypeDao.deleteAll()
 }

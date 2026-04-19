@@ -42,25 +42,25 @@ class SettingsRepositoryImplTest {
 
         val result = repository.getWorkTypes()
 
-        assertEquals(expected, result)
+        assertEquals(listOf("Office", "Remote"), result)
     }
 
     @Test
     fun insertWorkType_callsDaoInsert() = runBlocking {
-        val workType = WorkTypeEntity(workType = "Office")
+        val workType = "Office"
 
         repository.insertWorkType(workType)
 
-        assertEquals(workType, workTypeDao.insertedWorkType)
+        assertEquals(WorkTypeEntity(workType = workType), workTypeDao.insertedWorkType)
     }
 
     @Test
     fun deleteWorkType_callsDaoDelete() = runBlocking {
-        val workType = WorkTypeEntity(workType = "Office")
+        val workType = "Office"
 
         repository.deleteWorkType(workType)
 
-        assertEquals(workType, workTypeDao.deletedWorkType)
+        assertEquals(WorkTypeEntity(workType = workType), workTypeDao.deletedWorkType)
     }
 
     @Test

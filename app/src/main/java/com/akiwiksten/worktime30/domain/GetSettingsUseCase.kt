@@ -8,7 +8,7 @@ class GetSettingsUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): SettingsData {
         val settings = repository.getSettings()
-        val workTypes = repository.getWorkTypes().map { it.workType }.sorted()
+        val workTypes = repository.getWorkTypes().sorted()
         return SettingsData(
             name = settings?.name ?: "",
             employer = settings?.employer ?: "",

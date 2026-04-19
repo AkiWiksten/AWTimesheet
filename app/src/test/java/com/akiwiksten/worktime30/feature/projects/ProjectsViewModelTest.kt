@@ -44,7 +44,7 @@ class ProjectsViewModelTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
         val settingsRepository = FakeSettingsRepository().apply {
-            workTypes = listOf(WorkTypeEntity("Office"))
+            workTypes = listOf("Office")
         }
         val dateRepository = DateRepository()
         dateRepository.updateDate("2026-04-10")
@@ -152,11 +152,11 @@ class ProjectsViewModelTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var workStats: WorkStatsState? = null
-        val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
+        val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? {
-            val entity = insertedProjectDetails.firstOrNull { it.date == date && it.projectName == projectName }
-            return entity?.let {
+            val state = insertedProjectDetails.firstOrNull { it.date == date && it.projectName == projectName }
+            return state?.let {
                 ProjectDetailsState(
                     date = it.date,
                     projectName = it.projectName,
@@ -172,11 +172,11 @@ class ProjectsViewModelTest {
             }
         }
 
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) {
             insertedProjectDetails += projectDetails
         }
 
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) {
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) {
             insertedProjectDetails
                 .removeIf {
                     it.date == projectDetails.date && it.projectName == projectDetails.projectName
@@ -192,21 +192,21 @@ class ProjectsViewModelTest {
         override suspend fun getProjectDetailsByDateRange(
             start: String,
             end: String
-        ): List<ProjectDetailsEntity> = emptyList()
+        ): List<ProjectDetailsState> = emptyList()
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var workTypes: List<WorkTypeEntity> = emptyList()
+        var workTypes: List<String> = emptyList()
 
         override suspend fun getSettings(): SettingsState? = null
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypes
+        override suspend fun getWorkTypes(): List<String> = workTypes
 
-        override suspend fun insertWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun insertWorkType(workType: String) = Unit
 
-        override suspend fun deleteWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun clearWorkTypes() = Unit
     }

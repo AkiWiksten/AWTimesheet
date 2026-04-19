@@ -28,7 +28,7 @@ class SettingsViewModelTest {
     fun loadSettings_updatesSuccessState() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
             settings = SettingsState(name = "Aki", employer = "Company")
-            workTypes = mutableListOf(WorkTypeEntity("Remote"), WorkTypeEntity("Office"))
+            workTypes = mutableListOf("Remote", "Office")
         }
         val projectRepository = FakeProjectRepository()
         val viewModel = createViewModel(settingsRepository, projectRepository)
@@ -80,7 +80,7 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         assertEquals("New Name", settingsRepository.insertedSettings?.name)
-        assertTrue(settingsRepository.insertedWorkTypes.any { it.workType == "Office" })
+        assertTrue(settingsRepository.insertedWorkTypes.any { it == "Office" })
     }
 
     private fun createViewModel(
@@ -98,8 +98,8 @@ class SettingsViewModelTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         var settings: SettingsState? = null
-        var workTypes: MutableList<WorkTypeEntity> = mutableListOf()
-        val insertedWorkTypes = mutableListOf<WorkTypeEntity>()
+        var workTypes: MutableList<String> = mutableListOf()
+        val insertedWorkTypes = mutableListOf<String>()
         var insertedSettings: SettingsState? = null
 
         override suspend fun getSettings(): SettingsState? = settings
@@ -108,15 +108,15 @@ class SettingsViewModelTest {
             insertedSettings = settings
         }
 
-        override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypes
+        override suspend fun getWorkTypes(): List<String> = workTypes
 
-        override suspend fun insertWorkType(workType: WorkTypeEntity) {
+        override suspend fun insertWorkType(workType: String) {
             insertedWorkTypes += workType
             workTypes += workType
         }
 
-        override suspend fun deleteWorkType(workType: WorkTypeEntity) {
-            workTypes = workTypes.filterNot { it.workType == workType.workType }.toMutableList()
+        override suspend fun deleteWorkType(workType: String) {
+            workTypes = workTypes.filterNot { it == workType }.toMutableList()
         }
 
         override suspend fun clearWorkTypes() {

@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
@@ -111,7 +110,7 @@ class SettingsViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            settingsRepository.deleteWorkType(WorkTypeEntity(workType = workType))
+            settingsRepository.deleteWorkType(workType)
         }
     }
 

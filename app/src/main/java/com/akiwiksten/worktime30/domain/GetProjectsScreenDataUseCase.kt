@@ -19,7 +19,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
 
         val projectNames = projectRepository.getProjectNames()
 
-        val workTypes = settingsRepository.getWorkTypes().map { it.workType }
+        val workTypes = settingsRepository.getWorkTypes()
 
         return ProjectsScreenData(
             projectTime = projectTime,

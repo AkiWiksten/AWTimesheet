@@ -5,6 +5,7 @@ import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -29,20 +30,20 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun insertProjectDetails_callsDaoInsert() = runBlocking {
-        val projectDetails = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha")
+        val projectDetails = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha").toDomain()
 
         repository.insertProjectDetails(projectDetails)
 
-        assertEquals(projectDetails, projectDetailsDao.insertedProjectDetails)
+        assertEquals(projectDetails.toEntity(), projectDetailsDao.insertedProjectDetails)
     }
 
     @Test
     fun deleteProjectDetails_callsDaoDelete() = runBlocking {
-        val projectDetails = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha")
+        val projectDetails = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha").toDomain()
 
         repository.deleteProjectDetails(projectDetails)
 
-        assertEquals(projectDetails, projectDetailsDao.deletedProjectDetails)
+        assertEquals(projectDetails.toEntity(), projectDetailsDao.deletedProjectDetails)
     }
 
     @Test
@@ -71,7 +72,7 @@ class ProjectDetailsRepositoryImplTest {
 
         val result = repository.getProjectDetailsByDateRange("2026-04-01", "2026-04-30")
 
-        assertEquals(expected, result)
+        assertEquals(expected.map { it.toDomain() }, result)
         assertEquals("2026-04-01", projectDetailsDao.lastDateStart)
         assertEquals("2026-04-30", projectDetailsDao.lastDateEnd)
     }

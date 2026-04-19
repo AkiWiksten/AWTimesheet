@@ -1,6 +1,5 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import kotlinx.coroutines.runBlocking
@@ -13,10 +12,7 @@ class GetSettingsUseCaseTest {
     fun invoke_returnsMappedValuesAndSortedWorkTypes() = runBlocking {
         val repository = FakeSettingsRepository().apply {
             settings = SettingsState(name = "Aki", employer = "WorkTime")
-            workTypes = listOf(
-                WorkTypeEntity(workType = "Remote"),
-                WorkTypeEntity(workType = "Office")
-            )
+            workTypes = listOf("Remote", "Office")
         }
         val useCase = GetSettingsUseCase(repository)
 
@@ -31,7 +27,7 @@ class GetSettingsUseCaseTest {
     fun invoke_returnsEmptyNameAndEmployerWhenSettingsMissing() = runBlocking {
         val repository = FakeSettingsRepository().apply {
             settings = null
-            workTypes = listOf(WorkTypeEntity(workType = "Field"))
+            workTypes = listOf("Field")
         }
         val useCase = GetSettingsUseCase(repository)
 
@@ -44,17 +40,17 @@ class GetSettingsUseCaseTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         var settings: SettingsState? = null
-        var workTypes: List<WorkTypeEntity> = emptyList()
+        var workTypes: List<String> = emptyList()
 
         override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypes
+        override suspend fun getWorkTypes(): List<String> = workTypes
 
-        override suspend fun insertWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun insertWorkType(workType: String) = Unit
 
-        override suspend fun deleteWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun clearWorkTypes() = Unit
     }

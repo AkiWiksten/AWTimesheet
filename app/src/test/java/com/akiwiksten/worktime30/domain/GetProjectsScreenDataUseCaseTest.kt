@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
@@ -22,7 +21,7 @@ class GetProjectsScreenDataUseCaseTest {
             projectNames = listOf("Alpha", "Beta")
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workTypes = listOf(WorkTypeEntity(workType = "Office"), WorkTypeEntity(workType = "Remote"))
+            workTypes = listOf("Office", "Remote")
         }
         val useCase = GetProjectsScreenDataUseCase(projectRepository, settingsRepository)
 
@@ -66,17 +65,17 @@ class GetProjectsScreenDataUseCaseTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var workTypes: List<WorkTypeEntity> = emptyList()
+        var workTypes: List<String> = emptyList()
 
         override suspend fun getSettings(): SettingsState? = null
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypes
+        override suspend fun getWorkTypes(): List<String> = workTypes
 
-        override suspend fun insertWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun insertWorkType(workType: String) = Unit
 
-        override suspend fun deleteWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun clearWorkTypes() = Unit
     }

@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.workday
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
@@ -103,11 +104,11 @@ class ProjectDetailsViewModelTest {
             projectName: String
         ): ProjectDetailsState? = projectDetails?.toDomain()
 
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) {
-            this.projectDetails = projectDetails
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) {
+            this.projectDetails = projectDetails.toEntity()
         }
 
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) {
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) {
             this.projectDetails = null
         }
 
@@ -120,6 +121,6 @@ class ProjectDetailsViewModelTest {
         override suspend fun getProjectDetailsByDateRange(
             start: String,
             end: String
-        ): List<ProjectDetailsEntity> = emptyList()
+        ): List<ProjectDetailsState> = emptyList()
     }
 }

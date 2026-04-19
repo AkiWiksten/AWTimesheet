@@ -4,6 +4,7 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,10 +26,10 @@ class ProjectRepositoryImpl @Inject constructor(
         .map { it.toDomain() }
 
     override suspend fun insertProjectName(projectName: String) =
-        projectNameDao.insertProjectName(projectName.toEntity())
+        projectNameDao.insertProjectName(projectName.toProjectNameEntity())
 
     override suspend fun deleteProjectName(projectName: String) =
-        projectNameDao.delete(projectName.toEntity())
+        projectNameDao.delete(projectName.toProjectNameEntity())
 
     override suspend fun isProjectNameUsed(projectName: String): Boolean =
         projectDao.isProjectNameUsed(projectName)

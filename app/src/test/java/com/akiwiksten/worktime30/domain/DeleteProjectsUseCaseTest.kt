@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
@@ -29,7 +28,7 @@ class DeleteProjectsUseCaseTest {
         )
         assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
         assertEquals(
-            listOf(ProjectDetailsEntity(date = "2026-04-10", projectName = "Beta")),
+            listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Beta")),
             projectDetailsRepository.deletedProjectDetails
         )
     }
@@ -73,13 +72,13 @@ class DeleteProjectsUseCaseTest {
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        val deletedProjectDetails = mutableListOf<ProjectDetailsEntity>()
+        val deletedProjectDetails = mutableListOf<ProjectDetailsState>()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsEntity) = Unit
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) = Unit
 
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) {
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) {
             deletedProjectDetails += projectDetails
         }
 
@@ -90,6 +89,6 @@ class DeleteProjectsUseCaseTest {
         override suspend fun getProjectDetailsByDateRange(
             start: String,
             end: String
-        ): List<ProjectDetailsEntity> = emptyList()
+        ): List<ProjectDetailsState> = emptyList()
     }
 }

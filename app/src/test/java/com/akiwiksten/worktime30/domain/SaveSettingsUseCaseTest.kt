@@ -58,14 +58,14 @@ class SaveSettingsUseCaseTest {
             savedSettings = settings
         }
 
-        override suspend fun getWorkTypes(): List<WorkTypeEntity> = emptyList()
+        override suspend fun getWorkTypes(): List<String> = emptyList()
 
-        override suspend fun insertWorkType(workType: WorkTypeEntity) {
-            operations += "insertWorkType:${workType.workType}"
-            insertedWorkTypes += workType
+        override suspend fun insertWorkType(workType: String) {
+            operations += "insertWorkType:$workType"
+            insertedWorkTypes += WorkTypeEntity(workType = workType)
         }
 
-        override suspend fun deleteWorkType(workType: WorkTypeEntity) = Unit
+        override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun clearWorkTypes() {
             operations += "clearWorkTypes"

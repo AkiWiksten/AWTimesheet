@@ -197,7 +197,16 @@ class ProjectDetailsViewModel @Inject constructor(
                 oldDailyWorkTime = oldDaily,
                 isNewDay = successState.data.isNewDay
             )
-            applyUpdateToState(successState.copy(data = successState.data.copy(workStats = successState.data.workStats.copy(dailyWorkTime = dailyWorkTime))), update)
+            applyUpdateToState(
+                successState.copy(
+                    data = successState.data.copy(
+                        workStats = successState.data.workStats.copy(
+                            dailyWorkTime = dailyWorkTime
+                        )
+                    )
+                ),
+                update
+            )
         }
     }
 
@@ -261,7 +270,16 @@ class ProjectDetailsViewModel @Inject constructor(
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 oldLunchTime = oldLunchTime
             )
-            applyUpdateToState(successState.copy(data = successState.data.copy(workStats = successState.data.workStats.copy(lunchTime = lunchTime))), update)
+            applyUpdateToState(
+                successState.copy(
+                    data = successState.data.copy(
+                        workStats = successState.data.workStats.copy(
+                            lunchTime = lunchTime
+                        )
+                    )
+                ),
+                update
+            )
         }
     }
 

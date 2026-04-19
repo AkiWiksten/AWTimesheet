@@ -19,7 +19,13 @@ class SaveProjectsUseCaseTest {
         val useCase = SaveProjectsUseCase(projectRepository, projectDetailsRepository)
 
         useCase(
-            projectsToSave = listOf(SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")),
+            projectsToSave = listOf(
+                SingleProjectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:00"
+                )
+            ),
             projectDetailsToSave = ProjectDetailsEntity(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -39,7 +45,13 @@ class SaveProjectsUseCaseTest {
         val useCase = SaveProjectsUseCase(projectRepository, projectDetailsRepository)
 
         useCase(
-            projectsToSave = listOf(SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "01:00")),
+            projectsToSave = listOf(
+                SingleProjectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "01:00"
+                )
+            ),
             projectDetailsToSave = null
         )
 

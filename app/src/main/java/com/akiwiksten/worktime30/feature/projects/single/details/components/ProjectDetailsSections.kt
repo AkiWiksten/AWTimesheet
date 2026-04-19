@@ -95,7 +95,6 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
             onConfirmation = actions.onSetLunchTime
         )
 
-
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         AddTimeRow(

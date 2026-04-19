@@ -132,7 +132,9 @@ class SettingsViewModel @Inject constructor(
                         )
                     )
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                handleException(e, "Failed to load projects")
+            } catch (e: IllegalStateException) {
                 handleException(e, "Failed to load projects")
             }
         }
@@ -150,7 +152,9 @@ class SettingsViewModel @Inject constructor(
                         workTypes = loadedData.workTypes
                     )
                 )
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                handleException(e, "Failed to load settings")
+            } catch (e: IllegalStateException) {
                 handleException(e, "Failed to load settings")
             }
         }
@@ -167,7 +171,9 @@ class SettingsViewModel @Inject constructor(
                         workTypes = currentState.data.workTypes
                     )
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
+                handleException(e, "Failed to save settings")
+            } catch (e: IllegalStateException) {
                 handleException(e, "Failed to save settings")
             }
         }

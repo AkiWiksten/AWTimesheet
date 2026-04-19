@@ -33,7 +33,13 @@ class ProjectsViewModelTest {
     @Test
     fun selectedDate_loadsProjectsAsSuccessState() = runTest {
         val projectRepository = FakeProjectRepository().apply {
-            projectsByDateRange = listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "02:30"))
+            projectsByDateRange = listOf(
+                SingleProjectState(
+                    date = "2026-04-10",
+                    projectName = "Beta",
+                    projectTime = "02:30"
+                )
+            )
             projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()

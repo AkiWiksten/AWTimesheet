@@ -18,9 +18,17 @@ fun ProjectDetailsEntity.toDomain(): ProjectDetailsState {
     )
 }
 
-/*fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
+fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
     return ProjectDetailsEntity(
-        name = name,
-        employer = employer,
+        date = date,
+        projectName = projectName,
+        startTime = startTime,
+        endTime = endTime,
+        lunchStart = lunchStart,
+        lunchEnd = lunchEnd,
+        breakStart = breakStart,
+        breakEnd = breakEnd,
+        projectTime = projectTime,
+        balanceToday = balanceToday,
     )
-}*/
+}

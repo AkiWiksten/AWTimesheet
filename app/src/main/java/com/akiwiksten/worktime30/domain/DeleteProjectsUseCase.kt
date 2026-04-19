@@ -1,10 +1,10 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import javax.inject.Inject
 
 class DeleteProjectsUseCase @Inject constructor(
@@ -15,7 +15,9 @@ class DeleteProjectsUseCase @Inject constructor(
         projectRepository.deleteProject(
             SingleProjectState(date = date, projectName = projectName, projectTime = ZERO_TIME)
         )
-        projectDetailsRepository.deleteProjectDetails(ProjectDetailsEntity(date = date, projectName = projectName))
+        projectDetailsRepository.deleteProjectDetails(
+            ProjectDetailsState(date = date, projectName = projectName)
+        )
 
         if (!projectRepository.isProjectNameUsed(projectName)) {
             projectRepository.deleteProjectName(projectName)

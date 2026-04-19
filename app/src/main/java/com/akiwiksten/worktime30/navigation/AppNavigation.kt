@@ -8,10 +8,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
@@ -103,7 +105,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         projectName = screen.projectName ?: "",
         projectTime = screen.projectTime ?: "",
         kilometres = screen.kilometres ?: "",
-        allowance = screen.allowance ?: "",
+        allowance = screen.allowance ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
         projectDetails = screen.projectDetails,
         workStats = screen.workStats,

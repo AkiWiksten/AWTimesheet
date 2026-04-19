@@ -28,7 +28,7 @@ data class SingleProjectState(
     val projectName: String = "",
     val projectTime: String = ZERO_TIME,
     val kilometres: String = "0",
-    val allowance: String = "No Allowance",
+    val allowance: String = "",
     val workType: String = "",
     val projectDetails: ProjectDetailsState? = null,
     val workStats: WorkStatsState? = null,

@@ -76,5 +76,4 @@ This is called feature-based packaging.
   + Edit “Balance total” in SettingsScreen.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
-+ Repositories not returning Entities
-+ Single project: "No allowance" default value
++ Translate fed "Work type"

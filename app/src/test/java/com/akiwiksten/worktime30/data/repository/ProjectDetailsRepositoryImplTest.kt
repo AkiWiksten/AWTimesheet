@@ -4,8 +4,9 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -17,20 +18,19 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun getProjectDetails_returnsDataFromDao() = runBlocking {
-        val expected = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha")
-        projectDetailsDao.projectDetailsResult = expected
+        val expected = ProjectDetailsState(date = "2026-04-10", projectName = "Alpha")
+        projectDetailsDao.projectDetailsResult = expected.toEntity()
 
         val result = repository.getProjectDetails("2026-04-10", "Alpha")
 
-        val expectedDomain = expected.toDomain()
-        assertEquals(expectedDomain, result)
+        assertEquals(expected, result)
         assertEquals("2026-04-10", projectDetailsDao.lastDate)
         assertEquals("Alpha", projectDetailsDao.lastProjectName)
     }
 
     @Test
     fun insertProjectDetails_callsDaoInsert() = runBlocking {
-        val projectDetails = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha").toDomain()
+        val projectDetails = ProjectDetailsState(date = "2026-04-10", projectName = "Alpha")
 
         repository.insertProjectDetails(projectDetails)
 
@@ -39,7 +39,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun deleteProjectDetails_callsDaoDelete() = runBlocking {
-        val projectDetails = ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha").toDomain()
+        val projectDetails = ProjectDetailsState(date = "2026-04-10", projectName = "Alpha")
 
         repository.deleteProjectDetails(projectDetails)
 
@@ -48,31 +48,31 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun getWorkStats_returnsDataFromDao() = runBlocking {
-        val expected = WorkStatsEntity(workTimeTotal = "10:00 h")
-        workStatsDao.workStatsResult = expected
+        val expected = WorkStatsState(workTimeTotal = "10:00 h")
+        workStatsDao.workStatsResult = expected.toEntity()
 
         val result = repository.getWorkStats()
 
-        assertEquals(expected.toDomain(), result)
+        assertEquals(expected, result)
     }
 
     @Test
     fun insertWorkStats_callsDaoInsert() = runBlocking {
-        val workStats = WorkStatsEntity(workTimeTotal = "10:00 h")
+        val workStats = WorkStatsState(workTimeTotal = "10:00 h")
 
-        repository.insertWorkStats(workStats.toDomain())
+        repository.insertWorkStats(workStats)
 
-        assertEquals(workStats, workStatsDao.insertedWorkStats)
+        assertEquals(workStats.toEntity(), workStatsDao.insertedWorkStats)
     }
 
     @Test
     fun getProjectDetailsByDateRange_returnsDataFromDao() = runBlocking {
-        val expected = listOf(ProjectDetailsEntity(date = "2026-04-10", projectName = "Alpha"))
-        projectDetailsDao.projectDetailsByDateRangeResult = expected
+        val expected = listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Alpha"))
+        projectDetailsDao.projectDetailsByDateRangeResult = expected.map { it.toEntity() }
 
         val result = repository.getProjectDetailsByDateRange("2026-04-01", "2026-04-30")
 
-        assertEquals(expected.map { it.toDomain() }, result)
+        assertEquals(expected, result)
         assertEquals("2026-04-01", projectDetailsDao.lastDateStart)
         assertEquals("2026-04-30", projectDetailsDao.lastDateEnd)
     }

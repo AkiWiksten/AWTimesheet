@@ -1,7 +1,5 @@
 package com.akiwiksten.worktime30.feature.projects
 
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository

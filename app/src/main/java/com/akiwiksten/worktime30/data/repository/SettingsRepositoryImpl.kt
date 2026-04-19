@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toWorkTypeEntity

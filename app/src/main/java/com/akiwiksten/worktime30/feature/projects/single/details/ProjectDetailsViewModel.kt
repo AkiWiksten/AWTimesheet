@@ -7,8 +7,6 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -480,14 +478,12 @@ class ProjectDetailsViewModel @Inject constructor(
         )
     }
 
-    fun getProjectDetailsEntity(): ProjectDetailsEntity {
-        val state = (uiState.value as ProjectDetailsUiState.Success).data
-        return ProjectDetailsUiMapper.mapToEntity(state)
+    fun getProjectDetailsState(): ProjectDetailsState {
+        return (uiState.value as ProjectDetailsUiState.Success).data
     }
 
-    fun getWorkStatsEntity(): WorkStatsEntity {
-        val state = (uiState.value as ProjectDetailsUiState.Success).data
-        return ProjectDetailsUiMapper.mapToWorkStatsEntity(state)
+    fun getWorkStatsState(): WorkStatsState {
+        return (uiState.value as ProjectDetailsUiState.Success).data.workStats
     }
 
     fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsState? = null) {

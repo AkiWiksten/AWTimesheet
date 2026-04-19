@@ -1,6 +1,5 @@
 package com.akiwiksten.worktime30.data.repository
 
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 
 interface SettingsRepository {

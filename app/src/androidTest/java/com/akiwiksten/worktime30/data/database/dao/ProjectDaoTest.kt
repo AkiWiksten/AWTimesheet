@@ -4,8 +4,9 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.akiwiksten.worktime30.data.database.AppDatabase
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -38,12 +39,20 @@ class ProjectDaoTest {
 
     @Test
     fun getProjectsByDateRange_returnsOnlyInclusiveRange() = runBlocking {
-        projectNameDao.insertProjectName(ProjectNameEntity(name = "Alpha"))
+        projectNameDao.insertProjectName("Alpha".toProjectNameEntity())
 
-        projectDao.insertProject(ProjectEntity(date = "2026-04-01", projectName = "Alpha", projectTime = "01:00"))
-        projectDao.insertProject(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00"))
-        projectDao.insertProject(ProjectEntity(date = "2026-04-30", projectName = "Alpha", projectTime = "03:00"))
-        projectDao.insertProject(ProjectEntity(date = "2026-05-01", projectName = "Alpha", projectTime = "04:00"))
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-04-01", projectName = "Alpha", projectTime = "01:00").toEntity()
+        )
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00").toEntity()
+        )
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-04-30", projectName = "Alpha", projectTime = "03:00").toEntity()
+        )
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-05-01", projectName = "Alpha", projectTime = "04:00").toEntity()
+        )
 
         val result = projectDao.getProjectsByDateRange("2026-04-01", "2026-04-30")
 
@@ -55,10 +64,14 @@ class ProjectDaoTest {
 
     @Test
     fun getProjectsByDateRange_withSingleDayBounds_returnsOnlyThatDay() = runBlocking {
-        projectNameDao.insertProjectName(ProjectNameEntity(name = "Alpha"))
+        projectNameDao.insertProjectName("Alpha".toProjectNameEntity())
 
-        projectDao.insertProject(ProjectEntity(date = "2026-04-09", projectName = "Alpha", projectTime = "01:00"))
-        projectDao.insertProject(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00"))
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-04-09", projectName = "Alpha", projectTime = "01:00").toEntity()
+        )
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00").toEntity()
+        )
 
         val result = projectDao.getProjectsByDateRange("2026-04-10", "2026-04-10")
 
@@ -68,14 +81,15 @@ class ProjectDaoTest {
 
     @Test
     fun isProjectNameUsed_reflectsRowsInProjectTable() = runBlocking {
-        projectNameDao.insertProjectName(ProjectNameEntity(name = "Alpha"))
+        projectNameDao.insertProjectName("Alpha".toProjectNameEntity())
 
         assertFalse(projectDao.isProjectNameUsed("Alpha"))
 
-        projectDao.insertProject(ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00"))
+        projectDao.insertProject(
+            SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00").toEntity()
+        )
 
         assertTrue(projectDao.isProjectNameUsed("Alpha"))
         assertFalse(projectDao.isProjectNameUsed("Beta"))
     }
 }
-

@@ -1,9 +1,6 @@
 package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.mapper.toDomain
-import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
@@ -28,7 +25,7 @@ class ProjectDetailsViewModelTest {
     @Test
     fun setDate_andProjectName_loadsProjectDetailsData() = runTest {
         val repository = FakeProjectDetailsRepository().apply {
-            projectDetails = ProjectDetailsEntity(
+            projectDetails = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 startTime = "08:00",
@@ -65,14 +62,14 @@ class ProjectDetailsViewModelTest {
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
-            projectDetailsArg = ProjectDetailsEntity(
+            projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 startTime = "08:00",
                 endTime = "16:00",
                 projectTime = "08:00",
                 balanceToday = "00:30"
-            ).toDomain(),
+            ),
             workStatsArg = WorkStatsState(
                 dailyWorkTime = "07:30",
                 lunchTime = "00:30",
@@ -82,10 +79,10 @@ class ProjectDetailsViewModelTest {
         )
         advanceUntilIdle()
 
-        val projectDetailsEntity = viewModel.getProjectDetailsEntity()
-        val workStatsEntity = viewModel.getWorkStatsEntity()
-        assertEquals("Alpha", projectDetailsEntity.projectName)
-        assertEquals("12:00", workStatsEntity.workTimeTotal)
+        val persistedProjectDetails = viewModel.getProjectDetailsState()
+        val workStats = viewModel.getWorkStatsState()
+        assertEquals("Alpha", persistedProjectDetails.projectName)
+        assertEquals("12:00", workStats.workTimeTotal)
 
         viewModel.clearDay()
 
@@ -96,16 +93,16 @@ class ProjectDetailsViewModelTest {
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        var projectDetails: ProjectDetailsEntity? = null
+        var projectDetails: ProjectDetailsState? = null
         var workStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(
             date: String,
             projectName: String
-        ): ProjectDetailsState? = projectDetails?.toDomain()
+        ): ProjectDetailsState? = projectDetails
 
         override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) {
-            this.projectDetails = projectDetails.toEntity()
+            this.projectDetails = projectDetails
         }
 
         override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) {

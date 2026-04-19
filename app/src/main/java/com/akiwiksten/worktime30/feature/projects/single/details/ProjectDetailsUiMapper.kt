@@ -1,35 +1,8 @@
 package com.akiwiksten.worktime30.feature.projects.single.details
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 
 object ProjectDetailsUiMapper {
-
-    fun mapToEntity(state: ProjectDetailsState): ProjectDetailsEntity {
-        return ProjectDetailsEntity(
-            date = state.date,
-            projectName = state.projectName,
-            startTime = state.startTime,
-            endTime = state.endTime,
-            lunchStart = state.lunchStart,
-            lunchEnd = state.lunchEnd,
-            breakStart = state.breakStart,
-            breakEnd = state.breakEnd,
-            projectTime = state.projectTime,
-            balanceToday = state.balanceToday,
-        )
-    }
-
-    fun mapToWorkStatsEntity(state: ProjectDetailsState): WorkStatsEntity {
-        return WorkStatsEntity(
-            dailyWorkTime = state.workStats.dailyWorkTime,
-            lunchTime = state.workStats.lunchTime,
-            workTimeTotal = state.workStats.workTimeTotal,
-            balanceTotal = state.workStats.balanceTotal
-        )
-    }
-
     fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,

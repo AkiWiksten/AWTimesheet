@@ -3,9 +3,9 @@ package com.akiwiksten.worktime30.data.repository
 import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -51,12 +51,12 @@ class ProjectRepositoryImplTest {
 
     @Test
     fun getProjectNames_returnsDataFromDao() = runBlocking {
-        val expected = listOf(ProjectNameEntity(name = "Alpha"), ProjectNameEntity(name = "Beta"))
+        val expected = listOf("Alpha", "Beta")
         projectNameDao.projectNamesResult = expected
 
         val result = repository.getProjectNames()
 
-        assertEquals(expected.map { it.name }, result)
+        assertEquals(expected, result)
     }
 
     @Test
@@ -65,7 +65,7 @@ class ProjectRepositoryImplTest {
 
         repository.insertProjectName(projectName)
 
-        assertEquals(ProjectNameEntity(name = projectName), projectNameDao.insertedProjectName)
+        assertEquals(projectName, projectNameDao.insertedProjectName)
     }
 
     @Test
@@ -74,7 +74,7 @@ class ProjectRepositoryImplTest {
 
         repository.deleteProjectName(projectName)
 
-        assertEquals(ProjectNameEntity(name = projectName), projectNameDao.deletedProjectName)
+        assertEquals(projectName, projectNameDao.deletedProjectName)
     }
 
     @Test
@@ -123,20 +123,21 @@ class ProjectRepositoryImplTest {
     }
 
     private class FakeProjectNameDao : ProjectNameDao {
-        var projectNamesResult: List<ProjectNameEntity> = emptyList()
-        var insertedProjectName: ProjectNameEntity? = null
-        var deletedProjectName: ProjectNameEntity? = null
+        var projectNamesResult: List<String> = emptyList()
+        var insertedProjectName: String? = null
+        var deletedProjectName: String? = null
 
         override suspend fun anyRecords(): Boolean = false
 
-        override suspend fun insertProjectName(project: ProjectNameEntity) {
-            insertedProjectName = project
+        override suspend fun insertProjectName(project: com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity) {
+            insertedProjectName = project.name
         }
 
-        override suspend fun loadProjectNames(): List<ProjectNameEntity> = projectNamesResult
+        override suspend fun loadProjectNames(): List<com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity> =
+            projectNamesResult.map { it.toProjectNameEntity() }
 
-        override suspend fun delete(project: ProjectNameEntity) {
-            deletedProjectName = project
+        override suspend fun delete(project: com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity) {
+            deletedProjectName = project.name
         }
     }
 }

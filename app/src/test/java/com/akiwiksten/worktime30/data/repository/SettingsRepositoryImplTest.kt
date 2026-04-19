@@ -2,8 +2,6 @@ package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
-import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.feature.settings.SettingsState
@@ -18,12 +16,12 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun getSettings_returnsDataFromDao() = runBlocking {
-        val expected = SettingsEntity(name = "Aki", employer = "Company")
+        val expected = SettingsState(name = "Aki", employer = "Company")
         settingsDao.settingsResult = expected
 
         val result = repository.getSettings()
 
-        assertEquals(expected.toDomain(), result)
+        assertEquals(expected, result)
     }
 
     @Test
@@ -32,17 +30,17 @@ class SettingsRepositoryImplTest {
 
         repository.insertSettings(settings)
 
-        assertEquals(settings.toEntity(), settingsDao.insertedSettings)
+        assertEquals(settings, settingsDao.insertedSettings)
     }
 
     @Test
     fun getWorkTypes_returnsDataFromDao() = runBlocking {
-        val expected = listOf(WorkTypeEntity(workType = "Office"), WorkTypeEntity(workType = "Remote"))
+        val expected = listOf("Office", "Remote")
         workTypeDao.workTypesResult = expected
 
         val result = repository.getWorkTypes()
 
-        assertEquals(listOf("Office", "Remote"), result)
+        assertEquals(expected, result)
     }
 
     @Test
@@ -51,7 +49,7 @@ class SettingsRepositoryImplTest {
 
         repository.insertWorkType(workType)
 
-        assertEquals(WorkTypeEntity(workType = workType), workTypeDao.insertedWorkType)
+        assertEquals(workType, workTypeDao.insertedWorkType)
     }
 
     @Test
@@ -60,7 +58,7 @@ class SettingsRepositoryImplTest {
 
         repository.deleteWorkType(workType)
 
-        assertEquals(WorkTypeEntity(workType = workType), workTypeDao.deletedWorkType)
+        assertEquals(workType, workTypeDao.deletedWorkType)
     }
 
     @Test
@@ -71,34 +69,36 @@ class SettingsRepositoryImplTest {
     }
 
     private class FakeSettingsDao : SettingsDao {
-        var settingsResult: SettingsEntity? = null
-        var insertedSettings: SettingsEntity? = null
+        var settingsResult: SettingsState? = null
+        var insertedSettings: SettingsState? = null
 
         override suspend fun anyRecord(): Boolean = false
 
-        override suspend fun insertSettings(settings: SettingsEntity) {
-            insertedSettings = settings
+        override suspend fun insertSettings(settings: com.akiwiksten.worktime30.data.database.entity.SettingsEntity) {
+            insertedSettings = settings.toDomain()
         }
 
-        override suspend fun loadSettings(): SettingsEntity? = settingsResult
+        override suspend fun loadSettings(): com.akiwiksten.worktime30.data.database.entity.SettingsEntity? =
+            settingsResult?.toEntity()
     }
 
     private class FakeWorkTypeDao : WorkTypeDao {
-        var workTypesResult: List<WorkTypeEntity> = emptyList()
-        var insertedWorkType: WorkTypeEntity? = null
-        var deletedWorkType: WorkTypeEntity? = null
+        var workTypesResult: List<String> = emptyList()
+        var insertedWorkType: String? = null
+        var deletedWorkType: String? = null
         var deleteAllCallCount: Int = 0
 
         override suspend fun anyRecords(): Boolean = false
 
-        override suspend fun insertWorkType(workType: WorkTypeEntity) {
-            insertedWorkType = workType
+        override suspend fun insertWorkType(workType: com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity) {
+            insertedWorkType = workType.workType
         }
 
-        override suspend fun loadWorkTypes(): List<WorkTypeEntity> = workTypesResult
+        override suspend fun loadWorkTypes(): List<com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity> =
+            workTypesResult.map { com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity(workType = it) }
 
-        override suspend fun delete(workType: WorkTypeEntity) {
-            deletedWorkType = workType
+        override suspend fun delete(workType: com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity) {
+            deletedWorkType = workType.workType
         }
 
         override suspend fun deleteAll() {

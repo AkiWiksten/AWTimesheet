@@ -1,8 +1,8 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.feature.settings.SettingsState
 import javax.inject.Inject
 
 class SaveSettingsUseCase @Inject constructor(
@@ -13,6 +13,6 @@ class SaveSettingsUseCase @Inject constructor(
         workTypes.forEach { workType ->
             repository.insertWorkType(WorkTypeEntity(workType = workType))
         }
-        repository.insertSettings(SettingsEntity(name = name, employer = employer))
+        repository.insertSettings(SettingsState(name = name, employer = employer))
     }
 }

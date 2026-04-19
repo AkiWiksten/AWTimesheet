@@ -77,4 +77,4 @@ This is called feature-based packaging.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
 + Repositories not returning Entities
-+ 
++ Single project: "No allowance" default value

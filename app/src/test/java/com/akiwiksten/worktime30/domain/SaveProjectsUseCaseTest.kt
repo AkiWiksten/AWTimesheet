@@ -1,6 +1,5 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
@@ -27,7 +26,7 @@ class SaveProjectsUseCaseTest {
                     projectTime = "02:00"
                 )
             ),
-            projectDetailsToSave = ProjectDetailsEntity(
+            projectDetailsToSave = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 projectTime = "07:00"
@@ -56,7 +55,7 @@ class SaveProjectsUseCaseTest {
             projectDetailsToSave = null
         )
 
-        assertEquals(emptyList<ProjectDetailsEntity>(), projectDetailsRepository.insertedProjectDetails)
+        assertEquals(emptyList<ProjectDetailsState>(), projectDetailsRepository.insertedProjectDetails)
     }
 
     private class FakeProjectRepository : ProjectRepository {

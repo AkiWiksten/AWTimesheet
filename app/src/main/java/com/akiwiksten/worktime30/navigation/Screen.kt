@@ -7,8 +7,8 @@ import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
 import com.akiwiksten.worktime30.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 
 // Navigation routes
 sealed class Screen(val route: String, val titleResId: Int? = null) {
@@ -17,8 +17,8 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
     data class ProjectDetails(
         val projectName: String? = null,
-        val projectDetails: ProjectDetailsEntity? = null,
-        val workStats: WorkStatsEntity? = null
+        val projectDetails: ProjectDetailsState? = null,
+        val workStats: WorkStatsState? = null
     ) : Screen(PROJECT_DETAILS_SCREEN, R.string.project_details)
     object Intro : Screen(INTRO_SCREEN)
     data class SingleProject(
@@ -28,7 +28,7 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
         val kilometres: String? = null,
         val allowance: String? = null,
         val workType: String? = null,
-        val projectDetails: ProjectDetailsEntity? = null,
-        val workStats: WorkStatsEntity? = null
+        val projectDetails: ProjectDetailsState? = null,
+        val workStats: WorkStatsState? = null
     ) : Screen(SINGLE_PROJECT_SCREEN)
 }

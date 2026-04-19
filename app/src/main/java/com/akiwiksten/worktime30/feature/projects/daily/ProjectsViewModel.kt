@@ -4,14 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
 import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,8 +30,8 @@ data class SingleProjectState(
     val kilometres: String = "0",
     val allowance: String = "No Allowance",
     val workType: String = "",
-    val projectDetails: ProjectDetailsEntity? = null,
-    val workStats: WorkStatsEntity? = null,
+    val projectDetails: ProjectDetailsState? = null,
+    val workStats: WorkStatsState? = null,
     val date: String = ""
 )
 
@@ -113,7 +112,7 @@ class ProjectsViewModel @Inject constructor(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime
-                ) ?: ProjectDetailsEntity(
+                ) ?: ProjectDetailsState(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime,
@@ -125,7 +124,7 @@ class ProjectsViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { projectDetailsRepository.insertWorkStats(it.toDomain()) }
+                state.workStats?.let { projectDetailsRepository.insertWorkStats(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {

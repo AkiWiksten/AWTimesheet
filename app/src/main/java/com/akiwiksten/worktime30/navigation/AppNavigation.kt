@@ -12,15 +12,15 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsArgs
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsScreen
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 
 @Composable
@@ -131,8 +131,8 @@ internal fun SnapshotStateList<Any>.pop() {
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
-    projectDetails: ProjectDetailsEntity,
-    workStats: WorkStatsEntity
+    projectDetails: ProjectDetailsState,
+    workStats: WorkStatsState
 ) {
     pop()
     val currentLast = lastOrNull()

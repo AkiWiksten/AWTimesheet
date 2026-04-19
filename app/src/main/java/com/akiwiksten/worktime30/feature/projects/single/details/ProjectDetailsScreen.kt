@@ -34,9 +34,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
-import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.feature.projects.single.details.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.projects.single.details.components.FooterSection
 import com.akiwiksten.worktime30.feature.projects.single.details.components.HeaderSection
@@ -49,7 +46,7 @@ import com.akiwiksten.worktime30.feature.projects.single.details.components.Proj
 fun ProjectDetailsScreen(
     args: ProjectDetailsArgs,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsEntity, WorkStatsEntity) -> Unit,
+    onConfirm: (ProjectDetailsState, WorkStatsState) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -59,8 +56,8 @@ fun ProjectDetailsScreen(
     LaunchedEffect(Unit) {
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
         viewModel.loadProjectDetails(
-            projectDetailsArg = args.projectDetails?.toDomain(),
-            workStatsArg = args.workStats?.toDomain()
+            projectDetailsArg = args.projectDetails,
+            workStatsArg = args.workStats
         )
     }
 
@@ -71,9 +68,8 @@ fun ProjectDetailsScreen(
     ) { padding ->
         val actions = remember(viewModel, onConfirm, uiState) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
-                val projectDetailsResult = viewModel.getProjectDetailsEntity()
-                val workStatsResult = viewModel.getWorkStatsEntity()
-                onConfirm(projectDetailsResult, workStatsResult)
+                val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
+                onConfirm(successState.data, successState.data.workStats)
             }
         }
 
@@ -265,6 +261,6 @@ private fun createProjectDetailsScreenActions(
 
 data class ProjectDetailsArgs(
     val projectName: String? = null,
-    val projectDetails: ProjectDetailsEntity? = null,
-    val workStats: WorkStatsEntity? = null
+    val projectDetails: ProjectDetailsState? = null,
+    val workStats: WorkStatsState? = null
 )

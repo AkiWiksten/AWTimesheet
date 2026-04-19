@@ -13,9 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -24,16 +21,20 @@ sealed class SettingsUiState {
     object Loading : SettingsUiState()
 
     data class Success(
-        val name: String = "",
-        val employer: String = "",
-        val selectedDate: String = "",
-        val endMonthDate: String = "",
-        val workTypes: List<String> = emptyList(),
-        val projectsByMonth: List<SingleProjectState> = emptyList()
+        val data: SettingsState
     ) : SettingsUiState()
 
     data class Error(val message: String) : SettingsUiState()
 }
+
+data class SettingsState(
+    val name: String = "",
+    val employer: String = "",
+    val selectedDate: String = "",
+    val endMonthDate: String = "",
+    val workTypes: List<String> = emptyList(),
+    val projectsByMonth: List<SingleProjectState> = emptyList()
+)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -47,17 +48,7 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    private val name = MutableStateFlow("")
-    private val employer = MutableStateFlow("")
-    private val currentSelectedDate = MutableStateFlow("")
-    private val endMonthDate = MutableStateFlow("")
-    private val workTypes = MutableStateFlow<List<String>>(emptyList())
-    private val projectsByMonth = MutableStateFlow<List<SingleProjectState>>(emptyList())
-    private val isLoading = MutableStateFlow(true)
-    private val errorMessage = MutableStateFlow<String?>(null)
-
     init {
-        observeUiState()
         observeDate()
     }
 
@@ -65,61 +56,59 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 if (date.isNotEmpty()) {
-                    currentSelectedDate.value = date
+                    val currentState = _uiState.value
+                    if (currentState is SettingsUiState.Success) {
+                        _uiState.value = currentState.copy(
+                            data = currentState.data.copy(selectedDate = date)
+                        )
+                    }
                     loadProjectsByMonth(date)
                 }
             }
         }
     }
 
-    private fun observeUiState() {
-        viewModelScope.launch {
-            val baseFlow = combine(name, employer, endMonthDate, workTypes, projectsByMonth) {
-                    n, e, em, wt, pm ->
-                SettingsUiState.Success(
-                    name = n,
-                    employer = e,
-                    endMonthDate = em,
-                    workTypes = wt,
-                    projectsByMonth = pm
-                )
-            }
-            val successStateFlow = combine(baseFlow, currentSelectedDate) { base, date ->
-                base.copy(selectedDate = date)
-            }
-
-            combine(isLoading, errorMessage, successStateFlow) { loading, error, successState ->
-                when {
-                    !error.isNullOrEmpty() -> SettingsUiState.Error(error)
-                    loading -> SettingsUiState.Loading
-                    else -> successState
-                }
-            }
-                .distinctUntilChanged()
-                .collect { _uiState.value = it }
+    fun setName(name: String) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(name = name)
+            )
         }
     }
-    fun setName(name0: String) {
-        name.value = name0
-    }
 
-    fun setEmployer(employer0: String) {
-        employer.value = employer0
+    fun setEmployer(employer: String) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(employer = employer)
+            )
+        }
     }
 
     fun addWorkType(workType: String) {
-        workTypes.update { currentWorkTypes ->
-            if (workType in currentWorkTypes) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            val currentWorkTypes = currentState.data.workTypes
+            val updatedWorkTypes = if (workType in currentWorkTypes) {
                 currentWorkTypes
             } else {
                 (currentWorkTypes + workType).sorted()
             }
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(workTypes = updatedWorkTypes)
+            )
         }
     }
 
     fun removeWorkType(workType: String) {
-        workTypes.update { currentWorkTypes ->
-            currentWorkTypes.filter { it != workType }
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(
+                    workTypes = currentState.data.workTypes.filter { it != workType }
+                )
+            )
         }
         viewModelScope.launch {
             settingsRepository.deleteWorkType(WorkTypeEntity(workType = workType))
@@ -134,33 +123,35 @@ class SettingsViewModel @Inject constructor(
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
                 val projects = getProjectsByMonthUseCase(date)
-                errorMessage.value = null
-                endMonthDate.value = endOfMonth
-                projectsByMonth.value = projects
-            } catch (e: IllegalArgumentException) {
-                errorMessage.value = "Failed to load projects: ${e.message}"
-            } catch (e: IllegalStateException) {
-                errorMessage.value = "Failed to load projects: ${e.message}"
+                val currentState = _uiState.value
+                if (currentState is SettingsUiState.Success) {
+                    _uiState.value = currentState.copy(
+                        data = currentState.data.copy(
+                            endMonthDate = endOfMonth,
+                            projectsByMonth = projects
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                handleException(e, "Failed to load projects")
             }
         }
     }
 
     fun loadSettings() {
         viewModelScope.launch {
-            isLoading.value = true
+            _uiState.value = SettingsUiState.Loading
             try {
-                val data = getSettingsUseCase()
-                errorMessage.value = null
-                name.value = data.name
-                employer.value = data.employer
-                workTypes.value = data.workTypes
-                isLoading.value = false
-            } catch (e: IllegalArgumentException) {
-                isLoading.value = false
-                errorMessage.value = "Failed to load settings: ${e.message}"
-            } catch (e: IllegalStateException) {
-                isLoading.value = false
-                errorMessage.value = "Failed to load settings: ${e.message}"
+                val loadedData = getSettingsUseCase()
+                _uiState.value = SettingsUiState.Success(
+                    data = SettingsState(
+                        name = loadedData.name,
+                        employer = loadedData.employer,
+                        workTypes = loadedData.workTypes
+                    )
+                )
+            } catch (e: Exception) {
+                handleException(e, "Failed to load settings")
             }
         }
     }
@@ -168,17 +159,21 @@ class SettingsViewModel @Inject constructor(
     fun saveSettings() {
         viewModelScope.launch {
             try {
-                saveSettingsUseCase(
-                    name = name.value,
-                    employer = employer.value,
-                    workTypes = workTypes.value
-                )
-                errorMessage.value = null
-            } catch (e: IllegalArgumentException) {
-                errorMessage.value = "Failed to save settings: ${e.message}"
-            } catch (e: IllegalStateException) {
-                errorMessage.value = "Failed to save settings: ${e.message}"
+                val currentState = _uiState.value
+                if (currentState is SettingsUiState.Success) {
+                    saveSettingsUseCase(
+                        name = currentState.data.name,
+                        employer = currentState.data.employer,
+                        workTypes = currentState.data.workTypes
+                    )
+                }
+            } catch (e: Exception) {
+                handleException(e, "Failed to save settings")
             }
         }
+    }
+
+    private fun handleException(exception: Exception, message: String) {
+        _uiState.value = SettingsUiState.Error("$message: ${exception.message}")
     }
 }

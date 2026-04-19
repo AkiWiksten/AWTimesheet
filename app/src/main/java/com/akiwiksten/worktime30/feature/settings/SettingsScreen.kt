@@ -138,10 +138,10 @@ private fun createSettingsActions(
         onGeneratePdf = {
             generateReport(
                 ctx = ctx,
-                projectsByMonth = successState.projectsByMonth,
-                endOfMonthDate = successState.endMonthDate,
-                name = successState.name,
-                employer = successState.employer
+                projectsByMonth = successState.data.projectsByMonth,
+                endOfMonthDate = successState.data.endMonthDate,
+                name = successState.data.name,
+                employer = successState.data.employer
             )
         }
     )
@@ -164,9 +164,9 @@ internal fun SettingsContent(
     var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
     var selectedWorkType by remember { mutableStateOf(value = "") }
 
-    LaunchedEffect(key1 = uiState.workTypes) {
-        if (selectedWorkType.isEmpty() || !uiState.workTypes.contains(selectedWorkType)) {
-            selectedWorkType = uiState.workTypes.firstOrNull() ?: ""
+    LaunchedEffect(key1 = uiState.data.workTypes) {
+        if (selectedWorkType.isEmpty() || !uiState.data.workTypes.contains(selectedWorkType)) {
+            selectedWorkType = uiState.data.workTypes.firstOrNull() ?: ""
         }
     }
 
@@ -178,12 +178,12 @@ internal fun SettingsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 24.dp)
     ) {
-        HeaderSection(date = uiState.selectedDate)
+        HeaderSection(date = uiState.data.selectedDate)
 
         SettingsCard(title = stringResource(id = R.string.name) + " & " + stringResource(id = R.string.employer)) {
             ProfileSection(
-                name = uiState.name,
-                employer = uiState.employer,
+                name = uiState.data.name,
+                employer = uiState.data.employer,
                 onNameChange = actions.onNameChange,
                 onEmployerChange = actions.onEmployerChange
             )
@@ -191,13 +191,13 @@ internal fun SettingsContent(
 
         SettingsCard(title = stringResource(id = R.string.work_type)) {
             WorkTypeSection(
-                workTypes = uiState.workTypes,
+                workTypes = uiState.data.workTypes,
                 selectedWorkType = selectedWorkType,
                 onWorkTypeSelected = { selectedWorkType = it },
                 onAddClick = { showAddWorkTypeDialog = true },
                 onDeleteClick = {
                     actions.onWorkTypeRemoved(selectedWorkType)
-                    // Reset selection will be handled by LaunchedEffect(uiState.workTypes)
+                    // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
                 }
             )
         }
@@ -205,7 +205,7 @@ internal fun SettingsContent(
         ActionButtonsSection(
             onSave = actions.onSave,
             onGeneratePdf = actions.onGeneratePdf,
-            isPdfEnabled = uiState.projectsByMonth.isNotEmpty()
+            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty()
         )
 
         if (showAddWorkTypeDialog) {

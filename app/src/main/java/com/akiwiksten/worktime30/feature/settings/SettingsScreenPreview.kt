@@ -16,18 +16,21 @@ fun PreviewSettingsLoading() {
 fun PreviewSettingsSuccess() {
     SettingsPreviewContent(
         uiState = SettingsUiState.Success(
-            name = "Aki Wiksten",
-            employer = "WorkTime Oy",
-            endMonthDate = "2026-04-30",
-            workTypes = listOf("Installation", "Maintenance", "Meeting"),
-            projectsByMonth = listOf(
-                SingleProjectState(
-                    date = "2026-04-10",
-                    projectName = "Alpha Site",
-                    projectTime = "04:00",
-                    kilometres = 20.toString(),
-                    allowance = "Daily allowance",
-                    workType = "Installation"
+            data = SettingsState(
+                name = "Aki Wiksten",
+                employer = "WorkTime Oy",
+                selectedDate = "2026-04-19",
+                endMonthDate = "2026-04-30",
+                workTypes = listOf("Installation", "Maintenance", "Meeting"),
+                projectsByMonth = listOf(
+                    SingleProjectState(
+                        date = "2026-04-10",
+                        projectName = "Alpha Site",
+                        projectTime = "04:00",
+                        kilometres = 20.toString(),
+                        allowance = "Daily allowance",
+                        workType = "Installation"
+                    )
                 )
             )
         )

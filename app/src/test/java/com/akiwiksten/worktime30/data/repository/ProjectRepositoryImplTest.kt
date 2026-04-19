@@ -5,6 +5,8 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -31,20 +33,20 @@ class ProjectRepositoryImplTest {
 
     @Test
     fun insertProject_callsDaoInsert() = runBlocking {
-        val project = ProjectEntity(date = "2026-04-10", projectName = "Alpha")
+        val project = SingleProjectState(date = "2026-04-10", projectName = "Alpha")
 
         repository.insertProject(project)
 
-        assertEquals(project, projectDao.insertedProject)
+        assertEquals(project.toEntity(), projectDao.insertedProject)
     }
 
     @Test
     fun deleteProject_callsDaoDelete() = runBlocking {
-        val project = ProjectEntity(date = "2026-04-10", projectName = "Alpha")
+        val project = SingleProjectState(date = "2026-04-10", projectName = "Alpha")
 
         repository.deleteProject(project)
 
-        assertEquals(project, projectDao.deletedProject)
+        assertEquals(project.toEntity(), projectDao.deletedProject)
     }
 
     @Test
@@ -54,25 +56,25 @@ class ProjectRepositoryImplTest {
 
         val result = repository.getProjectNames()
 
-        assertEquals(expected, result)
+        assertEquals(expected.map { it.name }, result)
     }
 
     @Test
     fun insertProjectName_callsDaoInsert() = runBlocking {
-        val projectName = ProjectNameEntity(name = "Alpha")
+        val projectName = "Alpha"
 
         repository.insertProjectName(projectName)
 
-        assertEquals(projectName, projectNameDao.insertedProjectName)
+        assertEquals(ProjectNameEntity(name = projectName), projectNameDao.insertedProjectName)
     }
 
     @Test
     fun deleteProjectName_callsDaoDelete() = runBlocking {
-        val projectName = ProjectNameEntity(name = "Alpha")
+        val projectName = "Alpha"
 
         repository.deleteProjectName(projectName)
 
-        assertEquals(projectName, projectNameDao.deletedProjectName)
+        assertEquals(ProjectNameEntity(name = projectName), projectNameDao.deletedProjectName)
     }
 
     @Test

@@ -2,13 +2,11 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -26,10 +24,10 @@ class DeleteProjectsUseCaseTest {
         useCase(date = "2026-04-10", projectName = "Beta")
 
         assertEquals(
-            listOf(ProjectEntity(date = "2026-04-10", projectName = "Beta", projectTime = ZERO_TIME)),
+            listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = ZERO_TIME)),
             projectRepository.deletedProjects
         )
-        assertEquals(listOf(ProjectNameEntity(name = "Beta")), projectRepository.deletedProjectNames)
+        assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
         assertEquals(
             listOf(ProjectDetailsEntity(date = "2026-04-10", projectName = "Beta")),
             projectDetailsRepository.deletedProjectDetails
@@ -46,27 +44,27 @@ class DeleteProjectsUseCaseTest {
 
         useCase(date = "2026-04-10", projectName = "Beta")
 
-        assertEquals(emptyList<ProjectNameEntity>(), projectRepository.deletedProjectNames)
+        assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
     }
 
     private class FakeProjectRepository : ProjectRepository {
-        val deletedProjects = mutableListOf<ProjectEntity>()
-        val deletedProjectNames = mutableListOf<ProjectNameEntity>()
+        val deletedProjects = mutableListOf<SingleProjectState>()
+        val deletedProjectNames = mutableListOf<String>()
         val isProjectNameUsedByName = mutableMapOf<String, Boolean>()
 
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> = emptyList()
 
-        override suspend fun insertProject(project: ProjectEntity) = Unit
+        override suspend fun insertProject(project: SingleProjectState) = Unit
 
-        override suspend fun deleteProject(project: ProjectEntity) {
+        override suspend fun deleteProject(project: SingleProjectState) {
             deletedProjects += project
         }
 
-        override suspend fun getProjectNames(): List<ProjectNameEntity> = emptyList()
+        override suspend fun getProjectNames(): List<String> = emptyList()
 
-        override suspend fun insertProjectName(projectName: ProjectNameEntity) = Unit
+        override suspend fun insertProjectName(projectName: String) = Unit
 
-        override suspend fun deleteProjectName(projectName: ProjectNameEntity) {
+        override suspend fun deleteProjectName(projectName: String) {
             deletedProjectNames += projectName
         }
 
@@ -85,9 +83,9 @@ class DeleteProjectsUseCaseTest {
             deletedProjectDetails += projectDetails
         }
 
-        override suspend fun getWorkStats(): WorkStatsEntity? = null
+        override suspend fun getWorkStats(): WorkStatsState? = null
 
-        override suspend fun insertWorkStats(workStats: WorkStatsEntity) = Unit
+        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
 
         override suspend fun getProjectDetailsByDateRange(
             start: String,

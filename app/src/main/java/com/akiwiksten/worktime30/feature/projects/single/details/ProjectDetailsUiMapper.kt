@@ -23,32 +23,36 @@ object ProjectDetailsUiMapper {
 
     fun mapToWorkStatsEntity(state: ProjectDetailsState): WorkStatsEntity {
         return WorkStatsEntity(
-            dailyWorkTime = state.dailyWorkTime,
-            lunchTime = state.lunchTime,
-            workTimeTotal = state.workTimeTotal,
-            balanceTotal = state.balanceTotal
+            dailyWorkTime = state.workStats.dailyWorkTime,
+            lunchTime = state.workStats.lunchTime,
+            workTimeTotal = state.workStats.workTimeTotal,
+            balanceTotal = state.workStats.balanceTotal
         )
     }
 
     fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
-        workStats: WorkStatsEntity?
+        workStats: WorkStatsState?
     ): ProjectDetailsUiState.Success {
         var state = baseState.data
         state = if (workStats != null) {
             state.copy(
-                dailyWorkTime = workStats.dailyWorkTime.ifEmpty { "07:30" },
-                lunchTime = workStats.lunchTime.ifEmpty { ZERO_TIME },
-                workTimeTotal = workStats.workTimeTotal.ifEmpty { ZERO_TIME },
-                balanceTotal = workStats.balanceTotal.ifEmpty { ZERO_TIME }
+                workStats = WorkStatsState(
+                    dailyWorkTime = workStats.dailyWorkTime.ifEmpty { "07:30" },
+                    lunchTime = workStats.lunchTime.ifEmpty { ZERO_TIME },
+                    workTimeTotal = workStats.workTimeTotal.ifEmpty { ZERO_TIME },
+                    balanceTotal = workStats.balanceTotal.ifEmpty { ZERO_TIME }
+                )
             )
         } else {
             state.copy(
-                dailyWorkTime = "07:30",
-                lunchTime = ZERO_TIME,
-                workTimeTotal = ZERO_TIME,
-                balanceTotal = ZERO_TIME
+                workStats = WorkStatsState(
+                    dailyWorkTime = "07:30",
+                    lunchTime = ZERO_TIME,
+                    workTimeTotal = ZERO_TIME,
+                    balanceTotal = ZERO_TIME
+                )
             )
         }
 

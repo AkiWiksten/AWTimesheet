@@ -1,10 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
-import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -17,6 +13,8 @@ import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.settings.SettingsState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -35,8 +33,8 @@ class ProjectsViewModelTest {
     @Test
     fun selectedDate_loadsProjectsAsSuccessState() = runTest {
         val projectRepository = FakeProjectRepository().apply {
-            projectsByDateRange = listOf(ProjectEntity("2026-04-10", "Beta", "02:30", 0, "", ""))
-            projectNames = listOf(ProjectNameEntity("Beta"), ProjectNameEntity("Alpha"))
+            projectsByDateRange = listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "02:30"))
+            projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
         val settingsRepository = FakeSettingsRepository().apply {
@@ -59,7 +57,7 @@ class ProjectsViewModelTest {
     @Test
     fun saveProject_persistsProjectAndReloadsData() = runTest {
         val projectRepository = FakeProjectRepository().apply {
-            projectNames = listOf(ProjectNameEntity("Alpha"))
+            projectNames = listOf("Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
         val settingsRepository = FakeSettingsRepository()
@@ -106,47 +104,39 @@ class ProjectsViewModelTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
-        var projectsByDateRange: List<ProjectEntity> = emptyList()
-        var projectNames: List<ProjectNameEntity> = emptyList()
-        val insertedProjects = mutableListOf<ProjectEntity>()
-        val deletedProjects = mutableListOf<ProjectEntity>()
+        var projectsByDateRange: List<SingleProjectState> = emptyList()
+        var projectNames: List<String> = emptyList()
+        val insertedProjects = mutableListOf<SingleProjectState>()
+        val deletedProjects = mutableListOf<SingleProjectState>()
 
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
-            return projectsByDateRange.filter { it.date in start..end }.map { entity ->
-                SingleProjectState(
-                    projectName = entity.projectName,
-                    projectTime = entity.projectTime,
-                    kilometres = entity.kilometres.toString(),
-                    allowance = entity.allowance,
-                    workType = entity.workType
-                )
-            }
+            return projectsByDateRange.filter { it.date in start..end }
         }
 
-        override suspend fun insertProject(project: ProjectEntity) {
+        override suspend fun insertProject(project: SingleProjectState) {
             insertedProjects += project
             projectsByDateRange = projectsByDateRange.filterNot {
                 it.date == project.date && it.projectName == project.projectName
             } + project
         }
 
-        override suspend fun deleteProject(project: ProjectEntity) {
+        override suspend fun deleteProject(project: SingleProjectState) {
             deletedProjects += project
             projectsByDateRange = projectsByDateRange.filterNot {
                 it.date == project.date && it.projectName == project.projectName
             }
         }
 
-        override suspend fun getProjectNames(): List<ProjectNameEntity> = projectNames
+        override suspend fun getProjectNames(): List<String> = projectNames
 
-        override suspend fun insertProjectName(projectName: ProjectNameEntity) {
-            if (this.projectNames.none { it.name == projectName.name }) {
+        override suspend fun insertProjectName(projectName: String) {
+            if (this.projectNames.none { it == projectName }) {
                 this.projectNames = this.projectNames + projectName
             }
         }
 
-        override suspend fun deleteProjectName(projectName: ProjectNameEntity) {
-            this.projectNames = this.projectNames.filterNot { it.name == projectName.name }
+        override suspend fun deleteProjectName(projectName: String) {
+            this.projectNames = this.projectNames.filterNot { it == projectName }
         }
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean {
@@ -155,7 +145,7 @@ class ProjectsViewModelTest {
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        var workStats: WorkStatsEntity? = null
+        var workStats: WorkStatsState? = null
         val insertedProjectDetails = mutableListOf<ProjectDetailsEntity>()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? {
@@ -187,9 +177,9 @@ class ProjectsViewModelTest {
                 }
         }
 
-        override suspend fun getWorkStats(): WorkStatsEntity? = workStats
+        override suspend fun getWorkStats(): WorkStatsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: WorkStatsEntity) {
+        override suspend fun insertWorkStats(workStats: WorkStatsState) {
             this.workStats = workStats
         }
 
@@ -202,9 +192,9 @@ class ProjectsViewModelTest {
     private class FakeSettingsRepository : SettingsRepository {
         var workTypes: List<WorkTypeEntity> = emptyList()
 
-        override suspend fun getSettings(): SettingsEntity? = null
+        override suspend fun getSettings(): SettingsState? = null
 
-        override suspend fun insertSettings(settings: SettingsEntity) = Unit
+        override suspend fun insertSettings(settings: SettingsState) = Unit
 
         override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypes
 

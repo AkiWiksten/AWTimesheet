@@ -52,14 +52,14 @@ class ProjectDetailsRepositoryImplTest {
 
         val result = repository.getWorkStats()
 
-        assertEquals(expected, result)
+        assertEquals(expected.toDomain(), result)
     }
 
     @Test
     fun insertWorkStats_callsDaoInsert() = runBlocking {
         val workStats = WorkStatsEntity(workTimeTotal = "10:00 h")
 
-        repository.insertWorkStats(workStats)
+        repository.insertWorkStats(workStats.toDomain())
 
         assertEquals(workStats, workStatsDao.insertedWorkStats)
     }

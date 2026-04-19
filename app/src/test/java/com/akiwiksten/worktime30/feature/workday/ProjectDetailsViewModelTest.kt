@@ -2,13 +2,13 @@ package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsViewModel
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -35,7 +35,7 @@ class ProjectDetailsViewModelTest {
                 projectTime = "08:00",
                 balanceToday = "00:30"
             )
-            workStats = WorkStatsEntity(
+            workStats = WorkStatsState(
                 dailyWorkTime = "07:30",
                 lunchTime = "00:30",
                 workTimeTotal = "20:00",
@@ -54,7 +54,7 @@ class ProjectDetailsViewModelTest {
         assertEquals("2026-04-10", state.data.date)
         assertEquals("Alpha", state.data.projectName)
         assertEquals("08:00", state.data.startTime)
-        assertEquals("20:00", state.data.workTimeTotal)
+        assertEquals("20:00", state.data.workStats.workTimeTotal)
     }
 
     @Test
@@ -72,7 +72,7 @@ class ProjectDetailsViewModelTest {
                 projectTime = "08:00",
                 balanceToday = "00:30"
             ).toDomain(),
-            workStatsArg = WorkStatsEntity(
+            workStatsArg = WorkStatsState(
                 dailyWorkTime = "07:30",
                 lunchTime = "00:30",
                 workTimeTotal = "12:00",
@@ -96,7 +96,7 @@ class ProjectDetailsViewModelTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var projectDetails: ProjectDetailsEntity? = null
-        var workStats: WorkStatsEntity? = null
+        var workStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(
             date: String,
@@ -111,9 +111,9 @@ class ProjectDetailsViewModelTest {
             this.projectDetails = null
         }
 
-        override suspend fun getWorkStats(): WorkStatsEntity? = workStats
+        override suspend fun getWorkStats(): WorkStatsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: WorkStatsEntity) {
+        override suspend fun insertWorkStats(workStats: WorkStatsState) {
             this.workStats = workStats
         }
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
@@ -124,7 +125,7 @@ class ProjectsViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { projectDetailsRepository.insertWorkStats(it) }
+                state.workStats?.let { projectDetailsRepository.insertWorkStats(it.toDomain()) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {

@@ -83,17 +83,18 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
             onConfirmation = actions.onSetStartTime
         )
         AddTimeRow(
-            textFieldValue = uiState.data.dailyWorkTime,
+            textFieldValue = uiState.data.workStats.dailyWorkTime,
             stringId = R.string.daily_work_time,
             currentTime = actions.onCurrentDailyWorkTime,
             onConfirmation = actions.onSetDailyWorkTime
         )
         AddTimeRow(
-            textFieldValue = uiState.data.lunchTime,
+            textFieldValue = uiState.data.workStats.lunchTime,
             stringId = R.string.lunch_time,
             currentTime = actions.onCurrentLunchTime,
             onConfirmation = actions.onSetLunchTime
         )
+
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -110,14 +111,14 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
         ) {
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.data.balanceTotal,
+                    customTime = uiState.data.workStats.balanceTotal,
                     customTimeFunction = actions.onSetBalanceTotal,
                     stringId = R.string.balance_total
                 )
             }
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.data.workTimeTotal,
+                    customTime = uiState.data.workStats.workTimeTotal,
                     customTimeFunction = actions.onSetWorkTimeTotal,
                     stringId = R.string.work_time_total
                 )
@@ -204,13 +205,13 @@ private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions:
 @Composable
 private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     AddTimeRow(
-        textFieldValue = uiState.data.dailyWorkTime,
+        textFieldValue = uiState.data.workStats.dailyWorkTime,
         stringId = R.string.daily_work_time,
         currentTime = actions.onCurrentDailyWorkTime,
         onConfirmation = actions.onSetDailyWorkTime
     )
     AddTimeRow(
-        textFieldValue = uiState.data.lunchTime,
+        textFieldValue = uiState.data.workStats.lunchTime,
         stringId = R.string.lunch_time,
         currentTime = actions.onCurrentLunchTime,
         onConfirmation = actions.onSetLunchTime
@@ -233,14 +234,14 @@ private fun BalanceSummaryFields(uiState: ProjectDetailsUiState.Success, actions
             }
             Box(modifier = Modifier.weight(weight = 1f)) {
                 AddCustomTimeRow(
-                    customTime = uiState.data.balanceTotal,
+                    customTime = uiState.data.workStats.balanceTotal,
                     customTimeFunction = actions.onSetBalanceTotal,
                     stringId = R.string.balance_total
                 )
             }
         }
         AddCustomTimeRow(
-            customTime = uiState.data.workTimeTotal,
+            customTime = uiState.data.workStats.workTimeTotal,
             customTimeFunction = actions.onSetWorkTimeTotal,
             stringId = R.string.work_time_total
         )

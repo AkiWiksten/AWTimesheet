@@ -4,6 +4,9 @@ import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
+import com.akiwiksten.worktime30.data.database.mapper.toDomain
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.feature.settings.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -20,16 +23,16 @@ class SettingsRepositoryImplTest {
 
         val result = repository.getSettings()
 
-        assertEquals(expected, result)
+        assertEquals(expected.toDomain(), result)
     }
 
     @Test
     fun insertSettings_callsDaoInsert() = runBlocking {
-        val settings = SettingsEntity(name = "Aki", employer = "Company")
+        val settings = SettingsState(name = "Aki", employer = "Company")
 
         repository.insertSettings(settings)
 
-        assertEquals(settings, settingsDao.insertedSettings)
+        assertEquals(settings.toEntity(), settingsDao.insertedSettings)
     }
 
     @Test

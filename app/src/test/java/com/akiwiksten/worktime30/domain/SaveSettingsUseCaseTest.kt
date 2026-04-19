@@ -1,8 +1,8 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.feature.settings.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -30,7 +30,7 @@ class SaveSettingsUseCaseTest {
             repository.operations
         )
         assertEquals(
-            SettingsEntity(name = "Aki", employer = "WorkTime"),
+            SettingsState(name = "Aki", employer = "WorkTime"),
             repository.savedSettings
         )
     }
@@ -43,17 +43,17 @@ class SaveSettingsUseCaseTest {
         useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList())
 
         assertEquals(listOf("clearWorkTypes", "insertSettings"), repository.operations)
-        assertEquals(SettingsEntity(name = "Aki", employer = "WorkTime"), repository.savedSettings)
+        assertEquals(SettingsState(name = "Aki", employer = "WorkTime"), repository.savedSettings)
     }
 
     private class FakeSettingsRepository : SettingsRepository {
         val operations = mutableListOf<String>()
         val insertedWorkTypes = mutableListOf<WorkTypeEntity>()
-        var savedSettings: SettingsEntity? = null
+        var savedSettings: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsEntity? = null
+        override suspend fun getSettings(): SettingsState? = null
 
-        override suspend fun insertSettings(settings: SettingsEntity) {
+        override suspend fun insertSettings(settings: SettingsState) {
             operations += "insertSettings"
             savedSettings = settings
         }

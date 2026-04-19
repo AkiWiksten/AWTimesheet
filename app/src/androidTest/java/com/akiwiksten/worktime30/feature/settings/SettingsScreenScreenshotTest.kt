@@ -47,18 +47,20 @@ class SettingsScreenScreenshotTest {
     fun successState_screenshot() {
         setSettingsContent(
             uiState = SettingsUiState.Success(
-                name = "Aki Wiksten",
-                employer = "WorkTime Oy",
-                endMonthDate = "2026-04-30",
-                workTypes = listOf("Installation", "Maintenance", "Meeting"),
-                projectsByMonth = listOf(
-                    SingleProjectState(
-                        date = "2026-04-10",
-                        projectName = "Alpha Site",
-                        projectTime = "04:00",
-                        kilometres = "20",
-                        allowance = "Daily allowance",
-                        workType = "Installation"
+                data = SettingsState(
+                    name = "Aki Wiksten",
+                    employer = "WorkTime Oy",
+                    endMonthDate = "2026-04-30",
+                    workTypes = listOf("Installation", "Maintenance", "Meeting"),
+                    projectsByMonth = listOf(
+                        SingleProjectState(
+                            date = "2026-04-10",
+                            projectName = "Alpha Site",
+                            projectTime = "04:00",
+                            kilometres = "20",
+                            allowance = "Daily allowance",
+                            workType = "Installation"
+                        )
                     )
                 )
             )

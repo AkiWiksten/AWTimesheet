@@ -17,3 +17,10 @@ fun ProjectDetailsEntity.toDomain(): ProjectDetailsState {
         balanceToday = balanceToday,
     )
 }
+
+/*fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
+    return ProjectDetailsEntity(
+        name = name,
+        employer = employer,
+    )
+}*/

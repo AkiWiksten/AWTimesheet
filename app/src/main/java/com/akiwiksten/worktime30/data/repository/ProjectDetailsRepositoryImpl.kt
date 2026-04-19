@@ -3,9 +3,10 @@ package com.akiwiksten.worktime30.data.repository
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,9 +24,9 @@ class ProjectDetailsRepositoryImpl @Inject constructor(
     override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsEntity) =
         projectDetailsDao.delete(projectDetails)
 
-    override suspend fun getWorkStats(): WorkStatsEntity? = workStatsDao.loadWorkStats()
-    override suspend fun insertWorkStats(workStats: WorkStatsEntity) =
-        workStatsDao.insertWorkStats(workStats)
+    override suspend fun getWorkStats(): WorkStatsState? = workStatsDao.loadWorkStats()?.toDomain()
+    override suspend fun insertWorkStats(workStats: WorkStatsState) =
+        workStatsDao.insertWorkStats(workStats.toEntity())
 
     override suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsEntity> =
         projectDetailsDao.getProjectDetailsByDateRange(start, end)

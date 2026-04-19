@@ -20,10 +20,12 @@ fun PreviewProjectDetailsSuccessNewDay() {
             data = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha Site",
-                dailyWorkTime = "07:30",
-                lunchTime = "00:30",
-                workTimeTotal = "132:00",
-                balanceTotal = "+03:10",
+                workStats = WorkStatsState(
+                    dailyWorkTime = "07:30",
+                    lunchTime = "00:30",
+                    workTimeTotal = "132:00",
+                    balanceTotal = "+03:10"
+                ),
                 isNewDay = true
             )
         ),
@@ -46,11 +48,13 @@ fun PreviewProjectDetailsSuccessExistingDay() {
                 breakStart = "14:15",
                 breakEnd = "14:30",
                 projectTime = "08:00",
-                dailyWorkTime = "07:30",
-                lunchTime = "00:30",
                 balanceToday = "+00:30",
-                workTimeTotal = "140:00",
-                balanceTotal = "+04:10",
+                workStats = WorkStatsState(
+                    dailyWorkTime = "07:30",
+                    lunchTime = "00:30",
+                    workTimeTotal = "140:00",
+                    balanceTotal = "+04:10"
+                ),
                 isNewDay = false
             )
         ),

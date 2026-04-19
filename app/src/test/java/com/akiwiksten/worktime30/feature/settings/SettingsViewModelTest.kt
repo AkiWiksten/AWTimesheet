@@ -1,8 +1,6 @@
 package com.akiwiksten.worktime30.feature.settings
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
-import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
@@ -29,7 +27,7 @@ class SettingsViewModelTest {
     @Test
     fun loadSettings_updatesSuccessState() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsEntity(name = "Aki", employer = "Company")
+            settings = SettingsState(name = "Aki", employer = "Company")
             workTypes = mutableListOf(WorkTypeEntity("Remote"), WorkTypeEntity("Office"))
         }
         val projectRepository = FakeProjectRepository()
@@ -41,15 +39,15 @@ class SettingsViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state is SettingsUiState.Success)
         state as SettingsUiState.Success
-        assertEquals("Aki", state.name)
-        assertEquals("Company", state.employer)
-        assertEquals(listOf("Office", "Remote"), state.workTypes)
+        assertEquals("Aki", state.data.name)
+        assertEquals("Company", state.data.employer)
+        assertEquals(listOf("Office", "Remote"), state.data.workTypes)
     }
 
     @Test
     fun loadProjectsByMonth_setsEndOfMonthAndProjects() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsEntity(name = "Aki", employer = "Company")
+            settings = SettingsState(name = "Aki", employer = "Company")
         }
         val projectRepository = FakeProjectRepository().apply {
             projectsByRange["2026-04-01|2026-04-30"] = listOf(
@@ -63,14 +61,14 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as SettingsUiState.Success
-        assertEquals("2026-04-30", state.endMonthDate)
-        assertEquals(1, state.projectsByMonth.size)
+        assertEquals("2026-04-30", state.data.endMonthDate)
+        assertEquals(1, state.data.projectsByMonth.size)
     }
 
     @Test
     fun saveSettings_persistsCurrentValues() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsEntity(name = "Aki", employer = "Company")
+            settings = SettingsState(name = "Aki", employer = "Company")
         }
         val viewModel = createViewModel(settingsRepository, FakeProjectRepository())
 
@@ -99,14 +97,14 @@ class SettingsViewModelTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var settings: SettingsEntity? = null
+        var settings: SettingsState? = null
         var workTypes: MutableList<WorkTypeEntity> = mutableListOf()
         val insertedWorkTypes = mutableListOf<WorkTypeEntity>()
-        var insertedSettings: SettingsEntity? = null
+        var insertedSettings: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsEntity? = settings
+        override suspend fun getSettings(): SettingsState? = settings
 
-        override suspend fun insertSettings(settings: SettingsEntity) {
+        override suspend fun insertSettings(settings: SettingsState) {
             insertedSettings = settings
         }
 
@@ -141,15 +139,15 @@ class SettingsViewModelTest {
             }
         }
 
-        override suspend fun insertProject(project: ProjectEntity) = Unit
+        override suspend fun insertProject(project: SingleProjectState) = Unit
 
-        override suspend fun deleteProject(project: ProjectEntity) = Unit
+        override suspend fun deleteProject(project: SingleProjectState) = Unit
 
-        override suspend fun getProjectNames(): List<ProjectNameEntity> = emptyList()
+        override suspend fun getProjectNames(): List<String> = emptyList()
 
-        override suspend fun insertProjectName(projectName: ProjectNameEntity) = Unit
+        override suspend fun insertProjectName(projectName: String) = Unit
 
-        override suspend fun deleteProjectName(projectName: ProjectNameEntity) = Unit
+        override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }

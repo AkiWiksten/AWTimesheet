@@ -58,7 +58,10 @@ fun ProjectDetailsScreen(
 
     LaunchedEffect(Unit) {
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
-        viewModel.loadProjectDetails(projectDetailsArg = args.projectDetails?.toDomain(), workStatsArg = args.workStats)
+        viewModel.loadProjectDetails(
+            projectDetailsArg = args.projectDetails?.toDomain(),
+            workStatsArg = args.workStats?.toDomain()
+        )
     }
 
     Scaffold(

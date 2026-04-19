@@ -1,8 +1,8 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.feature.settings.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -12,7 +12,7 @@ class GetSettingsUseCaseTest {
     @Test
     fun invoke_returnsMappedValuesAndSortedWorkTypes() = runBlocking {
         val repository = FakeSettingsRepository().apply {
-            settings = SettingsEntity(name = "Aki", employer = "WorkTime")
+            settings = SettingsState(name = "Aki", employer = "WorkTime")
             workTypes = listOf(
                 WorkTypeEntity(workType = "Remote"),
                 WorkTypeEntity(workType = "Office")
@@ -43,12 +43,12 @@ class GetSettingsUseCaseTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var settings: SettingsEntity? = null
+        var settings: SettingsState? = null
         var workTypes: List<WorkTypeEntity> = emptyList()
 
-        override suspend fun getSettings(): SettingsEntity? = settings
+        override suspend fun getSettings(): SettingsState? = settings
 
-        override suspend fun insertSettings(settings: SettingsEntity) = Unit
+        override suspend fun insertSettings(settings: SettingsState) = Unit
 
         override suspend fun getWorkTypes(): List<WorkTypeEntity> = workTypes
 

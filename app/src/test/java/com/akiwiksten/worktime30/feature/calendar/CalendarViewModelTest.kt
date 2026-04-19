@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.feature.calendar
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
@@ -93,15 +92,15 @@ class CalendarViewModelTest {
             }
         }
 
-        override suspend fun insertProject(project: ProjectEntity) = Unit
+        override suspend fun insertProject(project: SingleProjectState) = Unit
 
-        override suspend fun deleteProject(project: ProjectEntity) = Unit
+        override suspend fun deleteProject(project: SingleProjectState) = Unit
 
-        override suspend fun getProjectNames(): List<ProjectNameEntity> = emptyList()
+        override suspend fun getProjectNames(): List<String> = emptyList()
 
-        override suspend fun insertProjectName(projectName: ProjectNameEntity) = Unit
+        override suspend fun insertProjectName(projectName: String) = Unit
 
-        override suspend fun deleteProjectName(projectName: ProjectNameEntity) = Unit
+        override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }

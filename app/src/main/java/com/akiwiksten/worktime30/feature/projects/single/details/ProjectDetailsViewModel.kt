@@ -138,8 +138,8 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = WorkTimeCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
-                    dailyWorkTime = WorkTimeCalculator.stringToLocalTime(successState.data.dailyWorkTime),
-                    lunchTime = WorkTimeCalculator.stringToLocalTime(successState.data.lunchTime),
+                    dailyWorkTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyWorkTime),
+                    lunchTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.lunchTime),
                     projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                     oldStartTime = oldStart,
                     isNewDay = successState.data.isNewDay
@@ -188,7 +188,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val successState = currentState as ProjectDetailsUiState.Success
             val oldDaily = WorkTimeCalculator
                 .stringToLocalTime(
-                    successState.data.dailyWorkTime
+                    successState.data.workStats.dailyWorkTime
                 )
             val update = WorkTimeCalculator.calculateDailyWorkTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
@@ -197,7 +197,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 oldDailyWorkTime = oldDaily,
                 isNewDay = successState.data.isNewDay
             )
-            applyUpdateToState(successState.copy(data = successState.data.copy(dailyWorkTime = dailyWorkTime)), update)
+            applyUpdateToState(successState.copy(data = successState.data.copy(workStats = successState.data.workStats.copy(dailyWorkTime = dailyWorkTime))), update)
         }
     }
 
@@ -213,7 +213,7 @@ class ProjectDetailsViewModel @Inject constructor(
             )
             val update = WorkTimeCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
-                lunchTime = WorkTimeCalculator.stringToLocalTime(successState.data.lunchTime),
+                lunchTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.lunchTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 oldLunchStart = oldLunchStart,
                 currentLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.data.lunchEnd)
@@ -252,7 +252,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val successState = currentState as ProjectDetailsUiState.Success
             val oldLunchTime = WorkTimeCalculator
                 .stringToLocalTime(
-                    successState.data.lunchTime
+                    successState.data.workStats.lunchTime
                 )
             val update = WorkTimeCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
@@ -261,7 +261,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 oldLunchTime = oldLunchTime
             )
-            applyUpdateToState(successState.copy(data = successState.data.copy(lunchTime = lunchTime)), update)
+            applyUpdateToState(successState.copy(data = successState.data.copy(workStats = successState.data.workStats.copy(lunchTime = lunchTime))), update)
         }
     }
 
@@ -376,9 +376,11 @@ class ProjectDetailsViewModel @Inject constructor(
 
         nextState = nextState.copy(
             data = nextState.data.copy(
-                balanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                    initialTime = nextState.data.balanceTotal,
-                    addedTime = balanceAdjustment
+                workStats = nextState.data.workStats.copy(
+                    balanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                        initialTime = nextState.data.workStats.balanceTotal,
+                        addedTime = balanceAdjustment
+                    )
                 )
             )
         )
@@ -397,7 +399,7 @@ class ProjectDetailsViewModel @Inject constructor(
             data = state.data.copy(
                 balanceToday = WorkTimeCalculator.calculateWorkTimeBalance(
                     initialTime = totalProjectTimeForDay,
-                    addedTime = "-" + state.data.dailyWorkTime
+                    addedTime = "-" + state.data.workStats.dailyWorkTime
                 )
             )
         )
@@ -420,7 +422,7 @@ class ProjectDetailsViewModel @Inject constructor(
         ) {
             balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
                 balanceAdjustment,
-                "-" + nextState.data.dailyWorkTime
+                "-" + nextState.data.workStats.dailyWorkTime
             )
         }
 
@@ -440,17 +442,21 @@ class ProjectDetailsViewModel @Inject constructor(
     ): ProjectDetailsUiState.Success {
         val nextState = state.copy(
             data = state.data.copy(
-                workTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                    initialTime = state.data.workTimeTotal,
-                    addedTime = WorkTimeCalculator.checkIfDoubleMinus("-" + oldProjectTime.toString())
+                workStats = state.data.workStats.copy(
+                    workTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                        initialTime = state.data.workStats.workTimeTotal,
+                        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-" + oldProjectTime.toString())
+                    )
                 )
             )
         )
         return nextState.copy(
             data = nextState.data.copy(
-                workTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                    initialTime = nextState.data.workTimeTotal,
-                    addedTime = nextState.data.projectTime
+                workStats = nextState.data.workStats.copy(
+                    workTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                        initialTime = nextState.data.workStats.workTimeTotal,
+                        addedTime = nextState.data.projectTime
+                    )
                 )
             )
         )
@@ -466,7 +472,7 @@ class ProjectDetailsViewModel @Inject constructor(
         return ProjectDetailsUiMapper.mapToWorkStatsEntity(state)
     }
 
-    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsEntity? = null) {
+    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsState? = null) {
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
         val baseState = (currentState as? ProjectDetailsUiState.Success)
@@ -484,7 +490,7 @@ class ProjectDetailsViewModel @Inject constructor(
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
         projectDetailsArg: ProjectDetailsState? = null,
-        workStatsArg: WorkStatsEntity? = null,
+        workStatsArg: WorkStatsState? = null,
         showLoading: Boolean
     ) {
         if (showLoading && _uiState.value !is ProjectDetailsUiState.Success) {
@@ -533,7 +539,7 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val oldProjectTime = successState.data.projectTime
-            var nextBalanceTotal = successState.data.balanceTotal
+            var nextBalanceTotal = successState.data.workStats.balanceTotal
 
             if (oldProjectTime != ZERO_TIME) {
                 // Revert project time contribution
@@ -546,12 +552,12 @@ class ProjectDetailsViewModel @Inject constructor(
                 if (!successState.data.hasOtherProjects) {
                     nextBalanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
                         nextBalanceTotal,
-                        successState.data.dailyWorkTime
+                        successState.data.workStats.dailyWorkTime
                     )
                 }
             }
 
-            val wTTotal = WorkTimeCalculator.stringToLocalTime(successState.data.workTimeTotal)
+            val wTTotal = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.workTimeTotal)
             val wTToday = WorkTimeCalculator.stringToLocalTime(oldProjectTime)
 
             successState.copy(
@@ -566,10 +572,12 @@ class ProjectDetailsViewModel @Inject constructor(
                     projectTime = ZERO_TIME,
                     balanceToday = ZERO_TIME,
                     oldBalanceToday = ZERO_TIME,
-                    balanceTotal = nextBalanceTotal,
-                    workTimeTotal = wTTotal
-                        .minusHours(wTToday.hour.toLong())
-                        .minusMinutes(wTToday.minute.toLong()).toString()
+                    workStats = successState.data.workStats.copy(
+                        balanceTotal = nextBalanceTotal,
+                        workTimeTotal = wTTotal
+                            .minusHours(wTToday.hour.toLong())
+                            .minusMinutes(wTToday.minute.toLong()).toString()
+                    )
                 )
             )
         }
@@ -581,7 +589,9 @@ class ProjectDetailsViewModel @Inject constructor(
             when (currentState) {
                 is ProjectDetailsUiState.Success ->
                     currentState.copy(
-                        data = currentState.data.copy(balanceTotal = balanceTotal0)
+                        data = currentState.data.copy(
+                            workStats = currentState.data.workStats.copy(balanceTotal = balanceTotal0)
+                        )
                     )
                 else -> currentState
             }
@@ -594,7 +604,9 @@ class ProjectDetailsViewModel @Inject constructor(
             when (currentState) {
                 is ProjectDetailsUiState.Success ->
                     currentState.copy(
-                        data = currentState.data.copy(workTimeTotal = workTimeTotal0)
+                        data = currentState.data.copy(
+                            workStats = currentState.data.workStats.copy(workTimeTotal = workTimeTotal0)
+                        )
                     )
                 else -> currentState
             }
@@ -609,7 +621,7 @@ class ProjectDetailsViewModel @Inject constructor(
             )
             val update = WorkTimeCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
-                dailyWorkTime = WorkTimeCalculator.stringToLocalTime(successState.data.dailyWorkTime),
+                dailyWorkTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyWorkTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldProjectTime = oldProjectTime
             )

@@ -7,10 +7,6 @@ fun SettingsEntity.toDomain(): SettingsState {
     return SettingsState(
         name = name,
         employer = employer,
-        selectedDate = "",
-        endMonthDate = "",
-        workTypes = emptyList(),
-        projectsByMonth = emptyList()
     )
 }
 

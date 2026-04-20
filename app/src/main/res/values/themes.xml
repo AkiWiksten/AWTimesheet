@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.WorkTime30" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.WorkTime30.Launch" parent="Theme.WorkTime30">
+        <item name="android:windowBackground">@drawable/core_ui_work_time30</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>

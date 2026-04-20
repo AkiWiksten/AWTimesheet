@@ -1,0 +1,34 @@
+build:
+  maxIssues: 0
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated: [ Composable, Preview ]
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][_A-Z0-9]*'
+
+style:
+  MagicNumber:
+    active: false
+
+  WildcardImport:
+    active: false
+
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 60
+
+  TooManyFunctions:
+    active: true
+    thresholdInClasses: 15
+
+comments:
+  UndocumentedPublicFunction:
+    active: false

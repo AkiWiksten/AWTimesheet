@@ -13,9 +13,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -223,10 +223,9 @@ internal fun SettingsContent(
 
 @Composable
 private fun SettingsCard(title: String, content: @Composable () -> Unit) {
-    Card(
+    ElevatedCard(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
     ) {
         Column(modifier = Modifier.padding(all = 16.dp), verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
             Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -238,14 +237,25 @@ private fun SettingsCard(title: String, content: @Composable () -> Unit) {
 
 @Composable
 private fun HeaderSection(date: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Header(title = stringResource(id = R.string.settings))
-        Text(
-            text = date,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .widthIn(max = 600.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(all = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+        ) {
+            Header(title = stringResource(id = R.string.settings))
+            Text(
+                text = date,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
@@ -294,14 +304,19 @@ private fun WorkTypeSection(
             modifier = Modifier.fillMaxWidth()
         )
         Row(horizontalArrangement = Arrangement.spacedBy(space = 8.dp)) {
-            Button(onClick = onAddClick, modifier = Modifier.weight(weight = 1f)) {
+            Button(
+                onClick = onAddClick,
+                modifier = Modifier.weight(weight = 1f),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            ) {
                 Text(text = stringResource(id = R.string.add))
             }
             Button(
                 onClick = onDeleteClick,
                 enabled = selectedWorkType.isNotEmpty(),
                 modifier = Modifier.weight(weight = 1f),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
                 Text(text = stringResource(id = R.string.delete))
             }
@@ -319,13 +334,18 @@ private fun ActionButtonsSection(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
         verticalArrangement = Arrangement.spacedBy(space = 12.dp)
     ) {
-        Button(onClick = onSave, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
             Text(text = stringResource(id = R.string.save), fontSize = 18.sp)
         }
         Button(
             onClick = onGeneratePdf,
             enabled = isPdfEnabled,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
             Text(text = stringResource(id = R.string.generate_pdf), fontSize = 18.sp)
         }

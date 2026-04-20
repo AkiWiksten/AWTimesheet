@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,45 +28,49 @@ import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 
 @Composable
 fun HeaderSection(date: String) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(all = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
-        ) {
-            Text(
-                text = date,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        Text(
+            text = date,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = {
-            Header(
-                title = stringResource(id = R.string.project_customer),
-                modifier = Modifier.padding(top = 0.dp)
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        tonalElevation = 8.dp,
+        shadowElevation = 8.dp
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Header(
+                    title = stringResource(id = R.string.project_customer),
+                    modifier = Modifier.padding(top = 0.dp)
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                }
+            },
+            actions = {
+                Spacer(modifier = Modifier.width(width = 48.dp))
             }
-        },
-        actions = {
-            Spacer(modifier = Modifier.width(width = 48.dp))
-        }
-    )
+        )
+    }
 }
 
 @Composable

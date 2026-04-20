@@ -5,19 +5,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -119,20 +123,25 @@ internal fun ProjectDetailsErrorState(padding: PaddingValues, errorMessage: Stri
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = {
-            Header(
-                title = stringResource(id = R.string.project_details),
-                modifier = Modifier.padding(top = 0.dp),
-                fillMaxWidth = false
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+    Surface(
+        tonalElevation = 8.dp,
+        shadowElevation = 8.dp
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Header(
+                    title = stringResource(id = R.string.project_details),
+                    modifier = Modifier.padding(top = 0.dp),
+                    fillMaxWidth = false
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -151,11 +160,11 @@ internal fun ProjectDetailsContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderSection(date = uiState.data.date, onClearDay = actions.onClearDay)
-
-        projectName?.let {
-            ProjectNameField(name = it)
-        }
+        ProjectDetailsHeaderGroup(
+            date = uiState.data.date,
+            projectName = projectName,
+            onClearDay = actions.onClearDay
+        )
 
         if (uiState.data.isNewDay) {
             NewDayFields(uiState = uiState, actions = actions.fieldActions)
@@ -164,6 +173,33 @@ internal fun ProjectDetailsContent(
         }
 
         FooterSection(onConfirm = actions.onConfirm)
+    }
+}
+
+@Composable
+private fun ProjectDetailsHeaderGroup(
+    date: String,
+    projectName: String?,
+    onClearDay: () -> Unit
+) {
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(all = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+        ) {
+            HeaderSection(date = date, onClearDay = onClearDay)
+            projectName?.let { ProjectNameField(name = it) }
+
+            Text(
+                text = stringResource(id = R.string.new_day),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+        }
     }
 }
 

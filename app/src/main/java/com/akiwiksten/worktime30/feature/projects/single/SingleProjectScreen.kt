@@ -19,7 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -136,7 +139,11 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     )
 
     Scaffold(
-        topBar = { SingleProjectTopBar(onNavigateBack = params.onNavigateBack) }
+        topBar = {
+            SingleProjectTopSection(
+                onNavigateBack = params.onNavigateBack
+            )
+        }
     ) { padding ->
         when (params.projectsUiState) {
             is ProjectsUiState.Loading -> SingleProjectLoadingContent(
@@ -240,6 +247,23 @@ data class SingleProjectActions(
 )
 
 @Composable
+private fun SingleProjectTopSection(
+    onNavigateBack: () -> Unit
+) {
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+        ) {
+            SingleProjectTopBar(onNavigateBack = onNavigateBack)
+
+        }
+    }
+}
+
+@Composable
 private fun SingleProjectContent(
     padding: PaddingValues,
     screenState: SingleProjectScreenState,
@@ -260,46 +284,54 @@ private fun SingleProjectContent(
         addedTime = screenState.state.projectTime
     )
 
-    Column(
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
             .padding(all = 24.dp)
-            .verticalScroll(state = rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        HeaderSection(date = screenState.date)
-
-        DialogMainFields(
-            state = screenState.state,
-            isAddMode = screenState.isAddMode,
-            onStateChange = actions.onStateChange
-        )
-
-        TimeSelectionSection(
-            state = screenState.state,
-            workTimeToday = workTimeToday,
-            onOpenProjectDetails = actions.onOpenProjectDetails,
-            onStateChange = actions.onStateChange
-        )
-
-        DialogDropdownFields(
-            state = screenState.state,
-            workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
-                ?: emptyList(),
-            onStateChange = actions.onStateChange
-        )
-
-        Spacer(modifier = Modifier.weight(weight = 1f))
-
-        Button(
-            onClick = actions.onConfirm,
-            enabled = screenState.isConfirmEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(size = 12.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 16.dp)
+                .verticalScroll(state = rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+            HeaderSection(date = screenState.date)
+
+            DialogMainFields(
+                state = screenState.state,
+                isAddMode = screenState.isAddMode,
+                onStateChange = actions.onStateChange
+            )
+
+            TimeSelectionSection(
+                state = screenState.state,
+                workTimeToday = workTimeToday,
+                onOpenProjectDetails = actions.onOpenProjectDetails,
+                onStateChange = actions.onStateChange
+            )
+
+            DialogDropdownFields(
+                state = screenState.state,
+                workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
+                    ?: emptyList(),
+                onStateChange = actions.onStateChange
+            )
+
+            Spacer(modifier = Modifier.weight(weight = 1f))
+
+            Button(
+                onClick = actions.onConfirm,
+                enabled = screenState.isConfirmEnabled,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(size = 12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            ) {
+                Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }
@@ -387,7 +419,8 @@ private fun TimeSelectionSection(
             Button(
                 onClick = onOpenProjectDetails,
                 modifier = Modifier.padding(top = 8.dp),
-                shape = RoundedCornerShape(size = 12.dp)
+                shape = RoundedCornerShape(size = 12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
                 Icon(imageVector = Icons.Default.History, contentDescription = null)
                 Spacer(modifier = Modifier.width(width = 4.dp))
@@ -397,7 +430,8 @@ private fun TimeSelectionSection(
             Button(
                 onClick = { openTimePickerDialogState.value = true },
                 modifier = Modifier.padding(top = 8.dp),
-                shape = RoundedCornerShape(size = 12.dp)
+                shape = RoundedCornerShape(size = 12.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.AccessTime,

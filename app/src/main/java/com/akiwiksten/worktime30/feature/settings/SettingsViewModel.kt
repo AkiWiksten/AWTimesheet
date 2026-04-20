@@ -144,11 +144,21 @@ class SettingsViewModel @Inject constructor(
             _uiState.value = SettingsUiState.Loading
             try {
                 val loadedData = getSettingsUseCase()
+                val currentDate = dateRepository.selectedDate.value
+                val parsedDate = LocalDate.parse(currentDate)
+                val endOfMonth = parsedDate
+                    .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
+                    .toString()
+                val projects = getProjectsByMonthUseCase(currentDate)
+
                 _uiState.value = SettingsUiState.Success(
                     data = SettingsState(
                         name = loadedData.name,
                         employer = loadedData.employer,
-                        workTypes = loadedData.workTypes
+                        selectedDate = currentDate,
+                        endMonthDate = endOfMonth,
+                        workTypes = loadedData.workTypes,
+                        projectsByMonth = projects
                     )
                 )
             } catch (e: IllegalArgumentException) {

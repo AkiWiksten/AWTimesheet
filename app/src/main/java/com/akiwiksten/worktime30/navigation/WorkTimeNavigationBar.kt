@@ -8,23 +8,27 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun WorkTimeNavigationBar(backStack: SnapshotStateList<Any>) {
     val navigationScreens = listOf(Screen.Calendar, Screen.Projects, Screen.Settings)
-    NavigationBar {
-        navigationScreens.forEach { screen ->
-            val isSelected = backStack.lastOrNull() == screen
-            NavigationBarItem(
-                selected = isSelected,
-                onClick = { if (!isSelected) backStack.add(element = screen) },
-                icon = { ScreenIcon(screen = screen) },
-                label = { ScreenLabel(screen = screen) }
-            )
+    Surface(shadowElevation = 8.dp, tonalElevation = 8.dp) {
+        NavigationBar {
+            navigationScreens.forEach { screen ->
+                val isSelected = backStack.lastOrNull() == screen
+                NavigationBarItem(
+                    selected = isSelected,
+                    onClick = { if (!isSelected) backStack.add(element = screen) },
+                    icon = { ScreenIcon(screen = screen) },
+                    label = { ScreenLabel(screen = screen) }
+                )
+            }
         }
     }
 }

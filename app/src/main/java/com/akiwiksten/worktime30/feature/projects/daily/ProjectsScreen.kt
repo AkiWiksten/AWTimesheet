@@ -240,27 +240,32 @@ private fun ProjectsListSection(
             )
         }
     } else {
-        LazyColumn(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(size = 12.dp))
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = RoundedCornerShape(size = 12.dp)
-                )
-                .selectableGroup(),
-            verticalArrangement = Arrangement.spacedBy(space = 2.dp)
+        ElevatedCard(
+            modifier = modifier.fillMaxWidth(),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
         ) {
-            items(
-                items = items,
-                key = { it.projectName }
-            ) { item ->
-                ProjectListItem(
-                    item = item,
-                    isSelected = selectedIndex == item.index,
-                    onClick = { onItemSelected(item.index) }
-                )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(size = 12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = RoundedCornerShape(size = 12.dp)
+                    )
+                    .selectableGroup(),
+                verticalArrangement = Arrangement.spacedBy(space = 2.dp)
+            ) {
+                items(
+                    items = items,
+                    key = { it.projectName }
+                ) { item ->
+                    ProjectListItem(
+                        item = item,
+                        isSelected = selectedIndex == item.index,
+                        onClick = { onItemSelected(item.index) }
+                    )
+                }
             }
         }
     }
@@ -371,7 +376,8 @@ private fun ProjectsActionButtons(
     ) {
         Button(
             onClick = onAddClick,
-            modifier = Modifier.weight(weight = 1f)
+            modifier = Modifier.weight(weight = 1f),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
             Spacer(modifier = Modifier.width(width = 8.dp))
@@ -381,6 +387,7 @@ private fun ProjectsActionButtons(
             onClick = onEditClick,
             enabled = selectedIndex != -1,
             modifier = Modifier.weight(weight = 1f),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -394,6 +401,7 @@ private fun ProjectsActionButtons(
             onClick = onDeleteClick,
             enabled = selectedIndex != -1,
             modifier = Modifier.weight(weight = 1f),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer

@@ -12,9 +12,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -189,29 +191,45 @@ internal fun DatePickerSection(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         modifier = Modifier.padding(all = 5.dp)
     ) {
-        Header(title = stringResource(id = R.string.select_work_day_date))
+        ElevatedCard(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(all = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+            ) {
+                Header(title = stringResource(id = R.string.select_work_day_date))
 
-        OutlinedTextField(
-            value = selectedDate,
-            onValueChange = { },
-            label = { Text(text = stringResource(id = R.string.selected_date), fontSize = 20.sp) },
-            readOnly = true,
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = stringResource(id = R.string.select_date)
+                OutlinedTextField(
+                    value = selectedDate,
+                    onValueChange = { },
+                    label = {
+                        Text(
+                            text = stringResource(id = R.string.selected_date),
+                            fontSize = 20.sp
+                        )
+                    },
+                    readOnly = true,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = stringResource(id = R.string.select_date)
+                        )
+                    },
+                    modifier = Modifier.height(height = 64.dp),
+                    textStyle = TextStyle.Default.copy(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
                 )
-            },
-            modifier = Modifier.height(height = 64.dp),
-            textStyle = TextStyle.Default.copy(
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            ),
-        )
+            }
+        }
 
         Box(
             modifier = Modifier
-                .shadow(elevation = 4.dp)
+                .shadow(elevation = 8.dp)
                 .background(color = MaterialTheme.colorScheme.surface)
         ) {
             DatePicker(
@@ -224,25 +242,32 @@ internal fun DatePickerSection(
 
 @Composable
 internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
-    Column(
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier
             .padding(vertical = 20.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+            .fillMaxWidth()
     ) {
-        SummaryItem(
-            label = stringResource(id = R.string.selected_work_day),
-            value = uiState.timePerDay
-        )
-        SummaryItem(
-            label = stringResource(id = R.string.selected_work_week),
-            value = uiState.timePerWeek
-        )
-        SummaryItem(
-            label = stringResource(id = R.string.selected_work_month),
-            value = uiState.timePerMonth
-        )
+        Column(
+            modifier = Modifier
+                .padding(vertical = 20.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+        ) {
+            SummaryItem(
+                label = stringResource(id = R.string.selected_work_day),
+                value = uiState.timePerDay
+            )
+            SummaryItem(
+                label = stringResource(id = R.string.selected_work_week),
+                value = uiState.timePerWeek
+            )
+            SummaryItem(
+                label = stringResource(id = R.string.selected_work_month),
+                value = uiState.timePerMonth
+            )
+        }
     }
 }
 

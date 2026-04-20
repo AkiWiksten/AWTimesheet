@@ -49,7 +49,7 @@ This is called feature-based packaging.
 + Run androidTest (Screenshot tests, DAO tests)
 + Run test (Unit tests)
 
-## Features to be implemented yet
+## Features to be implemented still
 + create full backup support.
 + unify Headers for Screens
 + unify icon names
@@ -77,3 +77,4 @@ This is called feature-based packaging.
   + Remove “Work time total”
   + DailyWorkTime to ExpectedProjectTime
 + Translate fed "Work type"
++ Balance->Flex time

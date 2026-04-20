@@ -1,9 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects.single.details.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -89,12 +87,6 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     onConfirmation = actions.onSetStartTime
                 )
                 AddTimeRow(
-                    textFieldValue = uiState.data.workStats.dailyWorkTime,
-                    stringId = R.string.daily_work_time,
-                    currentTime = actions.onCurrentDailyWorkTime,
-                    onConfirmation = actions.onSetDailyWorkTime
-                )
-                AddTimeRow(
                     textFieldValue = uiState.data.workStats.lunchTime,
                     stringId = R.string.lunch_time,
                     currentTime = actions.onCurrentLunchTime,
@@ -107,11 +99,6 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     onConfirmation = actions.onSetProjectTime
                 )
 
-                AddCustomTimeRow(
-                    customTime = uiState.data.workStats.balanceTotal,
-                    customTimeFunction = actions.onSetBalanceTotal,
-                    stringId = R.string.balance_total
-                )
             }
         }
     }
@@ -125,8 +112,6 @@ fun ExistingDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDe
         LunchAndBreakFields(uiState = uiState, actions = actions)
 
         DailySummaryFields(uiState = uiState, actions = actions)
-
-        BalanceSummaryFields(uiState = uiState, actions = actions)
     }
 }
 
@@ -211,12 +196,6 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
             verticalArrangement = Arrangement.spacedBy(space = 12.dp)
         ) {
             AddTimeRow(
-                textFieldValue = uiState.data.workStats.dailyWorkTime,
-                stringId = R.string.daily_work_time,
-                currentTime = actions.onCurrentDailyWorkTime,
-                onConfirmation = actions.onSetDailyWorkTime
-            )
-            AddTimeRow(
                 textFieldValue = uiState.data.workStats.lunchTime,
                 stringId = R.string.lunch_time,
                 currentTime = actions.onCurrentLunchTime,
@@ -226,37 +205,6 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
     }
 }
 
-@Composable
-private fun BalanceSummaryFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
-    ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(space = 12.dp)) {
-                Box(modifier = Modifier.weight(weight = 1f)) {
-                    AddCustomTimeRow(
-                        customTime = uiState.data.balanceToday,
-                        customTimeFunction = actions.onSetBalanceToday,
-                        stringId = R.string.balance_today
-                    )
-                }
-                Box(modifier = Modifier.weight(weight = 1f)) {
-                    AddCustomTimeRow(
-                        customTime = uiState.data.workStats.balanceTotal,
-                        customTimeFunction = actions.onSetBalanceTotal,
-                        stringId = R.string.balance_total
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun FooterSection(onConfirm: () -> Unit) {

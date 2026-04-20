@@ -41,6 +41,7 @@ class ProjectsViewModelTest {
             projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
+        projectDetailsRepository.workStats = WorkStatsState(dailyWorkTime = "07:30", balanceTotal = "+01:45")
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office")
         }
@@ -55,6 +56,9 @@ class ProjectsViewModelTest {
         state as ProjectsUiState.Success
         assertEquals("2026-04-10", state.date)
         assertEquals("02:30", state.workTimeToday)
+        assertEquals("07:30", state.dailyWorkTime)
+        assertEquals("-05:00", state.balanceToday)
+        assertEquals("+01:45", state.balanceTotal)
         assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
     }
 
@@ -92,7 +96,8 @@ class ProjectsViewModelTest {
         return ProjectsViewModel(
             getProjectsScreenDataUseCase = GetProjectsScreenDataUseCase(
                 projectRepository = projectRepository,
-                settingsRepository = settingsRepository
+                settingsRepository = settingsRepository,
+                projectDetailsRepository = projectDetailsRepository
             ),
             saveProjectsUseCase = SaveProjectsUseCase(
                 projectRepository = projectRepository,

@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.projects.daily
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -41,6 +42,9 @@ sealed class ProjectsUiState {
     data class Success(
         val date: String = "",
         val workTimeToday: String = ZERO_TIME,
+        val dailyWorkTime: String = ZERO_TIME,
+        val balanceToday: String = ZERO_TIME,
+        val balanceTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
         val projectNames: List<String> = emptyList(),
         val workTypes: List<String> = emptyList()
@@ -80,6 +84,12 @@ class ProjectsViewModel @Inject constructor(
             ProjectsUiState.Success(
                 date = date,
                 workTimeToday = data.projectTime,
+                dailyWorkTime = data.dailyWorkTime,
+                balanceToday = WorkTimeCalculator.calculateWorkTimeBalance(
+                    initialTime = data.projectTime,
+                    addedTime = "-${data.dailyWorkTime}"
+                ),
+                balanceTotal = data.balanceTotal,
                 projects = allProjects,
                 projectNames = data.projectNames,
                 workTypes = data.workTypes

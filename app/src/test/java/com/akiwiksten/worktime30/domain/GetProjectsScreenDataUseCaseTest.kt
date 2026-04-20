@@ -1,9 +1,12 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -23,11 +26,16 @@ class GetProjectsScreenDataUseCaseTest {
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office", "Remote")
         }
-        val useCase = GetProjectsScreenDataUseCase(projectRepository, settingsRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", balanceTotal = "+04:15")
+        }
+        val useCase = GetProjectsScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
 
         val result = useCase("2026-04-10")
 
         assertEquals("07:30", result.projectTime)
+        assertEquals("07:30", result.dailyWorkTime)
+        assertEquals("+04:15", result.balanceTotal)
         assertEquals(2, result.projects.size)
         assertEquals(2, result.projectNames.size)
         assertEquals(listOf("Office", "Remote"), result.workTypes)
@@ -37,12 +45,15 @@ class GetProjectsScreenDataUseCaseTest {
     fun invoke_usesZeroTimeWhenNoProjects() = runBlocking {
         val useCase = GetProjectsScreenDataUseCase(
             projectRepository = FakeProjectRepository(),
-            settingsRepository = FakeSettingsRepository()
+            settingsRepository = FakeSettingsRepository(),
+            projectDetailsRepository = FakeProjectDetailsRepository()
         )
 
         val result = useCase("2026-04-10")
 
         assertEquals(ZERO_TIME, result.projectTime)
+        assertEquals("07:30", result.dailyWorkTime)
+        assertEquals(ZERO_TIME, result.balanceTotal)
     }
 
     private class FakeProjectRepository : ProjectRepository {
@@ -78,5 +89,22 @@ class GetProjectsScreenDataUseCaseTest {
         override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun clearWorkTypes() = Unit
+    }
+
+    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+        var workStats: WorkStatsState? = null
+
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
+
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) = Unit
+
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) = Unit
+
+        override suspend fun getWorkStats(): WorkStatsState? = workStats
+
+        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState> =
+            emptyList()
     }
 }

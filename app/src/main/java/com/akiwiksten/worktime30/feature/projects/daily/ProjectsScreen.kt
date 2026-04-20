@@ -152,7 +152,13 @@ private fun ColumnScope.ProjectsSuccessContent(
     selectedItemIndex: Int,
     actions: ProjectsActions
 ) {
-    ProjectsHeader(date = state.date, workTime = state.workTimeToday)
+    ProjectsHeader(
+        date = state.date,
+        workTime = state.workTimeToday,
+        dailyWorkTime = state.dailyWorkTime,
+        balanceToday = state.balanceToday,
+        balanceTotal = state.balanceTotal
+    )
 
     ProjectsListSection(
         items = state.projects,
@@ -193,7 +199,13 @@ private fun ProjectsErrorContent(message: String, onRetry: () -> Unit) {
 }
 
 @Composable
-private fun ProjectsHeader(date: String, workTime: String) {
+private fun ProjectsHeader(
+    date: String,
+    workTime: String,
+    dailyWorkTime: String,
+    balanceToday: String,
+    balanceTotal: String
+) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
@@ -214,6 +226,21 @@ private fun ProjectsHeader(date: String, workTime: String) {
                 text = "${stringResource(id = R.string.work_time_today)}: $workTime",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.secondary
+            )
+            Text(
+                text = "${stringResource(id = R.string.daily_work_time)}: $dailyWorkTime",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "${stringResource(id = R.string.balance_today)}: $balanceToday",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "${stringResource(id = R.string.balance_total)}: $balanceTotal",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

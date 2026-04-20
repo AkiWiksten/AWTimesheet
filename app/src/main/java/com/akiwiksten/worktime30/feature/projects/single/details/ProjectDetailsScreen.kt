@@ -272,11 +272,8 @@ private fun createProjectDetailsScreenActions(
         fieldActions = ProjectDetailsFieldActions(
             onCurrentStartTime = viewModel::currentStartTime,
             onSetStartTime = viewModel::setStartTime,
-            onCurrentDailyWorkTime = viewModel::currentDailyWorkTime,
-            onSetDailyWorkTime = viewModel::setDailyWorkTime,
             onCurrentLunchTime = viewModel::currentLunchTime,
             onSetLunchTime = viewModel::setLunchTime,
-            onSetBalanceTotal = viewModel::setBalanceTotal,
             onCurrentEndTime = viewModel::currentEndTime,
             onSetEndTime = viewModel::setEndTime,
             onCurrentProjectTime = viewModel::currentProjectTime,
@@ -288,8 +285,7 @@ private fun createProjectDetailsScreenActions(
             onCurrentBreakStart = viewModel::currentBreakStart,
             onSetBreakStart = viewModel::setBreakStart,
             onCurrentBreakEnd = viewModel::currentBreakEnd,
-            onSetBreakEnd = viewModel::setBreakEnd,
-            onSetBalanceToday = viewModel::setBalanceToday
+            onSetBreakEnd = viewModel::setBreakEnd
         )
     )
 }

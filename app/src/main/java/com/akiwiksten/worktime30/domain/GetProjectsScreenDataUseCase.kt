@@ -2,6 +2,7 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
@@ -9,7 +10,8 @@ import javax.inject.Inject
 
 class GetProjectsScreenDataUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val projectDetailsRepository: ProjectDetailsRepository
 ) {
     suspend operator fun invoke(date: String): ProjectsScreenData {
         val projects = projectRepository.getProjectsByDateRange(date, date)
@@ -20,18 +22,27 @@ class GetProjectsScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes()
+        val workStats = projectDetailsRepository.getWorkStats()
 
         return ProjectsScreenData(
             projectTime = projectTime,
+            dailyWorkTime = workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME,
+            balanceTotal = workStats?.balanceTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME,
             projects = projects,
             projectNames = projectNames,
             workTypes = workTypes
         )
     }
+
+    private companion object {
+        const val DEFAULT_DAILY_WORK_TIME = "07:30"
+    }
 }
 
 data class ProjectsScreenData(
     val projectTime: String,
+    val dailyWorkTime: String,
+    val balanceTotal: String,
     val projects: List<SingleProjectState>,
     val projectNames: List<String>,
     val workTypes: List<String>

@@ -3,11 +3,8 @@ package com.akiwiksten.worktime30.feature.projects.single.details.components
 data class ProjectDetailsFieldActions(
     val onCurrentStartTime: () -> Unit = {},
     val onSetStartTime: (String) -> Unit = {},
-    val onCurrentDailyWorkTime: () -> Unit = {},
-    val onSetDailyWorkTime: (String) -> Unit = {},
     val onCurrentLunchTime: () -> Unit = {},
     val onSetLunchTime: (String) -> Unit = {},
-    val onSetBalanceTotal: (String, Boolean) -> Unit = { _, _ -> },
     val onCurrentEndTime: () -> Unit = {},
     val onSetEndTime: (String) -> Unit = {},
     val onCurrentProjectTime: () -> Unit = {},
@@ -19,6 +16,5 @@ data class ProjectDetailsFieldActions(
     val onCurrentBreakStart: () -> Unit = {},
     val onSetBreakStart: (String) -> Unit = {},
     val onCurrentBreakEnd: () -> Unit = {},
-    val onSetBreakEnd: (String) -> Unit = {},
-    val onSetBalanceToday: (String, Boolean) -> Unit = { _, _ -> }
+    val onSetBreakEnd: (String) -> Unit = {}
 )

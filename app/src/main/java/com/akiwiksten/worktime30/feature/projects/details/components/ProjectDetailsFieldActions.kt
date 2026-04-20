@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.single.details.components
+package com.akiwiksten.worktime30.feature.projects.details.components
 
 data class ProjectDetailsFieldActions(
     val onCurrentStartTime: () -> Unit = {},

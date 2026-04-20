@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.single.details.components
+package com.akiwiksten.worktime30.feature.projects.details.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsUiState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 
 @Composable
 fun ProjectNameField(name: String) {

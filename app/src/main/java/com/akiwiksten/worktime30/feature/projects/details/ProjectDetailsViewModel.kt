@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.single.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

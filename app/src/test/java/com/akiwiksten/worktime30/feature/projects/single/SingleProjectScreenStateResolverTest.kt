@@ -2,7 +2,7 @@ package com.akiwiksten.worktime30.feature.projects.single
 
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

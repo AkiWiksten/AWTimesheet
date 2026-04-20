@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.single.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 

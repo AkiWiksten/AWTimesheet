@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.single.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -38,12 +38,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.projects.single.details.components.ExistingDayFields
-import com.akiwiksten.worktime30.feature.projects.single.details.components.FooterSection
-import com.akiwiksten.worktime30.feature.projects.single.details.components.HeaderSection
-import com.akiwiksten.worktime30.feature.projects.single.details.components.NewDayFields
-import com.akiwiksten.worktime30.feature.projects.single.details.components.ProjectDetailsFieldActions
-import com.akiwiksten.worktime30.feature.projects.single.details.components.ProjectNameField
+import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
+import com.akiwiksten.worktime30.feature.projects.details.components.FooterSection
+import com.akiwiksten.worktime30.feature.projects.details.components.HeaderSection
+import com.akiwiksten.worktime30.feature.projects.details.components.NewDayFields
+import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsFieldActions
+import com.akiwiksten.worktime30.feature.projects.details.components.ProjectNameField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -10,8 +10,8 @@ import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi

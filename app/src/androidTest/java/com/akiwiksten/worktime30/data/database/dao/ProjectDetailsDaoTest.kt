@@ -6,7 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.akiwiksten.worktime30.data.database.AppDatabase
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals

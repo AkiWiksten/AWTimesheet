@@ -51,7 +51,6 @@ This is called feature-based packaging.
 
 ## Features to be implemented still
 + create full backup support.
-+ unify icon names
 + Project name edit and validation in SingleProjectScreen
 + Project name validation in ProjectsScreen. Kilometres validation. 0050 not valid.
 + Workday: “Open End Time picker to select time and confirm to show the total work time of the day”

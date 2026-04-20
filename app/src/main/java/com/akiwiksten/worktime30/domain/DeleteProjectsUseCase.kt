@@ -4,7 +4,7 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import javax.inject.Inject
 
 class DeleteProjectsUseCase @Inject constructor(

@@ -401,7 +401,7 @@ class ProjectDetailsViewModel @Inject constructor(
             )
         )
 
-        return updateWorkTimeTotalInState(nextState, oldProjectTime)
+        return nextState
     }
 
     private fun updateBalanceTodayIfNeeded(
@@ -450,32 +450,6 @@ class ProjectDetailsViewModel @Inject constructor(
         }
 
         return balanceAdjustment
-    }
-
-    private fun updateWorkTimeTotalInState(
-        state: ProjectDetailsUiState.Success,
-        oldProjectTime: LocalTime
-    ): ProjectDetailsUiState.Success {
-        val nextState = state.copy(
-            data = state.data.copy(
-                workStats = state.data.workStats.copy(
-                    workTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                        initialTime = state.data.workStats.workTimeTotal,
-                        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-" + oldProjectTime.toString())
-                    )
-                )
-            )
-        )
-        return nextState.copy(
-            data = nextState.data.copy(
-                workStats = nextState.data.workStats.copy(
-                    workTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                        initialTime = nextState.data.workStats.workTimeTotal,
-                        addedTime = nextState.data.projectTime
-                    )
-                )
-            )
-        )
     }
 
     fun getProjectDetailsState(): ProjectDetailsState {
@@ -571,9 +545,6 @@ class ProjectDetailsViewModel @Inject constructor(
                 }
             }
 
-            val wTTotal = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.workTimeTotal)
-            val wTToday = WorkTimeCalculator.stringToLocalTime(oldProjectTime)
-
             successState.copy(
                 data = successState.data.copy(
                     isNewDay = true,
@@ -587,10 +558,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     balanceToday = ZERO_TIME,
                     oldBalanceToday = ZERO_TIME,
                     workStats = successState.data.workStats.copy(
-                        balanceTotal = nextBalanceTotal,
-                        workTimeTotal = wTTotal
-                            .minusHours(wTToday.hour.toLong())
-                            .minusMinutes(wTToday.minute.toLong()).toString()
+                        balanceTotal = nextBalanceTotal
                     )
                 )
             )
@@ -605,21 +573,6 @@ class ProjectDetailsViewModel @Inject constructor(
                     currentState.copy(
                         data = currentState.data.copy(
                             workStats = currentState.data.workStats.copy(balanceTotal = balanceTotal0)
-                        )
-                    )
-                else -> currentState
-            }
-        }
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun setWorkTimeTotal(workTimeTotal0: String, isValid: Boolean) {
-        _uiState.update { currentState ->
-            when (currentState) {
-                is ProjectDetailsUiState.Success ->
-                    currentState.copy(
-                        data = currentState.data.copy(
-                            workStats = currentState.data.workStats.copy(workTimeTotal = workTimeTotal0)
                         )
                     )
                 else -> currentState

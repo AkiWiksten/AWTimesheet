@@ -107,29 +107,13 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     onConfirmation = actions.onSetProjectTime
                 )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(space = 12.dp)
-                ) {
-                    Box(modifier = Modifier.weight(weight = 1f)) {
-                        AddCustomTimeRow(
-                            customTime = uiState.data.workStats.balanceTotal,
-                            customTimeFunction = actions.onSetBalanceTotal,
-                            stringId = R.string.balance_total
-                        )
-                    }
-                    Box(modifier = Modifier.weight(weight = 1f)) {
-                        AddCustomTimeRow(
-                            customTime = uiState.data.workStats.workTimeTotal,
-                            customTimeFunction = actions.onSetWorkTimeTotal,
-                            stringId = R.string.work_time_total
-                        )
-                    }
-                }
+                AddCustomTimeRow(
+                    customTime = uiState.data.workStats.balanceTotal,
+                    customTimeFunction = actions.onSetBalanceTotal,
+                    stringId = R.string.balance_total
+                )
             }
         }
-
-
     }
 }
 
@@ -270,11 +254,6 @@ private fun BalanceSummaryFields(uiState: ProjectDetailsUiState.Success, actions
                     )
                 }
             }
-            AddCustomTimeRow(
-                customTime = uiState.data.workStats.workTimeTotal,
-                customTimeFunction = actions.onSetWorkTimeTotal,
-                stringId = R.string.work_time_total
-            )
         }
     }
 }

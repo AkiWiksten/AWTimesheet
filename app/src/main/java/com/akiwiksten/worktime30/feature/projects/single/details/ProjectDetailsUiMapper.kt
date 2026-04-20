@@ -14,7 +14,6 @@ object ProjectDetailsUiMapper {
                 workStats = WorkStatsState(
                     dailyWorkTime = workStats.dailyWorkTime.ifEmpty { "07:30" },
                     lunchTime = workStats.lunchTime.ifEmpty { ZERO_TIME },
-                    workTimeTotal = workStats.workTimeTotal.ifEmpty { ZERO_TIME },
                     balanceTotal = workStats.balanceTotal.ifEmpty { ZERO_TIME }
                 )
             )
@@ -23,7 +22,6 @@ object ProjectDetailsUiMapper {
                 workStats = WorkStatsState(
                     dailyWorkTime = "07:30",
                     lunchTime = ZERO_TIME,
-                    workTimeTotal = ZERO_TIME,
                     balanceTotal = ZERO_TIME
                 )
             )

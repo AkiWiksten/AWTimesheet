@@ -24,7 +24,7 @@ import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
         SettingsEntity::class,
         WorkTypeEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

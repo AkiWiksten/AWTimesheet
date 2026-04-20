@@ -20,8 +20,8 @@ import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsArgs
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsScreen
+import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 

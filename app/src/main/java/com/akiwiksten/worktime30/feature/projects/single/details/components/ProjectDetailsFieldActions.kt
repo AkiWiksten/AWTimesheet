@@ -8,7 +8,6 @@ data class ProjectDetailsFieldActions(
     val onCurrentLunchTime: () -> Unit = {},
     val onSetLunchTime: (String) -> Unit = {},
     val onSetBalanceTotal: (String, Boolean) -> Unit = { _, _ -> },
-    val onSetWorkTimeTotal: (String, Boolean) -> Unit = { _, _ -> },
     val onCurrentEndTime: () -> Unit = {},
     val onSetEndTime: (String) -> Unit = {},
     val onCurrentProjectTime: () -> Unit = {},

@@ -7,7 +7,6 @@ fun WorkStatsEntity.toDomain(): WorkStatsState {
     return WorkStatsState(
         dailyWorkTime = dailyWorkTime,
         lunchTime = lunchTime,
-        workTimeTotal = workTimeTotal,
         balanceTotal = balanceTotal
     )
 }
@@ -16,7 +15,6 @@ fun WorkStatsState.toEntity(): WorkStatsEntity {
     return WorkStatsEntity(
         dailyWorkTime = dailyWorkTime,
         lunchTime = lunchTime,
-        workTimeTotal = workTimeTotal,
         balanceTotal = balanceTotal
     )
 }

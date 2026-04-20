@@ -202,8 +202,24 @@ private fun SingleProjectSuccessContent(
     actions: SingleProjectActions,
     uiState: ProjectsUiState
 ) {
+    val successState = uiState as? ProjectsUiState.Success
+    val originalProjectTime = successState
+        ?.projects
+        ?.find { it.index == params.index }
+        ?.projectTime
+        ?: ZERO_TIME
+    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
+        initialTime = successState?.workTimeToday ?: ZERO_TIME,
+        addedTime = "-$originalProjectTime"
+    )
+    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+        initialTime = baseWithoutCurrent,
+        addedTime = params.state.projectTime
+    )
+
     SingleProjectContent(
         padding = padding,
+        workTimeToday = workTimeToday,
         screenState = SingleProjectScreenState(
             date = params.date,
             editedProjectIndex = params.index,
@@ -258,7 +274,6 @@ private fun SingleProjectTopSection(
             verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
             SingleProjectTopBar(onNavigateBack = onNavigateBack)
-
         }
     }
 }
@@ -266,24 +281,10 @@ private fun SingleProjectTopSection(
 @Composable
 private fun SingleProjectContent(
     padding: PaddingValues,
+    workTimeToday: String,
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
-    val successState = screenState.uiState as? ProjectsUiState.Success
-    val originalProjectTime = successState
-        ?.projects
-        ?.find { it.index == screenState.editedProjectIndex }
-        ?.projectTime
-        ?: ZERO_TIME
-    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
-        initialTime = successState?.workTimeToday ?: ZERO_TIME,
-        addedTime = "-$originalProjectTime"
-    )
-    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
-        initialTime = baseWithoutCurrent,
-        addedTime = screenState.state.projectTime
-    )
-
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier
@@ -370,6 +371,57 @@ private fun DialogMainFields(
 }
 
 @Composable
+private fun ProjectTimeSelectionRow(
+    state: SingleProjectState,
+    onOpenProjectDetails: () -> Unit,
+    onOpenTimePicker: () -> Unit,
+    onStateChange: (SingleProjectState) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = state.projectTime,
+            onValueChange = { onStateChange(state.copy(projectTime = it)) },
+            label = { Text(text = stringResource(id = R.string.project_time)) },
+            modifier = Modifier.weight(weight = 1f),
+            readOnly = true,
+            leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
+            shape = RoundedCornerShape(size = 12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Button(
+            onClick = onOpenProjectDetails,
+            modifier = Modifier.padding(top = 8.dp),
+            shape = RoundedCornerShape(size = 12.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Icon(imageVector = Icons.Default.History, contentDescription = null)
+            Spacer(modifier = Modifier.width(width = 4.dp))
+            Text(text = stringResource(id = R.string.details))
+        }
+
+        Button(
+            onClick = onOpenTimePicker,
+            modifier = Modifier.padding(top = 8.dp),
+            shape = RoundedCornerShape(size = 12.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AccessTime,
+                contentDescription = stringResource(id = R.string.go_to_time_picker)
+            )
+        }
+    }
+}
+
+@Composable
 private fun TimeSelectionSection(
     state: SingleProjectState,
     workTimeToday: String,
@@ -395,50 +447,12 @@ private fun TimeSelectionSection(
             color = MaterialTheme.colorScheme.secondary
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            state.projectTime.let {
-                OutlinedTextField(
-                    value = it,
-                    onValueChange = { onStateChange(state.copy(projectTime = it)) },
-                    label = { Text(text = stringResource(id = R.string.project_time)) },
-                    modifier = Modifier.weight(weight = 1f),
-                    readOnly = true,
-                    leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
-                    shape = RoundedCornerShape(size = 12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                    )
-                )
-            }
-
-            Button(
-                onClick = onOpenProjectDetails,
-                modifier = Modifier.padding(top = 8.dp),
-                shape = RoundedCornerShape(size = 12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-            ) {
-                Icon(imageVector = Icons.Default.History, contentDescription = null)
-                Spacer(modifier = Modifier.width(width = 4.dp))
-                Text(text = stringResource(id = R.string.details))
-            }
-
-            Button(
-                onClick = { openTimePickerDialogState.value = true },
-                modifier = Modifier.padding(top = 8.dp),
-                shape = RoundedCornerShape(size = 12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccessTime,
-                    contentDescription = stringResource(id = R.string.go_to_time_picker)
-                )
-            }
-        }
+        ProjectTimeSelectionRow(
+            state = state,
+            onOpenProjectDetails = onOpenProjectDetails,
+            onOpenTimePicker = { openTimePickerDialogState.value = true },
+            onStateChange = onStateChange
+        )
     }
 }
 

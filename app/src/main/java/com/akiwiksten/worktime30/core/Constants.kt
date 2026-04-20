@@ -17,7 +17,6 @@ const val LUNCH_END = "lunch_end"
 const val LUNCH_TIME = "lunch_time"
 const val BREAK_START = "break_start"
 const val BREAK_END = "break_end"
-const val WORK_TIME_TOTAL = "work_time_total"
 const val BALANCE_TODAY = "balance_today"
 const val BALANCE_TOTAL = "balance_total"
 

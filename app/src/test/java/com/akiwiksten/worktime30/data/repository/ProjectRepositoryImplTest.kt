@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.data.repository
 import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
+import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
@@ -129,14 +130,14 @@ class ProjectRepositoryImplTest {
 
         override suspend fun anyRecords(): Boolean = false
 
-        override suspend fun insertProjectName(project: com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity) {
+        override suspend fun insertProjectName(project: ProjectNameEntity) {
             insertedProjectName = project.name
         }
 
-        override suspend fun loadProjectNames(): List<com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity> =
+        override suspend fun loadProjectNames(): List<ProjectNameEntity> =
             projectNamesResult.map { it.toProjectNameEntity() }
 
-        override suspend fun delete(project: com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity) {
+        override suspend fun delete(project: ProjectNameEntity) {
             deletedProjectName = project.name
         }
     }

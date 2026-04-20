@@ -51,7 +51,6 @@ This is called feature-based packaging.
 
 ## Features to be implemented still
 + create full backup support.
-+ unify Headers for Screens
 + unify icon names
 + Project name edit and validation in SingleProjectScreen
 + Project name validation in ProjectsScreen. Kilometres validation. 0050 not valid.
@@ -69,9 +68,9 @@ This is called feature-based packaging.
   + Project Details,
   + Settings
 + Orientation support
-+ detekt, lint, sonarcube run regularly, preferrably before pushing code
++ detekt, lint, sonarcube run regularly, preferably before pushing code
 + In “ProjectDetailsScreen”
-  + move “Daily work time” and “Balance today” and “Balance total” to ProjectsScreen. Show them in a same way as “Work time today”.
+  + move “Daily work time” and “Balance today” and “Balance total” to ProjectsScreen. 
 + Translate fed "Work type"
 + Balance->Flex time
 + Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel

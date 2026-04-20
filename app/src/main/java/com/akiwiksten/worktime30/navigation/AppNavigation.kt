@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
@@ -103,7 +104,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
     val initialSingleProjectState = SingleProjectState(
         index = screen.index,
         projectName = screen.projectName ?: "",
-        projectTime = screen.projectTime ?: "",
+        projectTime = screen.projectTime ?: ZERO_TIME,
         kilometres = screen.kilometres ?: "",
         allowance = screen.allowance ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",

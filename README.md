@@ -70,7 +70,8 @@ This is called feature-based packaging.
 + Orientation support
 + detekt, lint, sonarcube run regularly, preferably before pushing code
 + In “ProjectDetailsScreen”
-  + move “Daily work time” and “Balance today” and “Balance total” to ProjectsScreen. 
+  + move “Daily work time” and “Balance today” and “Balance total” to ProjectsScreen.
+  + make them editable
 + Translate fed "Work type"
 + Balance->Flex time
 + Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel

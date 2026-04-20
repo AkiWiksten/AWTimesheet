@@ -98,7 +98,6 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     currentTime = actions.onCurrentProjectTime,
                     onConfirmation = actions.onSetProjectTime
                 )
-
             }
         }
     }
@@ -204,7 +203,6 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
         }
     }
 }
-
 
 @Composable
 fun FooterSection(onConfirm: () -> Unit) {

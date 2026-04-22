@@ -106,7 +106,9 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         projectName = screen.projectName ?: "",
         projectTime = screen.projectTime ?: ZERO_TIME,
         kilometres = screen.kilometres ?: "",
-        allowance = screen.allowance ?: stringResource(id = R.string.no_allowance),
+        allowance = screen.allowance
+            .takeUnless { it.isNullOrBlank() }
+            ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
         projectDetails = screen.projectDetails,
         workStats = screen.workStats,

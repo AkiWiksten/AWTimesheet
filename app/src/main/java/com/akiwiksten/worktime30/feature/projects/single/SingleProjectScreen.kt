@@ -58,6 +58,7 @@ fun SingleProjectScreen(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val savedText = stringResource(id = R.string.saved)
+    val noAllowanceText = stringResource(id = R.string.no_allowance)
     val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentProjectsState = projectsUiState
     val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
@@ -68,12 +69,13 @@ fun SingleProjectScreen(
         initialSingleProjectState.projectTime,
         initialSingleProjectState.projectName,
         initialSingleProjectState.projectDetails,
-        initialSingleProjectState.workStats
+        initialSingleProjectState.workStats,
+        noAllowanceText
     ) {
         resolveInitialSingleProjectState(
             initialSingleProjectState = initialSingleProjectState,
             projectsUiState = currentProjectsState
-        )
+        ).withDefaultAllowance(defaultAllowance = noAllowanceText)
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
@@ -109,6 +111,10 @@ fun SingleProjectScreen(
             }
         )
     )
+}
+
+private fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): SingleProjectState {
+    return if (allowance.isBlank()) copy(allowance = defaultAllowance) else this
 }
 
 internal fun resolveInitialSingleProjectState(

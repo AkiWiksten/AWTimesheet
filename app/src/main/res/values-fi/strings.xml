@@ -13,7 +13,7 @@
     <string name="daily_work_time">Päivittäisen työn pituus</string>
     <string name="lunch_end">Lounaan loppu</string>
     <string name="lunch_start">Lounaan alku</string>
-    <string name="lunch_time">Lounaan pituus</string>
+    <string name="lunch_time">Lounaan aiottu pituus</string>
     <string name="break_start">Tauon alku</string>
     <string name="break_end">Tauon loppu</string>
     <string name="work_time_today">Päivän työaika</string>

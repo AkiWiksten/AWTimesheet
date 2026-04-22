@@ -8,7 +8,7 @@
 + **Calendar** to select a date to manage
 + **Projects** to manage projects for selected date
   + **Single project** to manage a single project
-    + **Project Details** to feed and calculate start, end, work time, balance, breaks and lunch.
+    + **Project Details** to feed and calculate start, end, work time, FlexTime, breaks and lunch.
 + **Settings** to manage settings, like name, employer work type choices (Coding, Installation, Design etc.)
   + **Pdf monthly report** shows your daily work time per projects in a table. Calculates also monthly statistics.
 ## Main Technologies
@@ -58,7 +58,7 @@ This is called feature-based packaging.
 + Show Toast when saving data or confirming.
 + Validation
 + "Note! Automatic calculations for fields below."
-+ Test all features in all screens
++ Thorough testing of all features in all screens
   + Intro,
   + Calendar,
   + Projects,
@@ -67,11 +67,9 @@ This is called feature-based packaging.
   + Settings
 + Orientation support
 + detekt, lint, sonarcube run regularly, preferably before pushing code
-+ In “ProjectDetailsScreen”
-  + move “Daily work time” and “Balance today” and “Balance total” to ProjectsScreen.
-  + make them editable
 + Translate fed "Work type"
-+ Balance->Flex time
 + Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel
 + Modify "New day" text
-+ @file:Suppress("TooManyFunctions")
++ Edit project broken
++ When is Flex time total updated?
++ Allowance

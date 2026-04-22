@@ -118,7 +118,7 @@ private fun ProjectsHeaderStatsCard(
                 color = MaterialTheme.colorScheme.secondary
             )
             Text(
-                text = "${stringResource(id = R.string.balance_today)}: $balanceToday",
+                text = "${stringResource(id = R.string.flex_time_today)}: $balanceToday",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -130,7 +130,7 @@ private fun ProjectsHeaderStatsCard(
             OutlinedTextField(
                 value = workStatsEditorState.balanceTotal,
                 onValueChange = onBalanceTotalChange,
-                label = { Text(text = stringResource(id = R.string.balance_total)) },
+                label = { Text(text = stringResource(id = R.string.flex_time_total)) },
                 singleLine = true,
                 isError = workStatsEditorState.isBalanceTotalError,
                 modifier = Modifier.fillMaxWidth()

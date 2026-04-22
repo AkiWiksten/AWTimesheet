@@ -23,8 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.feature.projects.daily.BALANCE_TOTAL_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.projects.daily.DAILY_WORK_TIME_INPUT_REGEX
+import com.akiwiksten.worktime30.feature.projects.daily.FLEX_TIME_TOTAL_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsActions
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsHeaderActions
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
@@ -125,7 +125,7 @@ private fun rememberProjectsSaveUi(
         editedDailyWorkTime.matches(DAILY_WORK_TIME_INPUT_REGEX)
     }
     val isBalanceTotalValid = remember(editedBalanceTotal) {
-        editedBalanceTotal.matches(BALANCE_TOTAL_INPUT_REGEX)
+        editedBalanceTotal.matches(FLEX_TIME_TOTAL_INPUT_REGEX)
     }
     val hasUnsavedChanges =
         editedDailyWorkTime != lastSavedDailyWorkTimeState.value ||

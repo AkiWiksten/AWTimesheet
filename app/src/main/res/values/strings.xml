@@ -73,5 +73,8 @@
 <string name="nullify">Nullify</string>
 <string name="retry">Retry</string>
 <string name="details">Details</string>
+<string name="now">Now</string>
+<string name="pick">Pick</string>
+<string name="or_text">OR</string>
 <string name="project_details">Project details</string>
 </resources>

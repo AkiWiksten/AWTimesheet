@@ -69,6 +69,7 @@ This is called feature-based packaging.
 + detekt, lint, sonarcube run regularly, preferably before pushing code
 + Translate fed "Work type"
 + Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel
-+ Modify "New day" text
 + Edit project broken
 + When is Flex time total updated?
++ App localization selection
++ "Clear day" -> "Clear details"

@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects.details.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -50,55 +51,119 @@ fun AddTimeRow(
     stringId: Int,
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
+    currentTimeLabelId: Int? = null,
+    timePickerLabelId: Int? = null,
 ) {
     val openTimePickerDialog = remember { mutableStateOf(value = false) }
 
-    if (openTimePickerDialog.value) {
-        TimePickerDialog(
-            onDismissRequest = { openTimePickerDialog.value = false },
-            onConfirmation = { time ->
-                onConfirmation(time)
-                openTimePickerDialog.value = false
-            },
-            time = textFieldValue,
-            titleId = stringId,
-        )
-    }
+    AddTimePickerDialog(
+        isOpen = openTimePickerDialog.value,
+        textFieldValue = textFieldValue,
+        stringId = stringId,
+        onDismissRequest = { openTimePickerDialog.value = false },
+        onConfirmation = { time ->
+            onConfirmation(time)
+            openTimePickerDialog.value = false
+        }
+    )
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
-        OutlinedTextField(
-            value = textFieldValue,
-            onValueChange = {},
-            label = { Text(text = stringResource(id = stringId)) },
-            readOnly = true,
-            enabled = false,
-            modifier = Modifier.weight(weight = 1f),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledBorderColor = MaterialTheme.colorScheme.outline,
-            )
+        ReadOnlyTimeField(
+            textFieldValue = textFieldValue,
+            stringId = stringId,
+            modifier = Modifier.weight(weight = 1f)
         )
 
-        IconButton(onClick = currentTime) {
-            Icon(
-                imageVector = Icons.Default.History,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+        LabeledIconAction(
+            labelId = currentTimeLabelId,
+            onClick = currentTime,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        )
+
+        LabeledIconAction(
+            labelId = timePickerLabelId,
+            onClick = { openTimePickerDialog.value = true },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AccessTime,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun AddTimePickerDialog(
+    isOpen: Boolean,
+    textFieldValue: String,
+    stringId: Int,
+    onDismissRequest: () -> Unit,
+    onConfirmation: (String) -> Unit,
+) {
+    if (!isOpen) return
+
+    TimePickerDialog(
+        onDismissRequest = onDismissRequest,
+        onConfirmation = onConfirmation,
+        time = textFieldValue,
+        titleId = stringId,
+    )
+}
+
+@Composable
+private fun ReadOnlyTimeField(
+    textFieldValue: String,
+    stringId: Int,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedTextField(
+        value = textFieldValue,
+        onValueChange = {},
+        label = { Text(text = stringResource(id = stringId)) },
+        readOnly = true,
+        enabled = false,
+        modifier = modifier,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+        )
+    )
+}
+
+@Composable
+private fun LabeledIconAction(
+    labelId: Int?,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 2.dp)
+    ) {
+        labelId?.let {
+            Text(
+                text = stringResource(id = it),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
-        IconButton(onClick = { openTimePickerDialog.value = true }) {
-            Icon(
-                imageVector = Icons.Default.AccessTime,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
+        IconButton(onClick = onClick) {
+            icon()
         }
     }
 }

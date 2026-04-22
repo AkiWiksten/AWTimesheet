@@ -84,7 +84,9 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     textFieldValue = uiState.data.startTime,
                     stringId = R.string.start_time,
                     currentTime = actions.onCurrentStartTime,
-                    onConfirmation = actions.onSetStartTime
+                    onConfirmation = actions.onSetStartTime,
+                    currentTimeLabelId = R.string.now,
+                    timePickerLabelId = R.string.pick
                 )
                 AddTimeRow(
                     textFieldValue = uiState.data.workStats.lunchTime,
@@ -128,7 +130,9 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
                 textFieldValue = uiState.data.startTime,
                 stringId = R.string.start_time,
                 currentTime = actions.onCurrentStartTime,
-                onConfirmation = actions.onSetStartTime
+                onConfirmation = actions.onSetStartTime,
+                currentTimeLabelId = R.string.now,
+                timePickerLabelId = R.string.pick
             )
             AddTimeRow(
                 textFieldValue = uiState.data.endTime,

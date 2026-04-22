@@ -303,53 +303,62 @@ private fun SingleProjectContent(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
-    ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
-            .padding(all = 24.dp)
+            .padding(all = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(space = 16.dp)
     ) {
-        Column(
+        HeaderSection(
+            date = screenState.date,
+            workTimeToday = workTimeToday
+        )
+
+        ElevatedCard(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
             modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 16.dp)
-                .verticalScroll(state = rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxWidth()
+                .weight(weight = 1f)
         ) {
-            HeaderSection(date = screenState.date)
-
-            DialogMainFields(
-                state = screenState.state,
-                isAddMode = screenState.isAddMode,
-                onStateChange = actions.onStateChange
-            )
-
-            TimeSelectionSection(
-                state = screenState.state,
-                workTimeToday = workTimeToday,
-                onOpenProjectDetails = actions.onOpenProjectDetails,
-                onStateChange = actions.onStateChange
-            )
-
-            DialogDropdownFields(
-                state = screenState.state,
-                workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
-                    ?: emptyList(),
-                onStateChange = actions.onStateChange
-            )
-
-            Spacer(modifier = Modifier.weight(weight = 1f))
-
-            Button(
-                onClick = actions.onConfirm,
-                enabled = screenState.isConfirmEnabled,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(size = 12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(all = 16.dp)
+                    .verticalScroll(state = rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+                DialogMainFields(
+                    state = screenState.state,
+                    isAddMode = screenState.isAddMode,
+                    onStateChange = actions.onStateChange
+                )
+
+                TimeSelectionSection(
+                    state = screenState.state,
+                    onOpenProjectDetails = actions.onOpenProjectDetails,
+                    onStateChange = actions.onStateChange
+                )
+
+                DialogDropdownFields(
+                    state = screenState.state,
+                    workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
+                        ?: emptyList(),
+                    onStateChange = actions.onStateChange
+                )
+
+                Spacer(modifier = Modifier.weight(weight = 1f))
+
+                Button(
+                    onClick = actions.onConfirm,
+                    enabled = screenState.isConfirmEnabled,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(size = 12.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                ) {
+                    Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }

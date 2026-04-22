@@ -74,5 +74,8 @@
     <string name="nullify">Nollaa</string>
     <string name="retry">Yritä uudelleen</string>
     <string name="details">Tiedot</string>
+    <string name="now">Nyt</string>
+    <string name="pick">Valitse</string>
+    <string name="or_text">TAI</string>
     <string name="project_details">Projektin tiedot</string>
 </resources>

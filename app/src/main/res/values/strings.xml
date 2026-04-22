@@ -9,7 +9,7 @@
 <string name="end_time">End time</string>
 <string name="go_to_time_picker">Time picker</string>
 <string name="save">Save</string>
-<string name="daily_work_time">Daily work time</string>
+<string name="daily_work_time">Daily work time estimate</string>
 <string name="lunch_start">Lunch start</string>
 <string name="lunch_end">Lunch end</string>
 <string name="lunch_time">Lunch time</string>

@@ -72,4 +72,3 @@ This is called feature-based packaging.
 + Modify "New day" text
 + Edit project broken
 + When is Flex time total updated?
-+ Allowance

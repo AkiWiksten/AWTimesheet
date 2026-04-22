@@ -87,7 +87,7 @@ fun ProjectDetailsScreen(
 }
 
 @Composable
-internal fun ProjectDetailsLoadingState(padding: PaddingValues, showLoadingIndicator: Boolean) {
+internal fun ProjectDetailsLoadingState(padding: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -96,9 +96,7 @@ internal fun ProjectDetailsLoadingState(padding: PaddingValues, showLoadingIndic
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (showLoadingIndicator) {
-            CircularProgressIndicator()
-        }
+        CircularProgressIndicator()
     }
 }
 
@@ -224,10 +222,7 @@ internal fun ProjectDetailsStateContent(
     when (uiState) {
         is ProjectDetailsUiState.Loading -> {
             if (showLoadingIndicator) {
-                ProjectDetailsLoadingState(
-                    padding = padding,
-                    showLoadingIndicator = showLoadingIndicator
-                )
+                ProjectDetailsLoadingState(padding = padding)
             } else {
                 lastSuccessState?.let { cachedState ->
                     ProjectDetailsContent(

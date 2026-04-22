@@ -208,10 +208,6 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
-    fun currentDailyWorkTime() {
-        setDailyWorkTime(LocalTime.now().format(timeFormatter))
-    }
-
     fun setLunchStart(lunchStart0: String) {
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
@@ -327,29 +323,6 @@ class ProjectDetailsViewModel @Inject constructor(
         setBreakEnd(LocalTime.now().format(timeFormatter))
     }
 
-    fun setBalanceToday(balanceToday0: String, isValid: Boolean) {
-        if (!isValid) {
-            _uiState.update { currentState ->
-                when (currentState) {
-                    is ProjectDetailsUiState.Success ->
-                        currentState.copy(
-                            data = currentState.data.copy(balanceToday = balanceToday0)
-                        )
-                    else -> currentState
-                }
-            }
-            return
-        }
-        _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
-            val oldProjectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime)
-            val oldBalance = successState.data.oldBalanceToday
-            val nextState = successState.copy(data = successState.data.copy(balanceToday = balanceToday0))
-            val updatedState = calculateBalanceUpdatesInState(nextState, oldProjectTime, oldBalance, false)
-            updatedState.copy(data = updatedState.data.copy(oldBalanceToday = balanceToday0))
-        }
-    }
-
     private fun applyUpdateToState(
         state: ProjectDetailsUiState.Success,
         result: WorkTimeCalculator.TimeUpdateResult
@@ -429,7 +402,7 @@ class ProjectDetailsViewModel @Inject constructor(
     ): String {
         var balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
             nextState.data.projectTime,
-            WorkTimeCalculator.checkIfDoubleMinus("-" + oldProjectTime.toString())
+            WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
         )
 
         if (!state.data.hasOtherProjects &&
@@ -445,7 +418,7 @@ class ProjectDetailsViewModel @Inject constructor(
         if (oldBalanceToday != null) {
             balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
                 nextState.data.balanceToday,
-                WorkTimeCalculator.checkIfDoubleMinus("-" + oldBalanceToday)
+                WorkTimeCalculator.checkIfDoubleMinus("-$oldBalanceToday")
             )
         }
 
@@ -533,7 +506,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 // Revert project time contribution
                 nextBalanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
                     nextBalanceTotal,
-                    WorkTimeCalculator.checkIfDoubleMinus("-" + oldProjectTime)
+                    WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
                 )
 
                 // If it was the only project, revert the daily work time subtraction too
@@ -566,13 +539,13 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun setBalanceTotal(balanceTotal0: String, isValid: Boolean) {
+    fun setBalanceTotal(balanceTotal: String, isValid: Boolean) {
         _uiState.update { currentState ->
             when (currentState) {
                 is ProjectDetailsUiState.Success ->
                     currentState.copy(
                         data = currentState.data.copy(
-                            workStats = currentState.data.workStats.copy(balanceTotal = balanceTotal0)
+                            workStats = currentState.data.workStats.copy(balanceTotal = balanceTotal)
                         )
                     )
                 else -> currentState

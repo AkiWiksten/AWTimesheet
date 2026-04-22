@@ -181,7 +181,7 @@ class ProjectsViewModelTest {
 
         override suspend fun insertProjectName(projectName: String) {
             if (this.projectNames.none { it == projectName }) {
-                this.projectNames = this.projectNames + projectName
+                this.projectNames += projectName
             }
         }
 

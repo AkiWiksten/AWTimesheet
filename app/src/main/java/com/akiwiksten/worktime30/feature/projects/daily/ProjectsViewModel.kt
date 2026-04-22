@@ -46,7 +46,6 @@ sealed class ProjectsUiState {
         val balanceToday: String = ZERO_TIME,
         val balanceTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
-        val projectNames: List<String> = emptyList(),
         val workTypes: List<String> = emptyList()
     ) : ProjectsUiState()
 
@@ -91,7 +90,6 @@ class ProjectsViewModel @Inject constructor(
                 ),
                 balanceTotal = data.balanceTotal,
                 projects = allProjects,
-                projectNames = data.projectNames,
                 workTypes = data.workTypes
             ) as ProjectsUiState
         }

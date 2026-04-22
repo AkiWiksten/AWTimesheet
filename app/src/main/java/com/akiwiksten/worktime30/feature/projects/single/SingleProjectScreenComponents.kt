@@ -126,29 +126,25 @@ internal fun DialogMainFields(
     onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
-        state.projectName.let {
-            OutlinedTextField(
-                value = it,
-                onValueChange = { onStateChange(state.copy(projectName = it)) },
-                label = { Text(text = stringResource(id = R.string.project_name)) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isAddMode,
-                singleLine = true,
-                shape = RoundedCornerShape(size = 12.dp)
-            )
-        }
+        OutlinedTextField(
+            value = state.projectName,
+            onValueChange = { onStateChange(state.copy(projectName = it)) },
+            label = { Text(text = stringResource(id = R.string.project_name)) },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = isAddMode,
+            singleLine = true,
+            shape = RoundedCornerShape(size = 12.dp)
+        )
 
-        state.kilometres.let {
-            OutlinedTextField(
-                value = it,
-                onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-                label = { Text(text = stringResource(id = R.string.kilometres)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                shape = RoundedCornerShape(size = 12.dp)
-            )
-        }
+        OutlinedTextField(
+            value = state.kilometres,
+            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
+            label = { Text(text = stringResource(id = R.string.kilometres)) },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            shape = RoundedCornerShape(size = 12.dp)
+        )
     }
 }
 

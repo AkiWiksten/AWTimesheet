@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.projects.single.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
@@ -24,7 +25,11 @@ internal fun DialogDropdownFields(
 
         DropdownMenuBox(
             labelId = R.string.allowance,
-            items = listOf("No allowance", "Full allowance", "Half allowance"),
+            items = listOf(
+                stringResource(id = R.string.no_allowance),
+                stringResource(id = R.string.full_allowance),
+                stringResource(id = R.string.half_day_allowance)
+            ),
             selectedText = state.allowance,
             onItemSelected = { onStateChange(state.copy(allowance = it)) }
         )

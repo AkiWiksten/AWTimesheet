@@ -11,7 +11,7 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 
 @Dao
 interface ProjectDao {
-    @Query("SELECT exists (SELECT 1 FROM project)")
+    @Query("SELECT COUNT(*) > 0 FROM project")
     suspend fun anyRecords(): Boolean
 
     @Query("SELECT * FROM project")
@@ -21,14 +21,17 @@ interface ProjectDao {
     suspend fun insertProject(project: ProjectEntity)
 
     @Query("SELECT * FROM project WHERE $DATE = :date")
+    @Suppress("unused")
     suspend fun loadProjectsByDate(date: String): List<ProjectEntity>
 
     @Delete
     suspend fun delete(project: ProjectEntity)
 
     @Query("SELECT * FROM project WHERE $DATE BETWEEN :dateStart AND :dateEnd")
+    @Suppress("unused")
     suspend fun getProjectsByDateRange(dateStart: String, dateEnd: String): List<ProjectEntity>
 
-    @Query("SELECT exists (SELECT 1 FROM project WHERE $PROJECT_NAME = :projectName)")
+    @Query("SELECT COUNT(*) > 0 FROM project WHERE $PROJECT_NAME = :projectName")
+    @Suppress("unused")
     suspend fun isProjectNameUsed(projectName: String): Boolean
 }

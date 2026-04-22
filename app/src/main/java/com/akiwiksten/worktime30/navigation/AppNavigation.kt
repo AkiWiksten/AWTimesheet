@@ -19,11 +19,11 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
 import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 
 @Composable

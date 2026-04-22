@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +56,8 @@ fun SingleProjectScreen(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val savedText = stringResource(id = R.string.saved)
     val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentProjectsState = projectsUiState
     val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
@@ -80,9 +83,11 @@ fun SingleProjectScreen(
         state = initialUiState
     }
 
-    val isConfirmEnabled by remember {
+    val isConfirmEnabled by remember(state, initialUiState) {
         derivedStateOf {
-            state.projectName.isNotBlank() && state.kilometres.isDigitsOnly()
+            state.projectName.isNotBlank() &&
+                state.kilometres.isDigitsOnly() &&
+                state != initialUiState
         }
     }
 
@@ -99,6 +104,7 @@ fun SingleProjectScreen(
             onOpenProjectDetails = { onOpenProjectDetails(state) },
             onConfirm = {
                 viewModel.saveProject(state = state)
+                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
                 onNavigateBack()
             }
         )

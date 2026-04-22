@@ -1,6 +1,9 @@
+@file:Suppress("TooManyFunctions")
+
 package com.akiwiksten.worktime30.feature.settings
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -163,12 +166,7 @@ internal fun SettingsContent(
 ) {
     var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
     var selectedWorkType by remember { mutableStateOf(value = "") }
-
-    LaunchedEffect(key1 = uiState.data.workTypes) {
-        if (selectedWorkType.isEmpty() || !uiState.data.workTypes.contains(selectedWorkType)) {
-            selectedWorkType = uiState.data.workTypes.firstOrNull() ?: ""
-        }
-    }
+    val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
 
     Column(
         modifier = Modifier
@@ -203,9 +201,10 @@ internal fun SettingsContent(
         }
 
         ActionButtonsSection(
-            onSave = actions.onSave,
+            onSave = saveUi.onSaveRequested,
             onGeneratePdf = actions.onGeneratePdf,
-            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty()
+            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty(),
+            isSaveEnabled = saveUi.isSaveEnabled
         )
 
         if (showAddWorkTypeDialog) {
@@ -220,6 +219,38 @@ internal fun SettingsContent(
         }
     }
 }
+
+@Composable
+private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): SettingsSaveUi {
+    val context = LocalContext.current
+    val savedText = stringResource(id = R.string.saved)
+    val lastSavedNameState = remember(data.selectedDate) { mutableStateOf(value = data.name) }
+    val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
+    val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
+
+    val hasUnsavedChanges =
+        data.name != lastSavedNameState.value ||
+            data.employer != lastSavedEmployerState.value ||
+            data.workTypes != lastSavedWorkTypesState.value
+
+    return SettingsSaveUi(
+        isSaveEnabled = hasUnsavedChanges,
+        onSaveRequested = {
+            if (hasUnsavedChanges) {
+                onSave()
+                lastSavedNameState.value = data.name
+                lastSavedEmployerState.value = data.employer
+                lastSavedWorkTypesState.value = data.workTypes
+                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+}
+
+private data class SettingsSaveUi(
+    val isSaveEnabled: Boolean,
+    val onSaveRequested: () -> Unit
+)
 
 @Composable
 private fun SettingsCard(title: String, content: @Composable () -> Unit) {
@@ -328,7 +359,8 @@ private fun WorkTypeSection(
 private fun ActionButtonsSection(
     onSave: () -> Unit,
     onGeneratePdf: () -> Unit,
-    isPdfEnabled: Boolean
+    isPdfEnabled: Boolean,
+    isSaveEnabled: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
@@ -336,6 +368,7 @@ private fun ActionButtonsSection(
     ) {
         Button(
             onClick = onSave,
+            enabled = isSaveEnabled,
             modifier = Modifier.fillMaxWidth(),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {

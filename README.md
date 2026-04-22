@@ -74,3 +74,4 @@ This is called feature-based packaging.
 + Balance->Flex time
 + Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel
 + Modify "New day" text
++ @file:Suppress("TooManyFunctions")

@@ -57,7 +57,6 @@ This is called feature-based packaging.
 + Ask to save when coming back from or switching to a screen.
 + Show Toast when saving data or confirming.
 + Validation
-+ Design patterns to implement. Already implemented? Where?
 + "Note! Automatic calculations for fields below."
 + Test all features in all screens
   + Intro,

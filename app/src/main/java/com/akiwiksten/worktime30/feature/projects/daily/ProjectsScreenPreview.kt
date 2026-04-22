@@ -82,6 +82,7 @@ private fun ProjectsPreviewContent(
                 onSelectedItemIndexChange = {},
                 onNavigateToSingleProject = {},
                 onRetry = {},
+                onSaveWorkStats = { _, _ -> },
                 onDeleteProject = {}
             )
         )

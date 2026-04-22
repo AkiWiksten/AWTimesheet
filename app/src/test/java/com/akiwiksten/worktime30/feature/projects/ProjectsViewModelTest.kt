@@ -87,6 +87,47 @@ class ProjectsViewModelTest {
         assertTrue(projectDetailsRepository.insertedProjectDetails.any { it.projectName == "Alpha" })
     }
 
+    @Test
+    fun updateWorkStats_persistsDailyAndBalanceValues() = runTest {
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", balanceTotal = "+01:45")
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository()
+        dateRepository.updateDate("2026-04-10")
+
+        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        advanceUntilIdle()
+
+        viewModel.updateWorkStats(dailyWorkTime = "08:00", balanceTotal = "-00:20")
+        advanceUntilIdle()
+
+        assertEquals("08:00", projectDetailsRepository.workStats?.dailyWorkTime)
+        assertEquals("00:30", projectDetailsRepository.workStats?.lunchTime)
+        assertEquals("-00:20", projectDetailsRepository.workStats?.balanceTotal)
+    }
+
+    @Test
+    fun updateWorkStats_invalidInput_doesNotPersist() = runTest {
+        val projectRepository = FakeProjectRepository()
+        val initialStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", balanceTotal = "+01:45")
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = initialStats
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository()
+        dateRepository.updateDate("2026-04-10")
+
+        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        advanceUntilIdle()
+
+        viewModel.updateWorkStats(dailyWorkTime = "8:00", balanceTotal = "invalid")
+        advanceUntilIdle()
+
+        assertEquals(initialStats, projectDetailsRepository.workStats)
+    }
+
     private fun createViewModel(
         projectRepository: FakeProjectRepository,
         projectDetailsRepository: FakeProjectDetailsRepository,

@@ -160,4 +160,36 @@ class ProjectsViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateWorkStats(dailyWorkTime: String, balanceTotal: String) {
+        if (!isValidDailyWorkTimeInput(dailyWorkTime) || !isValidBalanceTotalInput(balanceTotal)) {
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val currentWorkStats = projectDetailsRepository.getWorkStats()
+                projectDetailsRepository.insertWorkStats(
+                    WorkStatsState(
+                        dailyWorkTime = dailyWorkTime,
+                        lunchTime = currentWorkStats?.lunchTime ?: ZERO_TIME,
+                        balanceTotal = balanceTotal
+                    )
+                )
+                requestReload()
+            } catch (e: IllegalArgumentException) {
+                Log.e("ProjectsViewModel", "updateWorkStats: ", e)
+            } catch (e: IllegalStateException) {
+                Log.e("ProjectsViewModel", "updateWorkStats: ", e)
+            }
+        }
+    }
+}
+
+private fun isValidDailyWorkTimeInput(value: String): Boolean {
+    return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
+}
+
+private fun isValidBalanceTotalInput(value: String): Boolean {
+    return value.matches(regex = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }

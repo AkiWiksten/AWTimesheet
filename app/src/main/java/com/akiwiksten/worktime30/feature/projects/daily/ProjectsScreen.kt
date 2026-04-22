@@ -19,16 +19,20 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +54,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
@@ -72,6 +77,7 @@ fun ProjectsScreen(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onNavigateToSingleProject = onNavigateToSingleProject,
             onRetry = projectsViewModel::retryLoad,
+            onSaveWorkStats = projectsViewModel::updateWorkStats,
             onDeleteProject = { project ->
                 projectsViewModel.deleteProject(state = project)
                 selectedItemIndexState.intValue = -1
@@ -152,12 +158,35 @@ private fun ColumnScope.ProjectsSuccessContent(
     selectedItemIndex: Int,
     actions: ProjectsActions
 ) {
+    var editedDailyWorkTime by remember(state.dailyWorkTime) {
+        mutableStateOf(value = state.dailyWorkTime)
+    }
+    var editedBalanceTotal by remember(state.balanceTotal) {
+        mutableStateOf(value = state.balanceTotal)
+    }
+
+    val isDailyWorkTimeValid = remember(editedDailyWorkTime) { editedDailyWorkTime.matches(DAILY_WORK_TIME_INPUT_REGEX) }
+    val isBalanceTotalValid = remember(editedBalanceTotal) { editedBalanceTotal.matches(BALANCE_TOTAL_INPUT_REGEX) }
+
     ProjectsHeader(
         date = state.date,
         workTime = state.workTimeToday,
-        dailyWorkTime = state.dailyWorkTime,
         balanceToday = state.balanceToday,
-        balanceTotal = state.balanceTotal
+        workStatsEditorState = WorkStatsEditorState(
+            dailyWorkTime = editedDailyWorkTime,
+            balanceTotal = editedBalanceTotal,
+            isDailyWorkTimeError = !isDailyWorkTimeValid,
+            isBalanceTotalError = !isBalanceTotalValid
+        ),
+        headerActions = ProjectsHeaderActions(
+            onDailyWorkTimeChange = { editedDailyWorkTime = it },
+            onBalanceTotalChange = { editedBalanceTotal = it },
+            onSaveWorkStats = {
+                if (isDailyWorkTimeValid && isBalanceTotalValid) {
+                    actions.onSaveWorkStats(editedDailyWorkTime, editedBalanceTotal)
+                }
+            }
+        )
     )
 
     ProjectsListSection(
@@ -202,10 +231,24 @@ private fun ProjectsErrorContent(message: String, onRetry: () -> Unit) {
 private fun ProjectsHeader(
     date: String,
     workTime: String,
-    dailyWorkTime: String,
     balanceToday: String,
-    balanceTotal: String
+    workStatsEditorState: WorkStatsEditorState,
+    headerActions: ProjectsHeaderActions
 ) {
+    val openDailyWorkTimePicker = remember { mutableStateOf(value = false) }
+
+    if (openDailyWorkTimePicker.value) {
+        TimePickerDialog(
+            onDismissRequest = { openDailyWorkTimePicker.value = false },
+            onConfirmation = { time ->
+                headerActions.onDailyWorkTimeChange(time)
+                openDailyWorkTimePicker.value = false
+            },
+            time = workStatsEditorState.dailyWorkTime,
+            titleId = R.string.daily_work_time
+        )
+    }
+
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
@@ -228,20 +271,46 @@ private fun ProjectsHeader(
                 color = MaterialTheme.colorScheme.secondary
             )
             Text(
-                text = "${stringResource(id = R.string.daily_work_time)}: $dailyWorkTime",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
                 text = "${stringResource(id = R.string.balance_today)}: $balanceToday",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = "${stringResource(id = R.string.balance_total)}: $balanceTotal",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
+            ) {
+                OutlinedTextField(
+                    value = workStatsEditorState.dailyWorkTime,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(text = stringResource(id = R.string.daily_work_time)) },
+                    singleLine = true,
+                    isError = workStatsEditorState.isDailyWorkTimeError,
+                    modifier = Modifier.weight(weight = 1f)
+                )
+                IconButton(onClick = { openDailyWorkTimePicker.value = true }) {
+                    Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
+                }
+            }
+            OutlinedTextField(
+                value = workStatsEditorState.balanceTotal,
+                onValueChange = headerActions.onBalanceTotalChange,
+                label = { Text(text = stringResource(id = R.string.balance_total)) },
+                singleLine = true,
+                isError = workStatsEditorState.isBalanceTotalError,
+                modifier = Modifier.fillMaxWidth()
             )
+            Button(
+                onClick = headerActions.onSaveWorkStats,
+                enabled = !workStatsEditorState.isDailyWorkTimeError && !workStatsEditorState.isBalanceTotalError,
+                modifier = Modifier.align(alignment = Alignment.End),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Save, contentDescription = null)
+                Spacer(modifier = Modifier.width(width = 8.dp))
+                Text(text = stringResource(id = R.string.save))
+            }
         }
     }
 }
@@ -445,5 +514,22 @@ data class ProjectsActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
     val onNavigateToSingleProject: (Int) -> Unit,
     val onRetry: () -> Unit,
+    val onSaveWorkStats: (String, String) -> Unit,
     val onDeleteProject: (SingleProjectState) -> Unit
 )
+
+private data class WorkStatsEditorState(
+    val dailyWorkTime: String,
+    val balanceTotal: String,
+    val isDailyWorkTimeError: Boolean,
+    val isBalanceTotalError: Boolean
+)
+
+private data class ProjectsHeaderActions(
+    val onDailyWorkTimeChange: (String) -> Unit,
+    val onBalanceTotalChange: (String) -> Unit,
+    val onSaveWorkStats: () -> Unit
+)
+
+private val DAILY_WORK_TIME_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+private val BALANCE_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")

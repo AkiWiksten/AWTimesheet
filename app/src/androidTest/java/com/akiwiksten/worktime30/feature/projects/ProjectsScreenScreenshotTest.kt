@@ -93,6 +93,7 @@ class ProjectsScreenScreenshotTest {
                         onSelectedItemIndexChange = {},
                         onNavigateToSingleProject = {},
                         onRetry = {},
+                        onSaveWorkStats = { _, _ -> },
                         onDeleteProject = {}
                     )
                 )
@@ -117,4 +118,3 @@ class ProjectsScreenScreenshotTest {
         }
     }
 }
-

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ui.lazyVerticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 @Composable
@@ -34,6 +36,8 @@ internal fun WorkdayListSection(
     onItemSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
+
     if (items.isEmpty()) {
         Box(
             modifier = modifier.fillMaxWidth(),
@@ -55,6 +59,7 @@ internal fun WorkdayListSection(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .lazyVerticalScrollbar(listState = listState)
                     .clip(shape = RoundedCornerShape(size = 12.dp))
                     .border(
                         width = 1.dp,
@@ -62,6 +67,7 @@ internal fun WorkdayListSection(
                         shape = RoundedCornerShape(size = 12.dp)
                     )
                     .selectableGroup(),
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(space = 2.dp)
             ) {
                 items(

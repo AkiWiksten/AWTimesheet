@@ -41,6 +41,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
@@ -289,7 +290,7 @@ private fun SingleProjectTopSection(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
             SingleProjectTopBar(onNavigateBack = onNavigateBack)
         }
@@ -303,6 +304,8 @@ private fun SingleProjectContent(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -325,7 +328,8 @@ private fun SingleProjectContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(all = 16.dp)
-                    .verticalScroll(state = rememberScrollState()),
+                    .verticalScrollbar(scrollState = scrollState)
+                    .verticalScroll(state = scrollState),
                 verticalArrangement = Arrangement.spacedBy(space = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

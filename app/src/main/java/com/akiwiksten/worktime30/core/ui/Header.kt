@@ -24,9 +24,9 @@ fun Header(
         textAlign = TextAlign.Center,
         modifier = modifier
             .then(other = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
-            .heightIn(min = 56.dp)
-            .padding(vertical = 16.dp, horizontal = 8.dp)
+            .heightIn(min = 44.dp)
+            .padding(vertical = 8.dp, horizontal = 8.dp)
             .wrapContentSize(align = Alignment.Center)
-            .padding(start = 0.dp, top = 10.dp, end = 0.dp, bottom = 10.dp)
+            .padding(start = 0.dp, top = 4.dp, end = 0.dp, bottom = 4.dp)
     )
 }

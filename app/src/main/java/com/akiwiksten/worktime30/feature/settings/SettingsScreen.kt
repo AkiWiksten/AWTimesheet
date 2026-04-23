@@ -43,6 +43,7 @@ import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 
 @Composable
 fun SettingsScreen(
@@ -167,11 +168,13 @@ internal fun SettingsContent(
     var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
     var selectedWorkType by remember { mutableStateOf(value = "") }
     val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(state = rememberScrollState())
+            .verticalScrollbar(scrollState = scrollState)
+            .verticalScroll(state = scrollState)
             .padding(all = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 24.dp)
@@ -275,9 +278,9 @@ private fun HeaderSection(date: String) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(all = 16.dp),
+            modifier = Modifier.padding(all = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 6.dp)
         ) {
             Header(title = stringResource(id = R.string.settings))
             Text(

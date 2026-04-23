@@ -38,6 +38,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.projects.details.components.FooterSection
 import com.akiwiksten.worktime30.feature.projects.details.components.HeaderSection
@@ -149,12 +150,15 @@ internal fun ProjectDetailsContent(
     projectName: String?,
     actions: ProjectDetailsScreenActions
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
             .padding(all = 16.dp)
-            .verticalScroll(state = rememberScrollState()),
+            .verticalScrollbar(scrollState = scrollState)
+            .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -185,8 +189,8 @@ private fun ProjectDetailsHeaderGroup(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+            modifier = Modifier.padding(all = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
             HeaderSection(date = date, onClearDay = onClearDay)
             projectName?.let { ProjectNameField(name = it) }

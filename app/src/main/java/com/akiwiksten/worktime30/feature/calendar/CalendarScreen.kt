@@ -44,6 +44,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
@@ -120,6 +121,7 @@ internal fun CalendarContent(
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = uiState is CalendarUiState.Loading
     )
+    val scrollState = rememberScrollState()
     var lastSuccessState by remember { mutableStateOf<CalendarUiState.Success?>(value = null) }
     val fallbackSuccessState = remember { CalendarUiState.Success() }
 
@@ -131,7 +133,8 @@ internal fun CalendarContent(
 
     Column(
         modifier = Modifier
-            .verticalScroll(state = rememberScrollState())
+            .verticalScrollbar(scrollState = scrollState)
+            .verticalScroll(state = scrollState)
             .fillMaxWidth()
             .padding(all = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -188,17 +191,17 @@ internal fun DatePickerSection(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-        modifier = Modifier.padding(all = 5.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 14.dp),
+        modifier = Modifier.padding(all = 2.dp)
     ) {
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier.padding(all = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+                verticalArrangement = Arrangement.spacedBy(space = 10.dp)
             ) {
                 Header(title = stringResource(id = R.string.select_work_day_date))
 

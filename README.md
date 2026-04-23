@@ -67,7 +67,7 @@ This is called feature-based packaging.
 + work_type_help
 + add_project_item_failed_title add_project_item_failed_title_text (Duplicate)
 + Everything with bigger font
-
++ Balance->Flex time
 
 Constantly
 + Thorough testing of all features in all screens

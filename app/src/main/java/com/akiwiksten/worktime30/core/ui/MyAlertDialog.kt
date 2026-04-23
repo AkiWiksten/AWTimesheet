@@ -78,6 +78,7 @@ fun AddTextFieldDialog(
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         var addText by remember { mutableStateOf(value = "") }
+        val scrollState = rememberScrollState()
 
         Card(
             modifier = modifier
@@ -90,7 +91,8 @@ fun AddTextFieldDialog(
             Column(
                 modifier = Modifier
                     .padding(all = 24.dp)
-                    .verticalScroll(state = rememberScrollState()),
+                    .verticalScrollbar(scrollState = scrollState)
+                    .verticalScroll(state = scrollState),
                 verticalArrangement = Arrangement.spacedBy(space = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

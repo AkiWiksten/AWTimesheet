@@ -71,6 +71,7 @@ This is called feature-based packaging.
 + Selecting work type doesn't work in edit mode
 + DialogMainFields
 + Flex time total doesn't update
++ Use Intent to ask user where to save pdf
 
 
 Constantly:

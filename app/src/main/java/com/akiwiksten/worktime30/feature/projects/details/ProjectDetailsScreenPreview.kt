@@ -76,7 +76,8 @@ private fun ProjectDetailsPreviewContent(
             padding = PaddingValues(0.dp),
             uiState = uiState,
             projectName = projectName,
-            actions = ProjectDetailsScreenActions()
+            actions = ProjectDetailsScreenActions(),
+            isConfirmEnabled = uiState is ProjectDetailsUiState.Success
         )
     }
 }

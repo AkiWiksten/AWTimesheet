@@ -66,4 +66,7 @@
     <string name="or_text">TAI</string>
     <string name="project_details">Projektin tiedot</string>
     <string name="design">Suunnittelu</string>
+    <string name="unsaved_data_message">Sinulla on tallentamattomia muutoksia. Tallennetaanko ennen poistumista?</string>
+    <string name="discard">Hylkää</string>
+    <string name="stay">Jää</string>
 </resources>

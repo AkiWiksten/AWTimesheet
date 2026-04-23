@@ -65,4 +65,7 @@
 <string name="or_text">OR</string>
 <string name="project_details">Project details</string>
     <string name="design">Design</string>
+    <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
+    <string name="discard">Discard</string>
+    <string name="stay">Stay</string>
 </resources>

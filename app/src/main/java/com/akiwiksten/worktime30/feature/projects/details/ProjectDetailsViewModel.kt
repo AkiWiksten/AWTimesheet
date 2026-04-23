@@ -33,6 +33,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<ProjectDetailsUiState>(ProjectDetailsUiState.Loading)
     val uiState: StateFlow<ProjectDetailsUiState> = _uiState.asStateFlow()
+    private val _isInitialLoadComplete = MutableStateFlow(false)
+    val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
     private val selectedDate = MutableStateFlow("")
     private val selectedProjectName = MutableStateFlow("")
 
@@ -434,6 +436,7 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsState? = null) {
+        _isInitialLoadComplete.value = false
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
         val baseState = (currentState as? ProjectDetailsUiState.Success)
@@ -493,6 +496,8 @@ class ProjectDetailsViewModel @Inject constructor(
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid state")
+        } finally {
+            _isInitialLoadComplete.value = true
         }
     }
 

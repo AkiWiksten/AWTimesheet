@@ -28,20 +28,33 @@ object ProjectDetailsUiMapper {
         }
 
         return if (projectDetails != null) {
+            val normalizedStartTime = projectDetails.startTime.ifEmpty { ZERO_TIME }
+            val normalizedEndTime = projectDetails.endTime.ifEmpty { ZERO_TIME }
+            val normalizedProjectTime = normalizeProjectTimeOnOpen(
+                startTime = normalizedStartTime,
+                endTime = normalizedEndTime,
+                projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME }
+            )
             baseState.copy(
                 data = state.copy(
                     date = projectDetails.date,
                     projectName = projectDetails.projectName,
-                    startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },
-                    endTime = projectDetails.endTime.ifEmpty { ZERO_TIME },
+                    startTime = normalizedStartTime,
+                    endTime = normalizedEndTime,
                     lunchStart = projectDetails.lunchStart.ifEmpty { ZERO_TIME },
                     lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
                     breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
                     breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
-                    projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME },
+                    projectTime = normalizedProjectTime,
                     flexTimeToday = projectDetails.flexTimeToday.ifEmpty { ZERO_TIME },
                     oldFlexTimeToday = projectDetails.flexTimeToday.ifEmpty { ZERO_TIME },
-                    isNewDay = isNewDay(projectDetails)
+                    isNewDay = isNewDay(
+                        projectDetails.copy(
+                            startTime = normalizedStartTime,
+                            endTime = normalizedEndTime,
+                            projectTime = normalizedProjectTime
+                        )
+                    )
                 )
             )
         } else {
@@ -59,6 +72,14 @@ object ProjectDetailsUiMapper {
                     oldFlexTimeToday = ZERO_TIME
                 )
             )
+        }
+    }
+
+    fun normalizeProjectTimeOnOpen(startTime: String, endTime: String, projectTime: String): String {
+        return if (startTime == ZERO_TIME && endTime == ZERO_TIME && projectTime != ZERO_TIME) {
+            ZERO_TIME
+        } else {
+            projectTime
         }
     }
 

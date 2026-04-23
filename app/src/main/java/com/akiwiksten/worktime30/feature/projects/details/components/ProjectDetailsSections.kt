@@ -232,9 +232,10 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
 }
 
 @Composable
-fun FooterSection(onConfirm: () -> Unit) {
+fun FooterSection(onConfirm: () -> Unit, isConfirmEnabled: Boolean) {
     Button(
         onClick = onConfirm,
+        enabled = isConfirmEnabled,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),

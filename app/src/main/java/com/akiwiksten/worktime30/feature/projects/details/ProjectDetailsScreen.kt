@@ -37,7 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
@@ -56,8 +58,11 @@ fun ProjectDetailsScreen(
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    BackHandler(onBack = onNavigateBack)
+    val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
+    var showUnsavedDialog by remember { mutableStateOf(value = false) }
+    var initialData by remember { mutableStateOf<ProjectDetailsState?>(value = null) }
+    var isBaselineInitialized by remember { mutableStateOf(value = false) }
+    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(Unit) {
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
@@ -67,9 +72,63 @@ fun ProjectDetailsScreen(
         )
     }
 
+    LaunchedEffect(uiState, isInitialLoadComplete) {
+        val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
+        if (isBaselineInitialized) return@LaunchedEffect
+        if (!isInitialLoadComplete) return@LaunchedEffect
+
+        val data = successState.data
+        val projectDetailsArg = args.projectDetails
+        val workStatsArg = args.workStats
+        val expectedProjectTime = projectDetailsArg?.let {
+            ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
+                startTime = it.startTime.ifEmpty { ZERO_TIME },
+                endTime = it.endTime.ifEmpty { ZERO_TIME },
+                projectTime = it.projectTime.ifEmpty { ZERO_TIME }
+            )
+        }
+
+        val matchesProjectDetailsArg = projectDetailsArg == null || (
+            data.startTime == projectDetailsArg.startTime &&
+                data.endTime == projectDetailsArg.endTime &&
+                data.lunchStart == projectDetailsArg.lunchStart &&
+                data.lunchEnd == projectDetailsArg.lunchEnd &&
+                data.breakStart == projectDetailsArg.breakStart &&
+                data.breakEnd == projectDetailsArg.breakEnd &&
+                data.projectTime == expectedProjectTime
+            )
+        val matchesWorkStatsArg = workStatsArg == null || data.workStats == workStatsArg
+        val hasDate = data.date.isNotBlank()
+
+        if (hasDate && matchesProjectDetailsArg && matchesWorkStatsArg) {
+            initialData = data
+            isBaselineInitialized = true
+        }
+    }
+
+    val hasUnsavedChanges = isBaselineInitialized && initialData != null &&
+        (uiState as? ProjectDetailsUiState.Success)?.data != initialData
+
+    val guardedNavigateBack = {
+        if (hasUnsavedChanges) showUnsavedDialog = true
+        else onNavigateBack()
+    }
+
+    BackHandler(onBack = guardedNavigateBack)
+
+    if (showUnsavedDialog) {
+        val successState = uiState as? ProjectDetailsUiState.Success
+        UnsavedChangesDialog(
+            onDismiss = { showUnsavedDialog = false },
+            onDiscard = { showUnsavedDialog = false; onNavigateBack() },
+            onSave = successState?.let { { showUnsavedDialog = false; onConfirm(it.data, it.data.workStats) } },
+            dialogText = unsavedMessage
+        )
+    }
+
     Scaffold(
         topBar = {
-            ProjectDetailsTopBar(onNavigateBack = onNavigateBack)
+            ProjectDetailsTopBar(onNavigateBack = guardedNavigateBack)
         }
     ) { padding ->
         val actions = remember(viewModel, onConfirm, uiState) {
@@ -83,7 +142,8 @@ fun ProjectDetailsScreen(
             padding = padding,
             uiState = uiState,
             projectName = args.projectName,
-            actions = actions
+            actions = actions,
+            isConfirmEnabled = hasUnsavedChanges
         )
     }
 }
@@ -149,7 +209,8 @@ internal fun ProjectDetailsContent(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState.Success,
     projectName: String?,
-    actions: ProjectDetailsScreenActions
+    actions: ProjectDetailsScreenActions,
+    isConfirmEnabled: Boolean
 ) {
     val scrollState = rememberScrollState()
 
@@ -175,7 +236,7 @@ internal fun ProjectDetailsContent(
             ExistingDayFields(uiState = uiState, actions = actions.fieldActions)
         }
 
-        FooterSection(onConfirm = actions.onConfirm)
+        FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
     }
 }
 
@@ -211,7 +272,8 @@ internal fun ProjectDetailsStateContent(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState,
     projectName: String?,
-    actions: ProjectDetailsScreenActions
+    actions: ProjectDetailsScreenActions,
+    isConfirmEnabled: Boolean
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = uiState is ProjectDetailsUiState.Loading
@@ -234,7 +296,8 @@ internal fun ProjectDetailsStateContent(
                         padding = padding,
                         uiState = cachedState,
                         projectName = projectName,
-                        actions = actions
+                        actions = actions,
+                        isConfirmEnabled = isConfirmEnabled
                     )
                 } ?: Box(
                     modifier = Modifier
@@ -247,7 +310,8 @@ internal fun ProjectDetailsStateContent(
             padding = padding,
             uiState = uiState,
             projectName = projectName,
-            actions = actions
+            actions = actions,
+            isConfirmEnabled = isConfirmEnabled
         )
         is ProjectDetailsUiState.Error -> ProjectDetailsErrorState(
             padding = padding,

@@ -42,6 +42,7 @@ import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
@@ -146,11 +147,27 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
         isLoading = params.projectsUiState is WorkdayUiState.Loading
     )
     var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
+    var showUnsavedDialog by remember { mutableStateOf(value = false) }
+    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(params.projectsUiState) {
         if (params.projectsUiState is WorkdayUiState.Success) {
             lastSuccessState = params.projectsUiState
         }
+    }
+
+    val guardedNavigateBack = {
+        if (params.isConfirmEnabled) showUnsavedDialog = true
+        else params.onNavigateBack()
+    }
+
+    if (showUnsavedDialog) {
+        UnsavedChangesDialog(
+            onDismiss = { showUnsavedDialog = false },
+            onDiscard = { showUnsavedDialog = false; params.onNavigateBack() },
+            onSave = { showUnsavedDialog = false; params.onConfirm() },
+            dialogText = unsavedMessage
+        )
     }
 
     val actions = SingleProjectActions(
@@ -162,7 +179,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     Scaffold(
         topBar = {
             SingleProjectTopSection(
-                onNavigateBack = params.onNavigateBack
+                onNavigateBack = guardedNavigateBack
             )
         }
     ) { padding ->

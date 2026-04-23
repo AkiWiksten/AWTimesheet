@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily
+package com.akiwiksten.worktime30.feature.workday
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -7,9 +7,9 @@ import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
-import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
-import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
+import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
+import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +36,8 @@ data class SingleProjectState(
     val date: String = ""
 )
 
-sealed class ProjectsUiState {
-    object Loading : ProjectsUiState()
+sealed class WorkdayUiState {
+    object Loading : WorkdayUiState()
 
     data class Success(
         val date: String = "",
@@ -47,27 +47,27 @@ sealed class ProjectsUiState {
         val balanceTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
         val workTypes: List<String> = emptyList()
-    ) : ProjectsUiState()
+    ) : WorkdayUiState()
 
-    data class Error(val message: String) : ProjectsUiState()
+    data class Error(val message: String) : WorkdayUiState()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProjectsViewModel @Inject constructor(
-    private val getProjectsScreenDataUseCase: GetProjectsScreenDataUseCase,
-    private val saveProjectsUseCase: SaveProjectsUseCase,
-    private val deleteProjectsUseCase: DeleteProjectsUseCase,
+class WorkdayViewModel @Inject constructor(
+    private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
+    private val saveWorkdayUseCase: SaveWorkdayUseCase,
+    private val deleteWorkdayUseCase: DeleteWorkdayUseCase,
     private val projectDetailsRepository: ProjectDetailsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
     private val refreshTrigger = MutableStateFlow(value = 0)
 
-    val uiState: StateFlow<ProjectsUiState> = refreshTrigger
+    val uiState: StateFlow<WorkdayUiState> = refreshTrigger
         .flatMapLatest { dateRepository.selectedDate }
         .map { date ->
-            val data = getProjectsScreenDataUseCase(date)
+            val data = getWorkdayScreenDataUseCase(date)
             val recordedNames = data.projects.map { it.projectName }.toSet()
 
             val unrecordedProjects = data.projectNames
@@ -80,7 +80,7 @@ class ProjectsViewModel @Inject constructor(
                 .sortedBy { it.projectName }
                 .mapIndexed { index, project -> project.copy(index = index) }
 
-            ProjectsUiState.Success(
+            WorkdayUiState.Success(
                 date = date,
                 workTimeToday = data.projectTime,
                 dailyWorkTime = data.dailyWorkTime,
@@ -91,13 +91,13 @@ class ProjectsViewModel @Inject constructor(
                 balanceTotal = data.balanceTotal,
                 projects = allProjects,
                 workTypes = data.workTypes
-            ) as ProjectsUiState
+            ) as WorkdayUiState
         }
-        .onStart { emit(value = ProjectsUiState.Loading) }
+        .onStart { emit(value = WorkdayUiState.Loading) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = ProjectsUiState.Loading
+            initialValue = WorkdayUiState.Loading
         )
 
     fun retryLoad() {
@@ -112,7 +112,7 @@ class ProjectsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentState = uiState.value
-                val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
+                val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
 
                 val projectToSave = state.copy(date = date)
 
@@ -127,7 +127,7 @@ class ProjectsViewModel @Inject constructor(
                     balanceToday = ZERO_TIME
                 )
 
-                saveProjectsUseCase(
+                saveWorkdayUseCase(
                     projectsToSave = listOf(projectToSave),
                     projectDetailsToSave = projectDetailsToSave
                 )
@@ -136,9 +136,9 @@ class ProjectsViewModel @Inject constructor(
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                Log.e("ProjectsViewModel", "saveProject: ", e)
+                Log.e("WorkdayViewModel", "saveProject: ", e)
             } catch (e: IllegalStateException) {
-                Log.e("ProjectsViewModel", "saveProject: ", e)
+                Log.e("WorkdayViewModel", "saveProject: ", e)
             }
         }
     }
@@ -147,14 +147,14 @@ class ProjectsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentState = uiState.value
-                val date = (currentState as? ProjectsUiState.Success)?.date ?: return@launch
+                val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
 
-                deleteProjectsUseCase(date = date, projectName = state.projectName)
+                deleteWorkdayUseCase(date = date, projectName = state.projectName)
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                Log.e("ProjectsViewModel", "deleteProject: ", e)
+                Log.e("WorkdayViewModel", "deleteProject: ", e)
             } catch (e: IllegalStateException) {
-                Log.e("ProjectsViewModel", "deleteProject: ", e)
+                Log.e("WorkdayViewModel", "deleteProject: ", e)
             }
         }
     }
@@ -176,9 +176,9 @@ class ProjectsViewModel @Inject constructor(
                 )
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                Log.e("ProjectsViewModel", "updateWorkStats: ", e)
+                Log.e("WorkdayViewModel", "updateWorkStats: ", e)
             } catch (e: IllegalStateException) {
-                Log.e("ProjectsViewModel", "updateWorkStats: ", e)
+                Log.e("WorkdayViewModel", "updateWorkStats: ", e)
             }
         }
     }
@@ -191,3 +191,4 @@ private fun isValidDailyWorkTimeInput(value: String): Boolean {
 private fun isValidBalanceTotalInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }
+

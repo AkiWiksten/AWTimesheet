@@ -5,15 +5,15 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import javax.inject.Inject
 
-class GetProjectsScreenDataUseCase @Inject constructor(
+class GetWorkdayScreenDataUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val settingsRepository: SettingsRepository,
     private val projectDetailsRepository: ProjectDetailsRepository
 ) {
-    suspend operator fun invoke(date: String): ProjectsScreenData {
+    suspend operator fun invoke(date: String): WorkdayScreenData {
         val projects = projectRepository.getProjectsByDateRange(date, date)
         val projectTime = projects.fold(ZERO_TIME) { acc, project ->
             WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
@@ -24,7 +24,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
         val workTypes = settingsRepository.getWorkTypes()
         val workStats = projectDetailsRepository.getWorkStats()
 
-        return ProjectsScreenData(
+        return WorkdayScreenData(
             projectTime = projectTime,
             dailyWorkTime = workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME,
             balanceTotal = workStats?.balanceTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME,
@@ -39,7 +39,7 @@ class GetProjectsScreenDataUseCase @Inject constructor(
     }
 }
 
-data class ProjectsScreenData(
+data class WorkdayScreenData(
     val projectTime: String,
     val dailyWorkTime: String,
     val balanceTotal: String,
@@ -47,3 +47,4 @@ data class ProjectsScreenData(
     val projectNames: List<String>,
     val workTypes: List<String>
 )
+

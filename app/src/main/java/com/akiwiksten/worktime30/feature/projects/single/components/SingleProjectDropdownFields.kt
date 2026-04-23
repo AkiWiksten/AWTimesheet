@@ -7,7 +7,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 @Composable
 internal fun DialogDropdownFields(

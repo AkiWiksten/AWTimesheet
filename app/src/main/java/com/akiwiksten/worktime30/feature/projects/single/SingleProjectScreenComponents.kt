@@ -40,7 +40,7 @@ import androidx.core.text.isDigitsOnly
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 @Composable
 fun HeaderSection(date: String, workTimeToday: String) {

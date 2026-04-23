@@ -4,7 +4,7 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class GetProjectsScreenDataUseCaseTest {
+class GetWorkdayScreenDataUseCaseTest {
 
     @Test
     fun invoke_returnsAllDataWithCalculatedProjectTime() = runBlocking {
@@ -29,7 +29,7 @@ class GetProjectsScreenDataUseCaseTest {
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = WorkStatsState(dailyWorkTime = "07:30", balanceTotal = "+04:15")
         }
-        val useCase = GetProjectsScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
+        val useCase = GetWorkdayScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
 
         val result = useCase("2026-04-10")
 
@@ -43,7 +43,7 @@ class GetProjectsScreenDataUseCaseTest {
 
     @Test
     fun invoke_usesZeroTimeWhenNoProjects() = runBlocking {
-        val useCase = GetProjectsScreenDataUseCase(
+        val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = FakeProjectRepository(),
             settingsRepository = FakeSettingsRepository(),
             projectDetailsRepository = FakeProjectDetailsRepository()
@@ -108,3 +108,4 @@ class GetProjectsScreenDataUseCaseTest {
             emptyList()
     }
 }
+

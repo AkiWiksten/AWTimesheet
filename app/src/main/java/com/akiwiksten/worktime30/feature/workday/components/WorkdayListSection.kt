@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily.components
+package com.akiwiksten.worktime30.feature.workday.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -25,10 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 @Composable
-internal fun ProjectsListSection(
+internal fun WorkdayListSection(
     items: List<SingleProjectState>,
     selectedIndex: Int,
     onItemSelected: (Int) -> Unit,
@@ -162,4 +162,5 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
         }
     }
 }
+
 

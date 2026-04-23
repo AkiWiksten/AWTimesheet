@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -16,7 +16,7 @@ class SingleProjectScreenStateResolverTest {
             projectTime = "01:45",
             projectDetails = ProjectDetailsState(projectTime = "01:45")
         )
-        val projectsUiState = ProjectsUiState.Success(
+        val projectsUiState = WorkdayUiState.Success(
             projects = listOf(
                 SingleProjectState(index = 0, projectName = "Alpha", projectTime = "00:00")
             )
@@ -30,7 +30,7 @@ class SingleProjectScreenStateResolverTest {
     @Test
     fun editMode_withoutNavigationPayload_usesCurrentProjectsState() {
         val initialState = SingleProjectState(index = 0)
-        val projectsUiState = ProjectsUiState.Success(
+        val projectsUiState = WorkdayUiState.Success(
             projects = listOf(
                 SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10")
             )
@@ -46,7 +46,7 @@ class SingleProjectScreenStateResolverTest {
     fun addMode_returnsInitialState() {
         val initialState = SingleProjectState(index = -1, projectName = "New", projectTime = "00:30")
 
-        val resolved = resolveInitialSingleProjectState(initialState, ProjectsUiState.Loading)
+        val resolved = resolveInitialSingleProjectState(initialState, WorkdayUiState.Loading)
 
         assertEquals(initialState, resolved)
     }

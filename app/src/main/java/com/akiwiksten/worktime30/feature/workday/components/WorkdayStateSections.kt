@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily.components
+package com.akiwiksten.worktime30.feature.workday.components
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -23,19 +23,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.feature.projects.daily.DAILY_WORK_TIME_INPUT_REGEX
-import com.akiwiksten.worktime30.feature.projects.daily.FLEX_TIME_TOTAL_INPUT_REGEX
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsActions
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsHeaderActions
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.DAILY_WORK_TIME_INPUT_REGEX
+import com.akiwiksten.worktime30.feature.workday.FLEX_TIME_TOTAL_INPUT_REGEX
+import com.akiwiksten.worktime30.feature.workday.WorkdayActions
+import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
 
 @Composable
-internal fun ColumnScope.ProjectsLoadingContent(
+internal fun ColumnScope.WorkdayLoadingContent(
     showLoadingIndicator: Boolean,
-    cachedState: ProjectsUiState.Success?,
+    cachedState: WorkdayUiState.Success?,
     selectedItemIndex: Int,
-    actions: ProjectsActions
+    actions: WorkdayActions
 ) {
     if (showLoadingIndicator) {
         Box(
@@ -48,23 +48,23 @@ internal fun ColumnScope.ProjectsLoadingContent(
     }
 
     cachedState?.let {
-        ProjectsSuccessContent(state = it, selectedItemIndex = selectedItemIndex, actions = actions)
+        WorkdaySuccessContent(state = it, selectedItemIndex = selectedItemIndex, actions = actions)
     }
 }
 
 @Composable
-internal fun ColumnScope.ProjectsSuccessContent(
-    state: ProjectsUiState.Success,
+internal fun ColumnScope.WorkdaySuccessContent(
+    state: WorkdayUiState.Success,
     selectedItemIndex: Int,
-    actions: ProjectsActions
+    actions: WorkdayActions
 ) {
-    val saveUi = rememberProjectsSaveUi(
+    val saveUi = rememberWorkdaySaveUi(
         initialDailyWorkTime = state.dailyWorkTime,
         initialBalanceTotal = state.balanceTotal,
         onSaveWorkStats = actions.onSaveWorkStats
     )
 
-    ProjectsHeader(
+    WorkdayHeader(
         date = state.date,
         workTime = state.workTimeToday,
         balanceToday = state.balanceToday,
@@ -75,21 +75,21 @@ internal fun ColumnScope.ProjectsSuccessContent(
             isBalanceTotalError = !saveUi.isBalanceTotalValid,
             hasUnsavedChanges = saveUi.hasUnsavedChanges
         ),
-        headerActions = ProjectsHeaderActions(
+        headerActions = WorkdayHeaderActions(
             onDailyWorkTimeChange = saveUi.onDailyWorkTimeChange,
             onBalanceTotalChange = saveUi.onBalanceTotalChange,
             onSaveWorkStats = saveUi.onSaveRequested
         )
     )
 
-    ProjectsListSection(
+    WorkdayListSection(
         items = state.projects,
         selectedIndex = selectedItemIndex,
         onItemSelected = actions.onSelectedItemIndexChange,
         modifier = Modifier.weight(weight = 1f)
     )
 
-    ProjectsActionButtons(
+    WorkdayActionButtons(
         items = state.projects,
         selectedIndex = selectedItemIndex,
         onAddClick = { actions.onNavigateToSingleProject(-1) },
@@ -101,11 +101,11 @@ internal fun ColumnScope.ProjectsSuccessContent(
 }
 
 @Composable
-private fun rememberProjectsSaveUi(
+private fun rememberWorkdaySaveUi(
     initialDailyWorkTime: String,
     initialBalanceTotal: String,
     onSaveWorkStats: (String, String) -> Unit
-): ProjectsSaveUi {
+): WorkdaySaveUi {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     var editedDailyWorkTime by remember(initialDailyWorkTime) {
@@ -131,7 +131,7 @@ private fun rememberProjectsSaveUi(
         editedDailyWorkTime != lastSavedDailyWorkTimeState.value ||
             editedBalanceTotal != lastSavedBalanceTotalState.value
 
-    return ProjectsSaveUi(
+    return WorkdaySaveUi(
         dailyWorkTime = editedDailyWorkTime,
         balanceTotal = editedBalanceTotal,
         isDailyWorkTimeValid = isDailyWorkTimeValid,
@@ -151,7 +151,7 @@ private fun rememberProjectsSaveUi(
 }
 
 @Composable
-internal fun ProjectsErrorContent(message: String, onRetry: () -> Unit) {
+internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -170,7 +170,7 @@ internal fun ProjectsErrorContent(message: String, onRetry: () -> Unit) {
     }
 }
 
-private data class ProjectsSaveUi(
+private data class WorkdaySaveUi(
     val dailyWorkTime: String,
     val balanceTotal: String,
     val isDailyWorkTimeValid: Boolean,
@@ -180,3 +180,4 @@ private data class ProjectsSaveUi(
     val onBalanceTotalChange: (String) -> Unit,
     val onSaveRequested: () -> Unit
 )
+

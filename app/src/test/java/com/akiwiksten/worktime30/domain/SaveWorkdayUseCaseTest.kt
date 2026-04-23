@@ -2,20 +2,20 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class SaveProjectsUseCaseTest {
+class SaveWorkdayUseCaseTest {
 
     @Test
     fun invoke_savesProjectsAndProjectDetails() = runBlocking {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveProjectsUseCase(projectRepository, projectDetailsRepository)
+        val useCase = SaveWorkdayUseCase(projectRepository, projectDetailsRepository)
 
         useCase(
             projectsToSave = listOf(
@@ -41,7 +41,7 @@ class SaveProjectsUseCaseTest {
     fun invoke_doesNotInsertProjectDetails_whenProjectDetailsIsNull() = runBlocking {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveProjectsUseCase(projectRepository, projectDetailsRepository)
+        val useCase = SaveWorkdayUseCase(projectRepository, projectDetailsRepository)
 
         useCase(
             projectsToSave = listOf(
@@ -102,3 +102,4 @@ class SaveProjectsUseCaseTest {
         ): List<ProjectDetailsState> = emptyList()
     }
 }
+

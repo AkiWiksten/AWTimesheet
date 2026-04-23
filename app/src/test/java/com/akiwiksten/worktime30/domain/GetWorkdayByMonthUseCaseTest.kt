@@ -1,19 +1,19 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class GetProjectsByMonthUseCaseTest {
+class GetWorkdayByMonthUseCaseTest {
 
     @Test
     fun invoke_requestsFullMonthRange_forRegularMonth() = runBlocking {
         val repository = FakeProjectRepository().apply {
             projectsResult = listOf(SingleProjectState(date = "2026-04-10", projectName = "Alpha"))
         }
-        val useCase = GetProjectsByMonthUseCase(repository)
+        val useCase = GetWorkdayByMonthUseCase(repository)
 
         val result = useCase("2026-04-10")
 
@@ -25,7 +25,7 @@ class GetProjectsByMonthUseCaseTest {
     @Test
     fun invoke_requestsFullMonthRange_forLeapYearFebruary() = runBlocking {
         val repository = FakeProjectRepository()
-        val useCase = GetProjectsByMonthUseCase(repository)
+        val useCase = GetWorkdayByMonthUseCase(repository)
 
         useCase("2024-02-15")
 
@@ -57,3 +57,4 @@ class GetProjectsByMonthUseCaseTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }
+

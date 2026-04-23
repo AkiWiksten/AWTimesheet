@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily
+package com.akiwiksten.worktime30.feature.workday
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
@@ -6,20 +6,20 @@ import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 
 private const val PREVIEW_DATE = "2026-04-10"
 
-@Preview(showBackground = true, name = "Projects - Loading")
+@Preview(showBackground = true, name = "Workday - Loading")
 @Composable
-fun PreviewProjectsLoading() {
-    ProjectsPreviewContent(
-        uiState = ProjectsUiState.Loading,
+fun PreviewWorkdayLoading() {
+    WorkdayPreviewContent(
+        uiState = WorkdayUiState.Loading,
         selectedItemIndex = -1
     )
 }
 
-@Preview(showBackground = true, name = "Projects - Success")
+@Preview(showBackground = true, name = "Workday - Success")
 @Composable
-fun PreviewProjectsSuccess() {
-    ProjectsPreviewContent(
-        uiState = ProjectsUiState.Success(
+fun PreviewWorkdaySuccess() {
+    WorkdayPreviewContent(
+        uiState = WorkdayUiState.Success(
             date = PREVIEW_DATE,
             workTimeToday = "07:45",
             projects = listOf(
@@ -47,11 +47,11 @@ fun PreviewProjectsSuccess() {
     )
 }
 
-@Preview(showBackground = true, name = "Projects - Empty")
+@Preview(showBackground = true, name = "Workday - Empty")
 @Composable
-fun PreviewProjectsEmpty() {
-    ProjectsPreviewContent(
-        uiState = ProjectsUiState.Success(
+fun PreviewWorkdayEmpty() {
+    WorkdayPreviewContent(
+        uiState = WorkdayUiState.Success(
             date = PREVIEW_DATE,
             workTimeToday = "00:00",
             projects = emptyList()
@@ -60,25 +60,25 @@ fun PreviewProjectsEmpty() {
     )
 }
 
-@Preview(showBackground = true, name = "Projects - Error")
+@Preview(showBackground = true, name = "Workday - Error")
 @Composable
-fun PreviewProjectsError() {
-    ProjectsPreviewContent(
-        uiState = ProjectsUiState.Error(message = "Failed to load projects"),
+fun PreviewWorkdayError() {
+    WorkdayPreviewContent(
+        uiState = WorkdayUiState.Error(message = "Failed to load projects"),
         selectedItemIndex = -1
     )
 }
 
 @Composable
-private fun ProjectsPreviewContent(
-    uiState: ProjectsUiState,
+private fun WorkdayPreviewContent(
+    uiState: WorkdayUiState,
     selectedItemIndex: Int
 ) {
     WorkTime30Theme(dynamicColor = false) {
-        ProjectsContent(
-            projectsUiState = uiState,
+        WorkdayContent(
+            workdayUiState = uiState,
             selectedItemIndex = selectedItemIndex,
-            actions = ProjectsActions(
+            actions = WorkdayActions(
                 onSelectedItemIndexChange = {},
                 onNavigateToSingleProject = {},
                 onRetry = {},
@@ -88,3 +88,4 @@ private fun ProjectsPreviewContent(
         )
     }
 }
+

@@ -17,9 +17,9 @@
 <string name="work_time_today">Work time today</string>
 <string name="flex_time_today">Flex time today</string>
 <string name="flex_time_total">Flex time total</string>
-<string name="projects">Projects</string>
+<string name="projects">Workdays</string>
 <string name="select_work_day_date">Select workday date</string>
-<string name="projects_customers">Projects/Customers</string>
+<string name="workday">Workday</string>
 <string name="add">Add</string>
 <string name="project_name">Project name</string>
 <string name="project_time">Project time</string>

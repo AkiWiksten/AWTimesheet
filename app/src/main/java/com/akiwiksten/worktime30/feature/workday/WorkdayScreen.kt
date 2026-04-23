@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily
+package com.akiwiksten.worktime30.feature.workday
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -18,34 +18,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
-import com.akiwiksten.worktime30.feature.projects.daily.components.ProjectsErrorContent
-import com.akiwiksten.worktime30.feature.projects.daily.components.ProjectsLoadingContent
-import com.akiwiksten.worktime30.feature.projects.daily.components.ProjectsSuccessContent
+import com.akiwiksten.worktime30.feature.workday.components.WorkdayErrorContent
+import com.akiwiksten.worktime30.feature.workday.components.WorkdayLoadingContent
+import com.akiwiksten.worktime30.feature.workday.components.WorkdaySuccessContent
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
-fun ProjectsScreen(
+fun WorkdayScreen(
     onNavigateToSingleProject: (Int) -> Unit,
-    projectsViewModel: ProjectsViewModel = hiltViewModel(
+    workdayViewModel: WorkdayViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     ),
 ) {
-    val projectsUiState by projectsViewModel.uiState.collectAsState()
+    val workdayUiState by workdayViewModel.uiState.collectAsState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
     val selectedItemIndexState = remember { mutableIntStateOf(value = -1) }
 
-    ProjectsContent(
-        projectsUiState = projectsUiState,
+    WorkdayContent(
+        workdayUiState = workdayUiState,
         selectedItemIndex = selectedItemIndexState.intValue,
-        actions = ProjectsActions(
+        actions = WorkdayActions(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onNavigateToSingleProject = onNavigateToSingleProject,
-            onRetry = projectsViewModel::retryLoad,
-            onSaveWorkStats = projectsViewModel::updateWorkStats,
+            onRetry = workdayViewModel::retryLoad,
+            onSaveWorkStats = workdayViewModel::updateWorkStats,
             onDeleteProject = { project ->
-                projectsViewModel.deleteProject(state = project)
+                workdayViewModel.deleteProject(state = project)
                 selectedItemIndexState.intValue = -1
             }
         )
@@ -53,19 +53,19 @@ fun ProjectsScreen(
 }
 
 @Composable
-internal fun ProjectsContent(
-    projectsUiState: ProjectsUiState,
+internal fun WorkdayContent(
+    workdayUiState: WorkdayUiState,
     selectedItemIndex: Int,
-    actions: ProjectsActions
+    actions: WorkdayActions
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = projectsUiState is ProjectsUiState.Loading
+        isLoading = workdayUiState is WorkdayUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<ProjectsUiState.Success?>(value = null) }
+    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
 
-    LaunchedEffect(projectsUiState) {
-        if (projectsUiState is ProjectsUiState.Success) {
-            lastSuccessState = projectsUiState
+    LaunchedEffect(workdayUiState) {
+        if (workdayUiState is WorkdayUiState.Success) {
+            lastSuccessState = workdayUiState
         }
     }
 
@@ -76,24 +76,25 @@ internal fun ProjectsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 16.dp)
     ) {
-        when (projectsUiState) {
-            is ProjectsUiState.Loading -> ProjectsLoadingContent(
+        when (workdayUiState) {
+            is WorkdayUiState.Loading -> WorkdayLoadingContent(
                 showLoadingIndicator = showLoadingIndicator,
                 cachedState = lastSuccessState,
                 selectedItemIndex = selectedItemIndex,
                 actions = actions
             )
 
-            is ProjectsUiState.Success -> ProjectsSuccessContent(
-                state = projectsUiState,
+            is WorkdayUiState.Success -> WorkdaySuccessContent(
+                state = workdayUiState,
                 selectedItemIndex = selectedItemIndex,
                 actions = actions
             )
 
-            is ProjectsUiState.Error -> ProjectsErrorContent(
-                message = projectsUiState.message,
+            is WorkdayUiState.Error -> WorkdayErrorContent(
+                message = workdayUiState.message,
                 onRetry = actions.onRetry
             )
         }
     }
 }
+

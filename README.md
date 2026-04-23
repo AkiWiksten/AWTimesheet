@@ -55,25 +55,27 @@ This is called feature-based packaging.
 + Project name validation in ProjectsScreen. Kilometres validation. 0050 not valid.
 + Workday: “Open End Time picker to select time and confirm to show the total work time of the day”
 + Ask to save when coming back from or switching to a screen.
-+ Show Toast when saving data or confirming.
 + Validation
 + "Note! Automatic calculations for fields below."
-+ Thorough testing of all features in all screens
-  + Intro,
-    + Overall functioning
-  + Calendar,
-  + Projects,
-  + Single project,
-  + Project Details,
-  + Settings
 + Orientation support
-+ detekt, lint, SonarQube run regularly, preferably before pushing code
 + Translate fed "Work type"
 + Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel
-+ Edit project broken
 + When is Flex time total updated?
 + App localization selection
 + "Clear day" → "Clear details"
 + Use "Design" and "Other" as Default work types when list is empty
 + work_type_help
 + add_project_item_failed_title add_project_item_failed_title_text (Duplicate)
++ Everything with bigger font
+
+
+Constantly
++ Thorough testing of all features in all screens
+    + Intro,
+        + Overall functionality
+    + Calendar,
+    + Projects,
+    + Single project,
+    + Project Details,
+    + Settings
++ detekt, lint, SonarQube run regularly, preferably before pushing code

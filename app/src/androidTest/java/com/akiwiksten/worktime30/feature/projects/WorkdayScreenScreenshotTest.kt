@@ -9,10 +9,10 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsActions
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsContent
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayActions
+import com.akiwiksten.worktime30.feature.workday.WorkdayContent
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +20,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
-class ProjectsScreenScreenshotTest {
+class WorkdayScreenScreenshotTest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
@@ -28,7 +28,7 @@ class ProjectsScreenScreenshotTest {
     @Test
     fun loadingState_beforeDelay_screenshot() {
         composeTestRule.mainClock.autoAdvance = false
-        setProjectsContent(projectsUiState = ProjectsUiState.Loading, selectedItemIndex = -1)
+        setWorkdayContent(workdayUiState = WorkdayUiState.Loading, selectedItemIndex = -1)
         composeTestRule.waitForIdle()
         saveRootScreenshot(fileName = "projects_loading_before_delay")
         composeTestRule.mainClock.autoAdvance = true
@@ -37,7 +37,7 @@ class ProjectsScreenScreenshotTest {
     @Test
     fun loadingState_afterDelay_screenshot() {
         composeTestRule.mainClock.autoAdvance = false
-        setProjectsContent(projectsUiState = ProjectsUiState.Loading, selectedItemIndex = -1)
+        setWorkdayContent(workdayUiState = WorkdayUiState.Loading, selectedItemIndex = -1)
         composeTestRule.mainClock.advanceTimeBy(LOADING_INDICATOR_DELAY_MS + 50L)
         composeTestRule.waitForIdle()
         saveRootScreenshot(fileName = "projects_loading_after_delay")
@@ -46,8 +46,8 @@ class ProjectsScreenScreenshotTest {
 
     @Test
     fun successState_screenshot() {
-        setProjectsContent(
-            projectsUiState = ProjectsUiState.Success(
+        setWorkdayContent(
+            workdayUiState = WorkdayUiState.Success(
                 date = "2026-04-10",
                 workTimeToday = "07:45",
                 projects = listOf(
@@ -76,20 +76,20 @@ class ProjectsScreenScreenshotTest {
 
     @Test
     fun errorState_screenshot() {
-        setProjectsContent(
-            projectsUiState = ProjectsUiState.Error(message = "Failed to load projects"),
+        setWorkdayContent(
+            workdayUiState = WorkdayUiState.Error(message = "Failed to load projects"),
             selectedItemIndex = -1
         )
         saveRootScreenshot(fileName = "projects_error")
     }
 
-    private fun setProjectsContent(projectsUiState: ProjectsUiState, selectedItemIndex: Int) {
+    private fun setWorkdayContent(workdayUiState: WorkdayUiState, selectedItemIndex: Int) {
         composeTestRule.setContent {
             WorkTime30Theme(dynamicColor = false) {
-                ProjectsContent(
-                    projectsUiState = projectsUiState,
+                WorkdayContent(
+                    workdayUiState = workdayUiState,
                     selectedItemIndex = selectedItemIndex,
-                    actions = ProjectsActions(
+                    actions = WorkdayActions(
                         onSelectedItemIndexChange = {},
                         onNavigateToSingleProject = {},
                         onRetry = {},
@@ -118,3 +118,4 @@ class ProjectsScreenScreenshotTest {
         }
     }
 }
+

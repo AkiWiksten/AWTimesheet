@@ -3,8 +3,8 @@ package com.akiwiksten.worktime30.feature.projects.single
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 private const val PREVIEW_DATE = "2026-04-10"
 
@@ -16,7 +16,7 @@ fun PreviewSingleProjectLoading() {
             date = PREVIEW_DATE,
             state = SingleProjectState(),
             isAddMode = true,
-            projectsUiState = ProjectsUiState.Loading,
+            projectsUiState = WorkdayUiState.Loading,
             isConfirmEnabled = false,
             onStateChange = {},
             onNavigateBack = {},
@@ -39,7 +39,7 @@ fun PreviewSingleProjectSuccessAdd() {
                 workType = "Installation",
             ),
             isAddMode = true,
-            projectsUiState = ProjectsUiState.Success(
+            projectsUiState = WorkdayUiState.Success(
                 date = PREVIEW_DATE,
                 workTimeToday = "07:45",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
@@ -68,7 +68,7 @@ fun PreviewSingleProjectSuccessEdit() {
                 workType = "Maintenance",
             ),
             isAddMode = false,
-            projectsUiState = ProjectsUiState.Success(
+            projectsUiState = WorkdayUiState.Success(
                 date = PREVIEW_DATE,
                 workTimeToday = "07:45",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
@@ -90,7 +90,7 @@ fun PreviewSingleProjectError() {
             date = PREVIEW_DATE,
             state = SingleProjectState(),
             isAddMode = true,
-            projectsUiState = ProjectsUiState.Error(message = "Failed to load project"),
+            projectsUiState = WorkdayUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,
             onStateChange = {},
             onNavigateBack = {},

@@ -41,9 +41,9 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,7 +52,7 @@ fun SingleProjectScreen(
     onNavigateBack: () -> Unit,
     onOpenProjectDetails: (SingleProjectState) -> Unit,
     initialSingleProjectState: SingleProjectState,
-    viewModel: ProjectsViewModel = hiltViewModel(
+    viewModel: WorkdayViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
 ) {
@@ -61,7 +61,7 @@ fun SingleProjectScreen(
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentProjectsState = projectsUiState
-    val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
+    val date = (currentProjectsState as? WorkdayUiState.Success)?.date ?: ""
 
     val initialUiState = remember(
         initialSingleProjectState.index,
@@ -119,7 +119,7 @@ private fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): S
 
 internal fun resolveInitialSingleProjectState(
     initialSingleProjectState: SingleProjectState,
-    projectsUiState: ProjectsUiState
+    projectsUiState: WorkdayUiState
 ): SingleProjectState {
     val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
         initialSingleProjectState.projectTime != ZERO_TIME ||
@@ -128,7 +128,7 @@ internal fun resolveInitialSingleProjectState(
 
     val resolvedState = when {
         initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState
-        else -> (projectsUiState as? ProjectsUiState.Success)
+        else -> (projectsUiState as? WorkdayUiState.Success)
             ?.projects
             ?.find { it.index == initialSingleProjectState.index }
             ?: initialSingleProjectState
@@ -140,12 +140,12 @@ internal fun resolveInitialSingleProjectState(
 @Composable
 internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = params.projectsUiState is ProjectsUiState.Loading
+        isLoading = params.projectsUiState is WorkdayUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<ProjectsUiState.Success?>(value = null) }
+    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
 
     LaunchedEffect(params.projectsUiState) {
-        if (params.projectsUiState is ProjectsUiState.Success) {
+        if (params.projectsUiState is WorkdayUiState.Success) {
             lastSuccessState = params.projectsUiState
         }
     }
@@ -164,20 +164,20 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
         }
     ) { padding ->
         when (params.projectsUiState) {
-            is ProjectsUiState.Loading -> SingleProjectLoadingContent(
+            is WorkdayUiState.Loading -> SingleProjectLoadingContent(
                 padding = padding,
                 params = params,
                 actions = actions,
                 showLoadingIndicator = showLoadingIndicator,
                 cachedSuccessState = lastSuccessState
             )
-            is ProjectsUiState.Success -> SingleProjectSuccessContent(
+            is WorkdayUiState.Success -> SingleProjectSuccessContent(
                 padding = padding,
                 params = params,
                 actions = actions,
                 uiState = params.projectsUiState
             )
-            is ProjectsUiState.Error -> SingleProjectErrorContent(
+            is WorkdayUiState.Error -> SingleProjectErrorContent(
                 padding = padding,
                 message = params.projectsUiState.message
             )
@@ -191,7 +191,7 @@ private fun SingleProjectLoadingContent(
     params: SingleProjectScreenContentParams,
     actions: SingleProjectActions,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: ProjectsUiState.Success?
+    cachedSuccessState: WorkdayUiState.Success?
 ) {
     if (showLoadingIndicator) {
         Box(
@@ -209,7 +209,7 @@ private fun SingleProjectLoadingContent(
         padding = padding,
         params = params,
         actions = actions,
-        uiState = cachedSuccessState ?: ProjectsUiState.Success(date = params.date)
+        uiState = cachedSuccessState ?: WorkdayUiState.Success(date = params.date)
     )
 }
 
@@ -218,9 +218,9 @@ private fun SingleProjectSuccessContent(
     padding: PaddingValues,
     params: SingleProjectScreenContentParams,
     actions: SingleProjectActions,
-    uiState: ProjectsUiState
+    uiState: WorkdayUiState
 ) {
-    val successState = uiState as? ProjectsUiState.Success
+    val successState = uiState as? WorkdayUiState.Success
     val originalProjectTime = successState
         ?.projects
         ?.find { it.index == params.index }
@@ -270,7 +270,7 @@ data class SingleProjectScreenState(
     val editedProjectIndex: Int,
     val state: SingleProjectState,
     val isAddMode: Boolean,
-    val uiState: ProjectsUiState,
+    val uiState: WorkdayUiState,
     val isConfirmEnabled: Boolean
 )
 
@@ -343,7 +343,7 @@ private fun SingleProjectContent(
 
                 DialogDropdownFields(
                     state = screenState.state,
-                    workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
+                    workTypeDropDownList = (screenState.uiState as? WorkdayUiState.Success)?.workTypes
                         ?: emptyList(),
                     onStateChange = actions.onStateChange
                 )
@@ -369,7 +369,7 @@ data class SingleProjectScreenContentParams(
     val date: String,
     val state: SingleProjectState,
     val isAddMode: Boolean,
-    val projectsUiState: ProjectsUiState,
+    val projectsUiState: WorkdayUiState,
     val isConfirmEnabled: Boolean,
     val onStateChange: (SingleProjectState) -> Unit,
     val onNavigateBack: () -> Unit,

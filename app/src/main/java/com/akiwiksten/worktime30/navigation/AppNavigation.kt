@@ -17,8 +17,8 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
@@ -66,8 +66,8 @@ internal fun WorkTimeNavDisplay(
                 IntroScreen(onItemClick = { backStack.add(element = Screen.Calendar) })
             }
             entry<Screen.Calendar> { CalendarScreen() }
-            entry<Screen.Projects> {
-                ProjectsScreen(
+            entry<Screen.Workday> {
+                WorkdayScreen(
                     onNavigateToSingleProject = { index ->
                         backStack.add(element = Screen.SingleProject(index = index))
                     }

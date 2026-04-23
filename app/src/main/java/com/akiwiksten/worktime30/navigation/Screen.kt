@@ -13,7 +13,7 @@ import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 // Navigation routes
 sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Calendar : Screen(CALENDAR_SCREEN, R.string.calendar)
-    object Projects : Screen(PROJECTS_SCREEN, R.string.projects)
+    object Workday : Screen(PROJECTS_SCREEN, R.string.workday)
     object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
     data class ProjectDetails(
         val projectName: String? = null,

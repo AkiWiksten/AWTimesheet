@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily.components
+package com.akiwiksten.worktime30.feature.workday.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -21,10 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 @Composable
-internal fun ProjectsActionButtons(
+internal fun WorkdayActionButtons(
     items: List<SingleProjectState>,
     selectedIndex: Int,
     onAddClick: () -> Unit,
@@ -81,4 +81,5 @@ internal fun ProjectsActionButtons(
         }
     }
 }
+
 

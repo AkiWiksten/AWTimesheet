@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
+import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +39,7 @@ data class SettingsState(
 class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val saveSettingsUseCase: SaveSettingsUseCase,
-    private val getProjectsByMonthUseCase: GetProjectsByMonthUseCase,
+    private val getWorkdayByMonthUseCase: GetWorkdayByMonthUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -121,7 +121,7 @@ class SettingsViewModel @Inject constructor(
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
-                val projects = getProjectsByMonthUseCase(date)
+                val projects = getWorkdayByMonthUseCase(date)
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     _uiState.value = currentState.copy(
@@ -149,7 +149,7 @@ class SettingsViewModel @Inject constructor(
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
-                val projects = getProjectsByMonthUseCase(currentDate)
+                val projects = getWorkdayByMonthUseCase(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
                     data = SettingsState(

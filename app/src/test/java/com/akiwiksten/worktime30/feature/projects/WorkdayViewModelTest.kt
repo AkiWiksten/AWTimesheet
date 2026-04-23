@@ -4,12 +4,12 @@ import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.DeleteProjectsUseCase
-import com.akiwiksten.worktime30.domain.GetProjectsScreenDataUseCase
-import com.akiwiksten.worktime30.domain.SaveProjectsUseCase
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
+import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
@@ -23,7 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ProjectsViewModelTest {
+class WorkdayViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -52,8 +52,8 @@ class ProjectsViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue("Expected Success state but was $state", state is ProjectsUiState.Success)
-        state as ProjectsUiState.Success
+        assertTrue("Expected Success state but was $state", state is WorkdayUiState.Success)
+        state as WorkdayUiState.Success
         assertEquals("2026-04-10", state.date)
         assertEquals("02:30", state.workTimeToday)
         assertEquals("07:30", state.dailyWorkTime)
@@ -133,18 +133,18 @@ class ProjectsViewModelTest {
         projectDetailsRepository: FakeProjectDetailsRepository,
         settingsRepository: FakeSettingsRepository,
         dateRepository: DateRepository
-    ): ProjectsViewModel {
-        return ProjectsViewModel(
-            getProjectsScreenDataUseCase = GetProjectsScreenDataUseCase(
+    ): WorkdayViewModel {
+        return WorkdayViewModel(
+            getWorkdayScreenDataUseCase = GetWorkdayScreenDataUseCase(
                 projectRepository = projectRepository,
                 settingsRepository = settingsRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),
-            saveProjectsUseCase = SaveProjectsUseCase(
+            saveWorkdayUseCase = SaveWorkdayUseCase(
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),
-            deleteProjectsUseCase = DeleteProjectsUseCase(
+            deleteWorkdayUseCase = DeleteWorkdayUseCase(
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),
@@ -255,3 +255,4 @@ class ProjectsViewModelTest {
         override suspend fun clearWorkTypes() = Unit
     }
 }
+

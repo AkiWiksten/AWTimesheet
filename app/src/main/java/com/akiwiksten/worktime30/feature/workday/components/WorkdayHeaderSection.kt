@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.daily.components
+package com.akiwiksten.worktime30.feature.workday.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,16 +30,16 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsHeaderActions
-import com.akiwiksten.worktime30.feature.projects.daily.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
+import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
 
 @Composable
-internal fun ProjectsHeader(
+internal fun WorkdayHeader(
     date: String,
     workTime: String,
     balanceToday: String,
     workStatsEditorState: WorkStatsEditorState,
-    headerActions: ProjectsHeaderActions
+    headerActions: WorkdayHeaderActions
 ) {
     val openDailyWorkTimePicker = remember { mutableStateOf(value = false) }
 
@@ -59,8 +59,8 @@ internal fun ProjectsHeader(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
-        ProjectsHeaderTitleCard(date = date)
-        ProjectsHeaderStatsCard(
+        WorkdayHeaderTitleCard(date = date)
+        WorkdayHeaderStatsCard(
             workTime = workTime,
             balanceToday = balanceToday,
             workStatsEditorState = workStatsEditorState,
@@ -72,7 +72,7 @@ internal fun ProjectsHeader(
 }
 
 @Composable
-private fun ProjectsHeaderTitleCard(date: String) {
+private fun WorkdayHeaderTitleCard(date: String) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
@@ -82,7 +82,7 @@ private fun ProjectsHeaderTitleCard(date: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
-            Header(title = stringResource(id = R.string.projects_customers))
+            Header(title = stringResource(id = R.string.workday))
             Text(
                 text = date,
                 style = MaterialTheme.typography.headlineMedium,
@@ -95,7 +95,7 @@ private fun ProjectsHeaderTitleCard(date: String) {
 
 @Suppress("LongParameterList")
 @Composable
-private fun ProjectsHeaderStatsCard(
+private fun WorkdayHeaderStatsCard(
     workTime: String,
     balanceToday: String,
     workStatsEditorState: WorkStatsEditorState,
@@ -189,4 +189,5 @@ private fun SaveWorkStatsButton(
         Text(text = stringResource(id = R.string.save))
     }
 }
+
 

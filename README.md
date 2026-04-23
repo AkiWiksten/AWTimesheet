@@ -68,7 +68,7 @@ This is called feature-based packaging.
 + add_project_item_failed_title add_project_item_failed_title_text (Duplicate)
 + Everything with bigger font
 + Flex time naming cleanup
-+ Selecting work type doesn't work
++ Selecting work type doesn't work in edit mode
 
 Constantly
 + Thorough testing of all features in all screens

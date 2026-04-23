@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
@@ -21,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
+
 
 fun isValidText(text: String): Boolean {
     return text.matches(regex = Regex(pattern = "-?[1-9][0-9]+:[0-5][0-9]")) ||
@@ -40,6 +43,7 @@ fun AddCustomTimeRow(
         singleLine = true,
         label = { Text(text = stringResource(id = stringId)) },
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
         isError = !isValidText(text = customTime)
     )
@@ -135,6 +139,7 @@ private fun ReadOnlyTimeField(
         readOnly = true,
         enabled = false,
         modifier = modifier,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = MaterialTheme.colorScheme.onSurface,

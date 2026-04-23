@@ -20,6 +20,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +28,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
@@ -39,8 +40,8 @@ import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
 
 private const val FONT_SIZE_SCALE = 1.08f
-private val STATS_FIELD_SPACING = 8.dp
-private val STATS_CARD_CONTENT_PADDING = 10.dp
+private val STATS_FIELD_SPACING = 16.dp
+private val STATS_CARD_CONTENT_PADDING = 16.dp
 private val STATS_CARD_MAX_HEIGHT = 200.dp
 private val SAVE_BUTTON_TOP_PADDING = 4.dp
 
@@ -190,11 +191,13 @@ private fun FlexTimeTotalField(
             )
         },
         textStyle = MaterialTheme.typography.bodyLarge.copy(
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+            fontWeight = FontWeight.Bold
         ),
         singleLine = true,
         isError = isError,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
     )
 }
 
@@ -212,24 +215,24 @@ private fun DailyWorkTimePickerRow(
         OutlinedTextField(
             value = dailyWorkTime,
             onValueChange = {},
-            readOnly = true,
+            enabled = false,
             label = {
                 Text(
                     text = stringResource(id = R.string.daily_work_time),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold
-                    ),
-                    color = Color.Black
+                    )
                 )
             },
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
-                color = Color.Black
+                fontWeight = FontWeight.Bold
             ),
             singleLine = true,
             isError = isError,
-            modifier = Modifier.weight(weight = 1f)
+            modifier = Modifier.weight(weight = 1f),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
         )
         IconButton(onClick = onPickerClick) {
             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)

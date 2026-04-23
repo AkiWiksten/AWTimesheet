@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.ui.lazyVerticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
@@ -60,11 +61,11 @@ internal fun WorkdayListSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .lazyVerticalScrollbar(listState = listState)
-                    .clip(shape = RoundedCornerShape(size = 12.dp))
+                    .clip(shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS))
                     .border(
                         width = 1.dp,
                         color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = RoundedCornerShape(size = 12.dp)
+                        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
                     )
                     .selectableGroup(),
                 state = listState,

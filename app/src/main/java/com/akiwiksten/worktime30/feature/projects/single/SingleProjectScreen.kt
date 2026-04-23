@@ -38,6 +38,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -327,8 +328,8 @@ private fun SingleProjectContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(all = 16.dp)
                     .verticalScrollbar(scrollState = scrollState)
+                    .padding(all = 16.dp)
                     .verticalScroll(state = scrollState),
                 verticalArrangement = Arrangement.spacedBy(space = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -358,7 +359,7 @@ private fun SingleProjectContent(
                     onClick = actions.onConfirm,
                     enabled = screenState.isConfirmEnabled,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(size = 12.dp),
+                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                 ) {
                     Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)

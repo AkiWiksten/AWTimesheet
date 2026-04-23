@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -20,7 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
+
 
 @Composable
 fun ProjectNameField(name: String) {
@@ -31,6 +34,7 @@ fun ProjectNameField(name: String) {
         modifier = Modifier.fillMaxWidth(),
         readOnly = true,
         enabled = false,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = MaterialTheme.colorScheme.onSurface,
@@ -59,6 +63,7 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
         )
         Button(
             onClick = onClearDay,
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -215,7 +220,7 @@ fun FooterSection(onConfirm: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
-        shape = MaterialTheme.shapes.large,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
     ) {
         Text(text = stringResource(id = R.string.confirm), style = MaterialTheme.typography.titleLarge)

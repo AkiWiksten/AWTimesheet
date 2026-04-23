@@ -38,9 +38,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+
+private const val FONT_SIZE_SCALE = 1.08f
 
 @Composable
 fun HeaderSection(date: String, workTimeToday: String) {
@@ -129,21 +132,37 @@ internal fun DialogMainFields(
         OutlinedTextField(
             value = state.projectName,
             onValueChange = { onStateChange(state.copy(projectName = it)) },
-            label = { Text(text = stringResource(id = R.string.project_name)) },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.project_name),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = isAddMode,
             singleLine = true,
-            shape = RoundedCornerShape(size = 12.dp)
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
         )
 
         OutlinedTextField(
             value = state.kilometres,
             onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-            label = { Text(text = stringResource(id = R.string.kilometres)) },
+            label = {
+                Text(
+                    text = stringResource(id = R.string.kilometres),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            shape = RoundedCornerShape(size = 12.dp)
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
         )
     }
 }
@@ -157,7 +176,7 @@ private fun ProjectTimeSelectionRow(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(size = 12.dp),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = CardDefaults.outlinedCardBorder(enabled = true)
     ) {
@@ -171,11 +190,20 @@ private fun ProjectTimeSelectionRow(
             OutlinedTextField(
                 value = state.projectTime,
                 onValueChange = { onStateChange(state.copy(projectTime = it)) },
-                label = { Text(text = stringResource(id = R.string.project_time)) },
+                label = {
+                    Text(
+                        text = stringResource(id = R.string.project_time),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
                 modifier = Modifier.weight(weight = 1f),
-                readOnly = true,
+                enabled = false,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
-                shape = RoundedCornerShape(size = 12.dp),
+                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -185,7 +213,7 @@ private fun ProjectTimeSelectionRow(
             Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
                 Button(
                     onClick = onOpenProjectDetails,
-                    shape = RoundedCornerShape(size = 12.dp),
+                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                 ) {
                     Icon(imageVector = Icons.Default.History, contentDescription = null)
@@ -203,7 +231,7 @@ private fun ProjectTimeSelectionRow(
                 Button(
                     onClick = onOpenTimePicker,
                     modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                    shape = RoundedCornerShape(size = 12.dp),
+                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                 ) {
                     Icon(

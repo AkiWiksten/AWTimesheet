@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -133,8 +134,8 @@ private fun WorkdayHeaderStatsCard(
         ) {
             Text(
                 text = "${stringResource(id = R.string.work_time_today)}: $workTime",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize * FONT_SIZE_SCALE,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold
                 ),
                 color = MaterialTheme.colorScheme.secondary
@@ -218,11 +219,13 @@ private fun DailyWorkTimePickerRow(
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold
-                    )
+                    ),
+                    color = Color.Black
                 )
             },
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                color = Color.Black
             ),
             singleLine = true,
             isError = isError,

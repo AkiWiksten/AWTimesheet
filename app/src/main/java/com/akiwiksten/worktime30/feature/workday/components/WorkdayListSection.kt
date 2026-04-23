@@ -124,7 +124,7 @@ private fun ProjectListItem(
                 )
                 Text(
                     text = item.projectTime,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -140,7 +140,7 @@ private fun ProjectListItem(
                 )
                 Text(
                     text = "${item.kilometres} km",
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -155,14 +155,14 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
         if (workType.isNotEmpty()) {
             Text(
                 text = workType,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         if (allowance.isNotEmpty()) {
             Text(
                 text = allowance,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
         }

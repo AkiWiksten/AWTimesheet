@@ -69,8 +69,11 @@ This is called feature-based packaging.
 + Everything with bigger font
 + Flex time naming cleanup
 + Selecting work type doesn't work in edit mode
++ DialogMainFields
++ Flex time total doesn't update
 
-Constantly
+
+Constantly:
 + Thorough testing of all features in all screens
     + Intro,
         + Overall functionality

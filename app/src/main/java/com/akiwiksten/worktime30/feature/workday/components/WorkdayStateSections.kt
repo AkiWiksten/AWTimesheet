@@ -63,23 +63,27 @@ internal fun ColumnScope.WorkdaySuccessContent(
         initialFlexTimeTotal = state.flexTimeTotal,
         onSaveWorkStats = actions.onSaveWorkStats
     )
+    val workStatsEditorState = WorkStatsEditorState(
+        dailyWorkTime = saveUi.dailyWorkTime,
+        flexTimeTotal = saveUi.flexTimeTotal,
+        isDailyWorkTimeError = !saveUi.isDailyWorkTimeValid,
+        isFlexTimeTotalError = !saveUi.isFlexTimeTotalValid,
+        hasUnsavedChanges = saveUi.hasUnsavedChanges
+    )
+    val headerActions = WorkdayHeaderActions(
+        onDailyWorkTimeChange = saveUi.onDailyWorkTimeChange,
+        onFlexTimeTotalChange = saveUi.onFlexTimeTotalChange,
+        onSaveWorkStats = saveUi.onSaveRequested
+    )
 
     WorkdayHeader(
-        date = state.date,
+        date = state.date
+    )
+    WorkdayStatsCard(
         workTime = state.workTimeToday,
         flexTimeToday = state.flexTimeToday,
-        workStatsEditorState = WorkStatsEditorState(
-            dailyWorkTime = saveUi.dailyWorkTime,
-            flexTimeTotal = saveUi.flexTimeTotal,
-            isDailyWorkTimeError = !saveUi.isDailyWorkTimeValid,
-            isFlexTimeTotalError = !saveUi.isFlexTimeTotalValid,
-            hasUnsavedChanges = saveUi.hasUnsavedChanges
-        ),
-        headerActions = WorkdayHeaderActions(
-            onDailyWorkTimeChange = saveUi.onDailyWorkTimeChange,
-            onFlexTimeTotalChange = saveUi.onFlexTimeTotalChange,
-            onSaveWorkStats = saveUi.onSaveRequested
-        )
+        workStatsEditorState = workStatsEditorState,
+        headerActions = headerActions
     )
 
     WorkdayListSection(

@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
+import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
@@ -40,7 +42,7 @@ internal fun WorkdayActionButtons(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(space = 12.dp)
+        horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
     ) {
         Button(
             onClick = onAddClick,
@@ -48,7 +50,7 @@ internal fun WorkdayActionButtons(
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = 8.dp))
+            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
             Text(text = stringResource(id = R.string.add))
         }
         Button(
@@ -62,7 +64,7 @@ internal fun WorkdayActionButtons(
             )
         ) {
             Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = 8.dp))
+            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
             Text(text = stringResource(id = R.string.edit))
         }
         Button(
@@ -76,7 +78,7 @@ internal fun WorkdayActionButtons(
             )
         ) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = 8.dp))
+            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
             Text(text = deleteButtonText)
         }
     }

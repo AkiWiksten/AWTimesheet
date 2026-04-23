@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayLoadingContent
 import com.akiwiksten.worktime30.feature.workday.components.WorkdaySuccessContent
@@ -74,7 +75,7 @@ internal fun WorkdayContent(
             .fillMaxSize()
             .padding(all = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
     ) {
         when (workdayUiState) {
             is WorkdayUiState.Loading -> WorkdayLoadingContent(

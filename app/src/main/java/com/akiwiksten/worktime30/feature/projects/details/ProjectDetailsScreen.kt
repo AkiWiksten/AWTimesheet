@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
@@ -190,7 +191,7 @@ private fun ProjectDetailsHeaderGroup(
     ) {
         Column(
             modifier = Modifier.padding(all = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+            verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
         ) {
             HeaderSection(date = date, onClearDay = onClearDay)
             projectName?.let { ProjectNameField(name = it) }

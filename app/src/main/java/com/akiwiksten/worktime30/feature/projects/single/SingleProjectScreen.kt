@@ -39,6 +39,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -312,7 +313,7 @@ private fun SingleProjectContent(
             .fillMaxSize()
             .padding(paddingValues = padding)
             .padding(all = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
     ) {
         HeaderSection(
             date = screenState.date,

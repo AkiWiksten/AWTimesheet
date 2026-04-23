@@ -12,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 
 
@@ -41,8 +42,17 @@ fun AddCustomTimeRow(
         value = customTime,
         onValueChange = { customTimeFunction(it, isValidText(text = it)) },
         singleLine = true,
-        label = { Text(text = stringResource(id = stringId)) },
+        label = {
+            Text(
+                text = stringResource(id = stringId),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
         modifier = Modifier.fillMaxWidth(),
+        enabled = false,
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
         isError = !isValidText(text = customTime)
@@ -74,7 +84,7 @@ fun AddTimeRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
+        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         ReadOnlyTimeField(
             textFieldValue = textFieldValue,
@@ -135,17 +145,20 @@ private fun ReadOnlyTimeField(
     OutlinedTextField(
         value = textFieldValue,
         onValueChange = {},
-        label = { Text(text = stringResource(id = stringId)) },
+        label = {
+            Text(
+                text = stringResource(id = stringId),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
         readOnly = true,
         enabled = false,
         modifier = modifier,
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-        )
     )
 }
 

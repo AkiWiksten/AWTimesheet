@@ -22,6 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.FORM_GROUP_PADDING
+import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 
 
@@ -30,7 +36,15 @@ fun ProjectNameField(name: String) {
     OutlinedTextField(
         value = name,
         onValueChange = {},
-        label = { Text(text = stringResource(id = R.string.project_name)) },
+        label = {
+            Text(
+                text = stringResource(id = R.string.project_name),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
         modifier = Modifier.fillMaxWidth(),
         readOnly = true,
         enabled = false,
@@ -49,9 +63,13 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 12.dp, end = 12.dp, top = 10.dp),
+            .padding(
+                start = HEADER_CONTENT_PADDING,
+                top = HEADER_CONTENT_PADDING,
+                end = HEADER_CONTENT_PADDING
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 6.dp)
+        verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
     ) {
         Text(
             text = date,
@@ -76,14 +94,14 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
 
 @Composable
 fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(all = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+                modifier = Modifier.padding(all = FORM_GROUP_PADDING),
+                verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
             ) {
                 AddTimeRow(
                     textFieldValue = uiState.data.startTime,
@@ -112,7 +130,7 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
 
 @Composable
 fun ExistingDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
         MainWorkTimeFields(uiState = uiState, actions = actions)
 
         LunchAndBreakFields(uiState = uiState, actions = actions)
@@ -128,8 +146,8 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
             AddTimeRow(
                 textFieldValue = uiState.data.startTime,
@@ -162,8 +180,8 @@ private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions:
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
             AddTimeRow(
                 textFieldValue = uiState.data.lunchStart,
@@ -200,8 +218,8 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
             AddTimeRow(
                 textFieldValue = uiState.data.workStats.lunchTime,

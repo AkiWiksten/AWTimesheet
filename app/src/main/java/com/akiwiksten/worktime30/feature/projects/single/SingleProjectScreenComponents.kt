@@ -39,11 +39,17 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.FORM_GROUP_PADDING
+import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
+import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
-private const val FONT_SIZE_SCALE = 1.08f
 
 @Composable
 fun HeaderSection(date: String, workTimeToday: String) {
@@ -54,9 +60,9 @@ fun HeaderSection(date: String, workTimeToday: String) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(all = HEADER_CONTENT_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 6.dp)
+            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
         ) {
             Text(
                 text = date,
@@ -128,7 +134,7 @@ internal fun DialogMainFields(
     isAddMode: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         OutlinedTextField(
             value = state.projectName,
             onValueChange = { onStateChange(state.copy(projectName = it)) },
@@ -136,7 +142,7 @@ internal fun DialogMainFields(
                 Text(
                     text = stringResource(id = R.string.project_name),
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -154,7 +160,7 @@ internal fun DialogMainFields(
                 Text(
                     text = stringResource(id = R.string.kilometres),
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -183,8 +189,8 @@ private fun ProjectTimeSelectionRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+                .padding(all = FORM_GROUP_PADDING),
+            horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
@@ -194,7 +200,7 @@ private fun ProjectTimeSelectionRow(
                     Text(
                         text = stringResource(id = R.string.project_time),
                         style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -210,7 +216,7 @@ private fun ProjectTimeSelectionRow(
                 )
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
                 Button(
                     onClick = onOpenProjectDetails,
                     shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),

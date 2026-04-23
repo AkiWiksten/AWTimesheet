@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
@@ -199,9 +201,9 @@ internal fun DatePickerSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(all = 12.dp),
+                modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+                verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
             ) {
                 Header(title = stringResource(id = R.string.select_work_day_date))
 

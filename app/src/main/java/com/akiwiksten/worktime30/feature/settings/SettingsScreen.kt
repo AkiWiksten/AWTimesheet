@@ -39,6 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
+import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
@@ -261,7 +266,10 @@ private fun SettingsCard(title: String, content: @Composable () -> Unit) {
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
     ) {
-        Column(modifier = Modifier.padding(all = 16.dp), verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
+        Column(
+            modifier = Modifier.padding(all = FORM_SECTION_SPACING),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+        ) {
             Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             HorizontalDivider()
             content()
@@ -278,9 +286,9 @@ private fun HeaderSection(date: String) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(all = 12.dp),
+            modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 6.dp)
+            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
         ) {
             Header(title = stringResource(id = R.string.settings))
             Text(
@@ -300,7 +308,7 @@ private fun ProfileSection(
     onNameChange: (String) -> Unit,
     onEmployerChange: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
         SettingsTextField(value = name, label = R.string.name, onValueChange = onNameChange)
         SettingsTextField(value = employer, label = R.string.employer, onValueChange = onEmployerChange)
     }
@@ -328,7 +336,7 @@ private fun WorkTypeSection(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+        verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         DropdownMenuBox(
             items = workTypes,
@@ -337,7 +345,7 @@ private fun WorkTypeSection(
             labelId = R.string.work_type,
             modifier = Modifier.fillMaxWidth()
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
             Button(
                 onClick = onAddClick,
                 modifier = Modifier.weight(weight = 1f),
@@ -367,7 +375,7 @@ private fun ActionButtonsSection(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-        verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+        verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
     ) {
         Button(
             onClick = onSave,

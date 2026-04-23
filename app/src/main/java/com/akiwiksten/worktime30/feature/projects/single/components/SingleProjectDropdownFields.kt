@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
@@ -15,7 +15,7 @@ internal fun DialogDropdownFields(
     workTypeDropDownList: List<String>,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         DropdownMenuBox(
             labelId = R.string.work_type,
             items = workTypeDropDownList,

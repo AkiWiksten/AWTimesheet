@@ -27,6 +27,6 @@ fun Header(
             .heightIn(min = 44.dp)
             .padding(vertical = 8.dp, horizontal = 8.dp)
             .wrapContentSize(align = Alignment.Center)
-            .padding(start = 0.dp, top = 4.dp, end = 0.dp, bottom = 4.dp)
+            .padding(top = 4.dp, bottom = 4.dp)
     )
 }

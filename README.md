@@ -72,6 +72,7 @@ This is called feature-based packaging.
 + DialogMainFields
 + Flex time total doesn't update
 + Use Intent to ask user where to save pdf
++ PDF: Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 
 
 Constantly:

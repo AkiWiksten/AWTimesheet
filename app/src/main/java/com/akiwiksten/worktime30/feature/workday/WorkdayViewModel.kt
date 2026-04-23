@@ -149,7 +149,7 @@ class WorkdayViewModel @Inject constructor(
                 val currentState = uiState.value
                 val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
 
-                deleteWorkdayUseCase(date = date, projectName = state.projectName)
+                deleteWorkdayUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
                 requestReload()
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "deleteProject: ", e)

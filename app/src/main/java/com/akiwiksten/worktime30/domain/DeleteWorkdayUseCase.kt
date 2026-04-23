@@ -11,7 +11,7 @@ class DeleteWorkdayUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val projectDetailsRepository: ProjectDetailsRepository
 ) {
-    suspend operator fun invoke(date: String, projectName: String) {
+    suspend operator fun invoke(date: String, projectName: String, projectTime: String = ZERO_TIME) {
         projectRepository.deleteProject(
             SingleProjectState(date = date, projectName = projectName, projectTime = ZERO_TIME)
         )
@@ -19,7 +19,8 @@ class DeleteWorkdayUseCase @Inject constructor(
             ProjectDetailsState(date = date, projectName = projectName)
         )
 
-        if (!projectRepository.isProjectNameUsed(projectName)) {
+        val shouldDeleteProjectName = projectTime == ZERO_TIME || !projectRepository.isProjectNameUsed(projectName)
+        if (shouldDeleteProjectName) {
             projectRepository.deleteProjectName(projectName)
         }
     }

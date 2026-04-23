@@ -34,7 +34,7 @@ class DeleteWorkdayUseCaseTest {
     }
 
     @Test
-    fun invoke_doesNotDeleteProjectName_whenStillUsed() = runBlocking {
+    fun invoke_zeroTime_deletesProjectName_evenWhenStillUsed() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             isProjectNameUsedByName["Beta"] = true
         }
@@ -42,6 +42,19 @@ class DeleteWorkdayUseCaseTest {
         val useCase = DeleteWorkdayUseCase(projectRepository, projectDetailsRepository)
 
         useCase(date = "2026-04-10", projectName = "Beta")
+
+        assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
+    }
+
+    @Test
+    fun invoke_nonZeroTime_doesNotDeleteProjectName_whenStillUsed() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            isProjectNameUsedByName["Beta"] = true
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val useCase = DeleteWorkdayUseCase(projectRepository, projectDetailsRepository)
+
+        useCase(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")
 
         assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
     }

@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.domain
+﻿package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
@@ -27,7 +27,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         return WorkdayScreenData(
             projectTime = projectTime,
             dailyWorkTime = workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME,
-            balanceTotal = workStats?.balanceTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME,
+            flexTimeTotal = workStats?.flexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME,
             projects = projects,
             projectNames = projectNames,
             workTypes = workTypes
@@ -42,9 +42,10 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 data class WorkdayScreenData(
     val projectTime: String,
     val dailyWorkTime: String,
-    val balanceTotal: String,
+    val flexTimeTotal: String,
     val projects: List<SingleProjectState>,
     val projectNames: List<String>,
     val workTypes: List<String>
 )
+
 

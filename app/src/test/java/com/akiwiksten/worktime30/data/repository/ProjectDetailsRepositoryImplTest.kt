@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.data.repository
+﻿package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
@@ -48,7 +48,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun getWorkStats_returnsDataFromDao() = runBlocking {
-        val expected = WorkStatsState(balanceTotal = "10:00 h")
+        val expected = WorkStatsState(flexTimeTotal = "10:00 h")
         workStatsDao.workStatsResult = expected.toEntity()
 
         val result = repository.getWorkStats()
@@ -58,7 +58,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun insertWorkStats_callsDaoInsert() = runBlocking {
-        val workStats = WorkStatsState(balanceTotal = "10:00 h")
+        val workStats = WorkStatsState(flexTimeTotal = "10:00 h")
 
         repository.insertWorkStats(workStats)
 
@@ -126,3 +126,4 @@ class ProjectDetailsRepositoryImplTest {
         }
     }
 }
+

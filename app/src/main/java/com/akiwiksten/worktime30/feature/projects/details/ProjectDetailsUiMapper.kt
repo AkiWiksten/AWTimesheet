@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.details
+﻿package com.akiwiksten.worktime30.feature.projects.details
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 
@@ -14,7 +14,7 @@ object ProjectDetailsUiMapper {
                 workStats = WorkStatsState(
                     dailyWorkTime = workStats.dailyWorkTime.ifEmpty { "07:30" },
                     lunchTime = workStats.lunchTime.ifEmpty { ZERO_TIME },
-                    balanceTotal = workStats.balanceTotal.ifEmpty { ZERO_TIME }
+                    flexTimeTotal = workStats.flexTimeTotal.ifEmpty { ZERO_TIME }
                 )
             )
         } else {
@@ -22,7 +22,7 @@ object ProjectDetailsUiMapper {
                 workStats = WorkStatsState(
                     dailyWorkTime = "07:30",
                     lunchTime = ZERO_TIME,
-                    balanceTotal = ZERO_TIME
+                    flexTimeTotal = ZERO_TIME
                 )
             )
         }
@@ -39,8 +39,8 @@ object ProjectDetailsUiMapper {
                     breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
                     breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
                     projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME },
-                    balanceToday = projectDetails.balanceToday.ifEmpty { ZERO_TIME },
-                    oldBalanceToday = projectDetails.balanceToday.ifEmpty { ZERO_TIME },
+                    flexTimeToday = projectDetails.flexTimeToday.ifEmpty { ZERO_TIME },
+                    oldFlexTimeToday = projectDetails.flexTimeToday.ifEmpty { ZERO_TIME },
                     isNewDay = isNewDay(projectDetails)
                 )
             )
@@ -55,8 +55,8 @@ object ProjectDetailsUiMapper {
                     breakStart = ZERO_TIME,
                     breakEnd = ZERO_TIME,
                     projectTime = ZERO_TIME,
-                    balanceToday = ZERO_TIME,
-                    oldBalanceToday = ZERO_TIME
+                    flexTimeToday = ZERO_TIME,
+                    oldFlexTimeToday = ZERO_TIME
                 )
             )
         }
@@ -73,3 +73,4 @@ object ProjectDetailsUiMapper {
             isZero(projectDetails.breakEnd)
     }
 }
+

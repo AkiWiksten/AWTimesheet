@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.domain
+﻿package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -27,7 +27,7 @@ class GetWorkdayScreenDataUseCaseTest {
             workTypes = listOf("Office", "Remote")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", balanceTotal = "+04:15")
+            workStats = WorkStatsState(dailyWorkTime = "07:30", flexTimeTotal = "+04:15")
         }
         val useCase = GetWorkdayScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
 
@@ -35,7 +35,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         assertEquals("07:30", result.projectTime)
         assertEquals("07:30", result.dailyWorkTime)
-        assertEquals("+04:15", result.balanceTotal)
+        assertEquals("+04:15", result.flexTimeTotal)
         assertEquals(2, result.projects.size)
         assertEquals(2, result.projectNames.size)
         assertEquals(listOf("Office", "Remote"), result.workTypes)
@@ -53,7 +53,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         assertEquals(ZERO_TIME, result.projectTime)
         assertEquals("07:30", result.dailyWorkTime)
-        assertEquals(ZERO_TIME, result.balanceTotal)
+        assertEquals(ZERO_TIME, result.flexTimeTotal)
     }
 
     private class FakeProjectRepository : ProjectRepository {
@@ -108,4 +108,5 @@ class GetWorkdayScreenDataUseCaseTest {
             emptyList()
     }
 }
+
 

@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.details
+﻿package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
@@ -23,7 +23,7 @@ fun PreviewProjectDetailsSuccessNewDay() {
                 workStats = WorkStatsState(
                     dailyWorkTime = "07:30",
                     lunchTime = "00:30",
-                    balanceTotal = "+03:10"
+                    flexTimeTotal = "+03:10"
                 ),
                 isNewDay = true
             )
@@ -47,11 +47,11 @@ fun PreviewProjectDetailsSuccessExistingDay() {
                 breakStart = "14:15",
                 breakEnd = "14:30",
                 projectTime = "08:00",
-                balanceToday = "+00:30",
+                flexTimeToday = "+00:30",
                 workStats = WorkStatsState(
                     dailyWorkTime = "07:30",
                     lunchTime = "00:30",
-                    balanceTotal = "+04:10"
+                    flexTimeTotal = "+04:10"
                 ),
                 isNewDay = false
             )
@@ -80,3 +80,4 @@ private fun ProjectDetailsPreviewContent(
         )
     }
 }
+

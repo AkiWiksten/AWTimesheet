@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday.components
+﻿package com.akiwiksten.worktime30.feature.workday.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +47,7 @@ private val SAVE_BUTTON_TOP_PADDING = 4.dp
 internal fun WorkdayHeader(
     date: String,
     workTime: String,
-    balanceToday: String,
+    flexTimeToday: String,
     workStatsEditorState: WorkStatsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
@@ -72,10 +72,10 @@ internal fun WorkdayHeader(
         WorkdayHeaderTitleCard(date = date)
         WorkdayHeaderStatsCard(
             workTime = workTime,
-            balanceToday = balanceToday,
+            flexTimeToday = flexTimeToday,
             workStatsEditorState = workStatsEditorState,
             onDailyWorkTimePickerClick = { openDailyWorkTimePicker.value = true },
-            onBalanceTotalChange = headerActions.onBalanceTotalChange,
+            onFlexTimeTotalChange = headerActions.onFlexTimeTotalChange,
             onSaveWorkStats = headerActions.onSaveWorkStats
         )
     }
@@ -109,10 +109,10 @@ private fun WorkdayHeaderTitleCard(date: String) {
 @Composable
 private fun WorkdayHeaderStatsCard(
     workTime: String,
-    balanceToday: String,
+    flexTimeToday: String,
     workStatsEditorState: WorkStatsEditorState,
     onDailyWorkTimePickerClick: () -> Unit,
-    onBalanceTotalChange: (String) -> Unit,
+    onFlexTimeTotalChange: (String) -> Unit,
     onSaveWorkStats: () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -140,7 +140,7 @@ private fun WorkdayHeaderStatsCard(
                 color = MaterialTheme.colorScheme.secondary
             )
             Text(
-                text = "${stringResource(id = R.string.flex_time_today)}: $balanceToday",
+                text = "${stringResource(id = R.string.flex_time_today)}: $flexTimeToday",
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold
@@ -152,14 +152,14 @@ private fun WorkdayHeaderStatsCard(
                 isError = workStatsEditorState.isDailyWorkTimeError,
                 onPickerClick = onDailyWorkTimePickerClick
             )
-            BalanceTotalField(
-                balanceTotal = workStatsEditorState.balanceTotal,
-                isError = workStatsEditorState.isBalanceTotalError,
-                onValueChange = onBalanceTotalChange
+            FlexTimeTotalField(
+                flexTimeTotal = workStatsEditorState.flexTimeTotal,
+                isError = workStatsEditorState.isFlexTimeTotalError,
+                onValueChange = onFlexTimeTotalChange
             )
             SaveWorkStatsButton(
                 isEnabled = !workStatsEditorState.isDailyWorkTimeError &&
-                    !workStatsEditorState.isBalanceTotalError &&
+                    !workStatsEditorState.isFlexTimeTotalError &&
                     workStatsEditorState.hasUnsavedChanges,
                 onClick = onSaveWorkStats,
                 modifier = Modifier
@@ -171,13 +171,13 @@ private fun WorkdayHeaderStatsCard(
 }
 
 @Composable
-private fun BalanceTotalField(
-    balanceTotal: String,
+private fun FlexTimeTotalField(
+    flexTimeTotal: String,
     isError: Boolean,
     onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        value = balanceTotal,
+        value = flexTimeTotal,
         onValueChange = onValueChange,
         label = {
             Text(
@@ -251,5 +251,6 @@ private fun SaveWorkStatsButton(
         Text(text = stringResource(id = R.string.save))
     }
 }
+
 
 

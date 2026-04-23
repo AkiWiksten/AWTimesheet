@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects
+﻿package com.akiwiksten.worktime30.feature.projects
 
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -41,7 +41,7 @@ class WorkdayViewModelTest {
             projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        projectDetailsRepository.workStats = WorkStatsState(dailyWorkTime = "07:30", balanceTotal = "+01:45")
+        projectDetailsRepository.workStats = WorkStatsState(dailyWorkTime = "07:30", flexTimeTotal = "+01:45")
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office")
         }
@@ -57,8 +57,8 @@ class WorkdayViewModelTest {
         assertEquals("2026-04-10", state.date)
         assertEquals("02:30", state.workTimeToday)
         assertEquals("07:30", state.dailyWorkTime)
-        assertEquals("-05:00", state.balanceToday)
-        assertEquals("+01:45", state.balanceTotal)
+        assertEquals("-05:00", state.flexTimeToday)
+        assertEquals("+01:45", state.flexTimeTotal)
         assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
     }
 
@@ -91,7 +91,7 @@ class WorkdayViewModelTest {
     fun updateWorkStats_persistsDailyAndBalanceValues() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", balanceTotal = "+01:45")
+            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", flexTimeTotal = "+01:45")
         }
         val settingsRepository = FakeSettingsRepository()
         val dateRepository = DateRepository()
@@ -100,18 +100,18 @@ class WorkdayViewModelTest {
         val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(dailyWorkTime = "08:00", balanceTotal = "-00:20")
+        viewModel.updateWorkStats(dailyWorkTime = "08:00", flexTimeTotal = "-00:20")
         advanceUntilIdle()
 
         assertEquals("08:00", projectDetailsRepository.workStats?.dailyWorkTime)
         assertEquals("00:30", projectDetailsRepository.workStats?.lunchTime)
-        assertEquals("-00:20", projectDetailsRepository.workStats?.balanceTotal)
+        assertEquals("-00:20", projectDetailsRepository.workStats?.flexTimeTotal)
     }
 
     @Test
     fun updateWorkStats_invalidInput_doesNotPersist() = runTest {
         val projectRepository = FakeProjectRepository()
-        val initialStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", balanceTotal = "+01:45")
+        val initialStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", flexTimeTotal = "+01:45")
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = initialStats
         }
@@ -122,7 +122,7 @@ class WorkdayViewModelTest {
         val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(dailyWorkTime = "8:00", balanceTotal = "invalid")
+        viewModel.updateWorkStats(dailyWorkTime = "8:00", flexTimeTotal = "invalid")
         advanceUntilIdle()
 
         assertEquals(initialStats, projectDetailsRepository.workStats)
@@ -211,7 +211,7 @@ class WorkdayViewModelTest {
                     breakStart = it.breakStart,
                     breakEnd = it.breakEnd,
                     projectTime = it.projectTime,
-                    balanceToday = it.balanceToday
+                    flexTimeToday = it.flexTimeToday
                 )
             }
         }
@@ -255,4 +255,5 @@ class WorkdayViewModelTest {
         override suspend fun clearWorkTypes() = Unit
     }
 }
+
 

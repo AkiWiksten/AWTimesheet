@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.details
+﻿package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -348,26 +348,26 @@ class ProjectDetailsViewModel @Inject constructor(
     private fun calculateBalanceUpdatesInState(
         state: ProjectDetailsUiState.Success,
         oldProjectTime: LocalTime,
-        oldBalanceToday: String?,
+        oldFlexTimeToday: String?,
         calculateToday: Boolean
     ): ProjectDetailsUiState.Success {
         var nextState = state
         if (calculateToday) {
-            nextState = updateBalanceTodayIfNeeded(nextState)
+            nextState = updateFlexTimeTodayIfNeeded(nextState)
         }
 
         val balanceAdjustment = calculateBalanceAdjustment(
             state = state,
             nextState = nextState,
             oldProjectTime = oldProjectTime,
-            oldBalanceToday = oldBalanceToday
+            oldFlexTimeToday = oldFlexTimeToday
         )
 
         nextState = nextState.copy(
             data = nextState.data.copy(
                 workStats = nextState.data.workStats.copy(
-                    balanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                        initialTime = nextState.data.workStats.balanceTotal,
+                    flexTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                        initialTime = nextState.data.workStats.flexTimeTotal,
                         addedTime = balanceAdjustment
                     )
                 )
@@ -377,7 +377,7 @@ class ProjectDetailsViewModel @Inject constructor(
         return nextState
     }
 
-    private fun updateBalanceTodayIfNeeded(
+    private fun updateFlexTimeTodayIfNeeded(
         state: ProjectDetailsUiState.Success
     ): ProjectDetailsUiState.Success {
         val totalProjectTimeForDay = WorkTimeCalculator.calculateWorkTimeBalance(
@@ -386,7 +386,7 @@ class ProjectDetailsViewModel @Inject constructor(
         )
         return state.copy(
             data = state.data.copy(
-                balanceToday = WorkTimeCalculator.calculateWorkTimeBalance(
+                flexTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
                     initialTime = totalProjectTimeForDay,
                     addedTime = "-" + state.data.workStats.dailyWorkTime
                 )
@@ -398,7 +398,7 @@ class ProjectDetailsViewModel @Inject constructor(
         state: ProjectDetailsUiState.Success,
         nextState: ProjectDetailsUiState.Success,
         oldProjectTime: LocalTime,
-        oldBalanceToday: String?
+        oldFlexTimeToday: String?
     ): String {
         var balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
             nextState.data.projectTime,
@@ -415,10 +415,10 @@ class ProjectDetailsViewModel @Inject constructor(
             )
         }
 
-        if (oldBalanceToday != null) {
+        if (oldFlexTimeToday != null) {
             balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
-                nextState.data.balanceToday,
-                WorkTimeCalculator.checkIfDoubleMinus("-$oldBalanceToday")
+                nextState.data.flexTimeToday,
+                WorkTimeCalculator.checkIfDoubleMinus("-$oldFlexTimeToday")
             )
         }
 
@@ -500,19 +500,19 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val oldProjectTime = successState.data.projectTime
-            var nextBalanceTotal = successState.data.workStats.balanceTotal
+            var nextFlexTimeTotal = successState.data.workStats.flexTimeTotal
 
             if (oldProjectTime != ZERO_TIME) {
                 // Revert project time contribution
-                nextBalanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                    nextBalanceTotal,
+                nextFlexTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                    nextFlexTimeTotal,
                     WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
                 )
 
                 // If it was the only project, revert the daily work time subtraction too
                 if (!successState.data.hasOtherProjects) {
-                    nextBalanceTotal = WorkTimeCalculator.calculateWorkTimeBalance(
-                        nextBalanceTotal,
+                    nextFlexTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                        nextFlexTimeTotal,
                         successState.data.workStats.dailyWorkTime
                     )
                 }
@@ -528,10 +528,10 @@ class ProjectDetailsViewModel @Inject constructor(
                     breakStart = ZERO_TIME,
                     breakEnd = ZERO_TIME,
                     projectTime = ZERO_TIME,
-                    balanceToday = ZERO_TIME,
-                    oldBalanceToday = ZERO_TIME,
+                    flexTimeToday = ZERO_TIME,
+                    oldFlexTimeToday = ZERO_TIME,
                     workStats = successState.data.workStats.copy(
-                        balanceTotal = nextBalanceTotal
+                        flexTimeTotal = nextFlexTimeTotal
                     )
                 )
             )
@@ -539,13 +539,13 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun setBalanceTotal(balanceTotal: String, isValid: Boolean) {
+    fun setFlexTimeTotal(flexTimeTotal: String, isValid: Boolean) {
         _uiState.update { currentState ->
             when (currentState) {
                 is ProjectDetailsUiState.Success ->
                     currentState.copy(
                         data = currentState.data.copy(
-                            workStats = currentState.data.workStats.copy(balanceTotal = balanceTotal)
+                            workStats = currentState.data.workStats.copy(flexTimeTotal = flexTimeTotal)
                         )
                     )
                 else -> currentState
@@ -573,3 +573,4 @@ class ProjectDetailsViewModel @Inject constructor(
         setProjectTime(LocalTime.now().format(timeFormatter))
     }
 }
+

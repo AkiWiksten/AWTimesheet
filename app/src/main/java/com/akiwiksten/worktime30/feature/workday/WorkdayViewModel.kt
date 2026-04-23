@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday
+﻿package com.akiwiksten.worktime30.feature.workday
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -43,8 +43,8 @@ sealed class WorkdayUiState {
         val date: String = "",
         val workTimeToday: String = ZERO_TIME,
         val dailyWorkTime: String = ZERO_TIME,
-        val balanceToday: String = ZERO_TIME,
-        val balanceTotal: String = ZERO_TIME,
+        val flexTimeToday: String = ZERO_TIME,
+        val flexTimeTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
         val workTypes: List<String> = emptyList()
     ) : WorkdayUiState()
@@ -84,11 +84,11 @@ class WorkdayViewModel @Inject constructor(
                 date = date,
                 workTimeToday = data.projectTime,
                 dailyWorkTime = data.dailyWorkTime,
-                balanceToday = WorkTimeCalculator.calculateWorkTimeBalance(
+                flexTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
                     initialTime = data.projectTime,
                     addedTime = "-${data.dailyWorkTime}"
                 ),
-                balanceTotal = data.balanceTotal,
+                flexTimeTotal = data.flexTimeTotal,
                 projects = allProjects,
                 workTypes = data.workTypes
             ) as WorkdayUiState
@@ -124,7 +124,7 @@ class WorkdayViewModel @Inject constructor(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime,
-                    balanceToday = ZERO_TIME
+                    flexTimeToday = ZERO_TIME
                 )
 
                 saveWorkdayUseCase(
@@ -159,8 +159,8 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateWorkStats(dailyWorkTime: String, balanceTotal: String) {
-        if (!isValidDailyWorkTimeInput(dailyWorkTime) || !isValidBalanceTotalInput(balanceTotal)) {
+    fun updateWorkStats(dailyWorkTime: String, flexTimeTotal: String) {
+        if (!isValidDailyWorkTimeInput(dailyWorkTime) || !isValidFlexTimeTotalInput(flexTimeTotal)) {
             return
         }
 
@@ -171,7 +171,7 @@ class WorkdayViewModel @Inject constructor(
                     WorkStatsState(
                         dailyWorkTime = dailyWorkTime,
                         lunchTime = currentWorkStats?.lunchTime ?: ZERO_TIME,
-                        balanceTotal = balanceTotal
+                        flexTimeTotal = flexTimeTotal
                     )
                 )
                 requestReload()
@@ -188,7 +188,8 @@ private fun isValidDailyWorkTimeInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }
 
-private fun isValidBalanceTotalInput(value: String): Boolean {
+private fun isValidFlexTimeTotalInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }
+
 

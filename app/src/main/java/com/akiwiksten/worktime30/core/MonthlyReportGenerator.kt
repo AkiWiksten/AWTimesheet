@@ -17,7 +17,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.WorkTimeCalculator.extractDayOfMonth
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
@@ -76,11 +76,21 @@ object MonthlyReportGenerator {
             .groupBy { it.projectName }
             .forEach { (name, projects) ->
                 uniqueProjects[name] = projects.fold(ZERO_TIME) { acc, project ->
-                    WorkTimeCalculator.calculateTotalMinutes(acc, project.projectTime, false, false)
+                    WorkTimeCalculator.calculateTotalMinutes(
+                        initialTime = acc,
+                        addedTime = project.projectTime,
+                        isInitialTimeNegative = false,
+                        isAddedTimeNegative = false
+                    )
                 }
             }
         val totalSum = uniqueProjects.values.fold(ZERO_TIME) { acc, time ->
-            WorkTimeCalculator.calculateTotalMinutes(acc, time, false, false)
+            WorkTimeCalculator.calculateTotalMinutes(
+                initialTime = acc,
+                addedTime = time,
+                isInitialTimeNegative = false,
+                isAddedTimeNegative = false
+            )
         }
         uniqueProjects[params.totalSumLabel] = totalSum
         return uniqueProjects

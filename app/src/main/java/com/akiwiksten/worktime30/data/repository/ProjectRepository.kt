@@ -1,6 +1,6 @@
 package com.akiwiksten.worktime30.data.repository
 
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 interface ProjectRepository {
     suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState>

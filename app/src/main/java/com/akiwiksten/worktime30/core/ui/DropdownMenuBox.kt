@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,7 +103,10 @@ private fun DropdownTextField(
         label = {
             Text(
                 text = stringResource(id = labelId),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
             )
         },
         trailingIcon = {
@@ -109,6 +115,7 @@ private fun DropdownTextField(
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
         isError = selectedText.trim().isEmpty() && labelId == R.string.allowance,
         enabled = true,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         colors = OutlinedTextFieldDefaults.colors(
             disabledTextColor = MaterialTheme.colorScheme.onSurface,
             disabledBorderColor = MaterialTheme.colorScheme.outline,

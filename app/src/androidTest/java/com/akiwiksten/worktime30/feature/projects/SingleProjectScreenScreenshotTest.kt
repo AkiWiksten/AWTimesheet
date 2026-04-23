@@ -9,8 +9,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenContent
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenContentParams
 import org.junit.Rule
@@ -33,7 +33,7 @@ class SingleProjectScreenScreenshotTest {
                 date = "2026-04-10",
                 state = SingleProjectState(),
                 isAddMode = true,
-                projectsUiState = ProjectsUiState.Loading,
+                projectsUiState = WorkdayUiState.Loading,
                 isConfirmEnabled = false,
                 onStateChange = {},
                 onNavigateBack = {},
@@ -54,7 +54,7 @@ class SingleProjectScreenScreenshotTest {
                 date = "2026-04-10",
                 state = SingleProjectState(),
                 isAddMode = true,
-                projectsUiState = ProjectsUiState.Loading,
+                projectsUiState = WorkdayUiState.Loading,
                 isConfirmEnabled = false,
                 onStateChange = {},
                 onNavigateBack = {},
@@ -81,7 +81,7 @@ class SingleProjectScreenScreenshotTest {
                     workType = "Maintenance",
                 ),
                 isAddMode = false,
-                projectsUiState = ProjectsUiState.Success(
+                projectsUiState = WorkdayUiState.Success(
                     date = "2026-04-10",
                     workTimeToday = "07:45",
                     workTypes = listOf("Installation", "Maintenance", "Meeting")
@@ -103,7 +103,7 @@ class SingleProjectScreenScreenshotTest {
                 date = "2026-04-10",
                 state = SingleProjectState(),
                 isAddMode = true,
-                projectsUiState = ProjectsUiState.Error(message = "Failed to load project"),
+                projectsUiState = WorkdayUiState.Error(message = "Failed to load project"),
                 isConfirmEnabled = false,
                 onStateChange = {},
                 onNavigateBack = {},

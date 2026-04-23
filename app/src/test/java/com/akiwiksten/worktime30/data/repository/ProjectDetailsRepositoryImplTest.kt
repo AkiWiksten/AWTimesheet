@@ -1,12 +1,12 @@
-package com.akiwiksten.worktime30.data.repository
+﻿package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -48,7 +48,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun getWorkStats_returnsDataFromDao() = runBlocking {
-        val expected = WorkStatsState(workTimeTotal = "10:00 h")
+        val expected = WorkStatsState(flexTimeTotal = "10:00 h")
         workStatsDao.workStatsResult = expected.toEntity()
 
         val result = repository.getWorkStats()
@@ -58,7 +58,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun insertWorkStats_callsDaoInsert() = runBlocking {
-        val workStats = WorkStatsState(workTimeTotal = "10:00 h")
+        val workStats = WorkStatsState(flexTimeTotal = "10:00 h")
 
         repository.insertWorkStats(workStats)
 
@@ -126,3 +126,4 @@ class ProjectDetailsRepositoryImplTest {
         }
     }
 }
+

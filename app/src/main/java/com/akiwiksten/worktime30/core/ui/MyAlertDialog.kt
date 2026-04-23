@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.foundation.layout.Row
+// ...existing imports...
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -78,6 +80,7 @@ fun AddTextFieldDialog(
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         var addText by remember { mutableStateOf(value = "") }
+        val scrollState = rememberScrollState()
 
         Card(
             modifier = modifier
@@ -90,7 +93,8 @@ fun AddTextFieldDialog(
             Column(
                 modifier = Modifier
                     .padding(all = 24.dp)
-                    .verticalScroll(state = rememberScrollState()),
+                    .verticalScrollbar(scrollState = scrollState)
+                    .verticalScroll(state = scrollState),
                 verticalArrangement = Arrangement.spacedBy(space = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -132,14 +136,31 @@ fun AddTextFieldDialog(
 @Composable
 fun UnsavedChangesDialog(
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    dialogText: String
+    onDiscard: () -> Unit,
+    dialogText: String,
+    onSave: (() -> Unit)? = null
 ) {
-    MyAlertDialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
-        onConfirmation = onConfirm,
-        dialogTitle = stringResource(id = R.string.unsaved_data_title),
-        dialogText = dialogText,
-        icon = Icons.Default.Info
+        icon = { Icon(imageVector = Icons.Default.Info, contentDescription = null) },
+        title = { Text(text = stringResource(id = R.string.unsaved_data_title)) },
+        text = { Text(text = dialogText) },
+        confirmButton = {
+            Row {
+                if (onSave != null) {
+                    TextButton(onClick = onSave) {
+                        Text(text = stringResource(id = R.string.save))
+                    }
+                }
+                TextButton(onClick = onDiscard) {
+                    Text(text = stringResource(id = R.string.discard))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(id = R.string.stay))
+            }
+        }
     )
 }

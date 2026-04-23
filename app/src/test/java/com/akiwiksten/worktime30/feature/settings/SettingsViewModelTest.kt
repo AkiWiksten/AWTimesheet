@@ -1,14 +1,13 @@
 package com.akiwiksten.worktime30.feature.settings
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.GetProjectsByMonthUseCase
+import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -90,7 +89,7 @@ class SettingsViewModelTest {
         return SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
             saveSettingsUseCase = SaveSettingsUseCase(settingsRepository),
-            getProjectsByMonthUseCase = GetProjectsByMonthUseCase(projectRepository),
+            getWorkdayByMonthUseCase = GetWorkdayByMonthUseCase(projectRepository),
             settingsRepository = settingsRepository,
             dateRepository = DateRepository()
         )

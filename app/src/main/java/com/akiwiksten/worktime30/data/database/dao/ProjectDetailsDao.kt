@@ -11,13 +11,14 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 
 @Dao
 interface ProjectDetailsDao {
-    @Query("SELECT exists (SELECT 1 FROM project_details)")
+    @Query("SELECT COUNT(*) > 0 FROM project_details")
     suspend fun anyRecords(): Boolean
 
     @Query("SELECT * FROM project_details")
     suspend fun getAll(): List<ProjectDetailsEntity>
 
     @Query("SELECT * FROM project_details WHERE $DATE = :date AND $PROJECT_NAME = :projectName")
+    @Suppress("unused")
     suspend fun loadProjectDetails(date: String, projectName: String): ProjectDetailsEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -27,5 +28,6 @@ interface ProjectDetailsDao {
     suspend fun delete(projectDetails: ProjectDetailsEntity)
 
     @Query("SELECT * FROM project_details WHERE $DATE BETWEEN :dateStart AND :dateEnd")
+    @Suppress("unused")
     suspend fun getProjectDetailsByDateRange(dateStart: String, dateEnd: String): List<ProjectDetailsEntity>
 }

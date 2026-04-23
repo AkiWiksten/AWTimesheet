@@ -7,13 +7,13 @@ import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
 import com.akiwiksten.worktime30.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 
 // Navigation routes
 sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Calendar : Screen(CALENDAR_SCREEN, R.string.calendar)
-    object Projects : Screen(PROJECTS_SCREEN, R.string.projects)
+    object Workday : Screen(PROJECTS_SCREEN, R.string.workday)
     object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
     data class ProjectDetails(
         val projectName: String? = null,

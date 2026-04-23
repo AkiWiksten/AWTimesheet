@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun WorkTimeNavigationBar(backStack: SnapshotStateList<Any>) {
-    val navigationScreens = listOf(Screen.Calendar, Screen.Projects, Screen.Settings)
+    val navigationScreens = listOf(Screen.Calendar, Screen.Workday, Screen.Settings)
     Surface(shadowElevation = 8.dp, tonalElevation = 8.dp) {
         NavigationBar {
             navigationScreens.forEach { screen ->
@@ -37,7 +37,7 @@ internal fun WorkTimeNavigationBar(backStack: SnapshotStateList<Any>) {
 private fun ScreenIcon(screen: Screen) {
     val icon = when (screen) {
         Screen.Calendar -> Icons.Default.CalendarMonth
-        Screen.Projects -> Icons.AutoMirrored.Filled.List
+        Screen.Workday -> Icons.AutoMirrored.Filled.List
         Screen.Settings -> Icons.Default.Settings
         else -> Icons.Default.Home
     }

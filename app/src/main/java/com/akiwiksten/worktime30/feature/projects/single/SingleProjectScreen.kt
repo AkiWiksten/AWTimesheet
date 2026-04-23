@@ -1,33 +1,25 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
+import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,19 +32,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsUiState
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsViewModel
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,30 +56,30 @@ fun SingleProjectScreen(
     onNavigateBack: () -> Unit,
     onOpenProjectDetails: (SingleProjectState) -> Unit,
     initialSingleProjectState: SingleProjectState,
-    viewModel: ProjectsViewModel = hiltViewModel(
+    viewModel: WorkdayViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val savedText = stringResource(id = R.string.saved)
+    val noAllowanceText = stringResource(id = R.string.no_allowance)
     val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentProjectsState = projectsUiState
-    val date = (currentProjectsState as? ProjectsUiState.Success)?.date ?: ""
+    val date = (currentProjectsState as? WorkdayUiState.Success)?.date ?: ""
 
     val initialUiState = remember(
         initialSingleProjectState.index,
         currentProjectsState,
         initialSingleProjectState.projectTime,
-        initialSingleProjectState.projectName
+        initialSingleProjectState.projectName,
+        initialSingleProjectState.projectDetails,
+        initialSingleProjectState.workStats,
+        noAllowanceText
     ) {
-        if (initialSingleProjectState.index != -1 && currentProjectsState is ProjectsUiState.Success) {
-            currentProjectsState
-                .projects
-                .find {
-                    it.index == initialSingleProjectState.index
-                } ?: SingleProjectState()
-            // If we have initial values from navigation (e.g., after returning from ProjectDetailsScreen), use them
-        } else {
-            initialSingleProjectState
-        }
+        resolveInitialSingleProjectState(
+            initialSingleProjectState = initialSingleProjectState,
+            projectsUiState = currentProjectsState
+        ).withDefaultAllowance(defaultAllowance = noAllowanceText)
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
@@ -94,9 +89,11 @@ fun SingleProjectScreen(
         state = initialUiState
     }
 
-    val isConfirmEnabled by remember {
+    val isConfirmEnabled by remember(state, initialUiState) {
         derivedStateOf {
-            state.projectName.isNotBlank() && state.kilometres.isDigitsOnly()
+            state.projectName.isNotBlank() &&
+                state.kilometres.isDigitsOnly() &&
+                state != initialUiState
         }
     }
 
@@ -113,23 +110,64 @@ fun SingleProjectScreen(
             onOpenProjectDetails = { onOpenProjectDetails(state) },
             onConfirm = {
                 viewModel.saveProject(state = state)
+                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
                 onNavigateBack()
             }
         )
     )
 }
 
+private fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): SingleProjectState {
+    return if (allowance.isBlank()) copy(allowance = defaultAllowance) else this
+}
+
+internal fun resolveInitialSingleProjectState(
+    initialSingleProjectState: SingleProjectState,
+    projectsUiState: WorkdayUiState
+): SingleProjectState {
+    val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
+        initialSingleProjectState.projectTime != ZERO_TIME ||
+        initialSingleProjectState.projectDetails != null ||
+        initialSingleProjectState.workStats != null
+
+    val resolvedState = when {
+        initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState
+        else -> (projectsUiState as? WorkdayUiState.Success)
+            ?.projects
+            ?.find { it.index == initialSingleProjectState.index }
+            ?: initialSingleProjectState
+    }
+
+    return resolvedState
+}
+
 @Composable
 internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = params.projectsUiState is ProjectsUiState.Loading
+        isLoading = params.projectsUiState is WorkdayUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<ProjectsUiState.Success?>(value = null) }
+    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
+    var showUnsavedDialog by remember { mutableStateOf(value = false) }
+    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(params.projectsUiState) {
-        if (params.projectsUiState is ProjectsUiState.Success) {
+        if (params.projectsUiState is WorkdayUiState.Success) {
             lastSuccessState = params.projectsUiState
         }
+    }
+
+    val guardedNavigateBack = {
+        if (params.isConfirmEnabled) showUnsavedDialog = true
+        else params.onNavigateBack()
+    }
+
+    if (showUnsavedDialog) {
+        UnsavedChangesDialog(
+            onDismiss = { showUnsavedDialog = false },
+            onDiscard = { showUnsavedDialog = false; params.onNavigateBack() },
+            onSave = { showUnsavedDialog = false; params.onConfirm() },
+            dialogText = unsavedMessage
+        )
     }
 
     val actions = SingleProjectActions(
@@ -141,25 +179,25 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     Scaffold(
         topBar = {
             SingleProjectTopSection(
-                onNavigateBack = params.onNavigateBack
+                onNavigateBack = guardedNavigateBack
             )
         }
     ) { padding ->
         when (params.projectsUiState) {
-            is ProjectsUiState.Loading -> SingleProjectLoadingContent(
+            is WorkdayUiState.Loading -> SingleProjectLoadingContent(
                 padding = padding,
                 params = params,
                 actions = actions,
                 showLoadingIndicator = showLoadingIndicator,
                 cachedSuccessState = lastSuccessState
             )
-            is ProjectsUiState.Success -> SingleProjectSuccessContent(
+            is WorkdayUiState.Success -> SingleProjectSuccessContent(
                 padding = padding,
                 params = params,
                 actions = actions,
                 uiState = params.projectsUiState
             )
-            is ProjectsUiState.Error -> SingleProjectErrorContent(
+            is WorkdayUiState.Error -> SingleProjectErrorContent(
                 padding = padding,
                 message = params.projectsUiState.message
             )
@@ -173,7 +211,7 @@ private fun SingleProjectLoadingContent(
     params: SingleProjectScreenContentParams,
     actions: SingleProjectActions,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: ProjectsUiState.Success?
+    cachedSuccessState: WorkdayUiState.Success?
 ) {
     if (showLoadingIndicator) {
         Box(
@@ -191,7 +229,7 @@ private fun SingleProjectLoadingContent(
         padding = padding,
         params = params,
         actions = actions,
-        uiState = cachedSuccessState ?: ProjectsUiState.Success(date = params.date)
+        uiState = cachedSuccessState ?: WorkdayUiState.Success(date = params.date)
     )
 }
 
@@ -200,10 +238,26 @@ private fun SingleProjectSuccessContent(
     padding: PaddingValues,
     params: SingleProjectScreenContentParams,
     actions: SingleProjectActions,
-    uiState: ProjectsUiState
+    uiState: WorkdayUiState
 ) {
+    val successState = uiState as? WorkdayUiState.Success
+    val originalProjectTime = successState
+        ?.projects
+        ?.find { it.index == params.index }
+        ?.projectTime
+        ?: ZERO_TIME
+    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
+        initialTime = successState?.workTimeToday ?: ZERO_TIME,
+        addedTime = "-$originalProjectTime"
+    )
+    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+        initialTime = baseWithoutCurrent,
+        addedTime = params.state.projectTime
+    )
+
     SingleProjectContent(
         padding = padding,
+        workTimeToday = workTimeToday,
         screenState = SingleProjectScreenState(
             date = params.date,
             editedProjectIndex = params.index,
@@ -236,7 +290,7 @@ data class SingleProjectScreenState(
     val editedProjectIndex: Int,
     val state: SingleProjectState,
     val isAddMode: Boolean,
-    val uiState: ProjectsUiState,
+    val uiState: WorkdayUiState,
     val isConfirmEnabled: Boolean
 )
 
@@ -255,10 +309,9 @@ private fun SingleProjectTopSection(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
             SingleProjectTopBar(onNavigateBack = onNavigateBack)
-
         }
     }
 }
@@ -266,177 +319,69 @@ private fun SingleProjectTopSection(
 @Composable
 private fun SingleProjectContent(
     padding: PaddingValues,
+    workTimeToday: String,
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
-    val successState = screenState.uiState as? ProjectsUiState.Success
-    val originalProjectTime = successState
-        ?.projects
-        ?.find { it.index == screenState.editedProjectIndex }
-        ?.projectTime
-        ?: ZERO_TIME
-    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
-        initialTime = successState?.workTimeToday ?: ZERO_TIME,
-        addedTime = "-$originalProjectTime"
-    )
-    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
-        initialTime = baseWithoutCurrent,
-        addedTime = screenState.state.projectTime
-    )
+    val scrollState = rememberScrollState()
 
-    ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
-            .padding(all = 24.dp)
+            .padding(all = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 16.dp)
-                .verticalScroll(state = rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            HeaderSection(date = screenState.date)
-
-            DialogMainFields(
-                state = screenState.state,
-                isAddMode = screenState.isAddMode,
-                onStateChange = actions.onStateChange
-            )
-
-            TimeSelectionSection(
-                state = screenState.state,
-                workTimeToday = workTimeToday,
-                onOpenProjectDetails = actions.onOpenProjectDetails,
-                onStateChange = actions.onStateChange
-            )
-
-            DialogDropdownFields(
-                state = screenState.state,
-                workTypeDropDownList = (screenState.uiState as? ProjectsUiState.Success)?.workTypes
-                    ?: emptyList(),
-                onStateChange = actions.onStateChange
-            )
-
-            Spacer(modifier = Modifier.weight(weight = 1f))
-
-            Button(
-                onClick = actions.onConfirm,
-                enabled = screenState.isConfirmEnabled,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(size = 12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-            ) {
-                Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
-            }
-        }
-    }
-}
-
-@Composable
-private fun DialogMainFields(
-    state: SingleProjectState,
-    isAddMode: Boolean,
-    onStateChange: (SingleProjectState) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
-        state.projectName.let {
-            OutlinedTextField(
-                value = it,
-                onValueChange = { onStateChange(state.copy(projectName = it)) },
-                label = { Text(text = stringResource(id = R.string.project_name)) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = isAddMode,
-                singleLine = true,
-                shape = RoundedCornerShape(size = 12.dp)
-            )
-        }
-
-        state.kilometres.let {
-            OutlinedTextField(
-                value = it,
-                onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-                label = { Text(text = stringResource(id = R.string.kilometres)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                shape = RoundedCornerShape(size = 12.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun TimeSelectionSection(
-    state: SingleProjectState,
-    workTimeToday: String,
-    onOpenProjectDetails: () -> Unit,
-    onStateChange: (SingleProjectState) -> Unit
-) {
-    val openTimePickerDialogState = remember { mutableStateOf(false) }
-
-    ProjectTimePickerDialog(
-        showDialog = openTimePickerDialogState.value,
-        onDismissRequest = { openTimePickerDialogState.value = false },
-        onConfirmation = { time ->
-            onStateChange(state.copy(projectTime = time))
-            openTimePickerDialogState.value = false
-        },
-        currentTime = state.projectTime
-    )
-
-    Column(verticalArrangement = Arrangement.spacedBy(space = 8.dp)) {
-        Text(
-            text = "${stringResource(id = R.string.work_time_today)}: $workTimeToday",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.secondary
+        HeaderSection(
+            date = screenState.date,
+            workTimeToday = workTimeToday
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+        ElevatedCard(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(weight = 1f)
         ) {
-            state.projectTime.let {
-                OutlinedTextField(
-                    value = it,
-                    onValueChange = { onStateChange(state.copy(projectTime = it)) },
-                    label = { Text(text = stringResource(id = R.string.project_time)) },
-                    modifier = Modifier.weight(weight = 1f),
-                    readOnly = true,
-                    leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
-                    shape = RoundedCornerShape(size = 12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                    )
-                )
-            }
-
-            Button(
-                onClick = onOpenProjectDetails,
-                modifier = Modifier.padding(top = 8.dp),
-                shape = RoundedCornerShape(size = 12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScrollbar(scrollState = scrollState)
+                    .padding(all = 16.dp)
+                    .verticalScroll(state = scrollState),
+                verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Icon(imageVector = Icons.Default.History, contentDescription = null)
-                Spacer(modifier = Modifier.width(width = 4.dp))
-                Text(text = stringResource(id = R.string.details))
-            }
-
-            Button(
-                onClick = { openTimePickerDialogState.value = true },
-                modifier = Modifier.padding(top = 8.dp),
-                shape = RoundedCornerShape(size = 12.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccessTime,
-                    contentDescription = stringResource(id = R.string.go_to_time_picker)
+                DialogMainFields(
+                    state = screenState.state,
+                    isAddMode = screenState.isAddMode,
+                    onStateChange = actions.onStateChange
                 )
+
+                TimeSelectionSection(
+                    state = screenState.state,
+                    onOpenProjectDetails = actions.onOpenProjectDetails,
+                    onStateChange = actions.onStateChange
+                )
+
+                DialogDropdownFields(
+                    state = screenState.state,
+                    workTypeDropDownList = (screenState.uiState as? WorkdayUiState.Success)?.workTypes
+                        ?: emptyList(),
+                    onStateChange = actions.onStateChange
+                )
+
+                Spacer(modifier = Modifier.weight(weight = 1f))
+
+                Button(
+                    onClick = actions.onConfirm,
+                    enabled = screenState.isConfirmEnabled,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                ) {
+                    Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+                }
             }
         }
     }
@@ -447,7 +392,7 @@ data class SingleProjectScreenContentParams(
     val date: String,
     val state: SingleProjectState,
     val isAddMode: Boolean,
-    val projectsUiState: ProjectsUiState,
+    val projectsUiState: WorkdayUiState,
     val isConfirmEnabled: Boolean,
     val onStateChange: (SingleProjectState) -> Unit,
     val onNavigateBack: () -> Unit,

@@ -14,15 +14,16 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.daily.ProjectsScreen
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsArgs
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.single.details.ProjectDetailsScreen
-import com.akiwiksten.worktime30.feature.projects.single.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 
 @Composable
@@ -65,8 +66,8 @@ internal fun WorkTimeNavDisplay(
                 IntroScreen(onItemClick = { backStack.add(element = Screen.Calendar) })
             }
             entry<Screen.Calendar> { CalendarScreen() }
-            entry<Screen.Projects> {
-                ProjectsScreen(
+            entry<Screen.Workday> {
+                WorkdayScreen(
                     onNavigateToSingleProject = { index ->
                         backStack.add(element = Screen.SingleProject(index = index))
                     }
@@ -103,9 +104,11 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
     val initialSingleProjectState = SingleProjectState(
         index = screen.index,
         projectName = screen.projectName ?: "",
-        projectTime = screen.projectTime ?: "",
+        projectTime = screen.projectTime ?: ZERO_TIME,
         kilometres = screen.kilometres ?: "",
-        allowance = screen.allowance ?: stringResource(id = R.string.no_allowance),
+        allowance = screen.allowance
+            .takeUnless { it.isNullOrBlank() }
+            ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
         projectDetails = screen.projectDetails,
         workStats = screen.workStats,

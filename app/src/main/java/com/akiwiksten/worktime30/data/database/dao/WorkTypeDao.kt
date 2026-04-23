@@ -10,7 +10,7 @@ import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 
 @Dao
 interface WorkTypeDao {
-    @Query("SELECT exists (SELECT 1 FROM $WORK_TYPE_TABLE)")
+    @Query("SELECT COUNT(*) > 0 FROM $WORK_TYPE_TABLE")
     suspend fun anyRecords(): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

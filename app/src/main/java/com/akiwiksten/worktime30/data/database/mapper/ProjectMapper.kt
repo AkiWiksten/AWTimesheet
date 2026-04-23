@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.data.database.mapper
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 fun ProjectEntity.toDomain(): SingleProjectState {
     return SingleProjectState(

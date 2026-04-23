@@ -8,7 +8,7 @@
 + **Calendar** to select a date to manage
 + **Projects** to manage projects for selected date
   + **Single project** to manage a single project
-    + **Project Details** to feed and calculate start, end, work time, balance, breaks and lunch.
+    + **Project Details** to feed and calculate start, end, work time, FlexTime, breaks and lunch.
 + **Settings** to manage settings, like name, employer work type choices (Coding, Installation, Design etc.)
   + **Pdf monthly report** shows your daily work time per projects in a table. Calculates also monthly statistics.
 ## Main Technologies
@@ -51,30 +51,37 @@ This is called feature-based packaging.
 
 ## Features to be implemented still
 + create full backup support.
-+ unify Headers for Screens
-+ unify icon names
 + Project name edit and validation in SingleProjectScreen
 + Project name validation in ProjectsScreen. Kilometres validation. 0050 not valid.
 + Workday: “Open End Time picker to select time and confirm to show the total work time of the day”
 + Ask to save when coming back from or switching to a screen.
-+ Show Toast when saving data or confirming.
 + Validation
-+ Design patterns to implement. Already implemented? Where?
 + "Note! Automatic calculations for fields below."
-+ Test all features in all screens
-  + Intro,
-  + Calendar,
-  + Projects,
-  + Single project,
-  + Project Details,
-  + Settings
 + Orientation support
-+ detekt, lint, sonarcube run regularly, preferrably before pushing code
-+ In “ProjectDetailsScreen”
-  + move “Daily work time” and “Lunch time” to SettingsScreen. Add estimate to the strings.
-  + move “Balance today” and “Balance total” to ProjectsScreen. Show them in a same way as “Work time today”.
-  + Edit “Balance total” in SettingsScreen.
-  + Remove “Work time total”
-  + DailyWorkTime to ExpectedProjectTime
 + Translate fed "Work type"
-+ Balance->Flex time
++ Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel
++ When is Flex time total updated?
++ App localization selection
++ "Clear day" → "Clear details"
++ Use "Design" and "Other" as Default work types when list is empty
++ work_type_help
++ add_project_item_failed_title add_project_item_failed_title_text (Duplicate)
++ Everything with bigger font
++ Flex time naming cleanup
++ Selecting work type doesn't work in edit mode
++ DialogMainFields
++ Flex time total doesn't update
++ Use Intent to ask user where to save pdf
++ PDF: Project time sum, Half-allowance and Full-allowance kilometre sum for each project
+
+
+Constantly:
++ Thorough testing of all features in all screens
+    + Intro,
+        + Overall functionality
+    + Calendar,
+    + Projects,
+    + Single project,
+    + Project Details,
+    + Settings
++ detekt, lint, SonarQube run regularly, preferably before pushing code

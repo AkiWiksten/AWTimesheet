@@ -1,6 +1,9 @@
+@file:Suppress("TooManyFunctions")
+
 package com.akiwiksten.worktime30.feature.settings
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,10 +39,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
+import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
+import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 
 @Composable
 fun SettingsScreen(
@@ -163,17 +172,14 @@ internal fun SettingsContent(
 ) {
     var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
     var selectedWorkType by remember { mutableStateOf(value = "") }
-
-    LaunchedEffect(key1 = uiState.data.workTypes) {
-        if (selectedWorkType.isEmpty() || !uiState.data.workTypes.contains(selectedWorkType)) {
-            selectedWorkType = uiState.data.workTypes.firstOrNull() ?: ""
-        }
-    }
+    val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(state = rememberScrollState())
+            .verticalScrollbar(scrollState = scrollState)
+            .verticalScroll(state = scrollState)
             .padding(all = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 24.dp)
@@ -203,9 +209,10 @@ internal fun SettingsContent(
         }
 
         ActionButtonsSection(
-            onSave = actions.onSave,
+            onSave = saveUi.onSaveRequested,
             onGeneratePdf = actions.onGeneratePdf,
-            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty()
+            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty(),
+            isSaveEnabled = saveUi.isSaveEnabled
         )
 
         if (showAddWorkTypeDialog) {
@@ -222,12 +229,47 @@ internal fun SettingsContent(
 }
 
 @Composable
+private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): SettingsSaveUi {
+    val context = LocalContext.current
+    val savedText = stringResource(id = R.string.saved)
+    val lastSavedNameState = remember(data.selectedDate) { mutableStateOf(value = data.name) }
+    val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
+    val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
+
+    val hasUnsavedChanges =
+        data.name != lastSavedNameState.value ||
+            data.employer != lastSavedEmployerState.value ||
+            data.workTypes != lastSavedWorkTypesState.value
+
+    return SettingsSaveUi(
+        isSaveEnabled = hasUnsavedChanges,
+        onSaveRequested = {
+            if (hasUnsavedChanges) {
+                onSave()
+                lastSavedNameState.value = data.name
+                lastSavedEmployerState.value = data.employer
+                lastSavedWorkTypesState.value = data.workTypes
+                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+}
+
+private data class SettingsSaveUi(
+    val isSaveEnabled: Boolean,
+    val onSaveRequested: () -> Unit
+)
+
+@Composable
 private fun SettingsCard(title: String, content: @Composable () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
     ) {
-        Column(modifier = Modifier.padding(all = 16.dp), verticalArrangement = Arrangement.spacedBy(space = 16.dp)) {
+        Column(
+            modifier = Modifier.padding(all = FORM_SECTION_SPACING),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+        ) {
             Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             HorizontalDivider()
             content()
@@ -244,9 +286,9 @@ private fun HeaderSection(date: String) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(all = 16.dp),
+            modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
         ) {
             Header(title = stringResource(id = R.string.settings))
             Text(
@@ -266,7 +308,7 @@ private fun ProfileSection(
     onNameChange: (String) -> Unit,
     onEmployerChange: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = 12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
         SettingsTextField(value = name, label = R.string.name, onValueChange = onNameChange)
         SettingsTextField(value = employer, label = R.string.employer, onValueChange = onEmployerChange)
     }
@@ -294,7 +336,7 @@ private fun WorkTypeSection(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+        verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         DropdownMenuBox(
             items = workTypes,
@@ -303,7 +345,7 @@ private fun WorkTypeSection(
             labelId = R.string.work_type,
             modifier = Modifier.fillMaxWidth()
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(space = 8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
             Button(
                 onClick = onAddClick,
                 modifier = Modifier.weight(weight = 1f),
@@ -328,14 +370,16 @@ private fun WorkTypeSection(
 private fun ActionButtonsSection(
     onSave: () -> Unit,
     onGeneratePdf: () -> Unit,
-    isPdfEnabled: Boolean
+    isPdfEnabled: Boolean,
+    isSaveEnabled: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
-        verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+        verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
     ) {
         Button(
             onClick = onSave,
+            enabled = isSaveEnabled,
             modifier = Modifier.fillMaxWidth(),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {

@@ -4,7 +4,7 @@ import android.content.Context
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.GeneratePdfParams
 import com.akiwiksten.worktime30.core.MonthlyReportGenerator
-import com.akiwiksten.worktime30.feature.projects.daily.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
 internal fun generateReport(
     ctx: Context,

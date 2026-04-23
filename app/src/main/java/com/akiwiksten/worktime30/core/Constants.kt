@@ -1,5 +1,7 @@
 package com.akiwiksten.worktime30.core
 
+import androidx.compose.ui.unit.dp
+
 const val DATE = "date"
 const val ZERO_TIME = "00:00"
 const val MINUTES_IN_HOUR = 60
@@ -7,6 +9,14 @@ const val TIME_FORMAT = "HH:mm"
 const val DATE_FORMAT = "yyyy-MM-dd"
 const val LOADING_INDICATOR_DELAY_MS = 1_000L
 const val APP_NAME_QUALIFIER = "app_name"
+const val LABEL_FONT_SIZE_SCALE = 1.08f
+val FIELD_CORNER_RADIUS = 12.dp
+val HEADER_CONTENT_PADDING = 12.dp
+val HEADER_CONTENT_SPACING = 6.dp
+val FORM_GROUP_PADDING = 12.dp
+val FORM_GROUP_SPACING = 12.dp
+val FORM_SECTION_SPACING = 16.dp
+val FORM_INLINE_SPACING = 8.dp
 
 // Project Details
 const val START_TIME = "start_time"
@@ -17,9 +27,8 @@ const val LUNCH_END = "lunch_end"
 const val LUNCH_TIME = "lunch_time"
 const val BREAK_START = "break_start"
 const val BREAK_END = "break_end"
-const val WORK_TIME_TOTAL = "work_time_total"
-const val BALANCE_TODAY = "balance_today"
-const val BALANCE_TOTAL = "balance_total"
+const val FLEX_TIME_TODAY = "balance_today"
+const val FLEX_TIME_TOTAL = "balance_total"
 
 // Screens
 const val INTRO_SCREEN = "intro_screen"

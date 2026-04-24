@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 /**
- * Pure logic for time calculations and workday balance.
+ * Pure logic for time calculations and flex time updates.
  * This class is stateless and provides calculation results back to the caller.
  */
 @Suppress("TooManyFunctions")
@@ -40,7 +40,7 @@ object WorkTimeCalculator {
         }
     }
 
-    fun calculateWorkTimeBalance(initialTime: String, addedTime: String): String {
+    fun calculateFlexTime(initialTime: String, addedTime: String): String {
         val isInitialNegative = initialTime.startsWith("-")
         val isAddedNegative = addedTime.startsWith("-")
 
@@ -156,7 +156,7 @@ object WorkTimeCalculator {
             TimeUpdateResult(end = newEnd.toString())
         } else {
             val newProjectTime = projectTime.subtract(lunchEnd).add(oldLunchEnd)
-            TimeUpdateResult(projectTime = newProjectTime.toString(), calculateBalance = true)
+            TimeUpdateResult(projectTime = newProjectTime.toString(), shouldRecalculateFlexTime = true)
         }
     }
 
@@ -191,7 +191,7 @@ object WorkTimeCalculator {
             }
             else -> {
                 val newProjectTime = projectTime.subtract(oldBreakStart).add(breakStart)
-                TimeUpdateResult(projectTime = newProjectTime.toString(), calculateBalance = true)
+                TimeUpdateResult(projectTime = newProjectTime.toString(), shouldRecalculateFlexTime = true)
             }
         }
     }
@@ -207,7 +207,7 @@ object WorkTimeCalculator {
             TimeUpdateResult(end = newEnd.toString())
         } else {
             val newProjectTime = projectTime.subtract(breakEnd).add(oldBreakEnd)
-            TimeUpdateResult(projectTime = newProjectTime.toString(), calculateBalance = true)
+            TimeUpdateResult(projectTime = newProjectTime.toString(), shouldRecalculateFlexTime = true)
         }
     }
 
@@ -257,7 +257,7 @@ object WorkTimeCalculator {
         val breakStart: String? = null,
         val breakEnd: String? = null,
         val projectTime: String? = null,
-        val calculateBalance: Boolean = false
+        val shouldRecalculateFlexTime: Boolean = false
     )
 
     data class StartTimeUpdateParams(

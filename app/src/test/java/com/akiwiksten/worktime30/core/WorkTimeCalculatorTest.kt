@@ -50,8 +50,8 @@ class WorkTimeCalculatorTest {
     }
 
     @Test
-    fun `calculateWorkTimeBalance handles negative initial time`() {
-        val result = WorkTimeCalculator.calculateWorkTimeBalance(
+    fun `calculateFlexTime handles negative initial time`() {
+        val result = WorkTimeCalculator.calculateFlexTime(
             initialTime = "-01:30",
             addedTime = "00:45"
         )
@@ -60,8 +60,8 @@ class WorkTimeCalculatorTest {
     }
 
     @Test
-    fun `calculateWorkTimeBalance handles negative added time`() {
-        val result = WorkTimeCalculator.calculateWorkTimeBalance(
+    fun `calculateFlexTime handles negative added time`() {
+        val result = WorkTimeCalculator.calculateFlexTime(
             initialTime = "01:30",
             addedTime = "-00:45"
         )
@@ -70,8 +70,8 @@ class WorkTimeCalculatorTest {
     }
 
     @Test
-    fun `calculateWorkTimeBalance handles two negative values`() {
-        val result = WorkTimeCalculator.calculateWorkTimeBalance(
+    fun `calculateFlexTime handles two negative values`() {
+        val result = WorkTimeCalculator.calculateFlexTime(
             initialTime = "-01:30",
             addedTime = "-00:45"
         )
@@ -98,7 +98,7 @@ class WorkTimeCalculatorTest {
         assertEquals("08:00", result.breakStart)
         assertEquals("08:00", result.breakEnd)
         assertNull(result.projectTime)
-        assertFalse(result.calculateBalance)
+        assertFalse(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -232,11 +232,11 @@ class WorkTimeCalculatorTest {
         )
 
         assertEquals("16:30", result.end)
-        assertFalse(result.calculateBalance)
+        assertFalse(result.shouldRecalculateFlexTime)
     }
 
     @Test
-    fun `calculateLunchEndUpdate updates work time and balance when work time exists`() {
+    fun `calculateLunchEndUpdate updates work time and flex time when work time exists`() {
         val result = WorkTimeCalculator.calculateLunchEndUpdate(
             end = LocalTime.of(16, 0),
             lunchEnd = LocalTime.of(12, 30),
@@ -245,7 +245,7 @@ class WorkTimeCalculatorTest {
         )
 
         assertEquals("07:00", result.projectTime)
-        assertTrue(result.calculateBalance)
+        assertTrue(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -302,7 +302,7 @@ class WorkTimeCalculatorTest {
     }
 
     @Test
-    fun `calculateBreakStartUpdate updates work time and balance when work time exists`() {
+    fun `calculateBreakStartUpdate updates work time and flex time when work time exists`() {
         val result = WorkTimeCalculator.calculateBreakStartUpdate(
             end = LocalTime.of(16, 0),
             breakStart = LocalTime.of(14, 15),
@@ -312,7 +312,7 @@ class WorkTimeCalculatorTest {
         )
 
         assertEquals("07:45", result.projectTime)
-        assertTrue(result.calculateBalance)
+        assertTrue(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -328,7 +328,7 @@ class WorkTimeCalculatorTest {
     }
 
     @Test
-    fun `calculateBreakEndUpdate updates work time and balance when work time exists`() {
+    fun `calculateBreakEndUpdate updates work time and flex time when work time exists`() {
         val result = WorkTimeCalculator.calculateBreakEndUpdate(
             end = LocalTime.of(16, 0),
             projectTime = LocalTime.of(7, 30),
@@ -337,7 +337,7 @@ class WorkTimeCalculatorTest {
         )
 
         assertEquals("07:15", result.projectTime)
-        assertTrue(result.calculateBalance)
+        assertTrue(result.shouldRecalculateFlexTime)
     }
 
     @Test

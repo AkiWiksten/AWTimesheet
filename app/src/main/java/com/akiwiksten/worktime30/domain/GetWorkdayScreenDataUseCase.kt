@@ -16,7 +16,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
     suspend operator fun invoke(date: String): WorkdayScreenData {
         val projects = projectRepository.getProjectsByDateRange(date, date)
         val projectTime = projects.fold(ZERO_TIME) { acc, project ->
-            WorkTimeCalculator.calculateWorkTimeBalance(acc, project.projectTime)
+            WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
         }
 
         val projectNames = projectRepository.getProjectNames()

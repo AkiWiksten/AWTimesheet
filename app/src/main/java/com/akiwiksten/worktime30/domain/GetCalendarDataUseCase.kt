@@ -59,7 +59,7 @@ class GetCalendarDataUseCase @Inject constructor(
 
         // Sum up projects
         for (project in projects) {
-            totalTime = WorkTimeCalculator.calculateWorkTimeBalance(totalTime, project.projectTime)
+            totalTime = WorkTimeCalculator.calculateFlexTime(totalTime, project.projectTime)
         }
 
         return totalTime

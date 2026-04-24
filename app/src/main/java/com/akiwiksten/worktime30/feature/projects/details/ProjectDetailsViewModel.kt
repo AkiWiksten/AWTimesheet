@@ -342,12 +342,17 @@ class ProjectDetailsViewModel @Inject constructor(
         result.projectTime?.let {
             val oldProjectTime = WorkTimeCalculator.stringToLocalTime(nextState.data.projectTime)
             nextState = nextState.copy(data = nextState.data.copy(projectTime = it))
-            nextState = calculateBalanceUpdatesInState(nextState, oldProjectTime, null, result.calculateBalance)
+            nextState = calculateFlexTimeUpdatesInState(
+                nextState,
+                oldProjectTime,
+                null,
+                result.shouldRecalculateFlexTime
+            )
         }
         return nextState
     }
 
-    private fun calculateBalanceUpdatesInState(
+    private fun calculateFlexTimeUpdatesInState(
         state: ProjectDetailsUiState.Success,
         oldProjectTime: LocalTime,
         oldFlexTimeToday: String?,
@@ -358,7 +363,7 @@ class ProjectDetailsViewModel @Inject constructor(
             nextState = updateFlexTimeTodayIfNeeded(nextState)
         }
 
-        val balanceAdjustment = calculateBalanceAdjustment(
+        val flexTimeAdjustment = calculateFlexTimeAdjustment(
             state = state,
             nextState = nextState,
             oldProjectTime = oldProjectTime,
@@ -368,9 +373,9 @@ class ProjectDetailsViewModel @Inject constructor(
         nextState = nextState.copy(
             data = nextState.data.copy(
                 workStats = nextState.data.workStats.copy(
-                    flexTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                    flexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                         initialTime = nextState.data.workStats.flexTimeTotal,
-                        addedTime = balanceAdjustment
+                        addedTime = flexTimeAdjustment
                     )
                 )
             )
@@ -382,13 +387,13 @@ class ProjectDetailsViewModel @Inject constructor(
     private fun updateFlexTimeTodayIfNeeded(
         state: ProjectDetailsUiState.Success
     ): ProjectDetailsUiState.Success {
-        val totalProjectTimeForDay = WorkTimeCalculator.calculateWorkTimeBalance(
+        val totalProjectTimeForDay = WorkTimeCalculator.calculateFlexTime(
             state.data.otherProjectsTotalTime,
             state.data.projectTime
         )
         return state.copy(
             data = state.data.copy(
-                flexTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+                flexTimeToday = WorkTimeCalculator.calculateFlexTime(
                     initialTime = totalProjectTimeForDay,
                     addedTime = "-" + state.data.workStats.dailyWorkTime
                 )
@@ -396,13 +401,13 @@ class ProjectDetailsViewModel @Inject constructor(
         )
     }
 
-    private fun calculateBalanceAdjustment(
+    private fun calculateFlexTimeAdjustment(
         state: ProjectDetailsUiState.Success,
         nextState: ProjectDetailsUiState.Success,
         oldProjectTime: LocalTime,
         oldFlexTimeToday: String?
     ): String {
-        var balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
+        var flexTimeAdjustment = WorkTimeCalculator.calculateFlexTime(
             nextState.data.projectTime,
             WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
         )
@@ -411,20 +416,20 @@ class ProjectDetailsViewModel @Inject constructor(
             oldProjectTime == LocalTime.MIDNIGHT &&
             nextState.data.projectTime != ZERO_TIME
         ) {
-            balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
-                balanceAdjustment,
+            flexTimeAdjustment = WorkTimeCalculator.calculateFlexTime(
+                flexTimeAdjustment,
                 "-" + nextState.data.workStats.dailyWorkTime
             )
         }
 
         if (oldFlexTimeToday != null) {
-            balanceAdjustment = WorkTimeCalculator.calculateWorkTimeBalance(
+            flexTimeAdjustment = WorkTimeCalculator.calculateFlexTime(
                 nextState.data.flexTimeToday,
                 WorkTimeCalculator.checkIfDoubleMinus("-$oldFlexTimeToday")
             )
         }
 
-        return balanceAdjustment
+        return flexTimeAdjustment
     }
 
     fun getProjectDetailsState(): ProjectDetailsState {
@@ -472,11 +477,11 @@ class ProjectDetailsViewModel @Inject constructor(
             val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
             val workStats = workStatsArg ?: projectDetailsRepository.getWorkStats()
 
-            // Fetch other projects for this date to calculate daily balance correctly
+            // Fetch other projects for this date to calculate daily flex time correctly.
             val allProjectsForDay = projectDetailsRepository.getProjectDetailsByDateRange(date, date)
             val otherProjects = allProjectsForDay.filter { it.projectName != projectName }
             val otherProjectsTotal = otherProjects.fold(ZERO_TIME) { acc, p ->
-                WorkTimeCalculator.calculateWorkTimeBalance(acc, p.projectTime)
+                WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
             }
 
             val nextState = ProjectDetailsUiMapper.applyEntitiesToState(
@@ -509,14 +514,14 @@ class ProjectDetailsViewModel @Inject constructor(
 
             if (oldProjectTime != ZERO_TIME) {
                 // Revert project time contribution
-                nextFlexTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                nextFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                     nextFlexTimeTotal,
                     WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
                 )
 
                 // If it was the only project, revert the daily work time subtraction too
                 if (!successState.data.hasOtherProjects) {
-                    nextFlexTimeTotal = WorkTimeCalculator.calculateWorkTimeBalance(
+                    nextFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                         nextFlexTimeTotal,
                         successState.data.workStats.dailyWorkTime
                     )

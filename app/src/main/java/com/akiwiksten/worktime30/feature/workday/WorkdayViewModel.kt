@@ -84,7 +84,7 @@ class WorkdayViewModel @Inject constructor(
                 date = date,
                 workTimeToday = data.projectTime,
                 dailyWorkTime = data.dailyWorkTime,
-                flexTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+                flexTimeToday = WorkTimeCalculator.calculateFlexTime(
                     initialTime = data.projectTime,
                     addedTime = "-${data.dailyWorkTime}"
                 ),

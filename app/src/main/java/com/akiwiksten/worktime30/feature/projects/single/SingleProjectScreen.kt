@@ -246,11 +246,11 @@ private fun SingleProjectSuccessContent(
         ?.find { it.index == params.index }
         ?.projectTime
         ?: ZERO_TIME
-    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
+    val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
         initialTime = successState?.workTimeToday ?: ZERO_TIME,
         addedTime = "-$originalProjectTime"
     )
-    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+    val workTimeToday = WorkTimeCalculator.calculateFlexTime(
         initialTime = baseWithoutCurrent,
         addedTime = params.state.projectTime
     )

@@ -27,8 +27,8 @@ const val LUNCH_END = "lunch_end"
 const val LUNCH_TIME = "lunch_time"
 const val BREAK_START = "break_start"
 const val BREAK_END = "break_end"
-const val FLEX_TIME_TODAY = "balance_today"
-const val FLEX_TIME_TOTAL = "balance_total"
+const val FLEX_TIME_TODAY = "flex_time_today"
+const val FLEX_TIME_TOTAL = "flex_time_total"
 
 // Screens
 const val INTRO_SCREEN = "intro_screen"

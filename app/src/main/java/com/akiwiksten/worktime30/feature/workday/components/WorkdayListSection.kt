@@ -39,38 +39,40 @@ internal fun WorkdayListSection(
 ) {
     val listState = rememberLazyListState()
 
-    if (items.isEmpty()) {
-        Box(
-            modifier = modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .lazyVerticalScrollbar(listState = listState)
+                .clip(shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+                )
+                .selectableGroup(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
-            Text(
-                text = stringResource(id = R.string.no_projects_available),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(all = 32.dp)
-            )
-        }
-    } else {
-        ElevatedCard(
-            modifier = modifier.fillMaxWidth(),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .lazyVerticalScrollbar(listState = listState)
-                    .clip(shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS))
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-                    )
-                    .selectableGroup(),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(space = 2.dp)
-            ) {
+            if (items.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.no_projects_available),
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(all = 32.dp)
+                        )
+                    }
+                }
+            } else {
                 items(
                     items = items,
                     key = { it.projectName }
@@ -169,5 +171,4 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
         }
     }
 }
-
 

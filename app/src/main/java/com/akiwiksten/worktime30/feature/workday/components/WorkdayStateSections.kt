@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ui.hasChanges
+import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.feature.workday.DAILY_WORK_TIME_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.FLEX_TIME_TOTAL_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
@@ -132,8 +134,12 @@ private fun rememberWorkdaySaveUi(
         editedFlexTimeTotal.matches(FLEX_TIME_TOTAL_INPUT_REGEX)
     }
     val hasUnsavedChanges =
-        editedDailyWorkTime != lastSavedDailyWorkTimeState.value ||
-            editedFlexTimeTotal != lastSavedFlexTimeTotalState.value
+        hasChanges(current = editedDailyWorkTime, baseline = lastSavedDailyWorkTimeState.value) ||
+            hasChanges(current = editedFlexTimeTotal, baseline = lastSavedFlexTimeTotalState.value)
+    val isSaveEnabled = isActionEnabled(
+        hasRequiredFields = isDailyWorkTimeValid && isFlexTimeTotalValid,
+        hasUnsavedChanges = hasUnsavedChanges
+    )
 
     return WorkdaySaveUi(
         dailyWorkTime = editedDailyWorkTime,
@@ -144,7 +150,7 @@ private fun rememberWorkdaySaveUi(
         onDailyWorkTimeChange = { editedDailyWorkTime = it },
         onFlexTimeTotalChange = { editedFlexTimeTotal = it },
         onSaveRequested = {
-            if (isDailyWorkTimeValid && isFlexTimeTotalValid && hasUnsavedChanges) {
+            if (isSaveEnabled) {
                 onSaveWorkStats(editedDailyWorkTime, editedFlexTimeTotal)
                 lastSavedDailyWorkTimeState.value = editedDailyWorkTime
                 lastSavedFlexTimeTotalState.value = editedFlexTimeTotal

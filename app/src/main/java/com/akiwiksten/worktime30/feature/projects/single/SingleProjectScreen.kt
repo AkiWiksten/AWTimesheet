@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,6 +42,8 @@ import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
+import com.akiwiksten.worktime30.core.ui.hasChanges
+import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
@@ -89,11 +90,13 @@ fun SingleProjectScreen(
         state = initialUiState
     }
 
-    val isConfirmEnabled by remember(state, initialUiState) {
+    val isConfirmEnabled by remember(state, initialUiState, initialSingleProjectState.index) {
         derivedStateOf {
-            state.projectName.isNotBlank() &&
-                state.kilometres.isDigitsOnly() &&
-                state != initialUiState
+            isSingleProjectConfirmEnabled(
+                state = state,
+                initialUiState = initialUiState,
+                isAddMode = initialSingleProjectState.index == -1
+            )
         }
     }
 
@@ -114,6 +117,21 @@ fun SingleProjectScreen(
                 onNavigateBack()
             }
         )
+    )
+}
+
+internal fun isSingleProjectConfirmEnabled(
+    state: SingleProjectState,
+    initialUiState: SingleProjectState,
+    isAddMode: Boolean
+): Boolean {
+    val hasRequiredFields = state.projectName.isNotBlank() &&
+        (state.kilometres.isBlank() || state.kilometres.all(Char::isDigit))
+    val hasUnsavedChanges = hasChanges(current = state, baseline = initialUiState)
+    return isActionEnabled(
+        hasRequiredFields = hasRequiredFields,
+        hasUnsavedChanges = hasUnsavedChanges,
+        allowWithoutChanges = isAddMode
     )
 }
 
@@ -146,26 +164,26 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = params.projectsUiState is WorkdayUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
-    var showUnsavedDialog by remember { mutableStateOf(value = false) }
+    val lastSuccessState = remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
+    val showUnsavedDialogState = remember { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(params.projectsUiState) {
         if (params.projectsUiState is WorkdayUiState.Success) {
-            lastSuccessState = params.projectsUiState
+            lastSuccessState.value = params.projectsUiState
         }
     }
 
     val guardedNavigateBack = {
-        if (params.isConfirmEnabled) showUnsavedDialog = true
+        if (params.isConfirmEnabled) showUnsavedDialogState.value = true
         else params.onNavigateBack()
     }
 
-    if (showUnsavedDialog) {
+    if (showUnsavedDialogState.value) {
         UnsavedChangesDialog(
-            onDismiss = { showUnsavedDialog = false },
-            onDiscard = { showUnsavedDialog = false; params.onNavigateBack() },
-            onSave = { showUnsavedDialog = false; params.onConfirm() },
+            onDismiss = { showUnsavedDialogState.value = false },
+            onDiscard = params.onNavigateBack,
+            onSave = params.onConfirm,
             dialogText = unsavedMessage
         )
     }
@@ -189,7 +207,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
                 params = params,
                 actions = actions,
                 showLoadingIndicator = showLoadingIndicator,
-                cachedSuccessState = lastSuccessState
+                cachedSuccessState = lastSuccessState.value
             )
             is WorkdayUiState.Success -> SingleProjectSuccessContent(
                 padding = padding,

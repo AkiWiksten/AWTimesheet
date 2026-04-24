@@ -40,6 +40,7 @@ import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
+import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
@@ -59,7 +60,7 @@ fun ProjectDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
-    var showUnsavedDialog by remember { mutableStateOf(value = false) }
+    val showUnsavedDialogState = remember { mutableStateOf(value = false) }
     var initialData by remember { mutableStateOf<ProjectDetailsState?>(value = null) }
     var isBaselineInitialized by remember { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
@@ -106,22 +107,25 @@ fun ProjectDetailsScreen(
         }
     }
 
-    val hasUnsavedChanges = isBaselineInitialized && initialData != null &&
-        (uiState as? ProjectDetailsUiState.Success)?.data != initialData
+    val baselineData = initialData
+    val hasUnsavedChanges = isBaselineInitialized && baselineData != null &&
+        (uiState as? ProjectDetailsUiState.Success)?.data?.let { current ->
+            hasChanges(current = current, baseline = baselineData)
+        } == true
 
     val guardedNavigateBack = {
-        if (hasUnsavedChanges) showUnsavedDialog = true
+        if (hasUnsavedChanges) showUnsavedDialogState.value = true
         else onNavigateBack()
     }
 
     BackHandler(onBack = guardedNavigateBack)
 
-    if (showUnsavedDialog) {
+    if (showUnsavedDialogState.value) {
         val successState = uiState as? ProjectDetailsUiState.Success
         UnsavedChangesDialog(
-            onDismiss = { showUnsavedDialog = false },
-            onDiscard = { showUnsavedDialog = false; onNavigateBack() },
-            onSave = successState?.let { { showUnsavedDialog = false; onConfirm(it.data, it.data.workStats) } },
+            onDismiss = { showUnsavedDialogState.value = false },
+            onDiscard = onNavigateBack,
+            onSave = successState?.let { { onConfirm(it.data, it.data.workStats) } },
             dialogText = unsavedMessage
         )
     }

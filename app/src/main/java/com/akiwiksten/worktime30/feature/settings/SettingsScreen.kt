@@ -47,6 +47,8 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.hasChanges
+import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 
@@ -237,12 +239,15 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
     val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
 
     val hasUnsavedChanges =
-        data.name != lastSavedNameState.value ||
-            data.employer != lastSavedEmployerState.value ||
-            data.workTypes != lastSavedWorkTypesState.value
+        hasChanges(current = data.name, baseline = lastSavedNameState.value) ||
+            hasChanges(current = data.employer, baseline = lastSavedEmployerState.value) ||
+            hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
 
     return SettingsSaveUi(
-        isSaveEnabled = hasUnsavedChanges,
+        isSaveEnabled = isActionEnabled(
+            hasRequiredFields = true,
+            hasUnsavedChanges = hasUnsavedChanges
+        ),
         onSaveRequested = {
             if (hasUnsavedChanges) {
                 onSave()

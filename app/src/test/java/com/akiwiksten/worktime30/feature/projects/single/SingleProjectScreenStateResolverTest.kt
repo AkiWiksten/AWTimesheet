@@ -9,6 +9,47 @@ import org.junit.Test
 class SingleProjectScreenStateResolverTest {
 
     @Test
+    fun addMode_withFilledProjectName_andBlankKilometres_enablesConfirm() {
+        val initialState = SingleProjectState(index = -1)
+        val editedState = initialState.copy(projectName = "Alpha", kilometres = "")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = editedState,
+            initialUiState = initialState,
+            isAddMode = true
+        )
+
+        assertEquals(true, isEnabled)
+    }
+
+    @Test
+    fun editMode_withoutChanges_disablesConfirm() {
+        val initialState = SingleProjectState(index = 0, projectName = "Alpha", kilometres = "12")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = initialState,
+            initialUiState = initialState,
+            isAddMode = false
+        )
+
+        assertEquals(false, isEnabled)
+    }
+
+    @Test
+    fun editMode_withChanges_andValidFields_enablesConfirm() {
+        val initialState = SingleProjectState(index = 0, projectName = "Alpha", kilometres = "12")
+        val editedState = initialState.copy(projectTime = "01:00")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = editedState,
+            initialUiState = initialState,
+            isAddMode = false
+        )
+
+        assertEquals(true, isEnabled)
+    }
+
+    @Test
     fun editMode_withNavigationProjectTime_prefersNavigationState() {
         val initialState = SingleProjectState(
             index = 0,

@@ -7,8 +7,8 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.Typeface
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 
 internal object MonthlyReportRenderer {
     private const val PADDING = 5.0f

@@ -3,10 +3,11 @@ package com.akiwiksten.worktime30.feature.projects.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.TIME_FORMAT
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
-import com.akiwiksten.worktime30.core.WorkTimeCalculator.EndTimeUpdateParams
-import com.akiwiksten.worktime30.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.ProjectDetailsTimeUpdateCalculator
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -135,7 +136,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 .stringToLocalTime(
                     successState.data.startTime
                 )
-            val update = WorkTimeCalculator.calculateStartTimeUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
                     dailyWorkTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyWorkTime),
@@ -163,7 +164,7 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val oldEnd = WorkTimeCalculator.stringToLocalTime(successState.data.endTime)
-            val update = WorkTimeCalculator.calculateEndTimeUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateEndTimeUpdate(
                 EndTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(successState.data.startTime),
                     end = WorkTimeCalculator.stringToLocalTime(endTime),
@@ -190,7 +191,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 .stringToLocalTime(
                     successState.data.workStats.dailyWorkTime
                 )
-            val update = WorkTimeCalculator.calculateDailyWorkTimeUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateDailyWorkTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 dailyWorkTime = WorkTimeCalculator.stringToLocalTime(dailyWorkTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
@@ -216,7 +217,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val oldLunchStart = WorkTimeCalculator.stringToLocalTime(
                 successState.data.lunchStart
             )
-            val update = WorkTimeCalculator.calculateLunchStartUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
                 lunchTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.lunchTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
@@ -238,7 +239,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 .stringToLocalTime(
                     successState.data.lunchEnd
                 )
-            val update = WorkTimeCalculator.calculateLunchEndUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateLunchEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 lunchEnd = WorkTimeCalculator.stringToLocalTime(lunchEnd),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
@@ -259,7 +260,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 .stringToLocalTime(
                     successState.data.workStats.lunchTime
                 )
-            val update = WorkTimeCalculator.calculateLunchTimeUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 lunchStart = WorkTimeCalculator.stringToLocalTime(successState.data.lunchStart),
                 lunchTime = WorkTimeCalculator.stringToLocalTime(lunchTime),
@@ -289,7 +290,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val oldBreakStart = WorkTimeCalculator.stringToLocalTime(
                 successState.data.breakStart
             )
-            val update = WorkTimeCalculator.calculateBreakStartUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateBreakStartUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 breakStart = WorkTimeCalculator.stringToLocalTime(breakStart0),
                 breakEnd = WorkTimeCalculator.stringToLocalTime(successState.data.breakEnd),
@@ -311,7 +312,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 .stringToLocalTime(
                     successState.data.breakEnd
                 )
-            val update = WorkTimeCalculator.calculateBreakEndUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateBreakEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 breakEnd = WorkTimeCalculator.stringToLocalTime(breakEnd0),
@@ -569,7 +570,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val oldProjectTime = WorkTimeCalculator.stringToLocalTime(
                 successState.data.projectTime
             )
-            val update = WorkTimeCalculator.calculateProjectTimeUpdate(
+            val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 dailyWorkTime = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyWorkTime),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),

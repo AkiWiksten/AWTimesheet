@@ -39,8 +39,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled

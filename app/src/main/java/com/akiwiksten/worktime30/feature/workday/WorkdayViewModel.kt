@@ -3,8 +3,8 @@ package com.akiwiksten.worktime30.feature.workday
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase

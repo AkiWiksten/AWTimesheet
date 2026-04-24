@@ -58,16 +58,21 @@ fun AddCustomTimeRow(
     )
 }
 
-@Suppress("LongParameterList")
+data class TimeRowLabels(
+    val currentTimeLabelId: Int? = null,
+    val timePickerLabelId: Int? = null,
+)
+
 @Composable
 fun AddTimeRow(
     textFieldValue: String,
     stringId: Int,
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
-    currentTimeLabelId: Int? = null,
-    timePickerLabelId: Int? = null,
+    labels: TimeRowLabels = TimeRowLabels(),
 ) {
+    val currentTimeLabelId = labels.currentTimeLabelId
+    val timePickerLabelId = labels.timePickerLabelId
     val openTimePickerDialog = remember { mutableStateOf(value = false) }
 
     AddTimePickerDialog(

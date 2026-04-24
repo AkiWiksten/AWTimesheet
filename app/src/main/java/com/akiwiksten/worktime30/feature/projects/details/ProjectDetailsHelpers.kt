@@ -66,4 +66,3 @@ internal fun UnsavedChangesSection(
         dialogText = unsavedMessage
     )
 }
-

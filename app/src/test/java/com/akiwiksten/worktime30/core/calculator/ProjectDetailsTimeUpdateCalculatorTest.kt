@@ -296,4 +296,3 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         assertEquals("16:45", result.end)
     }
 }
-

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,10 +15,8 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -108,7 +105,6 @@ fun ProjectDetailsScreen(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
@@ -168,7 +164,6 @@ internal fun ProjectDetailsContent(
         FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
     }
 }
-
 
 @Composable
 internal fun ProjectDetailsStateContent(
@@ -234,25 +229,25 @@ private fun createProjectDetailsScreenActions(
     onConfirm: () -> Unit
 ): ProjectDetailsScreenActions {
     return ProjectDetailsScreenActions(
-        onClearDay = viewModel::clearDay,
+        onClearDay = viewModel.clearDay,
         onConfirm = onConfirm,
         fieldActions = ProjectDetailsFieldActions(
-            onCurrentStartTime = viewModel::currentStartTime,
-            onSetStartTime = viewModel::setStartTime,
-            onCurrentLunchTime = viewModel::currentLunchTime,
-            onSetLunchTime = viewModel::setLunchTime,
-            onCurrentEndTime = viewModel::currentEndTime,
-            onSetEndTime = viewModel::setEndTime,
-            onCurrentProjectTime = viewModel::currentProjectTime,
-            onSetProjectTime = viewModel::setProjectTime,
-            onCurrentLunchStart = viewModel::currentLunchStart,
-            onSetLunchStart = viewModel::setLunchStart,
-            onCurrentLunchEnd = viewModel::currentLunchEnd,
-            onSetLunchEnd = viewModel::setLunchEnd,
-            onCurrentBreakStart = viewModel::currentBreakStart,
-            onSetBreakStart = viewModel::setBreakStart,
-            onCurrentBreakEnd = viewModel::currentBreakEnd,
-            onSetBreakEnd = viewModel::setBreakEnd
+            onCurrentStartTime = viewModel.currentStartTime,
+            onSetStartTime = viewModel.setStartTime,
+            onCurrentLunchTime = viewModel.currentLunchTime,
+            onSetLunchTime = viewModel.setLunchTime,
+            onCurrentEndTime = viewModel.currentEndTime,
+            onSetEndTime = viewModel.setEndTime,
+            onCurrentProjectTime = viewModel.currentProjectTime,
+            onSetProjectTime = viewModel.setProjectTime,
+            onCurrentLunchStart = viewModel.currentLunchStart,
+            onSetLunchStart = viewModel.setLunchStart,
+            onCurrentLunchEnd = viewModel.currentLunchEnd,
+            onSetLunchEnd = viewModel.setLunchEnd,
+            onCurrentBreakStart = viewModel.currentBreakStart,
+            onSetBreakStart = viewModel.setBreakStart,
+            onCurrentBreakEnd = viewModel.currentBreakEnd,
+            onSetBreakEnd = viewModel.setBreakEnd
         )
     )
 }

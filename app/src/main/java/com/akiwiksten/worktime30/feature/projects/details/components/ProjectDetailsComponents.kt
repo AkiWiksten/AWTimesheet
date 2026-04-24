@@ -26,7 +26,6 @@ import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 
-
 fun isValidText(text: String): Boolean {
     return text.matches(regex = Regex(pattern = "-?[1-9][0-9]+:[0-5][0-9]")) ||
         text.matches(regex = Regex(pattern = "-?0[0-9]:[0-5][0-9]"))
@@ -59,6 +58,7 @@ fun AddCustomTimeRow(
     )
 }
 
+@Suppress("LongParameterList")
 @Composable
 fun AddTimeRow(
     textFieldValue: String,

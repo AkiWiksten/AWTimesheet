@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
@@ -20,7 +21,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +41,8 @@ import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
-import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
 private val SAVE_BUTTON_TOP_PADDING = 4.dp
@@ -60,9 +60,9 @@ internal fun WorkdayHeader(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                    modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+                modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+                verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
             ) {
                 Header(title = stringResource(id = R.string.workday))
                 Text(
@@ -259,6 +259,3 @@ private fun SaveWorkStatsButton(
         Text(text = stringResource(id = R.string.save))
     }
 }
-
-
-

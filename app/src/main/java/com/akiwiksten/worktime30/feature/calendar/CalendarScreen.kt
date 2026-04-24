@@ -114,6 +114,7 @@ private fun createMondayFirstConfiguration(): Configuration {
     }
 }
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CalendarContent(

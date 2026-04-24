@@ -1,8 +1,9 @@
-﻿package com.akiwiksten.worktime30.feature.projects.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 
 object ProjectDetailsUiMapper {
+    @Suppress("LongMethod")
     fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
@@ -94,4 +95,3 @@ object ProjectDetailsUiMapper {
             isZero(projectDetails.breakEnd)
     }
 }
-

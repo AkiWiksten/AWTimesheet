@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.workday.components
+package com.akiwiksten.worktime30.feature.workday.components
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -18,19 +18,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.feature.workday.DAILY_WORK_TIME_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.FLEX_TIME_TOTAL_INPUT_REGEX
+import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
-import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
 
 @Composable
 internal fun ColumnScope.WorkdayLoadingContent(
@@ -190,5 +190,3 @@ private data class WorkdaySaveUi(
     val onFlexTimeTotalChange: (String) -> Unit,
     val onSaveRequested: () -> Unit
 )
-
-

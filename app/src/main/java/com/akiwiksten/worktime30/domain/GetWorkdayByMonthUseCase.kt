@@ -15,4 +15,3 @@ class GetWorkdayByMonthUseCase @Inject constructor(
         return projectRepository.getProjectsByDateRange(startMonth, endMonth)
     }
 }
-

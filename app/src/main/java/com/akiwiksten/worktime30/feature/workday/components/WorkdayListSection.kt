@@ -171,4 +171,3 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
         }
     }
 }
-

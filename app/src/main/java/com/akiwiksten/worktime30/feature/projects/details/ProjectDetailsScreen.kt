@@ -50,6 +50,7 @@ import com.akiwiksten.worktime30.feature.projects.details.components.NewDayField
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsFieldActions
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectNameField
 
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsScreen(
@@ -114,8 +115,11 @@ fun ProjectDetailsScreen(
         } == true
 
     val guardedNavigateBack = {
-        if (hasUnsavedChanges) showUnsavedDialogState.value = true
-        else onNavigateBack()
+        if (hasUnsavedChanges) {
+            showUnsavedDialogState.value = true
+        } else {
+            onNavigateBack()
+        }
     }
 
     BackHandler(onBack = guardedNavigateBack)

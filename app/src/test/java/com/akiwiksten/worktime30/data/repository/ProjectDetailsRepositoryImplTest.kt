@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.data.repository
+package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
@@ -126,4 +126,3 @@ class ProjectDetailsRepositoryImplTest {
         }
     }
 }
-

@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.workday
 
 data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
@@ -24,6 +24,3 @@ internal data class WorkdayHeaderActions(
 
 internal val DAILY_WORK_TIME_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
 internal val FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
-
-
-

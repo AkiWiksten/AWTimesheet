@@ -50,7 +50,6 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
-
 @Composable
 fun HeaderSection(date: String, workTimeToday: String) {
     ElevatedCard(
@@ -173,6 +172,7 @@ internal fun DialogMainFields(
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun ProjectTimeSelectionRow(
     state: SingleProjectState,

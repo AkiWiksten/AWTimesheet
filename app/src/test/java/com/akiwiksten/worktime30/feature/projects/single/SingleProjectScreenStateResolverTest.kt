@@ -1,8 +1,8 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

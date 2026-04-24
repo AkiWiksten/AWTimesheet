@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.DateRepository
@@ -119,4 +119,3 @@ class ProjectDetailsViewModelTest {
         ): List<ProjectDetailsState> = emptyList()
     }
 }
-

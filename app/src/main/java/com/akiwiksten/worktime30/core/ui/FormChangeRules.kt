@@ -10,4 +10,3 @@ fun isActionEnabled(
 ): Boolean {
     return hasRequiredFields && (allowWithoutChanges || hasUnsavedChanges)
 }
-

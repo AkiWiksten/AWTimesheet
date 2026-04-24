@@ -46,10 +46,10 @@ import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,6 +159,7 @@ internal fun resolveInitialSingleProjectState(
     return resolvedState
 }
 
+@Suppress("LongMethod")
 @Composable
 internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -175,8 +176,11 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     }
 
     val guardedNavigateBack = {
-        if (params.isConfirmEnabled) showUnsavedDialogState.value = true
-        else params.onNavigateBack()
+        if (params.isConfirmEnabled) {
+            showUnsavedDialogState.value = true
+        } else {
+            params.onNavigateBack()
+        }
     }
 
     if (showUnsavedDialogState.value) {

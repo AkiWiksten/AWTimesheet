@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.data.database.entity
+package com.akiwiksten.worktime30.data.database.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -18,4 +18,3 @@ data class WorkStatsEntity(
     @ColumnInfo(name = LUNCH_TIME) val lunchTime: String = "",
     @ColumnInfo(name = FLEX_TIME_TOTAL) val flexTimeTotal: String = "",
 )
-

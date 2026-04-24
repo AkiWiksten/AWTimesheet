@@ -4,8 +4,8 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
+import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule

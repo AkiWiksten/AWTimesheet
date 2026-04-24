@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.projects.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -583,4 +583,3 @@ class ProjectDetailsViewModel @Inject constructor(
         setProjectTime(LocalTime.now().format(timeFormatter))
     }
 }
-

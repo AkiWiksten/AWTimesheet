@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.workday
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -191,5 +191,3 @@ private fun isValidDailyWorkTimeInput(value: String): Boolean {
 private fun isValidFlexTimeTotalInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }
-
-

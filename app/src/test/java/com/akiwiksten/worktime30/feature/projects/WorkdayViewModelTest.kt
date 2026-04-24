@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.projects
+package com.akiwiksten.worktime30.feature.projects
 
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -7,12 +7,12 @@ import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
-import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -255,5 +255,3 @@ class WorkdayViewModelTest {
         override suspend fun clearWorkTypes() = Unit
     }
 }
-
-

@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.domain
+package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
@@ -47,5 +47,3 @@ data class WorkdayScreenData(
     val projectNames: List<String>,
     val workTypes: List<String>
 )
-
-

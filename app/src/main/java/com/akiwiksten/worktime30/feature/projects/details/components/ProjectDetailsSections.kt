@@ -30,7 +30,6 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 
-
 @Composable
 fun ProjectNameField(name: String) {
     OutlinedTextField(

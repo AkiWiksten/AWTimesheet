@@ -75,6 +75,7 @@ This is called feature-based packaging.
 + ProjectsScreen: "No projects" state should be shown on a empty list
 + Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
 + Calculate FlexTimeTotal from WorkdayEntity
++ Swedish support
 
 
 Constantly:

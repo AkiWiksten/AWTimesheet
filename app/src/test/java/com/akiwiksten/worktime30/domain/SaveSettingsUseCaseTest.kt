@@ -123,7 +123,7 @@ class SaveSettingsUseCaseTest {
     }
 
     @Test
-    fun invoke_withDailyWorkTimeEstimate_nonCurrentDay_doesNotUpdateWorkStats() = runBlocking {
+    fun invoke_withDailyWorkTimeEstimate_nonCurrentDay_updatesGlobalStatsButNotWorkday() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "+01:00")
@@ -146,11 +146,14 @@ class SaveSettingsUseCaseTest {
             dailyWorkTimeEstimate = "08:00"
         )
 
-        assertNull(projectDetailsRepository.insertedWorkStats)
+        // Global WorkStatsEntity always updated
+        assertEquals("08:00", projectDetailsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
+        // Workday-per-day entry not updated (non-current day)
+        assertNull(projectDetailsRepository.upsertedWorkdayDate)
     }
 
     @Test
-    fun invoke_withDailyWorkTimeEstimate_currentDayAndNonZeroWorkTime_doesNotUpdateWorkStats() = runBlocking {
+    fun invoke_withDailyWorkTimeEstimate_currentDayAndNonZeroWorkTime_updatesGlobalStatsButNotWorkday() = runBlocking {
         val today = LocalDate.now().toString()
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
@@ -178,7 +181,10 @@ class SaveSettingsUseCaseTest {
             dailyWorkTimeEstimate = "08:00"
         )
 
-        assertNull(projectDetailsRepository.insertedWorkStats)
+        // Global WorkStatsEntity always updated
+        assertEquals("08:00", projectDetailsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
+        // Workday-per-day entry not updated (non-zero work time)
+        assertNull(projectDetailsRepository.upsertedWorkdayDate)
     }
 
     private class FakeSettingsRepository : SettingsRepository {
@@ -210,6 +216,7 @@ class SaveSettingsUseCaseTest {
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var workStats: WorkStatsState? = null
         var insertedWorkStats: WorkStatsState? = null
+        var upsertedWorkdayDate: String? = null
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
@@ -221,6 +228,13 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) {
             insertedWorkStats = workStats
+            this.workStats = workStats
+        }
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStats
+
+        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+            upsertedWorkdayDate = date
         }
 
         override suspend fun getProjectDetailsByDateRange(

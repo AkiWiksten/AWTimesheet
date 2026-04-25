@@ -31,6 +31,16 @@ class SaveSettingsUseCase @Inject constructor(
         settingsRepository.insertSettings(SettingsState(name = name, employer = employer))
 
         if (dailyWorkTimeEstimate.isNotEmpty()) {
+            // Always persist estimates to global WorkStatsEntity
+            val existingGlobalStats = projectDetailsRepository.getWorkStats()
+            projectDetailsRepository.insertWorkStats(
+                WorkStatsState(
+                    dailyWorkTimeEstimate = dailyWorkTimeEstimate,
+                    dailyLunchTimeEstimate = lunchTimeEstimate,
+                    initialFlexTimeTotal = existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
+                )
+            )
+
             val selectedDate = dateRepository.selectedDate.value
             val isCurrentDay = selectedDate == LocalDate.now().toString()
 
@@ -44,7 +54,7 @@ class SaveSettingsUseCase @Inject constructor(
                 ZERO_TIME
             }
 
-            if (isCurrentDay && workTimeToday == ZERO_TIME) {
+            if (isCurrentDay && workTimeToday == ZERO_TIME && selectedDate.isNotEmpty()) {
                 val existingWorkStats = projectDetailsRepository.getWorkStatsByDate(selectedDate)
                 projectDetailsRepository.upsertWorkdayStats(
                     date = selectedDate,

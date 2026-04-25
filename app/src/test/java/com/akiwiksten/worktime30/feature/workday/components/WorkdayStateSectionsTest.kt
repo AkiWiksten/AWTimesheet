@@ -44,4 +44,3 @@ class WorkdayStateSectionsTest {
         assertEquals("02:30", result)
     }
 }
-

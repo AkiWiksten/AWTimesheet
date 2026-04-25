@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
@@ -126,7 +126,11 @@ class SaveSettingsUseCaseTest {
     fun invoke_withDailyWorkTimeEstimate_nonCurrentDay_updatesGlobalStatsButNotWorkday() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "+01:00")
+            workStats = WorkStatsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
         }
         val projectRepository = FakeProjectRepository()
         val dateRepository = DateRepository().apply {
@@ -157,7 +161,11 @@ class SaveSettingsUseCaseTest {
         val today = LocalDate.now().toString()
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "+01:00")
+            workStats = WorkStatsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
         }
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(

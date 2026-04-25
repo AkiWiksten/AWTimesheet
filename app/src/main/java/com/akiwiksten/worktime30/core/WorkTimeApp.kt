@@ -12,16 +12,16 @@ import javax.inject.Inject
 @HiltAndroidApp
 class WorkTimeApp : Application() {
 
-	@Inject
-	lateinit var ensureDefaultWorkStatsUseCase: EnsureDefaultWorkStatsUseCase
+    @Inject
+    lateinit var ensureDefaultWorkStatsUseCase: EnsureDefaultWorkStatsUseCase
 
-	private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-	override fun onCreate() {
-		super.onCreate()
+    override fun onCreate() {
+        super.onCreate()
 
-		applicationScope.launch {
-			ensureDefaultWorkStatsUseCase()
-		}
-	}
+        applicationScope.launch {
+            ensureDefaultWorkStatsUseCase()
+        }
+    }
 }

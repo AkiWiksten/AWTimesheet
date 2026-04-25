@@ -110,7 +110,11 @@ class DeleteWorkdayUseCaseTest {
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
 
         override suspend fun getWorkStatsByDate(date: String): WorkStatsState? =
-            WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = ZERO_TIME)
+            WorkStatsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
 
         override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
             upsertedWorkdayDate = date

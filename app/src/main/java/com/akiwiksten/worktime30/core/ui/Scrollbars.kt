@@ -111,7 +111,6 @@ private data class ScrollbarProgress(
     }
 }
 
-
 private fun LazyListState.lazyListProgress(): ScrollbarProgress {
     val layoutInfo = layoutInfo
     val visibleItems = layoutInfo.visibleItemsInfo

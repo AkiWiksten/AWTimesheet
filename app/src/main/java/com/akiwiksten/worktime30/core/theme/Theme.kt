@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.core.theme
 
 import android.os.Build
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -10,19 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val WarmColorScheme = lightColorScheme(
-    primary          = WarmPrimary,
-    onPrimary        = WarmOnPrimary,
+    primary = WarmPrimary,
+    onPrimary = WarmOnPrimary,
     primaryContainer = WarmPrimaryVariant,
-    secondary        = WarmSecondary,
-    onSecondary      = WarmOnSecondary,
-    background       = WarmBackground,
-    onBackground     = WarmOnBackground,
-    surface          = WarmSurface,
-    onSurface        = WarmOnSurface,
-    surfaceVariant   = WarmSurface,
+    secondary = WarmSecondary,
+    onSecondary = WarmOnSecondary,
+    background = WarmBackground,
+    onBackground = WarmOnBackground,
+    surface = WarmSurface,
+    onSurface = WarmOnSurface,
+    surfaceVariant = WarmSurface,
     onSurfaceVariant = WarmOnSurface,
-    error            = WarmError,
-    onError          = WarmOnPrimary,
+    error = WarmError,
+    onError = WarmOnPrimary,
 )
 
 @Composable

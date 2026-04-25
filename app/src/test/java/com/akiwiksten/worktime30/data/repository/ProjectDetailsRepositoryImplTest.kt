@@ -1,4 +1,6 @@
-﻿package com.akiwiksten.worktime30.data.repository
+@file:Suppress("ImportOrdering")
+
+package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
@@ -90,7 +92,11 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun upsertWorkdayStats_callsWorkdayDaoInsert() = runBlocking {
-        val workStats = WorkStatsState(dailyWorkTimeEstimate = "08:00", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "-00:20")
+        val workStats = WorkStatsState(
+            dailyWorkTimeEstimate = "08:00",
+            dailyLunchTimeEstimate = "00:30",
+            initialFlexTimeTotal = "-00:20"
+        )
 
         repository.upsertWorkdayStats(date = "2026-04-10", workTimeToday = "00:00", workStats = workStats)
 
@@ -189,6 +195,9 @@ class ProjectDetailsRepositoryImplTest {
             insertedWorkday = workday
         }
 
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = workdaysByDateRange
+        override suspend fun getWorkdaysByDateRange(
+            start: String,
+            end: String
+        ): List<WorkdayEntity> = workdaysByDateRange
     }
 }

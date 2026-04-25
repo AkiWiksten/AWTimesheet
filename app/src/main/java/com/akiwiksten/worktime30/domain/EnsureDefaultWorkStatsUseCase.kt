@@ -22,4 +22,3 @@ class EnsureDefaultWorkStatsUseCase @Inject constructor(
         )
     }
 }
-

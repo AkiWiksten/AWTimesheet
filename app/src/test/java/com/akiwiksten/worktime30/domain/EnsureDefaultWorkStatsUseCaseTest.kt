@@ -70,4 +70,3 @@ class EnsureDefaultWorkStatsUseCaseTest {
         ): List<ProjectDetailsState> = emptyList()
     }
 }
-

@@ -6,16 +6,16 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
-import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.entity.SettingsEntity
-import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 
 @Database(
     entities = [

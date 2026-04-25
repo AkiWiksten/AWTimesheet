@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.Button
@@ -45,9 +45,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ACTION_BUTTON_FONT_SIZE
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.worktime30.core.FORM_MAX_WIDTH
 import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.FORM_MAX_WIDTH
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
@@ -160,11 +160,13 @@ private fun createSettingsActions(
         onSave = { settingsViewModel.saveSettings() },
         onGeneratePdf = {
             generateReport(
-                ctx = ctx,
-                projectsByMonth = successState.data.projectsByMonth,
-                endOfMonthDate = successState.data.endMonthDate,
-                name = successState.data.name,
-                employer = successState.data.employer
+                params = GenerateReportParams(
+                    ctx = ctx,
+                    projectsByMonth = successState.data.projectsByMonth,
+                    endOfMonthDate = successState.data.endMonthDate,
+                    name = successState.data.name,
+                    employer = successState.data.employer
+                )
             )
         }
     )
@@ -179,6 +181,34 @@ data class SettingsActions(
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
     val onGeneratePdf: () -> Unit
+)
+
+private data class WorkTypeDialogState(
+    val selectedWorkType: String,
+    val onWorkTypeSelected: (String) -> Unit,
+    val onAddClick: () -> Unit,
+    val onDeleteClick: () -> Unit
+)
+
+private data class AddWorkTypeDialogState(
+    val isVisible: Boolean,
+    val onDismiss: () -> Unit,
+    val onConfirm: (String) -> Unit
+)
+
+private data class TimePickerState(
+    val onDailyWorkTimePickerClick: () -> Unit,
+    val onDailyLunchTimeEstimatePickerClick: () -> Unit
+)
+
+private data class SettingsContentBodyState(
+    val uiState: SettingsUiState.Success,
+    val actions: SettingsActions,
+    val workTypeState: WorkTypeDialogState,
+    val timePickerState: TimePickerState,
+    val addWorkTypeDialogState: AddWorkTypeDialogState,
+    val scrollState: androidx.compose.foundation.ScrollState,
+    val saveUi: SettingsSaveUi
 )
 
 @Suppress("LongMethod")
@@ -215,100 +245,95 @@ internal fun SettingsContent(
     )
 
     SettingsContentBody(
-        uiState = uiState,
-        actions = actions,
-        selectedWorkType = selectedWorkTypeState.value,
-        onWorkTypeSelected = { selectedWorkTypeState.value = it },
-        onAddWorkTypeClick = { showAddWorkTypeDialogState.value = true },
-        onDeleteSelectedWorkType = {
-            actions.onWorkTypeRemoved(selectedWorkTypeState.value)
-            // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
-        },
-        onDailyWorkTimePickerClick = { showDailyWorkTimePickerDialogState.value = true },
-        onDailyLunchTimeEstimatePickerClick = {
-            showDailyLunchTimeEstimatePickerDialogState.value = true
-        },
-        isAddWorkTypeDialogVisible = showAddWorkTypeDialogState.value,
-        onDismissAddWorkTypeDialog = { showAddWorkTypeDialogState.value = false },
-        onConfirmAddWorkType = {
-            actions.onWorkTypeAdded(it)
-            showAddWorkTypeDialogState.value = false
-        },
-        scrollState = scrollState,
-        saveUi = saveUi
+        state = SettingsContentBodyState(
+            uiState = uiState,
+            actions = actions,
+            workTypeState = WorkTypeDialogState(
+                selectedWorkType = selectedWorkTypeState.value,
+                onWorkTypeSelected = { selectedWorkTypeState.value = it },
+                onAddClick = { showAddWorkTypeDialogState.value = true },
+                onDeleteClick = {
+                    actions.onWorkTypeRemoved(selectedWorkTypeState.value)
+                    // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
+                }
+            ),
+            timePickerState = TimePickerState(
+                onDailyWorkTimePickerClick = { showDailyWorkTimePickerDialogState.value = true },
+                onDailyLunchTimeEstimatePickerClick = {
+                    showDailyLunchTimeEstimatePickerDialogState.value = true
+                }
+            ),
+            addWorkTypeDialogState = AddWorkTypeDialogState(
+                isVisible = showAddWorkTypeDialogState.value,
+                onDismiss = { showAddWorkTypeDialogState.value = false },
+                onConfirm = {
+                    actions.onWorkTypeAdded(it)
+                    showAddWorkTypeDialogState.value = false
+                }
+            ),
+            scrollState = scrollState,
+            saveUi = saveUi
+        )
     )
 }
 
 @Composable
-@Suppress("LongParameterList")
 private fun SettingsContentBody(
-    uiState: SettingsUiState.Success,
-    actions: SettingsActions,
-    selectedWorkType: String,
-    onWorkTypeSelected: (String) -> Unit,
-    onAddWorkTypeClick: () -> Unit,
-    onDeleteSelectedWorkType: () -> Unit,
-    onDailyWorkTimePickerClick: () -> Unit,
-    onDailyLunchTimeEstimatePickerClick: () -> Unit,
-    isAddWorkTypeDialogVisible: Boolean,
-    onDismissAddWorkTypeDialog: () -> Unit,
-    onConfirmAddWorkType: (String) -> Unit,
-    scrollState: androidx.compose.foundation.ScrollState,
-    saveUi: SettingsSaveUi
+    state: SettingsContentBodyState
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScrollbar(scrollState = scrollState)
-            .verticalScroll(state = scrollState)
+            .verticalScrollbar(scrollState = state.scrollState)
+            .verticalScroll(state = state.scrollState)
             .padding(all = FORM_SECTION_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
-        HeaderSection(date = uiState.data.selectedDate)
+        HeaderSection(date = state.uiState.data.selectedDate)
 
         SettingsCard {
             ProfileSection(
-                name = uiState.data.name,
-                employer = uiState.data.employer,
-                onNameChange = actions.onNameChange,
-                onEmployerChange = actions.onEmployerChange
+                name = state.uiState.data.name,
+                employer = state.uiState.data.employer,
+                onNameChange = state.actions.onNameChange,
+                onEmployerChange = state.actions.onEmployerChange
             )
         }
 
         SettingsCard {
             DailyWorkTimePickerRow(
-                dailyWorkTime = uiState.data.dailyWorkTimeEstimate,
-                onPickerClick = onDailyWorkTimePickerClick
+                dailyWorkTime = state.uiState.data.dailyWorkTimeEstimate,
+                onPickerClick = state.timePickerState.onDailyWorkTimePickerClick
             )
 
             DailyLunchTimeEstimatePickerRow(
-                dailyLunchTimeEstimate = uiState.data.lunchTimeEstimate,
-                onPickerClick = onDailyLunchTimeEstimatePickerClick
+                dailyLunchTimeEstimate = state.uiState.data.lunchTimeEstimate,
+                onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
             )
         }
 
         SettingsCard {
             WorkTypeSection(
-                workTypes = uiState.data.workTypes,
-                selectedWorkType = selectedWorkType,
-                onWorkTypeSelected = onWorkTypeSelected,
-                onAddClick = onAddWorkTypeClick,
-                onDeleteClick = onDeleteSelectedWorkType
+                workTypes = state.uiState.data.workTypes,
+                selectedWorkType = state.workTypeState.selectedWorkType,
+                onWorkTypeSelected = state.workTypeState.onWorkTypeSelected,
+                onAddClick = state.workTypeState.onAddClick,
+                onDeleteClick = state.workTypeState.onDeleteClick
             )
         }
 
         ActionButtonsSection(
-            onSave = saveUi.onSaveRequested,
-            onGeneratePdf = actions.onGeneratePdf,
-            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty(),
-            isSaveEnabled = saveUi.isSaveEnabled
+            onSave = state.saveUi.onSaveRequested,
+            onGeneratePdf = state.actions.onGeneratePdf,
+            isPdfEnabled = state.uiState.data.projectsByMonth.isNotEmpty(),
+            isSaveEnabled = state.saveUi.isSaveEnabled
         )
 
         AddWorkTypeDialogSection(
-            isVisible = isAddWorkTypeDialogVisible,
-            onDismiss = onDismissAddWorkTypeDialog,
-            onConfirmed = onConfirmAddWorkType
+            isVisible = state.addWorkTypeDialogState.isVisible,
+            onDismiss = state.addWorkTypeDialogState.onDismiss,
+            onConfirmed = state.addWorkTypeDialogState.onConfirm
         )
     }
 }

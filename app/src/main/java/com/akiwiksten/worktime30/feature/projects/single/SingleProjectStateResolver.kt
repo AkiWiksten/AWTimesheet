@@ -25,4 +25,3 @@ internal fun resolveInitialSingleProjectState(
             ?: initialSingleProjectState
     }
 }
-

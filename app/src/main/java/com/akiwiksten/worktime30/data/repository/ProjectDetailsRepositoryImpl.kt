@@ -1,13 +1,15 @@
+@file:Suppress("ImportOrdering")
+
 package com.akiwiksten.worktime30.data.repository
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
-import com.akiwiksten.worktime30.data.database.mapper.toWorkStatsState
 import com.akiwiksten.worktime30.data.database.mapper.toWorkdayEntity
-import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.data.database.mapper.toWorkStatsState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import javax.inject.Inject
@@ -52,7 +54,9 @@ class ProjectDetailsRepositoryImpl @Inject constructor(
         workStatsDao.insertWorkStats(
             WorkStatsState(
                 dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
-                dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate.ifEmpty { existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME },
+                dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate.ifEmpty {
+                    existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME
+                },
                 initialFlexTimeTotal = workStats.initialFlexTimeTotal.ifEmpty {
                     existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
                 }

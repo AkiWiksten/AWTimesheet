@@ -135,8 +135,12 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
-                    dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyWorkTimeEstimate),
-                    dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyLunchTimeEstimate),
+                    dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                        successState.data.workStats.dailyWorkTimeEstimate
+                    ),
+                    dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                        successState.data.workStats.dailyLunchTimeEstimate
+                    ),
                     projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                     oldStartTime = oldStart,
                     isNewDay = successState.data.isNewDay
@@ -186,7 +190,9 @@ class ProjectDetailsViewModel @Inject constructor(
             val oldLunchStart = WorkTimeCalculator.stringToLocalTime(successState.data.lunchStart)
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
-                dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyLunchTimeEstimate),
+                dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                    successState.data.workStats.dailyLunchTimeEstimate
+                ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 oldLunchStart = oldLunchStart,
                 currentLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.data.lunchEnd)
@@ -220,7 +226,9 @@ class ProjectDetailsViewModel @Inject constructor(
     val setLunchTime: (String) -> Unit = { dailyLunchTimeEstimate ->
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
-            val oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyLunchTimeEstimate)
+            val oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                successState.data.workStats.dailyLunchTimeEstimate
+            )
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 lunchStart = WorkTimeCalculator.stringToLocalTime(successState.data.lunchStart),
@@ -455,7 +463,9 @@ class ProjectDetailsViewModel @Inject constructor(
             val oldProjectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime)
             val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
-                dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(successState.data.workStats.dailyWorkTimeEstimate),
+                dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                    successState.data.workStats.dailyWorkTimeEstimate
+                ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldProjectTime = oldProjectTime
             )

@@ -22,4 +22,3 @@ data class WorkdayStatsRow(
     val workTimeToday: String,
     val workTimeTodayEstimate: String
 )
-

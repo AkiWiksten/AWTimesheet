@@ -19,4 +19,3 @@ interface WorkdayDao {
     @Query("SELECT * FROM $WORKDAY_TABLE WHERE $DATE BETWEEN :start AND :end ORDER BY $DATE")
     suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity>
 }
-

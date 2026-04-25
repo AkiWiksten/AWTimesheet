@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.projects.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
@@ -8,14 +8,14 @@ import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 
 @Preview(showBackground = true, name = "ProjectDetails - Loading")
 @Composable
-fun PreviewProjectDetailsLoading() {
-    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
+fun previewProjectDetailsLoading() {
+    projectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
 }
 
 @Preview(showBackground = true, name = "ProjectDetails - Success New Day")
 @Composable
-fun PreviewProjectDetailsSuccessNewDay() {
-    ProjectDetailsPreviewContent(
+fun previewProjectDetailsSuccessNewDay() {
+    projectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
             data = ProjectDetailsState(
                 date = "2026-04-10",
@@ -34,8 +34,8 @@ fun PreviewProjectDetailsSuccessNewDay() {
 
 @Preview(showBackground = true, name = "ProjectDetails - Success Existing Day")
 @Composable
-fun PreviewProjectDetailsSuccessExistingDay() {
-    ProjectDetailsPreviewContent(
+fun previewProjectDetailsSuccessExistingDay() {
+    projectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
             data = ProjectDetailsState(
                 date = "2026-04-10",
@@ -62,12 +62,14 @@ fun PreviewProjectDetailsSuccessExistingDay() {
 
 @Preview(showBackground = true, name = "ProjectDetails - Error")
 @Composable
-fun PreviewProjectDetailsError() {
-    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Error(message = "Failed to load project details"))
+fun previewProjectDetailsError() {
+    projectDetailsPreviewContent(
+        uiState = ProjectDetailsUiState.Error(message = "Failed to load project details")
+    )
 }
 
 @Composable
-private fun ProjectDetailsPreviewContent(
+private fun projectDetailsPreviewContent(
     uiState: ProjectDetailsUiState,
     projectName: String? = null
 ) {

@@ -135,31 +135,6 @@ internal fun isSingleProjectConfirmEnabled(
     )
 }
 
-private fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): SingleProjectState {
-    return if (allowance.isBlank()) copy(allowance = defaultAllowance) else this
-}
-
-internal fun resolveInitialSingleProjectState(
-    initialSingleProjectState: SingleProjectState,
-    projectsUiState: WorkdayUiState
-): SingleProjectState {
-    val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
-        initialSingleProjectState.projectTime != ZERO_TIME ||
-        initialSingleProjectState.projectDetails != null ||
-        initialSingleProjectState.workStats != null
-
-    val resolvedState = when {
-        initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState
-        else -> (projectsUiState as? WorkdayUiState.Success)
-            ?.projects
-            ?.find { it.index == initialSingleProjectState.index }
-            ?: initialSingleProjectState
-    }
-
-    return resolvedState
-}
-
-@Suppress("LongMethod")
 @Composable
 internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -200,30 +175,47 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
 
     Scaffold(
         topBar = {
-            SingleProjectTopSection(
-                onNavigateBack = guardedNavigateBack
-            )
+            SingleProjectTopSection(onNavigateBack = guardedNavigateBack)
         }
     ) { padding ->
-        when (params.projectsUiState) {
-            is WorkdayUiState.Loading -> SingleProjectLoadingContent(
-                padding = padding,
-                params = params,
-                actions = actions,
-                showLoadingIndicator = showLoadingIndicator,
-                cachedSuccessState = lastSuccessState.value
-            )
-            is WorkdayUiState.Success -> SingleProjectSuccessContent(
-                padding = padding,
-                params = params,
-                actions = actions,
-                uiState = params.projectsUiState
-            )
-            is WorkdayUiState.Error -> SingleProjectErrorContent(
-                padding = padding,
-                message = params.projectsUiState.message
-            )
-        }
+        SingleProjectContentByUiState(
+            padding = padding,
+            params = params,
+            actions = actions,
+            showLoadingIndicator = showLoadingIndicator,
+            cachedSuccessState = lastSuccessState.value
+        )
+    }
+}
+
+@Composable
+private fun SingleProjectContentByUiState(
+    padding: PaddingValues,
+    params: SingleProjectScreenContentParams,
+    actions: SingleProjectActions,
+    showLoadingIndicator: Boolean,
+    cachedSuccessState: WorkdayUiState.Success?
+) {
+    when (params.projectsUiState) {
+        is WorkdayUiState.Loading -> SingleProjectLoadingContent(
+            padding = padding,
+            params = params,
+            actions = actions,
+            showLoadingIndicator = showLoadingIndicator,
+            cachedSuccessState = cachedSuccessState
+        )
+
+        is WorkdayUiState.Success -> SingleProjectSuccessContent(
+            padding = padding,
+            params = params,
+            actions = actions,
+            uiState = params.projectsUiState
+        )
+
+        is WorkdayUiState.Error -> SingleProjectErrorContent(
+            padding = padding,
+            message = params.projectsUiState.message
+        )
     }
 }
 

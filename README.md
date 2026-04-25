@@ -73,7 +73,8 @@ This is called feature-based packaging.
 + Use Intent to ask user where to save pdf
 + PDF: Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 + ProjectsScreen: "No projects" state should be shown on a empty list
-+ Create yellowish theme
++ Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
++ Calculate FlexTimeTotal from WorkdayEntity
 
 
 Constantly:

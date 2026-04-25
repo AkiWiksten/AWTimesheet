@@ -66,39 +66,18 @@ internal fun ColumnScope.WorkdaySuccessContent(
         initialFlexTimeTotal = state.initialFlexTimeTotal,
         onSaveWorkStats = actions.onSaveWorkStats
     )
-    val displayedCalculatedFlexTimeTotal = remember(
-        state.initialFlexTimeTotal,
-        state.calculatedFlexTimeTotal,
-        saveUi.initialFlexTimeTotal
-    ) {
-        calculateDisplayedCalculatedFlexTimeTotal(
-            persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
-            persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-            editedInitialFlexTimeTotal = saveUi.initialFlexTimeTotal
-        )
-    }
-    val workStatsEditorState = WorkStatsEditorState(
-        workTimeTodayEstimate = saveUi.workTimeTodayEstimate,
-        initialFlexTimeTotal = saveUi.initialFlexTimeTotal,
-        isWorkTimeTodayEstimateError = !saveUi.isWorkTimeTodayEstimateValid,
-        isInitialFlexTimeTotalError = !saveUi.isInitialFlexTimeTotalValid,
-        hasUnsavedChanges = saveUi.hasUnsavedChanges
-    )
-    val headerActions = WorkdayHeaderActions(
-        onWorkTimeTodayEstimateChange = saveUi.onWorkTimeTodayEstimateChange,
-        onInitialFlexTimeTotalChange = saveUi.onInitialFlexTimeTotalChange,
-        onSaveWorkStats = saveUi.onSaveRequested
-    )
+
+    val displayState = rememberWorkdayDisplayState(state = state, saveUi = saveUi)
 
     WorkdayHeader(
         date = state.date
     )
     WorkdayStatsCard(
         workTime = state.workTimeToday,
-        flexTimeToday = state.flexTimeToday,
-        calculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
-        workStatsEditorState = workStatsEditorState,
-        headerActions = headerActions
+        flexTimeToday = displayState.displayedFlexTimeToday,
+        calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
+        workStatsEditorState = displayState.workStatsEditorState,
+        headerActions = displayState.headerActions
     )
 
     WorkdayListSection(
@@ -119,9 +98,66 @@ internal fun ColumnScope.WorkdaySuccessContent(
     )
 }
 
+@Composable
+private fun rememberWorkdayDisplayState(
+    state: WorkdayUiState.Success,
+    saveUi: WorkdaySaveUi
+): WorkdayDisplayState {
+    val displayedFlexTimeToday = remember(
+        state.workTimeToday,
+        state.flexTimeToday,
+        saveUi.workTimeTodayEstimate,
+        saveUi.isWorkTimeTodayEstimateValid
+    ) {
+        if (saveUi.isWorkTimeTodayEstimateValid) {
+            WorkTimeCalculator.calculateFlexTime(
+                initialTime = state.workTimeToday,
+                addedTime = "-${saveUi.workTimeTodayEstimate}"
+            )
+        } else {
+            state.flexTimeToday
+        }
+    }
+
+    val displayedCalculatedFlexTimeTotal = remember(
+        state.initialFlexTimeTotal,
+        state.calculatedFlexTimeTotal,
+        state.flexTimeToday,
+        displayedFlexTimeToday,
+        saveUi.initialFlexTimeTotal
+    ) {
+        calculateDisplayedCalculatedFlexTimeTotal(
+            persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
+            persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+            persistedFlexTimeToday = state.flexTimeToday,
+            editedFlexTimeToday = displayedFlexTimeToday,
+            editedInitialFlexTimeTotal = saveUi.initialFlexTimeTotal
+        )
+    }
+
+    return WorkdayDisplayState(
+        displayedFlexTimeToday = displayedFlexTimeToday,
+        displayedCalculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
+        workStatsEditorState = WorkStatsEditorState(
+            workTimeTodayEstimate = saveUi.workTimeTodayEstimate,
+            initialFlexTimeTotal = saveUi.initialFlexTimeTotal,
+            isWorkTimeTodayEstimateError = !saveUi.isWorkTimeTodayEstimateValid,
+            isInitialFlexTimeTotalError = !saveUi.isInitialFlexTimeTotalValid,
+            hasUnsavedChanges = saveUi.hasUnsavedChanges
+        ),
+        headerActions = WorkdayHeaderActions(
+            onWorkTimeTodayEstimateChange = saveUi.onWorkTimeTodayEstimateChange,
+            onInitialFlexTimeTotalChange = saveUi.onInitialFlexTimeTotalChange,
+            onSaveWorkStats = saveUi.onSaveRequested
+        )
+    )
+}
+
 internal fun calculateDisplayedCalculatedFlexTimeTotal(
     persistedInitialFlexTimeTotal: String,
     persistedCalculatedFlexTimeTotal: String,
+    persistedFlexTimeToday: String,
+    editedFlexTimeToday: String,
     editedInitialFlexTimeTotal: String
 ): String {
     val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
@@ -129,9 +165,19 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
         addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedInitialFlexTimeTotal")
     )
 
+    val flexTimeTodayDelta = WorkTimeCalculator.calculateFlexTime(
+        initialTime = editedFlexTimeToday,
+        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedFlexTimeToday")
+    )
+
+    val recalculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+        initialTime = calculatedOnlyFlexTimeTotal,
+        addedTime = flexTimeTodayDelta
+    )
+
     return WorkTimeCalculator.calculateFlexTime(
         initialTime = editedInitialFlexTimeTotal,
-        addedTime = calculatedOnlyFlexTimeTotal
+        addedTime = recalculatedOnlyFlexTimeTotal
     )
 }
 
@@ -219,3 +265,11 @@ private data class WorkdaySaveUi(
     val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onSaveRequested: () -> Unit
 )
+
+private data class WorkdayDisplayState(
+    val displayedFlexTimeToday: String,
+    val displayedCalculatedFlexTimeTotal: String,
+    val workStatsEditorState: WorkStatsEditorState,
+    val headerActions: WorkdayHeaderActions
+)
+

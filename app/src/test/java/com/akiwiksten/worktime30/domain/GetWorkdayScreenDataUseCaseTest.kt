@@ -28,7 +28,7 @@ class GetWorkdayScreenDataUseCaseTest {
             workTypes = listOf("Office", "Remote")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = "+04:15")
+            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
         }
         val useCase = GetWorkdayScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
 
@@ -51,7 +51,7 @@ class GetWorkdayScreenDataUseCaseTest {
             )
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = projectRepository,
@@ -73,7 +73,7 @@ class GetWorkdayScreenDataUseCaseTest {
             projectNames = listOf("Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = projectRepository,

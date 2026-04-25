@@ -38,7 +38,7 @@ class ProjectDetailsRepositoryImpl @Inject constructor(
 
         return if (workday != null) {
             workday.toWorkStatsState(
-                lunchTime = fallback?.lunchTime ?: ZERO_TIME,
+                dailyLunchTimeEstimate = fallback?.dailyLunchTimeEstimate ?: ZERO_TIME,
                 initialFlexTimeTotal = fallback?.initialFlexTimeTotal ?: ZERO_TIME
             )
         } else {
@@ -48,6 +48,16 @@ class ProjectDetailsRepositoryImpl @Inject constructor(
 
     override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
         workdayDao.insertWorkday(workStats.toWorkdayEntity(date = date, workTimeToday = workTimeToday))
+        val existingGlobalStats = workStatsDao.loadWorkStats()?.toDomain()
+        workStatsDao.insertWorkStats(
+            WorkStatsState(
+                dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
+                dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate.ifEmpty { existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME },
+                initialFlexTimeTotal = workStats.initialFlexTimeTotal.ifEmpty {
+                    existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
+                }
+            ).toEntity()
+        )
     }
 
     override suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState> =

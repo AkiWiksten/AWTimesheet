@@ -4,10 +4,10 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 
-fun WorkdayEntity.toWorkStatsState(lunchTime: String, initialFlexTimeTotal: String): WorkStatsState {
+fun WorkdayEntity.toWorkStatsState(dailyLunchTimeEstimate: String, initialFlexTimeTotal: String): WorkStatsState {
     return WorkStatsState(
-        dailyWorkTime = workTimeTodayEstimate,
-        lunchTime = lunchTime,
+        dailyWorkTimeEstimate = workTimeTodayEstimate,
+        dailyLunchTimeEstimate = dailyLunchTimeEstimate,
         initialFlexTimeTotal = initialFlexTimeTotal
     )
 }
@@ -16,6 +16,6 @@ fun WorkStatsState.toWorkdayEntity(date: String, workTimeToday: String): Workday
     return WorkdayEntity(
         date = date,
         workTimeToday = workTimeToday.ifEmpty { ZERO_TIME },
-        workTimeTodayEstimate = dailyWorkTime
+        workTimeTodayEstimate = dailyWorkTimeEstimate
     )
 }

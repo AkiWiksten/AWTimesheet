@@ -13,6 +13,7 @@
     <string name="lunch_start">Lunchstart</string>
     <string name="lunch_end">Lunchslut</string>
     <string name="lunch_time">Beräknad lunchtid</string>
+    <string name="daily_lunch_time_estimate">Daglig uppskattad lunchtid</string>
     <string name="break_start">Pausstart</string>
     <string name="break_end">Pausslut</string>
     <string name="work_time_today">Arbetstid idag</string>

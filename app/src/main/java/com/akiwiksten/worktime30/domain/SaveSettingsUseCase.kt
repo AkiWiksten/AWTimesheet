@@ -50,8 +50,8 @@ class SaveSettingsUseCase @Inject constructor(
                     date = selectedDate,
                     workTimeToday = workTimeToday,
                     workStats = WorkStatsState(
-                        dailyWorkTime = dailyWorkTimeEstimate,
-                        lunchTime = lunchTimeEstimate,
+                        dailyWorkTimeEstimate = dailyWorkTimeEstimate,
+                        dailyLunchTimeEstimate = lunchTimeEstimate,
                         initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME
                     )
                 )

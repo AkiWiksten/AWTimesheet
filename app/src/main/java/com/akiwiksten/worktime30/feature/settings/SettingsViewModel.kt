@@ -179,8 +179,8 @@ class SettingsViewModel @Inject constructor(
                     data = SettingsState(
                         name = loadedData.name,
                         employer = loadedData.employer,
-                        dailyWorkTimeEstimate = workStats?.dailyWorkTime ?: "",
-                        lunchTimeEstimate = workStats?.lunchTime ?: ZERO_TIME,
+                        dailyWorkTimeEstimate = workStats?.dailyWorkTimeEstimate ?: "",
+                        lunchTimeEstimate = workStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
                         selectedDate = currentDate,
                         endMonthDate = endOfMonth,
                         workTypes = loadedData.workTypes,

@@ -92,8 +92,8 @@ class SaveSettingsUseCaseTest {
             dailyWorkTimeEstimate = "07:30"
         )
 
-        assertEquals("07:30", projectDetailsRepository.insertedWorkStats?.dailyWorkTime)
-        assertEquals("00:00", projectDetailsRepository.insertedWorkStats?.lunchTime)
+        assertEquals("07:30", projectDetailsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
+        assertEquals("00:00", projectDetailsRepository.insertedWorkStats?.dailyLunchTimeEstimate)
     }
 
     @Test
@@ -119,14 +119,14 @@ class SaveSettingsUseCaseTest {
             lunchTimeEstimate = "00:30"
         )
 
-        assertEquals("00:30", projectDetailsRepository.insertedWorkStats?.lunchTime)
+        assertEquals("00:30", projectDetailsRepository.insertedWorkStats?.dailyLunchTimeEstimate)
     }
 
     @Test
     fun invoke_withDailyWorkTimeEstimate_nonCurrentDay_doesNotUpdateWorkStats() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = "+01:00")
+            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "+01:00")
         }
         val projectRepository = FakeProjectRepository()
         val dateRepository = DateRepository().apply {
@@ -154,7 +154,7 @@ class SaveSettingsUseCaseTest {
         val today = LocalDate.now().toString()
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = "+01:00")
+            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "+01:00")
         }
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(

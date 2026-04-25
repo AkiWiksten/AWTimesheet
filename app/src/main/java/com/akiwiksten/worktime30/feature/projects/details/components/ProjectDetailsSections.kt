@@ -110,7 +110,7 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
                 )
                 AddTimeRow(
-                    textFieldValue = uiState.data.workStats.lunchTime,
+                    textFieldValue = uiState.data.workStats.dailyLunchTimeEstimate,
                     stringId = R.string.lunch_time,
                     currentTime = actions.onCurrentLunchTime,
                     onConfirmation = actions.onSetLunchTime
@@ -219,7 +219,7 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
             AddTimeRow(
-                textFieldValue = uiState.data.workStats.lunchTime,
+                textFieldValue = uiState.data.workStats.dailyLunchTimeEstimate,
                 stringId = R.string.lunch_time,
                 currentTime = actions.onCurrentLunchTime,
                 onConfirmation = actions.onSetLunchTime

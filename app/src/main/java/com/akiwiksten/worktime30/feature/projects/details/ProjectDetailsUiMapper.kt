@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.details
+﻿package com.akiwiksten.worktime30.feature.projects.details
 
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
@@ -20,8 +20,8 @@ object ProjectDetailsUiMapper {
     private fun normalizedWorkStats(workStats: WorkStatsState?): WorkStatsState {
         val data = workStats ?: WorkStatsState()
         return WorkStatsState(
-            dailyWorkTime = data.dailyWorkTime.ifEmpty { DEFAULT_DAILY_WORK_TIME },
-            lunchTime = data.lunchTime.ifEmpty { ZERO_TIME },
+            dailyWorkTimeEstimate = data.dailyWorkTimeEstimate.ifEmpty { DEFAULT_DAILY_WORK_TIME },
+            dailyLunchTimeEstimate = data.dailyLunchTimeEstimate.ifEmpty { ZERO_TIME },
             initialFlexTimeTotal = data.initialFlexTimeTotal.ifEmpty { ZERO_TIME }
         )
     }

@@ -5,16 +5,16 @@ import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 
 fun WorkStatsEntity.toDomain(): WorkStatsState {
     return WorkStatsState(
-        dailyWorkTime = dailyWorkTime,
-        lunchTime = lunchTime,
+        dailyWorkTimeEstimate = dailyWorkTimeEstimate,
+        dailyLunchTimeEstimate = dailyLunchTimeEstimate,
         initialFlexTimeTotal = initialFlexTimeTotal
     )
 }
 
 fun WorkStatsState.toEntity(): WorkStatsEntity {
     return WorkStatsEntity(
-        dailyWorkTime = dailyWorkTime,
-        lunchTime = lunchTime,
+        dailyWorkTimeEstimate = dailyWorkTimeEstimate,
+        dailyLunchTimeEstimate = dailyLunchTimeEstimate,
         initialFlexTimeTotal = initialFlexTimeTotal
     )
 }

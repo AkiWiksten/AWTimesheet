@@ -55,7 +55,7 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
                     onNameChange = {},
                     onEmployerChange = {},
                     onDailyWorkTimeEstimateChange = {},
-                    onLunchTimeEstimateChange = {},
+                    onDailyLunchTimeEstimateChange = {},
                     onWorkTypeAdded = {},
                     onWorkTypeRemoved = {},
                     onSave = {},

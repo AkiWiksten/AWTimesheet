@@ -16,8 +16,8 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         val result = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
             StartTimeUpdateParams(
                 start = LocalTime.of(8, 0),
-                dailyWorkTime = LocalTime.of(7, 30),
-                lunchTime = LocalTime.of(0, 30),
+                dailyWorkTimeEstimate = LocalTime.of(7, 30),
+                dailyLunchTimeEstimate = LocalTime.of(0, 30),
                 projectTime = LocalTime.MIDNIGHT,
                 oldStartTime = LocalTime.of(8, 0),
                 isNewDay = true
@@ -38,8 +38,8 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         val result = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
             StartTimeUpdateParams(
                 start = LocalTime.of(9, 0),
-                dailyWorkTime = LocalTime.of(7, 30),
-                lunchTime = LocalTime.of(0, 30),
+                dailyWorkTimeEstimate = LocalTime.of(7, 30),
+                dailyLunchTimeEstimate = LocalTime.of(0, 30),
                 projectTime = LocalTime.of(8, 0),
                 oldStartTime = LocalTime.of(8, 0),
                 isNewDay = false
@@ -55,8 +55,8 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         val result = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
             StartTimeUpdateParams(
                 start = LocalTime.of(8, 0),
-                dailyWorkTime = LocalTime.of(7, 30),
-                lunchTime = LocalTime.of(0, 30),
+                dailyWorkTimeEstimate = LocalTime.of(7, 30),
+                dailyLunchTimeEstimate = LocalTime.of(0, 30),
                 projectTime = LocalTime.MIDNIGHT,
                 oldStartTime = LocalTime.of(8, 0),
                 isNewDay = false
@@ -106,9 +106,9 @@ class ProjectDetailsTimeUpdateCalculatorTest {
     fun `calculateDailyWorkTimeUpdate updates end time only for existing day without explicit work time`() {
         val result = ProjectDetailsTimeUpdateCalculator.calculateDailyWorkTimeUpdate(
             end = LocalTime.of(16, 0),
-            dailyWorkTime = LocalTime.of(8, 0),
+            dailyWorkTimeEstimate = LocalTime.of(8, 0),
             projectTime = LocalTime.MIDNIGHT,
-            oldDailyWorkTime = LocalTime.of(7, 30),
+            oldDailyWorkTimeEstimate = LocalTime.of(7, 30),
             isNewDay = false
         )
 
@@ -119,9 +119,9 @@ class ProjectDetailsTimeUpdateCalculatorTest {
     fun `calculateDailyWorkTimeUpdate returns empty result for new day`() {
         val result = ProjectDetailsTimeUpdateCalculator.calculateDailyWorkTimeUpdate(
             end = LocalTime.of(16, 0),
-            dailyWorkTime = LocalTime.of(8, 0),
+            dailyWorkTimeEstimate = LocalTime.of(8, 0),
             projectTime = LocalTime.MIDNIGHT,
-            oldDailyWorkTime = LocalTime.of(7, 30),
+            oldDailyWorkTimeEstimate = LocalTime.of(7, 30),
             isNewDay = true
         )
 
@@ -132,7 +132,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
     fun `calculateLunchStartUpdate updates lunch end from lunch length when work time is zero`() {
         val result = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
             lunchStart = LocalTime.of(11, 45),
-            lunchTime = LocalTime.of(0, 30),
+            dailyLunchTimeEstimate = LocalTime.of(0, 30),
             projectTime = LocalTime.MIDNIGHT,
             oldLunchStart = LocalTime.of(11, 30),
             currentLunchEnd = LocalTime.of(12, 0)
@@ -145,7 +145,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
     fun `calculateLunchStartUpdate shifts lunch end when work time already exists`() {
         val result = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
             lunchStart = LocalTime.of(11, 0),
-            lunchTime = LocalTime.of(0, 30),
+            dailyLunchTimeEstimate = LocalTime.of(0, 30),
             projectTime = LocalTime.of(7, 30),
             oldLunchStart = LocalTime.of(11, 30),
             currentLunchEnd = LocalTime.of(12, 0)
@@ -185,9 +185,9 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         val result = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
             end = LocalTime.of(16, 0),
             lunchStart = LocalTime.of(11, 30),
-            lunchTime = LocalTime.of(1, 0),
+            dailyLunchTimeEstimate = LocalTime.of(1, 0),
             projectTime = LocalTime.MIDNIGHT,
-            oldLunchTime = LocalTime.of(0, 30)
+            oldDailyLunchTimeEstimate = LocalTime.of(0, 30)
         )
 
         assertEquals("16:30", result.end)
@@ -199,9 +199,9 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         val result = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
             end = LocalTime.of(16, 0),
             lunchStart = LocalTime.of(11, 30),
-            lunchTime = LocalTime.of(1, 0),
+            dailyLunchTimeEstimate = LocalTime.of(1, 0),
             projectTime = LocalTime.of(7, 30),
-            oldLunchTime = LocalTime.of(0, 30)
+            oldDailyLunchTimeEstimate = LocalTime.of(0, 30)
         )
 
         assertEquals(WorkTimeCalculator.TimeUpdateResult(), result)
@@ -276,7 +276,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
     fun `calculateProjectTimeUpdate uses daily work time when previous work time was zero`() {
         val result = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
             end = LocalTime.of(16, 0),
-            dailyWorkTime = LocalTime.of(7, 30),
+            dailyWorkTimeEstimate = LocalTime.of(7, 30),
             projectTime = LocalTime.of(8, 0),
             oldProjectTime = LocalTime.MIDNIGHT
         )
@@ -288,7 +288,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
     fun `calculateProjectTimeUpdate uses old work time when previous work time exists`() {
         val result = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
             end = LocalTime.of(16, 30),
-            dailyWorkTime = LocalTime.of(7, 30),
+            dailyWorkTimeEstimate = LocalTime.of(7, 30),
             projectTime = LocalTime.of(8, 0),
             oldProjectTime = LocalTime.of(7, 45)
         )

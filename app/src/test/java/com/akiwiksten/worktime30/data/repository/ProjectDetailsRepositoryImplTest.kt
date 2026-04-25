@@ -71,8 +71,8 @@ class ProjectDetailsRepositoryImplTest {
     @Test
     fun getWorkStatsByDate_returnsWorkdayDataWhenAvailable() = runBlocking {
         workStatsDao.workStatsResult = WorkStatsState(
-            dailyWorkTime = "07:30",
-            lunchTime = "00:30",
+            dailyWorkTimeEstimate = "07:30",
+            dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:00"
         ).toEntity()
         workdayDao.workdayResult = WorkdayEntity(
@@ -83,20 +83,23 @@ class ProjectDetailsRepositoryImplTest {
 
         val result = repository.getWorkStatsByDate("2026-04-10")
 
-        assertEquals("08:00", result?.dailyWorkTime)
-        assertEquals("00:30", result?.lunchTime)
+        assertEquals("08:00", result?.dailyWorkTimeEstimate)
+        assertEquals("00:30", result?.dailyLunchTimeEstimate)
         assertEquals("+01:00", result?.initialFlexTimeTotal)
     }
 
     @Test
     fun upsertWorkdayStats_callsWorkdayDaoInsert() = runBlocking {
-        val workStats = WorkStatsState(dailyWorkTime = "08:00", lunchTime = "00:30", initialFlexTimeTotal = "-00:20")
+        val workStats = WorkStatsState(dailyWorkTimeEstimate = "08:00", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = "-00:20")
 
         repository.upsertWorkdayStats(date = "2026-04-10", workTimeToday = "00:00", workStats = workStats)
 
         assertEquals("2026-04-10", workdayDao.insertedWorkday?.date)
         assertEquals("00:00", workdayDao.insertedWorkday?.workTimeToday)
         assertEquals("08:00", workdayDao.insertedWorkday?.workTimeTodayEstimate)
+        assertEquals("08:00", workStatsDao.insertedWorkStats?.dailyWorkTimeEstimate)
+        assertEquals("00:30", workStatsDao.insertedWorkStats?.dailyLunchTimeEstimate)
+        assertEquals("-00:20", workStatsDao.insertedWorkStats?.initialFlexTimeTotal)
     }
 
     @Test

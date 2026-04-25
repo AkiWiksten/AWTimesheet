@@ -155,7 +155,7 @@ internal fun ProjectDetailsContent(
             onClearDay = actions.onClearDay
         )
 
-        if (uiState.data.isNewDay) {
+        if (uiState.data.isNewDayForProject()) {
             NewDayFields(uiState = uiState, actions = actions.fieldActions)
         } else {
             ExistingDayFields(uiState = uiState, actions = actions.fieldActions)

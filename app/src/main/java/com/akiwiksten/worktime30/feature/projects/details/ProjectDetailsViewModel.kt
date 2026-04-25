@@ -115,7 +115,7 @@ class ProjectDetailsViewModel @Inject constructor(
         return state is ProjectDetailsUiState.Success &&
             state.data.date == date &&
             state.data.projectName == projectName &&
-            !state.data.isNewDay
+            !state.data.isNewDayForProject()
     }
 
     private fun getBaseState(date: String, projectName: String): ProjectDetailsUiState.Success {
@@ -143,13 +143,12 @@ class ProjectDetailsViewModel @Inject constructor(
                     ),
                     projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                     oldStartTime = oldStart,
-                    isNewDay = successState.data.isNewDay
+                    isNewDay = successState.data.isNewDayForProject()
                 )
             )
             val nextState = successState.copy(
                 data = successState.data.copy(
-                    startTime = startTime,
-                    isNewDay = false
+                    startTime = startTime
                 )
             )
             applyUpdateToState(nextState, update)
@@ -262,10 +261,6 @@ class ProjectDetailsViewModel @Inject constructor(
             // Recalculate flex time today with new daily work time
             updateFlexTimeTodayIfNeeded(updatedState)
         }
-    }
-
-    val currentDailyWorkTime: () -> Unit = {
-        setDailyWorkTime(LocalTime.now().format(timeFormatter))
     }
 
     val setBreakStart: (String) -> Unit = { breakStart0 ->
@@ -419,8 +414,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     data = baseState.data.copy(
                         date = date,
                         projectName = projectName,
-                        otherProjectsTotalTime = otherProjectsTotal,
-                        hasOtherProjects = otherProjects.isNotEmpty()
+                        otherProjectsTotalTime = otherProjectsTotal
                     )
                 ),
                 projectDetails,
@@ -442,7 +436,6 @@ class ProjectDetailsViewModel @Inject constructor(
 
             successState.copy(
                 data = successState.data.copy(
-                    isNewDay = true,
                     startTime = ZERO_TIME,
                     endTime = ZERO_TIME,
                     lunchStart = ZERO_TIME,
@@ -450,8 +443,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     breakStart = ZERO_TIME,
                     breakEnd = ZERO_TIME,
                     projectTime = ZERO_TIME,
-                    flexTimeToday = ZERO_TIME,
-                    oldFlexTimeToday = ZERO_TIME
+                    flexTimeToday = ZERO_TIME
                 )
             )
         }

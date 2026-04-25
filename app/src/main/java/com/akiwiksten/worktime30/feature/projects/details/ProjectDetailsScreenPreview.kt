@@ -24,8 +24,7 @@ fun previewProjectDetailsSuccessNewDay() {
                     dailyWorkTimeEstimate = "07:30",
                     dailyLunchTimeEstimate = "00:30",
                     initialFlexTimeTotal = "+03:10"
-                ),
-                isNewDay = true
+                )
             )
         ),
         projectName = "Alpha Site"
@@ -52,8 +51,7 @@ fun previewProjectDetailsSuccessExistingDay() {
                     dailyWorkTimeEstimate = "07:30",
                     dailyLunchTimeEstimate = "00:30",
                     initialFlexTimeTotal = "+04:10"
-                ),
-                isNewDay = false
+                )
             )
         ),
         projectName = "Beta Support"

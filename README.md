@@ -78,8 +78,9 @@ This is called feature-based packaging.
 + Clean ProjectDetailsState
 + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
 + ProjectDetailsRepository → Extract WorkStats stuff into own repository
-
-
++ Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
++ isNewDayForProject
++ 
 Constantly:
 + Thorough testing of all features in all screens
     + Intro,

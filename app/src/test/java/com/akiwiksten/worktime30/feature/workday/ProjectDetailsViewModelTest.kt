@@ -7,6 +7,7 @@ import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsViewModel
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.projects.details.isNewDayForProject
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -143,7 +144,7 @@ class ProjectDetailsViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as ProjectDetailsUiState.Success
-        assertTrue(state.data.isNewDay)
+        assertTrue(state.data.isNewDayForProject())
         assertEquals("00:30", state.data.workStats.dailyLunchTimeEstimate)
     }
 

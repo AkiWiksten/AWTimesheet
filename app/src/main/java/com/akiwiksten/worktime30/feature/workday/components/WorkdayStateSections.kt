@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.feature.workday.DAILY_WORK_TIME_INPUT_REGEX
@@ -65,6 +66,17 @@ internal fun ColumnScope.WorkdaySuccessContent(
         initialFlexTimeTotal = state.initialFlexTimeTotal,
         onSaveWorkStats = actions.onSaveWorkStats
     )
+    val displayedCalculatedFlexTimeTotal = remember(
+        state.initialFlexTimeTotal,
+        state.calculatedFlexTimeTotal,
+        saveUi.initialFlexTimeTotal
+    ) {
+        calculateDisplayedCalculatedFlexTimeTotal(
+            persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
+            persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+            editedInitialFlexTimeTotal = saveUi.initialFlexTimeTotal
+        )
+    }
     val workStatsEditorState = WorkStatsEditorState(
         dailyWorkTime = saveUi.dailyWorkTime,
         initialFlexTimeTotal = saveUi.initialFlexTimeTotal,
@@ -84,7 +96,7 @@ internal fun ColumnScope.WorkdaySuccessContent(
     WorkdayStatsCard(
         workTime = state.workTimeToday,
         flexTimeToday = state.flexTimeToday,
-        calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+        calculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
         workStatsEditorState = workStatsEditorState,
         headerActions = headerActions
     )
@@ -104,6 +116,22 @@ internal fun ColumnScope.WorkdaySuccessContent(
         onDeleteClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
         }
+    )
+}
+
+internal fun calculateDisplayedCalculatedFlexTimeTotal(
+    persistedInitialFlexTimeTotal: String,
+    persistedCalculatedFlexTimeTotal: String,
+    editedInitialFlexTimeTotal: String
+): String {
+    val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+        initialTime = persistedCalculatedFlexTimeTotal,
+        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedInitialFlexTimeTotal")
+    )
+
+    return WorkTimeCalculator.calculateFlexTime(
+        initialTime = editedInitialFlexTimeTotal,
+        addedTime = calculatedOnlyFlexTimeTotal
     )
 }
 

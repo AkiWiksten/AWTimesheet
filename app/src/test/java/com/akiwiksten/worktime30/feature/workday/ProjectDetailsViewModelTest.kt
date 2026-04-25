@@ -88,6 +88,36 @@ class ProjectDetailsViewModelTest {
         assertEquals(ZERO_TIME, cleared.data.startTime)
         assertEquals(ZERO_TIME, cleared.data.endTime)
         assertEquals(ZERO_TIME, cleared.data.projectTime)
+        assertEquals("02:00", cleared.data.workStats.initialFlexTimeTotal)
+    }
+
+    @Test
+    fun setProjectTime_doesNotMutateInitialFlexTimeTotal() = runTest {
+        val viewModel = ProjectDetailsViewModel(FakeProjectDetailsRepository(), DateRepository())
+
+        viewModel.setDate("2026-04-10")
+        viewModel.setProjectName("Alpha")
+        viewModel.loadProjectDetails(
+            projectDetailsArg = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00",
+                flexTimeToday = "00:30"
+            ),
+            workStatsArg = WorkStatsState(
+                dailyWorkTime = "07:30",
+                lunchTime = "00:30",
+                initialFlexTimeTotal = "02:00"
+            )
+        )
+        advanceUntilIdle()
+
+        viewModel.setProjectTime("06:00")
+
+        val updated = viewModel.uiState.value as ProjectDetailsUiState.Success
+        assertEquals("02:00", updated.data.workStats.initialFlexTimeTotal)
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {

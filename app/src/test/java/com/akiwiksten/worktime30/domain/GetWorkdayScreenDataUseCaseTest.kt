@@ -19,20 +19,16 @@ class GetWorkdayScreenDataUseCaseTest {
         val projectRepository = FakeProjectRepository().apply {
             projects = listOf(
                 SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00"),
-                SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "04:30")
+                SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "04:30"),
+                SingleProjectState(date = "2026-04-11", projectName = "Gamma", projectTime = "07:00")
             )
-            projectNames = listOf("Alpha", "Beta")
+            projectNames = listOf("Alpha", "Beta", "Gamma")
         }
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office", "Remote")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = "+04:15")
-            projectDetailsByDateRange = listOf(
-                ProjectDetailsState(date = "2026-04-10", projectName = "Alpha", flexTimeToday = "+01:00"),
-                ProjectDetailsState(date = "2026-04-10", projectName = "Beta", flexTimeToday = "+01:00"),
-                ProjectDetailsState(date = "2026-04-11", projectName = "Gamma", flexTimeToday = "-00:30")
-            )
         }
         val useCase = GetWorkdayScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
 
@@ -41,10 +37,54 @@ class GetWorkdayScreenDataUseCaseTest {
         assertEquals("07:30", result.projectTime)
         assertEquals("07:30", result.dailyWorkTime)
         assertEquals("+04:15", result.initialFlexTimeTotal)
-        assertEquals("04:45", result.calculatedFlexTimeTotal)
+        assertEquals("03:45", result.calculatedFlexTimeTotal)
         assertEquals(2, result.projects.size)
-        assertEquals(2, result.projectNames.size)
+        assertEquals(3, result.projectNames.size)
         assertEquals(listOf("Office", "Remote"), result.workTypes)
+    }
+
+    @Test
+    fun invoke_calculatesCombinedFlexFromProjectRows_evenWhenProjectDetailsFlexIsMissing() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            projects = listOf(
+                SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
+            )
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = ZERO_TIME)
+        }
+        val useCase = GetWorkdayScreenDataUseCase(
+            projectRepository = projectRepository,
+            settingsRepository = FakeSettingsRepository(),
+            projectDetailsRepository = projectDetailsRepository
+        )
+
+        val result = useCase("2026-04-10")
+
+        assertEquals("00:30", result.calculatedFlexTimeTotal)
+    }
+
+    @Test
+    fun invoke_calculatesCombinedFlexFromEditedProjectTime() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            projects = listOf(
+                SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
+            )
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = ZERO_TIME)
+        }
+        val useCase = GetWorkdayScreenDataUseCase(
+            projectRepository = projectRepository,
+            settingsRepository = FakeSettingsRepository(),
+            projectDetailsRepository = projectDetailsRepository
+        )
+
+        val result = useCase("2026-04-10")
+
+        assertEquals("08:00", result.projectTime)
+        assertEquals("00:30", result.calculatedFlexTimeTotal)
     }
 
     @Test
@@ -67,7 +107,9 @@ class GetWorkdayScreenDataUseCaseTest {
         var projects: List<SingleProjectState> = emptyList()
         var projectNames: List<String> = emptyList()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> = projects
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return projects.filter { it.date in start..end }
+        }
 
         override suspend fun insertProject(project: SingleProjectState) = Unit
 

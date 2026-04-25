@@ -295,11 +295,9 @@ class ProjectDetailsViewModel @Inject constructor(
         )
 
         result.projectTime?.let {
-            val oldProjectTime = WorkTimeCalculator.stringToLocalTime(nextState.data.projectTime)
             nextState = nextState.copy(data = nextState.data.copy(projectTime = it))
             nextState = calculateFlexTimeUpdatesInState(
                 nextState,
-                oldProjectTime,
                 result.shouldRecalculateFlexTime
             )
         }
@@ -308,30 +306,12 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private fun calculateFlexTimeUpdatesInState(
         state: ProjectDetailsUiState.Success,
-        oldProjectTime: LocalTime,
         calculateToday: Boolean
     ): ProjectDetailsUiState.Success {
         var nextState = state
         if (calculateToday) {
             nextState = updateFlexTimeTodayIfNeeded(nextState)
         }
-
-        val flexTimeAdjustment = calculateFlexTimeAdjustment(
-            state = state,
-            nextState = nextState,
-            oldProjectTime = oldProjectTime
-        )
-
-        nextState = nextState.copy(
-            data = nextState.data.copy(
-                workStats = nextState.data.workStats.copy(
-                    initialFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-                        initialTime = nextState.data.workStats.initialFlexTimeTotal,
-                        addedTime = flexTimeAdjustment
-                    )
-                )
-            )
-        )
 
         return nextState
     }
@@ -351,29 +331,6 @@ class ProjectDetailsViewModel @Inject constructor(
                 )
             )
         )
-    }
-
-    private fun calculateFlexTimeAdjustment(
-        state: ProjectDetailsUiState.Success,
-        nextState: ProjectDetailsUiState.Success,
-        oldProjectTime: LocalTime
-    ): String {
-        var flexTimeAdjustment = WorkTimeCalculator.calculateFlexTime(
-            nextState.data.projectTime,
-            WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
-        )
-
-        if (!state.data.hasOtherProjects &&
-            oldProjectTime == LocalTime.MIDNIGHT &&
-            nextState.data.projectTime != ZERO_TIME
-        ) {
-            flexTimeAdjustment = WorkTimeCalculator.calculateFlexTime(
-                flexTimeAdjustment,
-                "-" + nextState.data.workStats.dailyWorkTime
-            )
-        }
-
-        return flexTimeAdjustment
     }
 
     val getProjectDetailsState: () -> ProjectDetailsState = {
@@ -453,22 +410,6 @@ class ProjectDetailsViewModel @Inject constructor(
     val clearDay: () -> Unit = {
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
-            val oldProjectTime = successState.data.projectTime
-            var nextInitialFlexTimeTotal = successState.data.workStats.initialFlexTimeTotal
-
-            if (oldProjectTime != ZERO_TIME) {
-                nextInitialFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-                    nextInitialFlexTimeTotal,
-                    WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
-                )
-
-                if (!successState.data.hasOtherProjects) {
-                    nextInitialFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-                        nextInitialFlexTimeTotal,
-                        successState.data.workStats.dailyWorkTime
-                    )
-                }
-            }
 
             successState.copy(
                 data = successState.data.copy(
@@ -481,8 +422,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     breakEnd = ZERO_TIME,
                     projectTime = ZERO_TIME,
                     flexTimeToday = ZERO_TIME,
-                    oldFlexTimeToday = ZERO_TIME,
-                    workStats = successState.data.workStats.copy(initialFlexTimeTotal = nextInitialFlexTimeTotal)
+                    oldFlexTimeToday = ZERO_TIME
                 )
             )
         }

@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
@@ -89,6 +90,73 @@ class WorkdayViewModelTest {
 
         assertTrue(projectRepository.insertedProjects.any { it.projectName == "Alpha" })
         assertTrue(projectDetailsRepository.insertedProjectDetails.any { it.projectName == "Alpha" })
+    }
+
+    @Test
+    fun saveProject_withNonZeroTime_updatesCalculatedFlexTimeTotal() = runTest {
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = ZERO_TIME)
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        advanceUntilIdle()
+
+        viewModel.saveProject(
+            SingleProjectState(
+                projectName = "Alpha",
+                projectTime = "08:00"
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        assertEquals("00:30", state.calculatedFlexTimeTotal)
+    }
+
+    @Test
+    fun saveProject_whenEditingExistingProjectTime_recalculatesCalculatedFlexTimeTotal() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                SingleProjectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:00"
+                )
+            )
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(
+                dailyWorkTime = "07:30",
+                lunchTime = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        advanceUntilIdle()
+
+        viewModel.saveProject(
+            SingleProjectState(
+                index = 0,
+                projectName = "Alpha",
+                projectTime = "08:00"
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        assertEquals("08:00", projectRepository.projectsByDateRange.single().projectTime)
+        assertEquals("00:30", state.calculatedFlexTimeTotal)
     }
 
     @Test

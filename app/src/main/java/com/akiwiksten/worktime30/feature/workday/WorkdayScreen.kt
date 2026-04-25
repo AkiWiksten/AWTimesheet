@@ -32,6 +32,10 @@ fun WorkdayScreen(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     ),
 ) {
+    LaunchedEffect(Unit) {
+        workdayViewModel.retryLoad()
+    }
+
     val workdayUiState by workdayViewModel.uiState.collectAsState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate

@@ -34,7 +34,7 @@
 <string name="delete">Delete</string>
 <string name="saved">Saved!</string>
 <string name="clear_day">Clear day</string>
-<string name="new_day">New work day! Set the start of the work day first! That opens other options. You can first set the estimated lunchtime also. When you end your work day, select \"End time\". That calculates \"Project time\".</string>
+<string name="add_new_project_details">New project of the day! Set the start of today\'s project first! That opens other options. You can first set the estimated lunchtime also. When you end your work day, select \"End time\". That calculates \"Project time\".</string>
 <string name="calendar">Calendar</string>
 <string name="monthly_report">Monthly report</string>
 <string name="name">Name</string>

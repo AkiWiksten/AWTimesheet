@@ -35,7 +35,7 @@
     <string name="delete">Poista</string>
     <string name="saved">Tallennettu!</string>
     <string name="clear_day">Tyhjennä päivä</string>
-    <string name="new_day">Uusi työpäivä! Valitse ensin työpäivän alkuaika! Se avaa muita vaihtoehtoja. Voit tarvitteassa ensin myös määrittää lounaan aiotun pituuden. Lopeta työpäivä valitsemalla \"Lopettamisaika\". Tämä laskee \"Projektin aika\" arvon.</string>
+    <string name="add_new_project_details">Päivän uusi projekti! Aseta ensin tämän päivän projektin aloitusaika! Se avaa muita vaihtoehtoja. Voit ensin myös asettaa lounaan arvioidun keston. Kun lopetat työpäivän, valitse \"Loppuaika\". Se laskee \"Projektin aika\" -arvon.</string>
     <string name="calendar">Kalenteri</string>
     <string name="monthly_report">Kuukausiraportti</string>
     <string name="name">Nimi</string>

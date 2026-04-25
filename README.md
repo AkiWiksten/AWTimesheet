@@ -67,12 +67,16 @@ This is called feature-based packaging.
 + work_type_help
 + add_project_item_failed_title add_project_item_failed_title_text (Duplicate)
 + Everything with bigger font
-+ Flex time naming cleanup
 + Selecting work type doesn't work in edit mode
 + DialogMainFields
 + Flex time total doesn't update
 + Use Intent to ask user where to save pdf
 + PDF: Project time sum, Half-allowance and Full-allowance kilometre sum for each project
++ ProjectsScreen: "No projects" state should be shown on a empty list
++ Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
++ Calculate FlexTimeTotal from WorkdayEntity
++ Swedish support
++ Daily work time estimate in Settings (default 7:30). Lunch time estimate default 0:00
 
 
 Constantly:

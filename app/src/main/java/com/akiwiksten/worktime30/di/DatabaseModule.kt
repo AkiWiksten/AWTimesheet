@@ -48,7 +48,8 @@ abstract class DatabaseModule {
                 context,
                 AppDatabase::class.java,
                 AppDatabase.DB_NAME
-            ).fallbackToDestructiveMigration(dropAllTables = true).build()
+            ).fallbackToDestructiveMigration(dropAllTables = true)
+                .build()
         }
 
         @Provides

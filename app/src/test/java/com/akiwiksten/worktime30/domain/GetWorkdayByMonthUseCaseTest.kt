@@ -57,4 +57,3 @@ class GetWorkdayByMonthUseCaseTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }
-

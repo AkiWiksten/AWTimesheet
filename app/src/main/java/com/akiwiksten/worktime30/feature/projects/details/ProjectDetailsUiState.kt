@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.projects.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 
@@ -15,7 +15,7 @@ sealed class ProjectDetailsUiState {
 data class WorkStatsState(
     val dailyWorkTime: String = ZERO_TIME,
     val lunchTime: String = ZERO_TIME,
-    val flexTimeTotal: String = ZERO_TIME
+    val initialFlexTimeTotal: String = ZERO_TIME
 )
 
 data class ProjectDetailsState(
@@ -35,4 +35,3 @@ data class ProjectDetailsState(
     val isNewDay: Boolean = true,
     val workStats: WorkStatsState = WorkStatsState()
 )
-

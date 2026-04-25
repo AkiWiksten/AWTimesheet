@@ -39,38 +39,40 @@ internal fun WorkdayListSection(
 ) {
     val listState = rememberLazyListState()
 
-    if (items.isEmpty()) {
-        Box(
-            modifier = modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .lazyVerticalScrollbar(listState = listState)
+                .clip(shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS))
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+                )
+                .selectableGroup(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
-            Text(
-                text = stringResource(id = R.string.no_projects_available),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(all = 32.dp)
-            )
-        }
-    } else {
-        ElevatedCard(
-            modifier = modifier.fillMaxWidth(),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .lazyVerticalScrollbar(listState = listState)
-                    .clip(shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS))
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-                    )
-                    .selectableGroup(),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(space = 2.dp)
-            ) {
+            if (items.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.no_projects_available),
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(all = 32.dp)
+                        )
+                    }
+                }
+            } else {
                 items(
                     items = items,
                     key = { it.projectName }
@@ -117,11 +119,7 @@ private fun ProjectListItem(
                     text = item.projectName,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = item.projectTime,
@@ -143,7 +141,7 @@ private fun ProjectListItem(
                     text = "${item.kilometres} km",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -157,17 +155,17 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
             Text(
                 text = workType,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
         if (allowance.isNotEmpty()) {
             Text(
                 text = allowance,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
 }
-
-

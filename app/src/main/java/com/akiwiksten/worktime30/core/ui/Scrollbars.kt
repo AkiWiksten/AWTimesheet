@@ -155,4 +155,3 @@ private fun LazyListState.lazyListProgress(): ScrollbarProgress {
         ScrollbarProgress(offset = scrollOffset, range = maxScroll)
     }
 }
-

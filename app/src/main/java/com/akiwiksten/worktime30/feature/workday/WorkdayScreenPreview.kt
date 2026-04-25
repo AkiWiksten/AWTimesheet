@@ -88,4 +88,3 @@ private fun WorkdayPreviewContent(
         )
     }
 }
-

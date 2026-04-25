@@ -33,22 +33,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
-import com.akiwiksten.worktime30.core.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
+import com.akiwiksten.worktime30.core.ui.hasChanges
+import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
-import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,11 +90,13 @@ fun SingleProjectScreen(
         state = initialUiState
     }
 
-    val isConfirmEnabled by remember(state, initialUiState) {
+    val isConfirmEnabled by remember(state, initialUiState, initialSingleProjectState.index) {
         derivedStateOf {
-            state.projectName.isNotBlank() &&
-                state.kilometres.isDigitsOnly() &&
-                state != initialUiState
+            isSingleProjectConfirmEnabled(
+                state = state,
+                initialUiState = initialUiState,
+                isAddMode = initialSingleProjectState.index == -1
+            )
         }
     }
 
@@ -117,28 +120,19 @@ fun SingleProjectScreen(
     )
 }
 
-private fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): SingleProjectState {
-    return if (allowance.isBlank()) copy(allowance = defaultAllowance) else this
-}
-
-internal fun resolveInitialSingleProjectState(
-    initialSingleProjectState: SingleProjectState,
-    projectsUiState: WorkdayUiState
-): SingleProjectState {
-    val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
-        initialSingleProjectState.projectTime != ZERO_TIME ||
-        initialSingleProjectState.projectDetails != null ||
-        initialSingleProjectState.workStats != null
-
-    val resolvedState = when {
-        initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState
-        else -> (projectsUiState as? WorkdayUiState.Success)
-            ?.projects
-            ?.find { it.index == initialSingleProjectState.index }
-            ?: initialSingleProjectState
-    }
-
-    return resolvedState
+internal fun isSingleProjectConfirmEnabled(
+    state: SingleProjectState,
+    initialUiState: SingleProjectState,
+    isAddMode: Boolean
+): Boolean {
+    val hasRequiredFields = state.projectName.isNotBlank() &&
+        (state.kilometres.isBlank() || state.kilometres.all(Char::isDigit))
+    val hasUnsavedChanges = hasChanges(current = state, baseline = initialUiState)
+    return isActionEnabled(
+        hasRequiredFields = hasRequiredFields,
+        hasUnsavedChanges = hasUnsavedChanges,
+        allowWithoutChanges = isAddMode
+    )
 }
 
 @Composable
@@ -146,26 +140,29 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = params.projectsUiState is WorkdayUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
-    var showUnsavedDialog by remember { mutableStateOf(value = false) }
+    val lastSuccessState = remember { mutableStateOf<WorkdayUiState.Success?>(value = null) }
+    val showUnsavedDialogState = remember { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(params.projectsUiState) {
         if (params.projectsUiState is WorkdayUiState.Success) {
-            lastSuccessState = params.projectsUiState
+            lastSuccessState.value = params.projectsUiState
         }
     }
 
     val guardedNavigateBack = {
-        if (params.isConfirmEnabled) showUnsavedDialog = true
-        else params.onNavigateBack()
+        if (params.isConfirmEnabled) {
+            showUnsavedDialogState.value = true
+        } else {
+            params.onNavigateBack()
+        }
     }
 
-    if (showUnsavedDialog) {
+    if (showUnsavedDialogState.value) {
         UnsavedChangesDialog(
-            onDismiss = { showUnsavedDialog = false },
-            onDiscard = { showUnsavedDialog = false; params.onNavigateBack() },
-            onSave = { showUnsavedDialog = false; params.onConfirm() },
+            onDismiss = { showUnsavedDialogState.value = false },
+            onDiscard = params.onNavigateBack,
+            onSave = params.onConfirm,
             dialogText = unsavedMessage
         )
     }
@@ -178,30 +175,47 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
 
     Scaffold(
         topBar = {
-            SingleProjectTopSection(
-                onNavigateBack = guardedNavigateBack
-            )
+            SingleProjectTopSection(onNavigateBack = guardedNavigateBack)
         }
     ) { padding ->
-        when (params.projectsUiState) {
-            is WorkdayUiState.Loading -> SingleProjectLoadingContent(
-                padding = padding,
-                params = params,
-                actions = actions,
-                showLoadingIndicator = showLoadingIndicator,
-                cachedSuccessState = lastSuccessState
-            )
-            is WorkdayUiState.Success -> SingleProjectSuccessContent(
-                padding = padding,
-                params = params,
-                actions = actions,
-                uiState = params.projectsUiState
-            )
-            is WorkdayUiState.Error -> SingleProjectErrorContent(
-                padding = padding,
-                message = params.projectsUiState.message
-            )
-        }
+        SingleProjectContentByUiState(
+            padding = padding,
+            params = params,
+            actions = actions,
+            showLoadingIndicator = showLoadingIndicator,
+            cachedSuccessState = lastSuccessState.value
+        )
+    }
+}
+
+@Composable
+private fun SingleProjectContentByUiState(
+    padding: PaddingValues,
+    params: SingleProjectScreenContentParams,
+    actions: SingleProjectActions,
+    showLoadingIndicator: Boolean,
+    cachedSuccessState: WorkdayUiState.Success?
+) {
+    when (params.projectsUiState) {
+        is WorkdayUiState.Loading -> SingleProjectLoadingContent(
+            padding = padding,
+            params = params,
+            actions = actions,
+            showLoadingIndicator = showLoadingIndicator,
+            cachedSuccessState = cachedSuccessState
+        )
+
+        is WorkdayUiState.Success -> SingleProjectSuccessContent(
+            padding = padding,
+            params = params,
+            actions = actions,
+            uiState = params.projectsUiState
+        )
+
+        is WorkdayUiState.Error -> SingleProjectErrorContent(
+            padding = padding,
+            message = params.projectsUiState.message
+        )
     }
 }
 
@@ -246,11 +260,11 @@ private fun SingleProjectSuccessContent(
         ?.find { it.index == params.index }
         ?.projectTime
         ?: ZERO_TIME
-    val baseWithoutCurrent = WorkTimeCalculator.calculateWorkTimeBalance(
+    val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
         initialTime = successState?.workTimeToday ?: ZERO_TIME,
         addedTime = "-$originalProjectTime"
     )
-    val workTimeToday = WorkTimeCalculator.calculateWorkTimeBalance(
+    val workTimeToday = WorkTimeCalculator.calculateFlexTime(
         initialTime = baseWithoutCurrent,
         addedTime = params.state.projectTime
     )

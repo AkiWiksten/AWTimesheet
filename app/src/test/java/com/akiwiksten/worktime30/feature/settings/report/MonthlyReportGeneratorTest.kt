@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.core
+package com.akiwiksten.worktime30.feature.settings.report
 
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import org.junit.Assert.assertEquals

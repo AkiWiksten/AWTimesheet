@@ -143,45 +143,51 @@ internal fun CalendarContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp)
     ) {
         when (uiState) {
-            is CalendarUiState.Loading -> {
-                if (showLoadingIndicator) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    val cachedState = lastSuccessState ?: fallbackSuccessState
-                    DatePickerSection(
-                        selectedDate = cachedState.date,
-                        datePickerState = datePickerState
-                    )
-
-                    WorkTimeSummarySection(uiState = cachedState)
-                }
-            }
+            is CalendarUiState.Loading -> LoadingContent(
+                showLoadingIndicator = showLoadingIndicator,
+                cachedState = lastSuccessState ?: fallbackSuccessState,
+                datePickerState = datePickerState
+            )
             is CalendarUiState.Success -> {
-                DatePickerSection(
-                    selectedDate = uiState.date,
-                    datePickerState = datePickerState
-                )
-
+                DatePickerSection(selectedDate = uiState.date, datePickerState = datePickerState)
                 WorkTimeSummarySection(uiState = uiState)
             }
-            is CalendarUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Error: ${uiState.message}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(all = 32.dp)
-                    )
-                }
-            }
+            is CalendarUiState.Error -> ErrorContent(message = uiState.message)
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LoadingContent(
+    showLoadingIndicator: Boolean,
+    cachedState: CalendarUiState.Success,
+    datePickerState: DatePickerState
+) {
+    if (showLoadingIndicator) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        DatePickerSection(selectedDate = cachedState.date, datePickerState = datePickerState)
+        WorkTimeSummarySection(uiState = cachedState)
+    }
+}
+
+@Composable
+private fun ErrorContent(message: String) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Error: $message",
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(all = 32.dp)
+        )
     }
 }
 

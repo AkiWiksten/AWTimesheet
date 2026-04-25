@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.projects.single
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -50,7 +51,6 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 
-
 @Composable
 fun HeaderSection(date: String, workTimeToday: String) {
     ElevatedCard(
@@ -76,7 +76,8 @@ fun HeaderSection(date: String, workTimeToday: String) {
             Text(
                 text = "${stringResource(id = R.string.work_time_today)}: $workTimeToday",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.secondary,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -193,61 +194,83 @@ private fun ProjectTimeSelectionRow(
             horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
-                value = state.projectTime,
-                onValueChange = { onStateChange(state.copy(projectTime = it)) },
-                label = {
-                    Text(
-                        text = stringResource(id = R.string.project_time),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                },
-                modifier = Modifier.weight(weight = 1f),
-                enabled = false,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
-                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                )
+            ProjectTimeReadOnlyField(
+                projectTime = state.projectTime,
+                onStateChange = { projectTime -> onStateChange(state.copy(projectTime = projectTime)) }
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
-                Button(
-                    onClick = onOpenProjectDetails,
-                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.History, contentDescription = null)
-                    Spacer(modifier = Modifier.width(width = 4.dp))
-                    Text(text = stringResource(id = R.string.details))
-                }
+            ProjectTimeActionsColumn(
+                onOpenProjectDetails = onOpenProjectDetails,
+                onOpenTimePicker = onOpenTimePicker
+            )
+        }
+    }
+}
 
-                Text(
-                    text = stringResource(id = R.string.or_text),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+@Composable
+private fun RowScope.ProjectTimeReadOnlyField(
+    projectTime: String,
+    onStateChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = projectTime,
+        onValueChange = onStateChange,
+        label = {
+            Text(
+                text = stringResource(id = R.string.project_time),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
                 )
+            )
+        },
+        modifier = Modifier.weight(weight = 1f),
+        enabled = false,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+        )
+    )
+}
 
-                Button(
-                    onClick = onOpenTimePicker,
-                    modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccessTime,
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(width = 4.dp))
-                    Text(text = stringResource(id = R.string.pick))
-                }
-            }
+@Composable
+private fun ProjectTimeActionsColumn(
+    onOpenProjectDetails: () -> Unit,
+    onOpenTimePicker: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
+        Button(
+            onClick = onOpenProjectDetails,
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Icon(imageVector = Icons.Default.History, contentDescription = null)
+            Spacer(modifier = Modifier.width(width = 4.dp))
+            Text(text = stringResource(id = R.string.details))
+        }
+
+        Text(
+            text = stringResource(id = R.string.or_text),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+        )
+
+        Button(
+            onClick = onOpenTimePicker,
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AccessTime,
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(width = 4.dp))
+            Text(text = stringResource(id = R.string.pick))
         }
     }
 }

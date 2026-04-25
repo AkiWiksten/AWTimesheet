@@ -13,8 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.foundation.layout.Row
-// ...existing imports...
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -36,13 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.akiwiksten.worktime30.R
 
-@Suppress("LongParameterList")
 @Composable
 fun MyAlertDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
+    titleAndText: Pair<String, String>,
     icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
@@ -53,10 +49,10 @@ fun MyAlertDialog(
             Icon(imageVector = icon, contentDescription = null)
         },
         title = {
-            Text(text = dialogTitle)
+            Text(text = titleAndText.first)
         },
         text = {
-            Text(text = dialogText)
+            Text(text = titleAndText.second)
         },
         confirmButton = {
             TextButton(onClick = onConfirmation) {

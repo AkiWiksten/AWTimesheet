@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
@@ -20,7 +21,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +41,8 @@ import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
-import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
 private val SAVE_BUTTON_TOP_PADDING = 4.dp
@@ -60,9 +60,9 @@ internal fun WorkdayHeader(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                    modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+                modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+                verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
             ) {
                 Header(title = stringResource(id = R.string.workday))
                 Text(
@@ -82,6 +82,7 @@ internal fun WorkdayHeader(
 internal fun WorkdayStatsCard(
     workTime: String,
     flexTimeToday: String,
+    calculatedFlexTimeTotal: String,
     workStatsEditorState: WorkStatsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
@@ -100,26 +101,26 @@ internal fun WorkdayStatsCard(
     }
 
     WorkdayStatsCardContent(
-        workTime = workTime,
-        flexTimeToday = flexTimeToday,
-        workStatsEditorState = workStatsEditorState,
-        onDailyWorkTimePickerClick = { openDailyWorkTimePicker.value = true },
-        onFlexTimeTotalChange = headerActions.onFlexTimeTotalChange,
-        onSaveWorkStats = headerActions.onSaveWorkStats
+        params = WorkdayStatsCardContentParams(
+            workTime = workTime,
+            flexTimeToday = flexTimeToday,
+            calculatedFlexTimeTotal = calculatedFlexTimeTotal,
+            workStatsEditorState = workStatsEditorState,
+            onDailyWorkTimePickerClick = { openDailyWorkTimePicker.value = true },
+            onInitialFlexTimeTotalChange = headerActions.onInitialFlexTimeTotalChange,
+            onSaveWorkStats = headerActions.onSaveWorkStats
+        )
     )
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun WorkdayStatsCardContent(
-    workTime: String,
-    flexTimeToday: String,
-    workStatsEditorState: WorkStatsEditorState,
-    onDailyWorkTimePickerClick: () -> Unit,
-    onFlexTimeTotalChange: (String) -> Unit,
-    onSaveWorkStats: () -> Unit
+    params: WorkdayStatsCardContentParams
 ) {
     val scrollState = rememberScrollState()
+    val isSaveEnabled = !params.workStatsEditorState.isDailyWorkTimeError &&
+        !params.workStatsEditorState.isInitialFlexTimeTotalError &&
+        params.workStatsEditorState.hasUnsavedChanges
 
     ElevatedCard(
         modifier = Modifier
@@ -135,37 +136,24 @@ private fun WorkdayStatsCardContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
         ) {
-            Text(
-                text = "${stringResource(id = R.string.work_time_today)}: $workTime",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.secondary
-            )
-            Text(
-                text = "${stringResource(id = R.string.flex_time_today)}: $flexTimeToday",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            WorkdayStatsSummaryTexts(
+                workTime = params.workTime,
+                flexTimeToday = params.flexTimeToday,
+                calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
             DailyWorkTimePickerRow(
-                dailyWorkTime = workStatsEditorState.dailyWorkTime,
-                isError = workStatsEditorState.isDailyWorkTimeError,
-                onPickerClick = onDailyWorkTimePickerClick
+                dailyWorkTime = params.workStatsEditorState.dailyWorkTime,
+                isError = params.workStatsEditorState.isDailyWorkTimeError,
+                onPickerClick = params.onDailyWorkTimePickerClick
             )
             FlexTimeTotalField(
-                flexTimeTotal = workStatsEditorState.flexTimeTotal,
-                isError = workStatsEditorState.isFlexTimeTotalError,
-                onValueChange = onFlexTimeTotalChange
+                initialFlexTimeTotal = params.workStatsEditorState.initialFlexTimeTotal,
+                isError = params.workStatsEditorState.isInitialFlexTimeTotalError,
+                onValueChange = params.onInitialFlexTimeTotalChange
             )
             SaveWorkStatsButton(
-                isEnabled = !workStatsEditorState.isDailyWorkTimeError &&
-                    !workStatsEditorState.isFlexTimeTotalError &&
-                    workStatsEditorState.hasUnsavedChanges,
-                onClick = onSaveWorkStats,
+                isEnabled = isSaveEnabled,
+                onClick = params.onSaveWorkStats,
                 modifier = Modifier
                     .align(alignment = Alignment.End)
                     .padding(top = SAVE_BUTTON_TOP_PADDING)
@@ -175,17 +163,60 @@ private fun WorkdayStatsCardContent(
 }
 
 @Composable
+private fun WorkdayStatsSummaryTexts(
+    workTime: String,
+    flexTimeToday: String,
+    calculatedFlexTimeTotal: String
+) {
+    Text(
+        text = "${stringResource(id = R.string.work_time_today)}: $workTime",
+        style = MaterialTheme.typography.bodyLarge.copy(
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+            fontWeight = FontWeight.Bold
+        ),
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    Text(
+        text = "${stringResource(id = R.string.flex_time_today)}: $flexTimeToday",
+        style = MaterialTheme.typography.bodyLarge.copy(
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+            fontWeight = FontWeight.Bold
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    val calculatedFlexLabel = stringResource(id = R.string.flex_time_total_initial_calculated)
+    Text(
+        text = "$calculatedFlexLabel: $calculatedFlexTimeTotal",
+        style = MaterialTheme.typography.bodyLarge.copy(
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+            fontWeight = FontWeight.Bold
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+private data class WorkdayStatsCardContentParams(
+    val workTime: String,
+    val flexTimeToday: String,
+    val calculatedFlexTimeTotal: String,
+    val workStatsEditorState: WorkStatsEditorState,
+    val onDailyWorkTimePickerClick: () -> Unit,
+    val onInitialFlexTimeTotalChange: (String) -> Unit,
+    val onSaveWorkStats: () -> Unit
+)
+
+@Composable
 private fun FlexTimeTotalField(
-    flexTimeTotal: String,
+    initialFlexTimeTotal: String,
     isError: Boolean,
     onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        value = flexTimeTotal,
+        value = initialFlexTimeTotal,
         onValueChange = onValueChange,
         label = {
             Text(
-                text = stringResource(id = R.string.flex_time_total),
+                text = stringResource(id = R.string.initial_flex_time_total),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold
@@ -259,6 +290,3 @@ private fun SaveWorkStatsButton(
         Text(text = stringResource(id = R.string.save))
     }
 }
-
-
-

@@ -30,7 +30,6 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 
-
 @Composable
 fun ProjectNameField(name: String) {
     OutlinedTextField(
@@ -108,8 +107,7 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     stringId = R.string.start_time,
                     currentTime = actions.onCurrentStartTime,
                     onConfirmation = actions.onSetStartTime,
-                    currentTimeLabelId = R.string.now,
-                    timePickerLabelId = R.string.pick
+                    labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
                 )
                 AddTimeRow(
                     textFieldValue = uiState.data.workStats.lunchTime,
@@ -154,8 +152,7 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
                 stringId = R.string.start_time,
                 currentTime = actions.onCurrentStartTime,
                 onConfirmation = actions.onSetStartTime,
-                currentTimeLabelId = R.string.now,
-                timePickerLabelId = R.string.pick
+                labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
             )
             AddTimeRow(
                 textFieldValue = uiState.data.endTime,

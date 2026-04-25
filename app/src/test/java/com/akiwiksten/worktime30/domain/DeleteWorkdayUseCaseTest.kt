@@ -1,11 +1,10 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,17 +12,17 @@ import org.junit.Test
 class DeleteWorkdayUseCaseTest {
 
     @Test
-    fun invoke_deletesProjectAndProjectDetails_andDeletesUnusedProjectName() = runBlocking {
+    fun invoke_nonZeroTime_deletesProjectAndProjectDetails_andDeletesUnusedProjectName() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             isProjectNameUsedByName["Beta"] = false
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
         val useCase = DeleteWorkdayUseCase(projectRepository, projectDetailsRepository)
 
-        useCase(date = "2026-04-10", projectName = "Beta")
+        useCase(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")
 
         assertEquals(
-            listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = ZERO_TIME)),
+            listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")),
             projectRepository.deletedProjects
         )
         assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
@@ -34,7 +33,7 @@ class DeleteWorkdayUseCaseTest {
     }
 
     @Test
-    fun invoke_zeroTime_deletesProjectName_evenWhenStillUsed() = runBlocking {
+    fun invoke_zeroTime_deletesOnlyProjectName_evenWhenStillUsed() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             isProjectNameUsedByName["Beta"] = true
         }
@@ -44,6 +43,8 @@ class DeleteWorkdayUseCaseTest {
         useCase(date = "2026-04-10", projectName = "Beta")
 
         assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
+        assertEquals(emptyList<SingleProjectState>(), projectRepository.deletedProjects)
+        assertEquals(emptyList<ProjectDetailsState>(), projectDetailsRepository.deletedProjectDetails)
     }
 
     @Test
@@ -105,4 +106,3 @@ class DeleteWorkdayUseCaseTest {
         ): List<ProjectDetailsState> = emptyList()
     }
 }
-

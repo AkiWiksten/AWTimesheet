@@ -6,23 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,18 +30,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
-import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
+import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.projects.details.components.FooterSection
-import com.akiwiksten.worktime30.feature.projects.details.components.HeaderSection
 import com.akiwiksten.worktime30.feature.projects.details.components.NewDayFields
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsFieldActions
-import com.akiwiksten.worktime30.feature.projects.details.components.ProjectNameField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,9 +49,7 @@ fun ProjectDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
-    var showUnsavedDialog by remember { mutableStateOf(value = false) }
-    var initialData by remember { mutableStateOf<ProjectDetailsState?>(value = null) }
-    var isBaselineInitialized by remember { mutableStateOf(value = false) }
+    val showUnsavedDialogState = remember { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(Unit) {
@@ -72,64 +60,33 @@ fun ProjectDetailsScreen(
         )
     }
 
-    LaunchedEffect(uiState, isInitialLoadComplete) {
-        val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
-        if (isBaselineInitialized) return@LaunchedEffect
-        if (!isInitialLoadComplete) return@LaunchedEffect
+    val baselineData = rememberBaselineData(
+        uiState = uiState,
+        isInitialLoadComplete = isInitialLoadComplete,
+        args = args
+    )
 
-        val data = successState.data
-        val projectDetailsArg = args.projectDetails
-        val workStatsArg = args.workStats
-        val expectedProjectTime = projectDetailsArg?.let {
-            ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
-                startTime = it.startTime.ifEmpty { ZERO_TIME },
-                endTime = it.endTime.ifEmpty { ZERO_TIME },
-                projectTime = it.projectTime.ifEmpty { ZERO_TIME }
-            )
-        }
-
-        val matchesProjectDetailsArg = projectDetailsArg == null || (
-            data.startTime == projectDetailsArg.startTime &&
-                data.endTime == projectDetailsArg.endTime &&
-                data.lunchStart == projectDetailsArg.lunchStart &&
-                data.lunchEnd == projectDetailsArg.lunchEnd &&
-                data.breakStart == projectDetailsArg.breakStart &&
-                data.breakEnd == projectDetailsArg.breakEnd &&
-                data.projectTime == expectedProjectTime
-            )
-        val matchesWorkStatsArg = workStatsArg == null || data.workStats == workStatsArg
-        val hasDate = data.date.isNotBlank()
-
-        if (hasDate && matchesProjectDetailsArg && matchesWorkStatsArg) {
-            initialData = data
-            isBaselineInitialized = true
-        }
-    }
-
-    val hasUnsavedChanges = isBaselineInitialized && initialData != null &&
-        (uiState as? ProjectDetailsUiState.Success)?.data != initialData
+    val hasUnsavedChanges = baselineData != null &&
+        (uiState as? ProjectDetailsUiState.Success)?.data?.let { current ->
+            hasChanges(current = current, baseline = baselineData)
+        } == true
 
     val guardedNavigateBack = {
-        if (hasUnsavedChanges) showUnsavedDialog = true
-        else onNavigateBack()
+        if (hasUnsavedChanges) showUnsavedDialogState.value = true else onNavigateBack()
     }
 
     BackHandler(onBack = guardedNavigateBack)
 
-    if (showUnsavedDialog) {
-        val successState = uiState as? ProjectDetailsUiState.Success
-        UnsavedChangesDialog(
-            onDismiss = { showUnsavedDialog = false },
-            onDiscard = { showUnsavedDialog = false; onNavigateBack() },
-            onSave = successState?.let { { showUnsavedDialog = false; onConfirm(it.data, it.data.workStats) } },
-            dialogText = unsavedMessage
-        )
-    }
+    UnsavedChangesSection(
+        showState = showUnsavedDialogState,
+        uiState = uiState,
+        unsavedMessage = unsavedMessage,
+        onNavigateBack = onNavigateBack,
+        onConfirm = onConfirm
+    )
 
     Scaffold(
-        topBar = {
-            ProjectDetailsTopBar(onNavigateBack = guardedNavigateBack)
-        }
+        topBar = { ProjectDetailsTopBar(onNavigateBack = guardedNavigateBack) }
     ) { padding ->
         val actions = remember(viewModel, onConfirm, uiState) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
@@ -144,38 +101,6 @@ fun ProjectDetailsScreen(
             projectName = args.projectName,
             actions = actions,
             isConfirmEnabled = hasUnsavedChanges
-        )
-    }
-}
-
-@Composable
-internal fun ProjectDetailsLoadingState(padding: PaddingValues) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .padding(all = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-internal fun ProjectDetailsErrorState(padding: PaddingValues, errorMessage: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .padding(all = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Error: $errorMessage",
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyLarge
         )
     }
 }
@@ -237,33 +162,6 @@ internal fun ProjectDetailsContent(
         }
 
         FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
-    }
-}
-
-@Composable
-private fun ProjectDetailsHeaderGroup(
-    date: String,
-    projectName: String?,
-    onClearDay: () -> Unit
-) {
-    ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(all = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
-        ) {
-            HeaderSection(date = date, onClearDay = onClearDay)
-            projectName?.let { ProjectNameField(name = it) }
-
-            Text(
-                text = stringResource(id = R.string.new_day),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-        }
     }
 }
 
@@ -331,25 +229,25 @@ private fun createProjectDetailsScreenActions(
     onConfirm: () -> Unit
 ): ProjectDetailsScreenActions {
     return ProjectDetailsScreenActions(
-        onClearDay = viewModel::clearDay,
+        onClearDay = viewModel.clearDay,
         onConfirm = onConfirm,
         fieldActions = ProjectDetailsFieldActions(
-            onCurrentStartTime = viewModel::currentStartTime,
-            onSetStartTime = viewModel::setStartTime,
-            onCurrentLunchTime = viewModel::currentLunchTime,
-            onSetLunchTime = viewModel::setLunchTime,
-            onCurrentEndTime = viewModel::currentEndTime,
-            onSetEndTime = viewModel::setEndTime,
-            onCurrentProjectTime = viewModel::currentProjectTime,
-            onSetProjectTime = viewModel::setProjectTime,
-            onCurrentLunchStart = viewModel::currentLunchStart,
-            onSetLunchStart = viewModel::setLunchStart,
-            onCurrentLunchEnd = viewModel::currentLunchEnd,
-            onSetLunchEnd = viewModel::setLunchEnd,
-            onCurrentBreakStart = viewModel::currentBreakStart,
-            onSetBreakStart = viewModel::setBreakStart,
-            onCurrentBreakEnd = viewModel::currentBreakEnd,
-            onSetBreakEnd = viewModel::setBreakEnd
+            onCurrentStartTime = viewModel.currentStartTime,
+            onSetStartTime = viewModel.setStartTime,
+            onCurrentLunchTime = viewModel.currentLunchTime,
+            onSetLunchTime = viewModel.setLunchTime,
+            onCurrentEndTime = viewModel.currentEndTime,
+            onSetEndTime = viewModel.setEndTime,
+            onCurrentProjectTime = viewModel.currentProjectTime,
+            onSetProjectTime = viewModel.setProjectTime,
+            onCurrentLunchStart = viewModel.currentLunchStart,
+            onSetLunchStart = viewModel.setLunchStart,
+            onCurrentLunchEnd = viewModel.currentLunchEnd,
+            onSetLunchEnd = viewModel.setLunchEnd,
+            onCurrentBreakStart = viewModel.currentBreakStart,
+            onSetBreakStart = viewModel.setBreakStart,
+            onCurrentBreakEnd = viewModel.currentBreakEnd,
+            onSetBreakEnd = viewModel.setBreakEnd
         )
     )
 }

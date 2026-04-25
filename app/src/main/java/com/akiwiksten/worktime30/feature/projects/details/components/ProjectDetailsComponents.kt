@@ -26,7 +26,6 @@ import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 
-
 fun isValidText(text: String): Boolean {
     return text.matches(regex = Regex(pattern = "-?[1-9][0-9]+:[0-5][0-9]")) ||
         text.matches(regex = Regex(pattern = "-?0[0-9]:[0-5][0-9]"))
@@ -59,15 +58,21 @@ fun AddCustomTimeRow(
     )
 }
 
+data class TimeRowLabels(
+    val currentTimeLabelId: Int? = null,
+    val timePickerLabelId: Int? = null,
+)
+
 @Composable
 fun AddTimeRow(
     textFieldValue: String,
     stringId: Int,
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
-    currentTimeLabelId: Int? = null,
-    timePickerLabelId: Int? = null,
+    labels: TimeRowLabels = TimeRowLabels(),
 ) {
+    val currentTimeLabelId = labels.currentTimeLabelId
+    val timePickerLabelId = labels.timePickerLabelId
     val openTimePickerDialog = remember { mutableStateOf(value = false) }
 
     AddTimePickerDialog(

@@ -19,10 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
+import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayLoadingContent
 import com.akiwiksten.worktime30.feature.workday.components.WorkdaySuccessContent
-import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
@@ -32,6 +32,10 @@ fun WorkdayScreen(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     ),
 ) {
+    LaunchedEffect(Unit) {
+        workdayViewModel.retryLoad()
+    }
+
     val workdayUiState by workdayViewModel.uiState.collectAsState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
@@ -98,4 +102,3 @@ internal fun WorkdayContent(
         }
     }
 }
-

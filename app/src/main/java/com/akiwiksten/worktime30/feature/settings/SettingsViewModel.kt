@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
+import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import dagger.hilt.android.lifecycle.HiltViewModel

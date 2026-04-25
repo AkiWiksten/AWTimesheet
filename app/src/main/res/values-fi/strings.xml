@@ -17,7 +17,8 @@
     <string name="break_end">Tauon loppu</string>
     <string name="work_time_today">Päivän työaika</string>
     <string name="flex_time_today">Päivän liukuma</string>
-    <string name="flex_time_total">Kokonaisliukuma</string>
+    <string name="initial_flex_time_total">Kokonaisliukuma</string>
+    <string name="flex_time_total_initial_calculated">Kokonaisliukuma (alkuarvo+laskettu)</string>
     <string name="projects">Projektit</string>
     <string name="select_work_day_date">Työpäivän päivämäärä</string>
     <string name="workday">Työpäivä</string>

@@ -119,11 +119,7 @@ private fun ProjectListItem(
                     text = item.projectName,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = item.projectTime,
@@ -145,7 +141,7 @@ private fun ProjectListItem(
                     text = "${item.kilometres} km",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -159,14 +155,16 @@ private fun ProjectDetails(workType: String, allowance: String, modifier: Modifi
             Text(
                 text = workType,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
         if (allowance.isNotEmpty()) {
             Text(
                 text = allowance,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

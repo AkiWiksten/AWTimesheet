@@ -141,7 +141,7 @@ private fun WorkdayStatsCardContent(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold
                 ),
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "${stringResource(id = R.string.flex_time_today)}: $flexTimeToday",

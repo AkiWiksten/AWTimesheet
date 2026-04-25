@@ -75,7 +75,8 @@ fun HeaderSection(date: String, workTimeToday: String) {
             Text(
                 text = "${stringResource(id = R.string.work_time_today)}: $workTimeToday",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.secondary,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

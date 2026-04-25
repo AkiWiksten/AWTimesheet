@@ -23,11 +23,24 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 
         val workTypes = settingsRepository.getWorkTypes()
         val workStats = projectDetailsRepository.getWorkStats()
+        val initialFlexTimeTotal = workStats?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
+        val calculatedFlexTimeFromAllWorkdays = projectDetailsRepository
+            .getProjectDetailsByDateRange(ALL_DATES_START, ALL_DATES_END)
+            .groupBy { it.date }
+            .values
+            .fold(ZERO_TIME) { acc, detailsForDate ->
+                val dailyFlex = detailsForDate.firstOrNull()?.flexTimeToday?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
+                WorkTimeCalculator.calculateFlexTime(acc, dailyFlex)
+            }
 
         return WorkdayScreenData(
             projectTime = projectTime,
             dailyWorkTime = workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME,
-            flexTimeTotal = workStats?.flexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME,
+            initialFlexTimeTotal = initialFlexTimeTotal,
+            calculatedFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+                initialTime = initialFlexTimeTotal,
+                addedTime = calculatedFlexTimeFromAllWorkdays
+            ),
             projects = projects,
             projectNames = projectNames,
             workTypes = workTypes
@@ -36,13 +49,16 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 
     private companion object {
         const val DEFAULT_DAILY_WORK_TIME = "07:30"
+        const val ALL_DATES_START = "0000-01-01"
+        const val ALL_DATES_END = "9999-12-31"
     }
 }
 
 data class WorkdayScreenData(
     val projectTime: String,
     val dailyWorkTime: String,
-    val flexTimeTotal: String,
+    val initialFlexTimeTotal: String,
+    val calculatedFlexTimeTotal: String,
     val projects: List<SingleProjectState>,
     val projectNames: List<String>,
     val workTypes: List<String>

@@ -15,7 +15,7 @@ sealed class ProjectDetailsUiState {
 data class WorkStatsState(
     val dailyWorkTime: String = ZERO_TIME,
     val lunchTime: String = ZERO_TIME,
-    val flexTimeTotal: String = ZERO_TIME
+    val initialFlexTimeTotal: String = ZERO_TIME
 )
 
 data class ProjectDetailsState(

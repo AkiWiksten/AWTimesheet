@@ -41,7 +41,10 @@ class WorkdayViewModelTest {
             projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        projectDetailsRepository.workStats = WorkStatsState(dailyWorkTime = "07:30", flexTimeTotal = "+01:45")
+        projectDetailsRepository.workStats = WorkStatsState(dailyWorkTime = "07:30", initialFlexTimeTotal = "+01:45")
+        projectDetailsRepository.projectDetailsByDateRange = listOf(
+            ProjectDetailsState(date = "2026-04-10", projectName = "Beta", flexTimeToday = "-05:00")
+        )
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office")
         }
@@ -58,7 +61,8 @@ class WorkdayViewModelTest {
         assertEquals("02:30", state.workTimeToday)
         assertEquals("07:30", state.dailyWorkTime)
         assertEquals("-05:00", state.flexTimeToday)
-        assertEquals("+01:45", state.flexTimeTotal)
+        assertEquals("+01:45", state.initialFlexTimeTotal)
+        assertEquals("-03:15", state.calculatedFlexTimeTotal)
         assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
     }
 
@@ -91,7 +95,7 @@ class WorkdayViewModelTest {
     fun updateWorkStats_persistsDailyAndBalanceValues() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", flexTimeTotal = "+01:45")
+            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = "+01:45")
         }
         val settingsRepository = FakeSettingsRepository()
         val dateRepository = DateRepository()
@@ -100,18 +104,18 @@ class WorkdayViewModelTest {
         val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(dailyWorkTime = "08:00", flexTimeTotal = "-00:20")
+        viewModel.updateWorkStats(dailyWorkTime = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
         assertEquals("08:00", projectDetailsRepository.workStats?.dailyWorkTime)
         assertEquals("00:30", projectDetailsRepository.workStats?.lunchTime)
-        assertEquals("-00:20", projectDetailsRepository.workStats?.flexTimeTotal)
+        assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
     }
 
     @Test
     fun updateWorkStats_invalidInput_doesNotPersist() = runTest {
         val projectRepository = FakeProjectRepository()
-        val initialStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", flexTimeTotal = "+01:45")
+        val initialStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = "+01:45")
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = initialStats
         }
@@ -122,7 +126,7 @@ class WorkdayViewModelTest {
         val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(dailyWorkTime = "8:00", flexTimeTotal = "invalid")
+        viewModel.updateWorkStats(dailyWorkTime = "8:00", initialFlexTimeTotal = "invalid")
         advanceUntilIdle()
 
         assertEquals(initialStats, projectDetailsRepository.workStats)
@@ -196,6 +200,7 @@ class WorkdayViewModelTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var workStats: WorkStatsState? = null
+        var projectDetailsByDateRange: List<ProjectDetailsState> = emptyList()
         val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? {
@@ -236,7 +241,7 @@ class WorkdayViewModelTest {
         override suspend fun getProjectDetailsByDateRange(
             start: String,
             end: String
-        ): List<ProjectDetailsState> = emptyList()
+        ): List<ProjectDetailsState> = projectDetailsByDateRange
     }
 
     private class FakeSettingsRepository : SettingsRepository {

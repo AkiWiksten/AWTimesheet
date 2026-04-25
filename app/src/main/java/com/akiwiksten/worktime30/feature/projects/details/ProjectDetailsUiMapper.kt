@@ -21,7 +21,7 @@ object ProjectDetailsUiMapper {
         return WorkStatsState(
             dailyWorkTime = data.dailyWorkTime.ifEmpty { "07:30" },
             lunchTime = data.lunchTime.ifEmpty { ZERO_TIME },
-            flexTimeTotal = data.flexTimeTotal.ifEmpty { ZERO_TIME }
+            initialFlexTimeTotal = data.initialFlexTimeTotal.ifEmpty { ZERO_TIME }
         )
     }
 

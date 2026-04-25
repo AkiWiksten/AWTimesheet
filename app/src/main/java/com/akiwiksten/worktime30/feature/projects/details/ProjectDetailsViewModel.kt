@@ -325,8 +325,8 @@ class ProjectDetailsViewModel @Inject constructor(
         nextState = nextState.copy(
             data = nextState.data.copy(
                 workStats = nextState.data.workStats.copy(
-                    flexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-                        initialTime = nextState.data.workStats.flexTimeTotal,
+                    initialFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+                        initialTime = nextState.data.workStats.initialFlexTimeTotal,
                         addedTime = flexTimeAdjustment
                     )
                 )
@@ -454,17 +454,17 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val oldProjectTime = successState.data.projectTime
-            var nextFlexTimeTotal = successState.data.workStats.flexTimeTotal
+            var nextInitialFlexTimeTotal = successState.data.workStats.initialFlexTimeTotal
 
             if (oldProjectTime != ZERO_TIME) {
-                nextFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-                    nextFlexTimeTotal,
+                nextInitialFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+                    nextInitialFlexTimeTotal,
                     WorkTimeCalculator.checkIfDoubleMinus("-$oldProjectTime")
                 )
 
                 if (!successState.data.hasOtherProjects) {
-                    nextFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-                        nextFlexTimeTotal,
+                    nextInitialFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+                        nextInitialFlexTimeTotal,
                         successState.data.workStats.dailyWorkTime
                     )
                 }
@@ -482,7 +482,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     projectTime = ZERO_TIME,
                     flexTimeToday = ZERO_TIME,
                     oldFlexTimeToday = ZERO_TIME,
-                    workStats = successState.data.workStats.copy(flexTimeTotal = nextFlexTimeTotal)
+                    workStats = successState.data.workStats.copy(initialFlexTimeTotal = nextInitialFlexTimeTotal)
                 )
             )
         }

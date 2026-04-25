@@ -26,7 +26,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.feature.workday.DAILY_WORK_TIME_INPUT_REGEX
-import com.akiwiksten.worktime30.feature.workday.FLEX_TIME_TOTAL_INPUT_REGEX
+import com.akiwiksten.worktime30.feature.workday.INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
@@ -62,19 +62,19 @@ internal fun ColumnScope.WorkdaySuccessContent(
 ) {
     val saveUi = rememberWorkdaySaveUi(
         initialDailyWorkTime = state.dailyWorkTime,
-        initialFlexTimeTotal = state.flexTimeTotal,
+        initialFlexTimeTotal = state.initialFlexTimeTotal,
         onSaveWorkStats = actions.onSaveWorkStats
     )
     val workStatsEditorState = WorkStatsEditorState(
         dailyWorkTime = saveUi.dailyWorkTime,
-        flexTimeTotal = saveUi.flexTimeTotal,
+        initialFlexTimeTotal = saveUi.initialFlexTimeTotal,
         isDailyWorkTimeError = !saveUi.isDailyWorkTimeValid,
-        isFlexTimeTotalError = !saveUi.isFlexTimeTotalValid,
+        isInitialFlexTimeTotalError = !saveUi.isInitialFlexTimeTotalValid,
         hasUnsavedChanges = saveUi.hasUnsavedChanges
     )
     val headerActions = WorkdayHeaderActions(
         onDailyWorkTimeChange = saveUi.onDailyWorkTimeChange,
-        onFlexTimeTotalChange = saveUi.onFlexTimeTotalChange,
+        onInitialFlexTimeTotalChange = saveUi.onInitialFlexTimeTotalChange,
         onSaveWorkStats = saveUi.onSaveRequested
     )
 
@@ -84,6 +84,7 @@ internal fun ColumnScope.WorkdaySuccessContent(
     WorkdayStatsCard(
         workTime = state.workTimeToday,
         flexTimeToday = state.flexTimeToday,
+        calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
         workStatsEditorState = workStatsEditorState,
         headerActions = headerActions
     )
@@ -117,43 +118,43 @@ private fun rememberWorkdaySaveUi(
     var editedDailyWorkTime by remember(initialDailyWorkTime) {
         mutableStateOf(value = initialDailyWorkTime)
     }
-    var editedFlexTimeTotal by remember(initialFlexTimeTotal) {
+    var editedInitialFlexTimeTotal by remember(initialFlexTimeTotal) {
         mutableStateOf(value = initialFlexTimeTotal)
     }
     val lastSavedDailyWorkTimeState = remember(initialDailyWorkTime) {
         mutableStateOf(value = initialDailyWorkTime)
     }
-    val lastSavedFlexTimeTotalState = remember(initialFlexTimeTotal) {
+    val lastSavedInitialFlexTimeTotalState = remember(initialFlexTimeTotal) {
         mutableStateOf(value = initialFlexTimeTotal)
     }
 
     val isDailyWorkTimeValid = remember(editedDailyWorkTime) {
         editedDailyWorkTime.matches(DAILY_WORK_TIME_INPUT_REGEX)
     }
-    val isFlexTimeTotalValid = remember(editedFlexTimeTotal) {
-        editedFlexTimeTotal.matches(FLEX_TIME_TOTAL_INPUT_REGEX)
+    val isInitialFlexTimeTotalValid = remember(editedInitialFlexTimeTotal) {
+        editedInitialFlexTimeTotal.matches(INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX)
     }
     val hasUnsavedChanges =
         hasChanges(current = editedDailyWorkTime, baseline = lastSavedDailyWorkTimeState.value) ||
-            hasChanges(current = editedFlexTimeTotal, baseline = lastSavedFlexTimeTotalState.value)
+            hasChanges(current = editedInitialFlexTimeTotal, baseline = lastSavedInitialFlexTimeTotalState.value)
     val isSaveEnabled = isActionEnabled(
-        hasRequiredFields = isDailyWorkTimeValid && isFlexTimeTotalValid,
+        hasRequiredFields = isDailyWorkTimeValid && isInitialFlexTimeTotalValid,
         hasUnsavedChanges = hasUnsavedChanges
     )
 
     return WorkdaySaveUi(
         dailyWorkTime = editedDailyWorkTime,
-        flexTimeTotal = editedFlexTimeTotal,
+        initialFlexTimeTotal = editedInitialFlexTimeTotal,
         isDailyWorkTimeValid = isDailyWorkTimeValid,
-        isFlexTimeTotalValid = isFlexTimeTotalValid,
+        isInitialFlexTimeTotalValid = isInitialFlexTimeTotalValid,
         hasUnsavedChanges = hasUnsavedChanges,
         onDailyWorkTimeChange = { editedDailyWorkTime = it },
-        onFlexTimeTotalChange = { editedFlexTimeTotal = it },
+        onInitialFlexTimeTotalChange = { editedInitialFlexTimeTotal = it },
         onSaveRequested = {
             if (isSaveEnabled) {
-                onSaveWorkStats(editedDailyWorkTime, editedFlexTimeTotal)
+                onSaveWorkStats(editedDailyWorkTime, editedInitialFlexTimeTotal)
                 lastSavedDailyWorkTimeState.value = editedDailyWorkTime
-                lastSavedFlexTimeTotalState.value = editedFlexTimeTotal
+                lastSavedInitialFlexTimeTotalState.value = editedInitialFlexTimeTotal
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
         }
@@ -182,11 +183,11 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
 
 private data class WorkdaySaveUi(
     val dailyWorkTime: String,
-    val flexTimeTotal: String,
+    val initialFlexTimeTotal: String,
     val isDailyWorkTimeValid: Boolean,
-    val isFlexTimeTotalValid: Boolean,
+    val isInitialFlexTimeTotalValid: Boolean,
     val hasUnsavedChanges: Boolean,
     val onDailyWorkTimeChange: (String) -> Unit,
-    val onFlexTimeTotalChange: (String) -> Unit,
+    val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onSaveRequested: () -> Unit
 )

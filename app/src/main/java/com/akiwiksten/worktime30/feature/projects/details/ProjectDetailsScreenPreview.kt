@@ -23,7 +23,7 @@ fun PreviewProjectDetailsSuccessNewDay() {
                 workStats = WorkStatsState(
                     dailyWorkTime = "07:30",
                     lunchTime = "00:30",
-                    flexTimeTotal = "+03:10"
+                    initialFlexTimeTotal = "+03:10"
                 ),
                 isNewDay = true
             )
@@ -51,7 +51,7 @@ fun PreviewProjectDetailsSuccessExistingDay() {
                 workStats = WorkStatsState(
                     dailyWorkTime = "07:30",
                     lunchTime = "00:30",
-                    flexTimeTotal = "+04:10"
+                    initialFlexTimeTotal = "+04:10"
                 ),
                 isNewDay = false
             )

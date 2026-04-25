@@ -36,7 +36,7 @@ class ProjectDetailsViewModelTest {
             workStats = WorkStatsState(
                 dailyWorkTime = "07:30",
                 lunchTime = "00:30",
-                flexTimeTotal = "01:00"
+                initialFlexTimeTotal = "01:00"
             )
         }
         val viewModel = ProjectDetailsViewModel(repository, DateRepository())
@@ -51,7 +51,7 @@ class ProjectDetailsViewModelTest {
         assertEquals("2026-04-10", state.data.date)
         assertEquals("Alpha", state.data.projectName)
         assertEquals("08:00", state.data.startTime)
-        assertEquals("01:00", state.data.workStats.flexTimeTotal)
+        assertEquals("01:00", state.data.workStats.initialFlexTimeTotal)
     }
 
     @Test
@@ -72,7 +72,7 @@ class ProjectDetailsViewModelTest {
             workStatsArg = WorkStatsState(
                 dailyWorkTime = "07:30",
                 lunchTime = "00:30",
-                flexTimeTotal = "02:00"
+                initialFlexTimeTotal = "02:00"
             )
         )
         advanceUntilIdle()
@@ -80,7 +80,7 @@ class ProjectDetailsViewModelTest {
         val persistedProjectDetails = viewModel.getProjectDetailsState()
         val workStats = viewModel.getWorkStatsState()
         assertEquals("Alpha", persistedProjectDetails.projectName)
-        assertEquals("02:00", workStats.flexTimeTotal)
+        assertEquals("02:00", workStats.initialFlexTimeTotal)
 
         viewModel.clearDay()
 

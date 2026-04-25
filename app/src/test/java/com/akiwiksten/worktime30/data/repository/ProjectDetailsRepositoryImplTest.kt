@@ -48,7 +48,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun getWorkStats_returnsDataFromDao() = runBlocking {
-        val expected = WorkStatsState(flexTimeTotal = "10:00 h")
+        val expected = WorkStatsState(initialFlexTimeTotal = "10:00 h")
         workStatsDao.workStatsResult = expected.toEntity()
 
         val result = repository.getWorkStats()
@@ -58,7 +58,7 @@ class ProjectDetailsRepositoryImplTest {
 
     @Test
     fun insertWorkStats_callsDaoInsert() = runBlocking {
-        val workStats = WorkStatsState(flexTimeTotal = "10:00 h")
+        val workStats = WorkStatsState(initialFlexTimeTotal = "10:00 h")
 
         repository.insertWorkStats(workStats)
 

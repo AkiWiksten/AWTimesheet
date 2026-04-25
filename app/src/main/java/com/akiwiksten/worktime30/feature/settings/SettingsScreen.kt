@@ -143,6 +143,7 @@ private fun createSettingsActions(
     return SettingsActions(
         onNameChange = settingsViewModel::setName,
         onEmployerChange = settingsViewModel::setEmployer,
+        onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
         onSave = { settingsViewModel.saveSettings() },
@@ -161,6 +162,7 @@ private fun createSettingsActions(
 data class SettingsActions(
     val onNameChange: (String) -> Unit,
     val onEmployerChange: (String) -> Unit,
+    val onDailyWorkTimeEstimateChange: (String) -> Unit,
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
@@ -188,7 +190,7 @@ internal fun SettingsContent(
     ) {
         HeaderSection(date = uiState.data.selectedDate)
 
-        SettingsCard(title = stringResource(id = R.string.name) + " & " + stringResource(id = R.string.employer)) {
+        SettingsCard {
             ProfileSection(
                 name = uiState.data.name,
                 employer = uiState.data.employer,
@@ -197,7 +199,15 @@ internal fun SettingsContent(
             )
         }
 
-        SettingsCard(title = stringResource(id = R.string.work_type)) {
+        SettingsCard {
+            SettingsTextField(
+                value = uiState.data.dailyWorkTimeEstimate,
+                label = R.string.daily_work_time,
+                onValueChange = actions.onDailyWorkTimeEstimateChange
+            )
+        }
+
+        SettingsCard {
             WorkTypeSection(
                 workTypes = uiState.data.workTypes,
                 selectedWorkType = selectedWorkType,
@@ -236,11 +246,18 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
     val savedText = stringResource(id = R.string.saved)
     val lastSavedNameState = remember(data.selectedDate) { mutableStateOf(value = data.name) }
     val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
+    val lastSavedDailyWorkTimeEstimateState = remember(data.selectedDate) {
+        mutableStateOf(value = data.dailyWorkTimeEstimate)
+    }
     val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
 
     val hasUnsavedChanges =
         hasChanges(current = data.name, baseline = lastSavedNameState.value) ||
             hasChanges(current = data.employer, baseline = lastSavedEmployerState.value) ||
+            hasChanges(
+                current = data.dailyWorkTimeEstimate,
+                baseline = lastSavedDailyWorkTimeEstimateState.value
+            ) ||
             hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
 
     return SettingsSaveUi(
@@ -253,6 +270,7 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
                 onSave()
                 lastSavedNameState.value = data.name
                 lastSavedEmployerState.value = data.employer
+                lastSavedDailyWorkTimeEstimateState.value = data.dailyWorkTimeEstimate
                 lastSavedWorkTypesState.value = data.workTypes
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
@@ -266,7 +284,7 @@ private data class SettingsSaveUi(
 )
 
 @Composable
-private fun SettingsCard(title: String, content: @Composable () -> Unit) {
+private fun SettingsCard(title: String? = null, content: @Composable () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
@@ -275,8 +293,14 @@ private fun SettingsCard(title: String, content: @Composable () -> Unit) {
             modifier = Modifier.padding(all = FORM_SECTION_SPACING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
         ) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            HorizontalDivider()
+            if (!title.isNullOrBlank()) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                HorizontalDivider()
+            }
             content()
         }
     }

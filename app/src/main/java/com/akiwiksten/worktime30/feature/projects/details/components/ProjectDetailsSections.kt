@@ -219,6 +219,12 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
             AddTimeRow(
+                textFieldValue = uiState.data.workStats.dailyWorkTime,
+                stringId = R.string.daily_work_time,
+                currentTime = actions.onCurrentDailyWorkTime,
+                onConfirmation = actions.onSetDailyWorkTime
+            )
+            AddTimeRow(
                 textFieldValue = uiState.data.workStats.lunchTime,
                 stringId = R.string.lunch_time,
                 currentTime = actions.onCurrentLunchTime,

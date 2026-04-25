@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.data.repository.DateRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
@@ -29,6 +30,7 @@ sealed class SettingsUiState {
 data class SettingsState(
     val name: String = "",
     val employer: String = "",
+    val dailyWorkTimeEstimate: String = "",
     val selectedDate: String = "",
     val endMonthDate: String = "",
     val workTypes: List<String> = emptyList(),
@@ -41,6 +43,7 @@ class SettingsViewModel @Inject constructor(
     private val saveSettingsUseCase: SaveSettingsUseCase,
     private val getWorkdayByMonthUseCase: GetWorkdayByMonthUseCase,
     private val settingsRepository: SettingsRepository,
+    private val projectDetailsRepository: ProjectDetailsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -81,6 +84,15 @@ class SettingsViewModel @Inject constructor(
         if (currentState is SettingsUiState.Success) {
             _uiState.value = currentState.copy(
                 data = currentState.data.copy(employer = employer)
+            )
+        }
+    }
+
+    fun setDailyWorkTimeEstimate(dailyWorkTimeEstimate: String) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
             )
         }
     }
@@ -144,6 +156,7 @@ class SettingsViewModel @Inject constructor(
             _uiState.value = SettingsUiState.Loading
             try {
                 val loadedData = getSettingsUseCase()
+                val workStats = projectDetailsRepository.getWorkStats()
                 val currentDate = dateRepository.selectedDate.value
                 val parsedDate = LocalDate.parse(currentDate)
                 val endOfMonth = parsedDate
@@ -155,6 +168,7 @@ class SettingsViewModel @Inject constructor(
                     data = SettingsState(
                         name = loadedData.name,
                         employer = loadedData.employer,
+                        dailyWorkTimeEstimate = workStats?.dailyWorkTime ?: "",
                         selectedDate = currentDate,
                         endMonthDate = endOfMonth,
                         workTypes = loadedData.workTypes,
@@ -177,7 +191,8 @@ class SettingsViewModel @Inject constructor(
                     saveSettingsUseCase(
                         name = currentState.data.name,
                         employer = currentState.data.employer,
-                        workTypes = currentState.data.workTypes
+                        workTypes = currentState.data.workTypes,
+                        dailyWorkTimeEstimate = currentState.data.dailyWorkTimeEstimate
                     )
                 }
             } catch (e: IllegalArgumentException) {

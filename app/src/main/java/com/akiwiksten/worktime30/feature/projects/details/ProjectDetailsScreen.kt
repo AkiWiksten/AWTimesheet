@@ -247,7 +247,9 @@ private fun createProjectDetailsScreenActions(
             onCurrentBreakStart = viewModel.currentBreakStart,
             onSetBreakStart = viewModel.setBreakStart,
             onCurrentBreakEnd = viewModel.currentBreakEnd,
-            onSetBreakEnd = viewModel.setBreakEnd
+            onSetBreakEnd = viewModel.setBreakEnd,
+            onCurrentDailyWorkTime = viewModel.currentDailyWorkTime,
+            onSetDailyWorkTime = viewModel.setDailyWorkTime
         )
     )
 }

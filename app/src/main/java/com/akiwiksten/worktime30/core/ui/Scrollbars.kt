@@ -11,7 +11,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 
@@ -19,11 +18,6 @@ private val SCROLLBAR_THICKNESS = 4.dp
 private val SCROLLBAR_PADDING = 2.dp
 private val SCROLLBAR_MIN_THUMB_SIZE = 24.dp
 private const val SCROLLBAR_ALPHA = 0.65f
-private val DEFAULT_SCROLLBAR_STYLE = ScrollbarStyle(
-    thickness = SCROLLBAR_THICKNESS,
-    padding = SCROLLBAR_PADDING,
-    minThumbSize = SCROLLBAR_MIN_THUMB_SIZE
-)
 
 @Composable
 fun Modifier.verticalScrollbar(scrollState: ScrollState): Modifier {
@@ -41,8 +35,7 @@ fun Modifier.verticalScrollbar(scrollState: ScrollState): Modifier {
                 )
             }
         },
-        color = color,
-        style = DEFAULT_SCROLLBAR_STYLE
+        color = color
     )
 }
 
@@ -52,22 +45,20 @@ fun Modifier.lazyVerticalScrollbar(listState: LazyListState): Modifier {
     return drawScrollbar(
         orientation = Orientation.Vertical,
         progressProvider = { listState.lazyListProgress() },
-        color = color,
-        style = DEFAULT_SCROLLBAR_STYLE
+        color = color
     )
 }
 
 private fun Modifier.drawScrollbar(
     orientation: Orientation,
     progressProvider: () -> ScrollbarProgress,
-    color: Color,
-    style: ScrollbarStyle
+    color: Color
 ): Modifier = drawWithContent {
     drawContent()
 
-    val thicknessPx = style.thickness.toPx()
-    val paddingPx = style.padding.toPx()
-    val minThumbSizePx = style.minThumbSize.toPx()
+    val thicknessPx = SCROLLBAR_THICKNESS.toPx()
+    val paddingPx = SCROLLBAR_PADDING.toPx()
+    val minThumbSizePx = SCROLLBAR_MIN_THUMB_SIZE.toPx()
 
     val progress = progressProvider()
     if (progress.range <= 0f) return@drawWithContent
@@ -120,11 +111,6 @@ private data class ScrollbarProgress(
     }
 }
 
-private data class ScrollbarStyle(
-    val thickness: Dp,
-    val padding: Dp,
-    val minThumbSize: Dp
-)
 
 private fun LazyListState.lazyListProgress(): ScrollbarProgress {
     val layoutInfo = layoutInfo

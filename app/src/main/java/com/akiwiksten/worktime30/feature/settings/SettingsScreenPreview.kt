@@ -19,6 +19,7 @@ fun PreviewSettingsSuccess() {
             data = SettingsState(
                 name = "Aki Wiksten",
                 employer = "WorkTime Oy",
+                dailyWorkTimeEstimate = "07:30",
                 selectedDate = "2026-04-19",
                 endMonthDate = "2026-04-30",
                 workTypes = listOf("Installation", "Maintenance", "Meeting"),
@@ -52,6 +53,7 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
                 SettingsActions(
                     onNameChange = {},
                     onEmployerChange = {},
+                    onDailyWorkTimeEstimateChange = {},
                     onWorkTypeAdded = {},
                     onWorkTypeRemoved = {},
                     onSave = {},

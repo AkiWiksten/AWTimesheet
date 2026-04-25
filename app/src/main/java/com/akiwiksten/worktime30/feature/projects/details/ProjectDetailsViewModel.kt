@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.details
+﻿package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -241,6 +241,23 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val currentLunchTime: () -> Unit = {
         setLunchTime(LocalTime.now().format(timeFormatter))
+    }
+
+    val setDailyWorkTime: (String) -> Unit = { dailyWorkTime ->
+        _uiState.update { currentState ->
+            val successState = currentState as ProjectDetailsUiState.Success
+            val updatedState = successState.copy(
+                data = successState.data.copy(
+                    workStats = successState.data.workStats.copy(dailyWorkTime = dailyWorkTime)
+                )
+            )
+            // Recalculate flex time today with new daily work time
+            updateFlexTimeTodayIfNeeded(updatedState)
+        }
+    }
+
+    val currentDailyWorkTime: () -> Unit = {
+        setDailyWorkTime(LocalTime.now().format(timeFormatter))
     }
 
     val setBreakStart: (String) -> Unit = { breakStart0 ->

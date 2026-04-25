@@ -75,8 +75,8 @@ This is called feature-based packaging.
 + ProjectsScreen: "No projects" state should be shown on a empty list
 + Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
 + Calculate FlexTimeTotal from WorkdayEntity
-+ Swedish support
-+ Daily work time estimate in Settings (default 7:30). Lunch time estimate default 0:00
++ "Daily work time estimate" (default 7:30) in SettingsScreen. Used by WorkdayScreen on a new workday. You can still override "Daily work time estimate" in ProjectDetailsScreen with the corresponding field for that workday.
++ "Lunch time estimate" (default 0:00) in SettingsScreen. Used by ProjectDetailsScreen when opened with "Project time"=ZERO_TIME (New project or editing an "empty" project).
 
 
 Constantly:

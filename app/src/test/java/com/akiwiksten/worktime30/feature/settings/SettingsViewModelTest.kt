@@ -2,11 +2,14 @@ package com.akiwiksten.worktime30.feature.settings
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.data.repository.DateRepository
+import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +33,8 @@ class SettingsViewModelTest {
             workTypes = mutableListOf("Remote", "Office")
         }
         val projectRepository = FakeProjectRepository()
-        val viewModel = createViewModel(settingsRepository, projectRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val viewModel = createViewModel(settingsRepository, projectRepository, projectDetailsRepository)
 
         viewModel.loadSettings()
         advanceUntilIdle()
@@ -53,7 +57,8 @@ class SettingsViewModelTest {
                 ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
         }
-        val viewModel = createViewModel(settingsRepository, projectRepository)
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val viewModel = createViewModel(settingsRepository, projectRepository, projectDetailsRepository)
 
         viewModel.loadSettings()
         viewModel.loadProjectsByMonth("2026-04-10")
@@ -69,7 +74,8 @@ class SettingsViewModelTest {
         val settingsRepository = FakeSettingsRepository().apply {
             settings = SettingsState(name = "Aki", employer = "Company")
         }
-        val viewModel = createViewModel(settingsRepository, FakeProjectRepository())
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val viewModel = createViewModel(settingsRepository, FakeProjectRepository(), projectDetailsRepository)
 
         viewModel.loadSettings()
         advanceUntilIdle()
@@ -84,13 +90,15 @@ class SettingsViewModelTest {
 
     private fun createViewModel(
         settingsRepository: FakeSettingsRepository,
-        projectRepository: FakeProjectRepository
+        projectRepository: FakeProjectRepository,
+        projectDetailsRepository: FakeProjectDetailsRepository
     ): SettingsViewModel {
         return SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
-            saveSettingsUseCase = SaveSettingsUseCase(settingsRepository),
+            saveSettingsUseCase = SaveSettingsUseCase(settingsRepository, projectDetailsRepository),
             getWorkdayByMonthUseCase = GetWorkdayByMonthUseCase(projectRepository),
             settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
             dateRepository = DateRepository()
         )
     }
@@ -149,5 +157,22 @@ class SettingsViewModelTest {
         override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
+    }
+
+    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
+
+        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) = Unit
+
+        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) = Unit
+
+        override suspend fun getWorkStats(): WorkStatsState? = null
+
+        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsState> = emptyList()
     }
 }

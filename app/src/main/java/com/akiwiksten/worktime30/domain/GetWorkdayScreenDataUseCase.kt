@@ -23,7 +23,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes()
-        val workStats = projectDetailsRepository.getWorkStats()
+        val workStats = projectDetailsRepository.getWorkStatsByDate(date)
         val workTimeTodayEstimate =
             workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
         val initialFlexTimeTotal = workStats?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME

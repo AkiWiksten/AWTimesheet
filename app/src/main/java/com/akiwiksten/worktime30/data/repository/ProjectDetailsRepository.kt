@@ -9,5 +9,9 @@ interface ProjectDetailsRepository {
     suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState)
     suspend fun getWorkStats(): WorkStatsState?
     suspend fun insertWorkStats(workStats: WorkStatsState)
+    suspend fun getWorkStatsByDate(date: String): WorkStatsState? = getWorkStats()
+    suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+        insertWorkStats(workStats)
+    }
     suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState>
 }

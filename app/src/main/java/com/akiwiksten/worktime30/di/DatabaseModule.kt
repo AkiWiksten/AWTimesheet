@@ -7,8 +7,10 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
+import com.akiwiksten.worktime30.data.database.migration.AppMigrations
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
@@ -48,7 +50,11 @@ abstract class DatabaseModule {
                 context,
                 AppDatabase::class.java,
                 AppDatabase.DB_NAME
-            ).fallbackToDestructiveMigration(dropAllTables = true)
+            ).addMigrations(
+                AppMigrations.MIGRATION_3_4,
+                AppMigrations.MIGRATION_4_5
+            )
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
         }
 
@@ -60,6 +66,9 @@ abstract class DatabaseModule {
 
         @Provides
         fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
+
+        @Provides
+        fun provideWorkdayDao(database: AppDatabase): WorkdayDao = database.workdayDao()
 
         @Provides
         fun provideProjectNameDao(database: AppDatabase): ProjectNameDao = database.projectNameDao()

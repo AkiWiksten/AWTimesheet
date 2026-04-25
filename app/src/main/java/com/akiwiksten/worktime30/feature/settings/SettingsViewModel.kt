@@ -2,6 +2,7 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
@@ -31,6 +32,7 @@ data class SettingsState(
     val name: String = "",
     val employer: String = "",
     val dailyWorkTimeEstimate: String = "",
+    val lunchTimeEstimate: String = ZERO_TIME,
     val selectedDate: String = "",
     val endMonthDate: String = "",
     val workTypes: List<String> = emptyList(),
@@ -97,6 +99,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setLunchTimeEstimate(lunchTimeEstimate: String) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(lunchTimeEstimate = lunchTimeEstimate)
+            )
+        }
+    }
+
     fun addWorkType(workType: String) {
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {
@@ -156,8 +167,8 @@ class SettingsViewModel @Inject constructor(
             _uiState.value = SettingsUiState.Loading
             try {
                 val loadedData = getSettingsUseCase()
-                val workStats = projectDetailsRepository.getWorkStats()
                 val currentDate = dateRepository.selectedDate.value
+                val workStats = projectDetailsRepository.getWorkStatsByDate(currentDate)
                 val parsedDate = LocalDate.parse(currentDate)
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
@@ -169,6 +180,7 @@ class SettingsViewModel @Inject constructor(
                         name = loadedData.name,
                         employer = loadedData.employer,
                         dailyWorkTimeEstimate = workStats?.dailyWorkTime ?: "",
+                        lunchTimeEstimate = workStats?.lunchTime ?: ZERO_TIME,
                         selectedDate = currentDate,
                         endMonthDate = endOfMonth,
                         workTypes = loadedData.workTypes,
@@ -192,7 +204,8 @@ class SettingsViewModel @Inject constructor(
                         name = currentState.data.name,
                         employer = currentState.data.employer,
                         workTypes = currentState.data.workTypes,
-                        dailyWorkTimeEstimate = currentState.data.dailyWorkTimeEstimate
+                        dailyWorkTimeEstimate = currentState.data.dailyWorkTimeEstimate,
+                        lunchTimeEstimate = currentState.data.lunchTimeEstimate
                     )
                 }
             } catch (e: IllegalArgumentException) {

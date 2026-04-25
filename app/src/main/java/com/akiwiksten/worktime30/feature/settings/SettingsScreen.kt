@@ -154,6 +154,7 @@ private fun createSettingsActions(
         onNameChange = settingsViewModel::setName,
         onEmployerChange = settingsViewModel::setEmployer,
         onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
+        onLunchTimeEstimateChange = settingsViewModel::setLunchTimeEstimate,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
         onSave = { settingsViewModel.saveSettings() },
@@ -173,6 +174,7 @@ data class SettingsActions(
     val onNameChange: (String) -> Unit,
     val onEmployerChange: (String) -> Unit,
     val onDailyWorkTimeEstimateChange: (String) -> Unit,
+    val onLunchTimeEstimateChange: (String) -> Unit,
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
@@ -187,6 +189,7 @@ internal fun SettingsContent(
 ) {
     val showAddWorkTypeDialogState = remember { mutableStateOf(value = false) }
     val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
+    val showLunchTimePickerDialogState = remember { mutableStateOf(value = false) }
     val selectedWorkTypeState = remember { mutableStateOf(value = "") }
     val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
     val scrollState = rememberScrollState()
@@ -201,6 +204,16 @@ internal fun SettingsContent(
         }
     )
 
+    LunchTimePickerDialogSection(
+        isVisible = showLunchTimePickerDialogState.value,
+        currentLunchTime = uiState.data.lunchTimeEstimate,
+        onDismiss = { showLunchTimePickerDialogState.value = false },
+        onConfirmed = { selectedTime ->
+            actions.onLunchTimeEstimateChange(selectedTime)
+            showLunchTimePickerDialogState.value = false
+        }
+    )
+
     SettingsContentBody(
         uiState = uiState,
         actions = actions,
@@ -212,6 +225,7 @@ internal fun SettingsContent(
             // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
         },
         onDailyWorkTimePickerClick = { showDailyWorkTimePickerDialogState.value = true },
+        onLunchTimePickerClick = { showLunchTimePickerDialogState.value = true },
         isAddWorkTypeDialogVisible = showAddWorkTypeDialogState.value,
         onDismissAddWorkTypeDialog = { showAddWorkTypeDialogState.value = false },
         onConfirmAddWorkType = {
@@ -224,6 +238,7 @@ internal fun SettingsContent(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun SettingsContentBody(
     uiState: SettingsUiState.Success,
     actions: SettingsActions,
@@ -232,6 +247,7 @@ private fun SettingsContentBody(
     onAddWorkTypeClick: () -> Unit,
     onDeleteSelectedWorkType: () -> Unit,
     onDailyWorkTimePickerClick: () -> Unit,
+    onLunchTimePickerClick: () -> Unit,
     isAddWorkTypeDialogVisible: Boolean,
     onDismissAddWorkTypeDialog: () -> Unit,
     onConfirmAddWorkType: (String) -> Unit,
@@ -263,6 +279,11 @@ private fun SettingsContentBody(
                 dailyWorkTime = uiState.data.dailyWorkTimeEstimate,
                 onPickerClick = onDailyWorkTimePickerClick
             )
+
+            LunchTimePickerRow(
+                lunchTime = uiState.data.lunchTimeEstimate,
+                onPickerClick = onLunchTimePickerClick
+            )
         }
 
         SettingsCard {
@@ -286,6 +307,23 @@ private fun SettingsContentBody(
             isVisible = isAddWorkTypeDialogVisible,
             onDismiss = onDismissAddWorkTypeDialog,
             onConfirmed = onConfirmAddWorkType
+        )
+    }
+}
+
+@Composable
+private fun LunchTimePickerDialogSection(
+    isVisible: Boolean,
+    currentLunchTime: String,
+    onDismiss: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+    if (isVisible) {
+        TimePickerDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            titleId = R.string.lunch_time,
+            time = currentLunchTime
         )
     }
 }
@@ -357,6 +395,40 @@ private fun DailyWorkTimePickerRow(
 }
 
 @Composable
+private fun LunchTimePickerRow(
+    lunchTime: String,
+    onPickerClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+    ) {
+        OutlinedTextField(
+            value = lunchTime,
+            onValueChange = {},
+            enabled = false,
+            singleLine = true,
+            label = {
+                Text(
+                    text = stringResource(id = R.string.lunch_time),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            modifier = Modifier.weight(weight = 1f),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+        )
+        IconButton(onClick = onPickerClick) {
+            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
+        }
+    }
+}
+
+@Composable
 private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): SettingsSaveUi {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
@@ -364,6 +436,9 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
     val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
     val lastSavedDailyWorkTimeEstimateState = remember(data.selectedDate) {
         mutableStateOf(value = data.dailyWorkTimeEstimate)
+    }
+    val lastSavedLunchTimeEstimateState = remember(data.selectedDate) {
+        mutableStateOf(value = data.lunchTimeEstimate)
     }
     val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
 
@@ -373,6 +448,10 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
             hasChanges(
                 current = data.dailyWorkTimeEstimate,
                 baseline = lastSavedDailyWorkTimeEstimateState.value
+            ) ||
+            hasChanges(
+                current = data.lunchTimeEstimate,
+                baseline = lastSavedLunchTimeEstimateState.value
             ) ||
             hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
 
@@ -387,6 +466,7 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
                 lastSavedNameState.value = data.name
                 lastSavedEmployerState.value = data.employer
                 lastSavedDailyWorkTimeEstimateState.value = data.dailyWorkTimeEstimate
+                lastSavedLunchTimeEstimateState.value = data.lunchTimeEstimate
                 lastSavedWorkTypesState.value = data.workTypes
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }

@@ -163,7 +163,10 @@ class WorkdayViewModel @Inject constructor(
     }
 
     fun updateWorkStats(workTimeTodayEstimate: String, initialFlexTimeTotal: String) {
-        if (!isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate) || !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)) {
+        if (
+            !isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate) ||
+            !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)
+        ) {
             return
         }
 
@@ -172,13 +175,15 @@ class WorkdayViewModel @Inject constructor(
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
                 val isCurrentDay = currentUiState.date == LocalDate.now().toString()
                 val canUpdateWorkTimeTodayEstimate = isCurrentDay && currentUiState.workTimeToday == ZERO_TIME
-                val currentWorkStats = projectDetailsRepository.getWorkStats()
+                val currentWorkStats = projectDetailsRepository.getWorkStatsByDate(currentUiState.date)
                 val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTime
                     ?.ifEmpty { currentUiState.workTimeTodayEstimate }
                     ?: currentUiState.workTimeTodayEstimate
 
-                projectDetailsRepository.insertWorkStats(
-                    WorkStatsState(
+                projectDetailsRepository.upsertWorkdayStats(
+                    date = currentUiState.date,
+                    workTimeToday = currentUiState.workTimeToday,
+                    workStats = WorkStatsState(
                         dailyWorkTime = if (canUpdateWorkTimeTodayEstimate) {
                             workTimeTodayEstimate
                         } else {

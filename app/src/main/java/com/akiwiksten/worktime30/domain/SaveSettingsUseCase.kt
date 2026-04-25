@@ -21,7 +21,8 @@ class SaveSettingsUseCase @Inject constructor(
         name: String,
         employer: String,
         workTypes: List<String>,
-        dailyWorkTimeEstimate: String = ""
+        dailyWorkTimeEstimate: String = "",
+        lunchTimeEstimate: String = ZERO_TIME
     ) {
         settingsRepository.clearWorkTypes()
         workTypes.forEach { workType ->
@@ -44,11 +45,13 @@ class SaveSettingsUseCase @Inject constructor(
             }
 
             if (isCurrentDay && workTimeToday == ZERO_TIME) {
-                val existingWorkStats = projectDetailsRepository.getWorkStats()
-                projectDetailsRepository.insertWorkStats(
-                    WorkStatsState(
+                val existingWorkStats = projectDetailsRepository.getWorkStatsByDate(selectedDate)
+                projectDetailsRepository.upsertWorkdayStats(
+                    date = selectedDate,
+                    workTimeToday = workTimeToday,
+                    workStats = WorkStatsState(
                         dailyWorkTime = dailyWorkTimeEstimate,
-                        lunchTime = existingWorkStats?.lunchTime ?: ZERO_TIME,
+                        lunchTime = lunchTimeEstimate,
                         initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME
                     )
                 )

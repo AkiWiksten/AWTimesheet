@@ -93,6 +93,33 @@ class SaveSettingsUseCaseTest {
         )
 
         assertEquals("07:30", projectDetailsRepository.insertedWorkStats?.dailyWorkTime)
+        assertEquals("00:00", projectDetailsRepository.insertedWorkStats?.lunchTime)
+    }
+
+    @Test
+    fun invoke_withLunchTimeEstimate_currentDayAndZeroWorkTime_savesLunchTime() = runBlocking {
+        val settingsRepository = FakeSettingsRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+        val projectRepository = FakeProjectRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate(LocalDate.now().toString())
+        }
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
+
+        useCase(
+            name = "Aki",
+            employer = "WorkTime",
+            workTypes = emptyList(),
+            dailyWorkTimeEstimate = "07:30",
+            lunchTimeEstimate = "00:30"
+        )
+
+        assertEquals("00:30", projectDetailsRepository.insertedWorkStats?.lunchTime)
     }
 
     @Test

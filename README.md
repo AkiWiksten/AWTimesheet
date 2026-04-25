@@ -73,10 +73,11 @@ This is called feature-based packaging.
 + Use Intent to ask user where to save pdf
 + PDF: Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 + ProjectsScreen: "No projects" state should be shown on a empty list
-+ Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
 + Calculate FlexTimeTotal from WorkdayEntity
-+ "Daily work time estimate" (default 7:30) in SettingsScreen. Used by WorkdayScreen on a new workday. You can still override "Daily work time estimate" in ProjectDetailsScreen with the corresponding field for that workday.
 + "Lunch time estimate" (default 0:00) in SettingsScreen. Used by ProjectDetailsScreen when opened with "Project time"=ZERO_TIME (New project or editing an "empty" project).
++ Ask to save when leaving workday
++ Clean ProjectDetailsState
+
 
 
 Constantly:

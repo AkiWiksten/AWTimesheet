@@ -44,6 +44,7 @@ class SettingsViewModelTest {
         state as SettingsUiState.Success
         assertEquals("Aki", state.data.name)
         assertEquals("Company", state.data.employer)
+        assertEquals("00:00", state.data.lunchTimeEstimate)
         assertEquals(listOf("Office", "Remote"), state.data.workTypes)
     }
 

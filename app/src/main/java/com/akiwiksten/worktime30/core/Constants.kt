@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.core
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 const val DATE = "date"
 const val ZERO_TIME = "00:00"
@@ -18,6 +19,9 @@ val FORM_GROUP_PADDING = 12.dp
 val FORM_GROUP_SPACING = 12.dp
 val FORM_SECTION_SPACING = 16.dp
 val FORM_INLINE_SPACING = 8.dp
+val SCREEN_CONTENT_SPACING = 24.dp
+val FORM_MAX_WIDTH = 600.dp
+val ACTION_BUTTON_FONT_SIZE = 18.sp
 
 // Project Details
 const val START_TIME = "start_time"

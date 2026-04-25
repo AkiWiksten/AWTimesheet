@@ -93,13 +93,19 @@ class SettingsViewModelTest {
         projectRepository: FakeProjectRepository,
         projectDetailsRepository: FakeProjectDetailsRepository
     ): SettingsViewModel {
+        val dateRepository = DateRepository()
         return SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
-            saveSettingsUseCase = SaveSettingsUseCase(settingsRepository, projectDetailsRepository),
+            saveSettingsUseCase = SaveSettingsUseCase(
+                settingsRepository = settingsRepository,
+                projectDetailsRepository = projectDetailsRepository,
+                projectRepository = projectRepository,
+                dateRepository = dateRepository
+            ),
             getWorkdayByMonthUseCase = GetWorkdayByMonthUseCase(projectRepository),
             settingsRepository = settingsRepository,
             projectDetailsRepository = projectDetailsRepository,
-            dateRepository = DateRepository()
+            dateRepository = dateRepository
         )
     }
 

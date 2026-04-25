@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AWWorkTime3.0</string>
+    <string name="app_name">AWTimesheet3.0</string>
     <string name="selected_date">Valittu päivämäärä</string>
     <string name="select_date">Valitse päivämäärä</string>
     <string name="start_time">Alkuaika</string>
@@ -16,6 +16,7 @@
     <string name="break_start">Tauon alku</string>
     <string name="break_end">Tauon loppu</string>
     <string name="work_time_today">Päivän työaika</string>
+    <string name="work_time_today_estimate">Päivän työajan arvio</string>
     <string name="flex_time_today">Päivän liukuma</string>
     <string name="initial_flex_time_total">Kokonaisliukuma</string>
     <string name="flex_time_total_initial_calculated">Kokonaisliukuma (alkuarvo+laskettu)</string>

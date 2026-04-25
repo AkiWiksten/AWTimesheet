@@ -1,14 +1,21 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
+import com.akiwiksten.worktime30.data.repository.DateRepository
+import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
+import java.time.LocalDate
 import javax.inject.Inject
 
 class SaveSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val projectDetailsRepository: ProjectDetailsRepository
+    private val projectDetailsRepository: ProjectDetailsRepository,
+    private val projectRepository: ProjectRepository,
+    private val dateRepository: DateRepository
 ) {
     suspend operator fun invoke(
         name: String,
@@ -22,16 +29,30 @@ class SaveSettingsUseCase @Inject constructor(
         }
         settingsRepository.insertSettings(SettingsState(name = name, employer = employer))
 
-        // Save dailyWorkTimeEstimate to WorkStats
         if (dailyWorkTimeEstimate.isNotEmpty()) {
-            val existingWorkStats = projectDetailsRepository.getWorkStats()
-            projectDetailsRepository.insertWorkStats(
-                WorkStatsState(
-                    dailyWorkTime = dailyWorkTimeEstimate,
-                    lunchTime = existingWorkStats?.lunchTime ?: "",
-                    initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ""
+            val selectedDate = dateRepository.selectedDate.value
+            val isCurrentDay = selectedDate == LocalDate.now().toString()
+
+            val workTimeToday = if (selectedDate.isNotEmpty()) {
+                projectRepository
+                    .getProjectsByDateRange(selectedDate, selectedDate)
+                    .fold(ZERO_TIME) { acc, project ->
+                        WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
+                    }
+            } else {
+                ZERO_TIME
+            }
+
+            if (isCurrentDay && workTimeToday == ZERO_TIME) {
+                val existingWorkStats = projectDetailsRepository.getWorkStats()
+                projectDetailsRepository.insertWorkStats(
+                    WorkStatsState(
+                        dailyWorkTime = dailyWorkTimeEstimate,
+                        lunchTime = existingWorkStats?.lunchTime ?: ZERO_TIME,
+                        initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME
+                    )
                 )
-            )
+            }
         }
     }
 }

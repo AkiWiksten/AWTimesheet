@@ -24,7 +24,8 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 
         val workTypes = settingsRepository.getWorkTypes()
         val workStats = projectDetailsRepository.getWorkStats()
-        val dailyWorkTime = workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
+        val workTimeTodayEstimate =
+            workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
         val initialFlexTimeTotal = workStats?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
         val calculatedFlexTimeFromAllWorkdays = projectRepository
             .getProjectsByDateRange(ALL_DATES_START, ALL_DATES_END)
@@ -37,14 +38,14 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
                 }
                 val dailyFlex = WorkTimeCalculator.calculateFlexTime(
                     initialTime = totalProjectTimeForDate,
-                    addedTime = "-$dailyWorkTime"
+                    addedTime = "-$workTimeTodayEstimate"
                 )
                 WorkTimeCalculator.calculateFlexTime(acc, dailyFlex)
             }
 
         return WorkdayScreenData(
             projectTime = projectTime,
-            dailyWorkTime = dailyWorkTime,
+            workTimeTodayEstimate = workTimeTodayEstimate,
             initialFlexTimeTotal = initialFlexTimeTotal,
             calculatedFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                 initialTime = initialFlexTimeTotal,
@@ -64,7 +65,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 
 data class WorkdayScreenData(
     val projectTime: String,
-    val dailyWorkTime: String,
+    val workTimeTodayEstimate: String,
     val initialFlexTimeTotal: String,
     val calculatedFlexTimeTotal: String,
     val projects: List<SingleProjectState>,

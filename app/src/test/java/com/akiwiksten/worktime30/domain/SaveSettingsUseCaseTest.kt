@@ -1,14 +1,19 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
+import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.LocalDate
 
 class SaveSettingsUseCaseTest {
 
@@ -16,7 +21,14 @@ class SaveSettingsUseCaseTest {
     fun invoke_clearsWorkTypes_insertsNewTypes_andSavesSettings() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveSettingsUseCase(settingsRepository, projectDetailsRepository)
+        val projectRepository = FakeProjectRepository()
+        val dateRepository = DateRepository()
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
 
         useCase(
             name = "Aki",
@@ -43,7 +55,14 @@ class SaveSettingsUseCaseTest {
     fun invoke_withEmptyWorkTypes_stillSavesSettings() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveSettingsUseCase(settingsRepository, projectDetailsRepository)
+        val projectRepository = FakeProjectRepository()
+        val dateRepository = DateRepository()
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
 
         useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList())
 
@@ -52,10 +71,19 @@ class SaveSettingsUseCaseTest {
     }
 
     @Test
-    fun invoke_withDailyWorkTimeEstimate_savesDailyWorkTime() = runBlocking {
+    fun invoke_withDailyWorkTimeEstimate_currentDayAndZeroWorkTime_savesDailyWorkTime() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveSettingsUseCase(settingsRepository, projectDetailsRepository)
+        val projectRepository = FakeProjectRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate(LocalDate.now().toString())
+        }
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
 
         useCase(
             name = "Aki",
@@ -65,6 +93,65 @@ class SaveSettingsUseCaseTest {
         )
 
         assertEquals("07:30", projectDetailsRepository.insertedWorkStats?.dailyWorkTime)
+    }
+
+    @Test
+    fun invoke_withDailyWorkTimeEstimate_nonCurrentDay_doesNotUpdateWorkStats() = runBlocking {
+        val settingsRepository = FakeSettingsRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = "+01:00")
+        }
+        val projectRepository = FakeProjectRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate("2000-01-01")
+        }
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
+
+        useCase(
+            name = "Aki",
+            employer = "WorkTime",
+            workTypes = emptyList(),
+            dailyWorkTimeEstimate = "08:00"
+        )
+
+        assertNull(projectDetailsRepository.insertedWorkStats)
+    }
+
+    @Test
+    fun invoke_withDailyWorkTimeEstimate_currentDayAndNonZeroWorkTime_doesNotUpdateWorkStats() = runBlocking {
+        val today = LocalDate.now().toString()
+        val settingsRepository = FakeSettingsRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            workStats = WorkStatsState(dailyWorkTime = "07:30", lunchTime = "00:30", initialFlexTimeTotal = "+01:00")
+        }
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                SingleProjectState(date = today, projectName = "Alpha", projectTime = "01:00")
+            )
+        }
+        val dateRepository = DateRepository().apply {
+            updateDate(today)
+        }
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
+
+        useCase(
+            name = "Aki",
+            employer = "WorkTime",
+            workTypes = emptyList(),
+            dailyWorkTimeEstimate = "08:00"
+        )
+
+        assertNull(projectDetailsRepository.insertedWorkStats)
     }
 
     private class FakeSettingsRepository : SettingsRepository {
@@ -94,6 +181,7 @@ class SaveSettingsUseCaseTest {
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+        var workStats: WorkStatsState? = null
         var insertedWorkStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
@@ -102,7 +190,7 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) = Unit
 
-        override suspend fun getWorkStats(): WorkStatsState? = null
+        override suspend fun getWorkStats(): WorkStatsState? = workStats
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) {
             insertedWorkStats = workStats
@@ -112,5 +200,25 @@ class SaveSettingsUseCaseTest {
             start: String,
             end: String
         ): List<ProjectDetailsState> = emptyList()
+    }
+
+    private class FakeProjectRepository : ProjectRepository {
+        var projectsByDateRange: List<SingleProjectState> = emptyList()
+
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return projectsByDateRange.filter { it.date in start..end }
+        }
+
+        override suspend fun insertProject(project: SingleProjectState) = Unit
+
+        override suspend fun deleteProject(project: SingleProjectState) = Unit
+
+        override suspend fun getProjectNames(): List<String> = emptyList()
+
+        override suspend fun insertProjectName(projectName: String) = Unit
+
+        override suspend fun deleteProjectName(projectName: String) = Unit
+
+        override suspend fun isProjectNameUsed(projectName: String): Boolean = false
     }
 }

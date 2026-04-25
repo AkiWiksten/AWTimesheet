@@ -14,12 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,17 +41,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ACTION_BUTTON_FONT_SIZE
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.worktime30.core.FORM_MAX_WIDTH
 import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.worktime30.core.SCREEN_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -97,7 +107,7 @@ internal fun SettingsStateContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(all = 16.dp),
+                        .padding(all = FORM_SECTION_SPACING),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -121,7 +131,7 @@ internal fun SettingsStateContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(all = 16.dp),
+                    .padding(all = FORM_SECTION_SPACING),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -169,24 +179,73 @@ data class SettingsActions(
     val onGeneratePdf: () -> Unit
 )
 
+@Suppress("LongMethod")
 @Composable
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
     actions: SettingsActions
 ) {
-    var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
-    var selectedWorkType by remember { mutableStateOf(value = "") }
+    val showAddWorkTypeDialogState = remember { mutableStateOf(value = false) }
+    val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
+    val selectedWorkTypeState = remember { mutableStateOf(value = "") }
     val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
     val scrollState = rememberScrollState()
 
+    DailyWorkTimePickerDialogSection(
+        isVisible = showDailyWorkTimePickerDialogState.value,
+        currentDailyWorkTime = uiState.data.dailyWorkTimeEstimate,
+        onDismiss = { showDailyWorkTimePickerDialogState.value = false },
+        onConfirmed = { selectedTime ->
+            actions.onDailyWorkTimeEstimateChange(selectedTime)
+            showDailyWorkTimePickerDialogState.value = false
+        }
+    )
+
+    SettingsContentBody(
+        uiState = uiState,
+        actions = actions,
+        selectedWorkType = selectedWorkTypeState.value,
+        onWorkTypeSelected = { selectedWorkTypeState.value = it },
+        onAddWorkTypeClick = { showAddWorkTypeDialogState.value = true },
+        onDeleteSelectedWorkType = {
+            actions.onWorkTypeRemoved(selectedWorkTypeState.value)
+            // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
+        },
+        onDailyWorkTimePickerClick = { showDailyWorkTimePickerDialogState.value = true },
+        isAddWorkTypeDialogVisible = showAddWorkTypeDialogState.value,
+        onDismissAddWorkTypeDialog = { showAddWorkTypeDialogState.value = false },
+        onConfirmAddWorkType = {
+            actions.onWorkTypeAdded(it)
+            showAddWorkTypeDialogState.value = false
+        },
+        scrollState = scrollState,
+        saveUi = saveUi
+    )
+}
+
+@Composable
+private fun SettingsContentBody(
+    uiState: SettingsUiState.Success,
+    actions: SettingsActions,
+    selectedWorkType: String,
+    onWorkTypeSelected: (String) -> Unit,
+    onAddWorkTypeClick: () -> Unit,
+    onDeleteSelectedWorkType: () -> Unit,
+    onDailyWorkTimePickerClick: () -> Unit,
+    isAddWorkTypeDialogVisible: Boolean,
+    onDismissAddWorkTypeDialog: () -> Unit,
+    onConfirmAddWorkType: (String) -> Unit,
+    scrollState: androidx.compose.foundation.ScrollState,
+    saveUi: SettingsSaveUi
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScrollbar(scrollState = scrollState)
             .verticalScroll(state = scrollState)
-            .padding(all = 16.dp),
+            .padding(all = FORM_SECTION_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 24.dp)
+        verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
         HeaderSection(date = uiState.data.selectedDate)
 
@@ -200,10 +259,9 @@ internal fun SettingsContent(
         }
 
         SettingsCard {
-            SettingsTextField(
-                value = uiState.data.dailyWorkTimeEstimate,
-                label = R.string.daily_work_time,
-                onValueChange = actions.onDailyWorkTimeEstimateChange
+            DailyWorkTimePickerRow(
+                dailyWorkTime = uiState.data.dailyWorkTimeEstimate,
+                onPickerClick = onDailyWorkTimePickerClick
             )
         }
 
@@ -211,12 +269,9 @@ internal fun SettingsContent(
             WorkTypeSection(
                 workTypes = uiState.data.workTypes,
                 selectedWorkType = selectedWorkType,
-                onWorkTypeSelected = { selectedWorkType = it },
-                onAddClick = { showAddWorkTypeDialog = true },
-                onDeleteClick = {
-                    actions.onWorkTypeRemoved(selectedWorkType)
-                    // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
-                }
+                onWorkTypeSelected = onWorkTypeSelected,
+                onAddClick = onAddWorkTypeClick,
+                onDeleteClick = onDeleteSelectedWorkType
             )
         }
 
@@ -227,15 +282,76 @@ internal fun SettingsContent(
             isSaveEnabled = saveUi.isSaveEnabled
         )
 
-        if (showAddWorkTypeDialog) {
-            AddTextFieldDialog(
-                onDismissRequest = { showAddWorkTypeDialog = false },
-                onConfirmation = {
-                    actions.onWorkTypeAdded(it)
-                    showAddWorkTypeDialog = false
-                },
-                label = stringResource(id = R.string.work_type)
-            )
+        AddWorkTypeDialogSection(
+            isVisible = isAddWorkTypeDialogVisible,
+            onDismiss = onDismissAddWorkTypeDialog,
+            onConfirmed = onConfirmAddWorkType
+        )
+    }
+}
+
+@Composable
+private fun DailyWorkTimePickerDialogSection(
+    isVisible: Boolean,
+    currentDailyWorkTime: String,
+    onDismiss: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+    if (isVisible) {
+        TimePickerDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            titleId = R.string.daily_work_time,
+            time = currentDailyWorkTime
+        )
+    }
+}
+
+@Composable
+private fun AddWorkTypeDialogSection(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+    if (isVisible) {
+        AddTextFieldDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            label = stringResource(id = R.string.work_type)
+        )
+    }
+}
+
+@Composable
+private fun DailyWorkTimePickerRow(
+    dailyWorkTime: String,
+    onPickerClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+    ) {
+        OutlinedTextField(
+            value = dailyWorkTime,
+            onValueChange = {},
+            enabled = false,
+            singleLine = true,
+            label = {
+                Text(
+                    text = stringResource(id = R.string.daily_work_time),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            modifier = Modifier.weight(weight = 1f),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+        )
+        IconButton(onClick = onPickerClick) {
+            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
         }
     }
 }
@@ -286,7 +402,8 @@ private data class SettingsSaveUi(
 @Composable
 private fun SettingsCard(title: String? = null, content: @Composable () -> Unit) {
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
+        modifier = Modifier.fillMaxWidth().widthIn(max = FORM_MAX_WIDTH),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
     ) {
         Column(
@@ -311,7 +428,8 @@ private fun HeaderSection(date: String) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .widthIn(max = 600.dp),
+            .widthIn(max = FORM_MAX_WIDTH),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(
@@ -349,9 +467,18 @@ private fun SettingsTextField(value: String, label: Int, onValueChange: (String)
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        label = { Text(text = stringResource(id = label)) },
+        label = {
+            Text(
+                text = stringResource(id = label),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
         modifier = Modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyLarge
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
     )
 }
 
@@ -403,7 +530,7 @@ private fun ActionButtonsSection(
     isSaveEnabled: Boolean
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
+        modifier = Modifier.fillMaxWidth().widthIn(max = FORM_MAX_WIDTH),
         verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
     ) {
         Button(
@@ -412,7 +539,7 @@ private fun ActionButtonsSection(
             modifier = Modifier.fillMaxWidth(),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Text(text = stringResource(id = R.string.save), fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         Button(
             onClick = onGeneratePdf,
@@ -420,7 +547,7 @@ private fun ActionButtonsSection(
             modifier = Modifier.fillMaxWidth(),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Text(text = stringResource(id = R.string.generate_pdf), fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.generate_pdf), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         Text(
             text = stringResource(id = R.string.monthly_help),

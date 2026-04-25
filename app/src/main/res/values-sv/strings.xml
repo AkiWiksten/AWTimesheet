@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AWWorkTime3.0</string>
+    <string name="app_name">AWTimesheet3.0</string>
     <string name="selected_date">Valt datum</string>
     <string name="select_date">Välj datum</string>
     <string name="start_time">Starttid</string>
@@ -16,6 +16,7 @@
     <string name="break_start">Pausstart</string>
     <string name="break_end">Pausslut</string>
     <string name="work_time_today">Arbetstid idag</string>
+    <string name="work_time_today_estimate">Uppskattad arbetstid idag</string>
     <string name="flex_time_today">Flex idag</string>
     <string name="initial_flex_time_total">Initial total flex</string>
     <string name="flex_time_total_initial_calculated">Total flex (initial+beräknad)</string>

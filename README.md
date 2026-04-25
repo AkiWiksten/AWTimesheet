@@ -76,6 +76,7 @@ This is called feature-based packaging.
 + Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
 + Calculate FlexTimeTotal from WorkdayEntity
 + Swedish support
++ Daily work time estimate in Settings (default 7:30). Lunch time estimate default 0:00
 
 
 Constantly:

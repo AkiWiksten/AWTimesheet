@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 
 const val DATE = "date"
 const val ZERO_TIME = "00:00"
+const val DEFAULT_DAILY_WORK_TIME = "07:30"
 const val MINUTES_IN_HOUR = 60
 const val TIME_FORMAT = "HH:mm"
 const val DATE_FORMAT = "yyyy-MM-dd"

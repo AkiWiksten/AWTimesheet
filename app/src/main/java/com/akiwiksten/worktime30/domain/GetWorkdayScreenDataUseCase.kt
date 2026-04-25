@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -48,7 +49,6 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
     }
 
     private companion object {
-        const val DEFAULT_DAILY_WORK_TIME = "07:30"
         const val ALL_DATES_START = "0000-01-01"
         const val ALL_DATES_END = "9999-12-31"
     }

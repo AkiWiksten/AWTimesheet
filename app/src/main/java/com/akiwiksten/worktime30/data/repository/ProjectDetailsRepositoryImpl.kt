@@ -60,6 +60,16 @@ class ProjectDetailsRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getWorkdayStatsByDateRange(start: String, end: String): List<WorkdayStatsRow> {
+        return workdayDao.getWorkdaysByDateRange(start, end).map { row ->
+            WorkdayStatsRow(
+                date = row.date,
+                workTimeToday = row.workTimeToday,
+                workTimeTodayEstimate = row.workTimeTodayEstimate
+            )
+        }
+    }
+
     override suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState> =
         projectDetailsDao.getProjectDetailsByDateRange(start, end).map { it.toDomain() }
 }

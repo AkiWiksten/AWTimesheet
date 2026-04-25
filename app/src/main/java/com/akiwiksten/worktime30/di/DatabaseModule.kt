@@ -10,7 +10,6 @@ import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
-import com.akiwiksten.worktime30.data.database.migration.AppMigrations
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
@@ -50,9 +49,6 @@ abstract class DatabaseModule {
                 context,
                 AppDatabase::class.java,
                 AppDatabase.DB_NAME
-            ).addMigrations(
-                AppMigrations.MIGRATION_3_4,
-                AppMigrations.MIGRATION_4_5
             )
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()

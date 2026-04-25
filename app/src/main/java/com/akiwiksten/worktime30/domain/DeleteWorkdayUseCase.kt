@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
@@ -23,6 +24,20 @@ class DeleteWorkdayUseCase @Inject constructor(
         projectDetailsRepository.deleteProjectDetails(
             ProjectDetailsState(date = date, projectName = projectName)
         )
+
+        val recalculatedWorkTimeToday = projectRepository
+            .getProjectsByDateRange(date, date)
+            .fold(ZERO_TIME) { acc, project ->
+                WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
+            }
+        val currentWorkStats = projectDetailsRepository.getWorkStatsByDate(date)
+        if (currentWorkStats != null) {
+            projectDetailsRepository.upsertWorkdayStats(
+                date = date,
+                workTimeToday = recalculatedWorkTimeToday,
+                workStats = currentWorkStats
+            )
+        }
 
         if (!projectRepository.isProjectNameUsed(projectName)) {
             projectRepository.deleteProjectName(projectName)

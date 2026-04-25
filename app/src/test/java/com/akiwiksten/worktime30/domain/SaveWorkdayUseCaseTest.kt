@@ -35,6 +35,8 @@ class SaveWorkdayUseCaseTest {
         assertEquals(listOf("Alpha"), projectRepository.insertedProjectNames)
         assertEquals(1, projectRepository.insertedProjects.size)
         assertEquals(1, projectDetailsRepository.insertedProjectDetails.size)
+        assertEquals("2026-04-10", projectDetailsRepository.upsertedWorkdayDate)
+        assertEquals("02:00", projectDetailsRepository.upsertedWorkTimeToday)
     }
 
     @Test
@@ -55,13 +57,16 @@ class SaveWorkdayUseCaseTest {
         )
 
         assertEquals(emptyList<ProjectDetailsState>(), projectDetailsRepository.insertedProjectDetails)
+        assertEquals("2026-04-10", projectDetailsRepository.upsertedWorkdayDate)
     }
 
     private class FakeProjectRepository : ProjectRepository {
         val insertedProjects = mutableListOf<SingleProjectState>()
         val insertedProjectNames = mutableListOf<String>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> = emptyList()
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return insertedProjects.filter { it.date in start..end }
+        }
 
         override suspend fun insertProject(project: SingleProjectState) {
             insertedProjects += project
@@ -83,6 +88,9 @@ class SaveWorkdayUseCaseTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
+        var upsertedWorkdayDate: String? = null
+        var upsertedWorkTimeToday: String? = null
+        var upsertedWorkStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
@@ -95,6 +103,12 @@ class SaveWorkdayUseCaseTest {
         override suspend fun getWorkStats(): WorkStatsState? = null
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+            upsertedWorkdayDate = date
+            upsertedWorkTimeToday = workTimeToday
+            upsertedWorkStats = workStats
+        }
 
         override suspend fun getProjectDetailsByDateRange(
             start: String,

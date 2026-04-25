@@ -4,6 +4,7 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
@@ -29,6 +30,10 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
+            workdayStatsRows = listOf(
+                WorkdayStatsRow(date = "2026-04-10", workTimeToday = "07:30", workTimeTodayEstimate = "07:30"),
+                WorkdayStatsRow(date = "2026-04-11", workTimeToday = "07:00", workTimeTodayEstimate = "07:30")
+            )
         }
         val useCase = GetWorkdayScreenDataUseCase(projectRepository, settingsRepository, projectDetailsRepository)
 
@@ -52,6 +57,9 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            workdayStatsRows = listOf(
+                WorkdayStatsRow(date = "2026-04-10", workTimeToday = "08:00", workTimeTodayEstimate = "07:30")
+            )
         }
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = projectRepository,
@@ -74,6 +82,9 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            workdayStatsRows = listOf(
+                WorkdayStatsRow(date = "2026-04-10", workTimeToday = "08:00", workTimeTodayEstimate = "07:30")
+            )
         }
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = projectRepository,
@@ -143,6 +154,7 @@ class GetWorkdayScreenDataUseCaseTest {
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var workStats: WorkStatsState? = null
         var projectDetailsByDateRange: List<ProjectDetailsState> = emptyList()
+        var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
@@ -153,6 +165,9 @@ class GetWorkdayScreenDataUseCaseTest {
         override suspend fun getWorkStats(): WorkStatsState? = workStats
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getWorkdayStatsByDateRange(start: String, end: String): List<WorkdayStatsRow> =
+            workdayStatsRows.filter { it.date in start..end }
 
         override suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState> =
             projectDetailsByDateRange

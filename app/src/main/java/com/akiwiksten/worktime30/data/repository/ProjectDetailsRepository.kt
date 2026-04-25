@@ -13,5 +13,13 @@ interface ProjectDetailsRepository {
     suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
         insertWorkStats(workStats)
     }
+    suspend fun getWorkdayStatsByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState>
 }
+
+data class WorkdayStatsRow(
+    val date: String,
+    val workTimeToday: String,
+    val workTimeTodayEstimate: String
+)
+

@@ -5,6 +5,7 @@ import com.akiwiksten.worktime30.data.repository.DateRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
@@ -44,6 +45,9 @@ class WorkdayViewModelTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
         projectDetailsRepository.workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+01:45")
+        projectDetailsRepository.workdayStatsRows = listOf(
+            WorkdayStatsRow(date = "2026-04-10", workTimeToday = "02:30", workTimeTodayEstimate = "07:30")
+        )
         projectDetailsRepository.projectDetailsByDateRange = listOf(
             ProjectDetailsState(date = "2026-04-10", projectName = "Beta", flexTimeToday = "-05:00")
         )
@@ -321,6 +325,7 @@ class WorkdayViewModelTest {
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var workStats: WorkStatsState? = null
         var projectDetailsByDateRange: List<ProjectDetailsState> = emptyList()
+        var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
         val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? {
@@ -356,6 +361,20 @@ class WorkdayViewModelTest {
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) {
             this.workStats = workStats
+        }
+
+        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+            val updatedRow = WorkdayStatsRow(
+                date = date,
+                workTimeToday = workTimeToday,
+                workTimeTodayEstimate = workStats.dailyWorkTimeEstimate
+            )
+            workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
+            this.workStats = workStats
+        }
+
+        override suspend fun getWorkdayStatsByDateRange(start: String, end: String): List<WorkdayStatsRow> {
+            return workdayStatsRows.filter { it.date in start..end }
         }
 
         override suspend fun getProjectDetailsByDateRange(

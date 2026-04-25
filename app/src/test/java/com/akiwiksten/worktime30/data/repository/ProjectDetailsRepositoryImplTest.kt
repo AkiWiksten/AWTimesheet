@@ -114,6 +114,21 @@ class ProjectDetailsRepositoryImplTest {
         assertEquals("2026-04-30", projectDetailsDao.lastDateEnd)
     }
 
+    @Test
+    fun getWorkdayStatsByDateRange_returnsRowsFromWorkdayDao() = runBlocking {
+        workdayDao.workdaysByDateRange = listOf(
+            WorkdayEntity(date = "2026-04-10", workTimeToday = "08:00", workTimeTodayEstimate = "07:30"),
+            WorkdayEntity(date = "2026-04-11", workTimeToday = "07:00", workTimeTodayEstimate = "07:30")
+        )
+
+        val result = repository.getWorkdayStatsByDateRange("2026-04-01", "2026-04-30")
+
+        assertEquals(2, result.size)
+        assertEquals("2026-04-10", result[0].date)
+        assertEquals("08:00", result[0].workTimeToday)
+        assertEquals("07:30", result[0].workTimeTodayEstimate)
+    }
+
     private class FakeProjectDetailsDao : ProjectDetailsDao {
         var projectDetailsResult: ProjectDetailsEntity? = null
         var projectDetailsByDateRangeResult: List<ProjectDetailsEntity> = emptyList()
@@ -166,6 +181,7 @@ class ProjectDetailsRepositoryImplTest {
     private class FakeWorkdayDao : WorkdayDao {
         var workdayResult: WorkdayEntity? = null
         var insertedWorkday: WorkdayEntity? = null
+        var workdaysByDateRange: List<WorkdayEntity> = emptyList()
 
         override suspend fun loadWorkday(date: String): WorkdayEntity? = workdayResult
 
@@ -173,6 +189,6 @@ class ProjectDetailsRepositoryImplTest {
             insertedWorkday = workday
         }
 
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
+        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = workdaysByDateRange
     }
 }

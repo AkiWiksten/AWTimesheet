@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
@@ -7,6 +8,7 @@ import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class DeleteWorkdayUseCaseTest {
@@ -30,6 +32,8 @@ class DeleteWorkdayUseCaseTest {
             listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Beta")),
             projectDetailsRepository.deletedProjectDetails
         )
+        assertEquals("2026-04-10", projectDetailsRepository.upsertedWorkdayDate)
+        assertNotNull(projectDetailsRepository.upsertedWorkStats)
     }
 
     @Test
@@ -64,8 +68,11 @@ class DeleteWorkdayUseCaseTest {
         val deletedProjects = mutableListOf<SingleProjectState>()
         val deletedProjectNames = mutableListOf<String>()
         val isProjectNameUsedByName = mutableMapOf<String, Boolean>()
+        val projectsByDateRange = mutableMapOf<String, List<SingleProjectState>>()
 
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> = emptyList()
+        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            return projectsByDateRange[start] ?: emptyList()
+        }
 
         override suspend fun insertProject(project: SingleProjectState) = Unit
 
@@ -87,6 +94,8 @@ class DeleteWorkdayUseCaseTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         val deletedProjectDetails = mutableListOf<ProjectDetailsState>()
+        var upsertedWorkdayDate: String? = null
+        var upsertedWorkStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
@@ -99,6 +108,14 @@ class DeleteWorkdayUseCaseTest {
         override suspend fun getWorkStats(): WorkStatsState? = null
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? =
+            WorkStatsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30", initialFlexTimeTotal = ZERO_TIME)
+
+        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+            upsertedWorkdayDate = date
+            upsertedWorkStats = workStats
+        }
 
         override suspend fun getProjectDetailsByDateRange(
             start: String,

@@ -51,6 +51,7 @@ This is called feature-based packaging.
 
 ## Features to be implemented still
 + create full backup support.
++ Sync
 + Project name edit and validation in SingleProjectScreen
 + Project name validation in ProjectsScreen. Kilometres validation. 0050 not valid.
 + Workday: “Open End Time picker to select time and confirm to show the total work time of the day”
@@ -79,9 +80,9 @@ This is called feature-based packaging.
 + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
 + ProjectDetailsRepository → Extract WorkStats stuff into own repository
 + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
-+ isNewDayForProject
-+ 
-Constantly:
+
+
+## What and how to test constantly
 + Thorough testing of all features in all screens
     + Intro,
         + Overall functionality

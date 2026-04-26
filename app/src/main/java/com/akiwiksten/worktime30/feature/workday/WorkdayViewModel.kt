@@ -37,6 +37,14 @@ data class SingleProjectState(
     val date: String = ""
 )
 
+internal fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {
+    return date.isBlank() &&
+        projectTime == ZERO_TIME &&
+        kilometres == "0" &&
+        allowance.isBlank() &&
+        workType.isBlank()
+}
+
 sealed class WorkdayUiState {
     object Loading : WorkdayUiState()
 

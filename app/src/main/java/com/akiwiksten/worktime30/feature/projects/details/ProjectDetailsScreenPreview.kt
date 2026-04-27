@@ -4,16 +4,19 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.android.tools.screenshot.PreviewTest
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 
+@PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Loading")
 @Composable
 fun previewProjectDetailsLoading() {
     projectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Success New Day")
 @Composable
 fun previewProjectDetailsSuccessNewDay() {
@@ -33,6 +36,7 @@ fun previewProjectDetailsSuccessNewDay() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Success Existing Day")
 @Composable
 fun previewProjectDetailsSuccessExistingDay() {
@@ -60,6 +64,7 @@ fun previewProjectDetailsSuccessExistingDay() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Error")
 @Composable
 fun previewProjectDetailsError() {

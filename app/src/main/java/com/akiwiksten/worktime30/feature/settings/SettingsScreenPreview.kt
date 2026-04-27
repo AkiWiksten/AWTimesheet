@@ -2,16 +2,19 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.android.tools.screenshot.PreviewTest
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
+@PreviewTest
 @Preview(showBackground = true, name = "Settings - Loading")
 @Composable
 fun PreviewSettingsLoading() {
     SettingsPreviewContent(uiState = SettingsUiState.Loading)
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Settings - Success")
 @Composable
 fun PreviewSettingsSuccess() {
@@ -40,6 +43,7 @@ fun PreviewSettingsSuccess() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Settings - Error")
 @Composable
 fun PreviewSettingsError() {

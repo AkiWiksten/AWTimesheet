@@ -2,12 +2,14 @@ package com.akiwiksten.worktime30.feature.projects.single
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.android.tools.screenshot.PreviewTest
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 
 private const val PREVIEW_DATE = "2026-04-10"
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Loading")
 @Composable
 fun PreviewSingleProjectLoading() {
@@ -26,6 +28,7 @@ fun PreviewSingleProjectLoading() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Success Add")
 @Composable
 fun PreviewSingleProjectSuccessAdd() {
@@ -53,6 +56,7 @@ fun PreviewSingleProjectSuccessAdd() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Success Edit")
 @Composable
 fun PreviewSingleProjectSuccessEdit() {
@@ -82,6 +86,7 @@ fun PreviewSingleProjectSuccessEdit() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Error")
 @Composable
 fun PreviewSingleProjectError() {

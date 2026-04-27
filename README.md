@@ -46,8 +46,10 @@ This is called feature-based packaging.
 + ./gradlew detekt
 + ./gradlew lint
 + Run SonarCube
-+ Run androidTest (Screenshot tests, DAO tests)
++ Run androidTest (DAO tests)
 + Run test (Unit tests)
++ Run official Compose screenshot baseline update: ./gradlew updateScreenshotTest
++ Run official Compose screenshot validation: ./gradlew validateScreenshotTest
 
 ## Features to be implemented still
 + General
@@ -97,7 +99,7 @@ This is called feature-based packaging.
   + make pdf dynamic?
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 + Screenshot tests
-  + Add comparison, now just saves image
+  + Expand official Compose screenshot coverage and maintain baselines with validateScreenshotTest
 
 ## What to test constantly
 + Thorough testing of all features in all screens

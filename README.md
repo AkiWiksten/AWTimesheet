@@ -2,7 +2,7 @@
 ## Purpose
 + An app for work time management
 ## Branches
-+ main: default "working" branch, master: "construction" branch
++ main: default "release" branch, master: "construction" branch
 ## Features
 + **Intro** for a fancy introduction animation
 + **Calendar** to select a date to manage
@@ -12,17 +12,17 @@
 + **Settings** to manage settings, like name, employer work type choices (Coding, Installation, Design etc.)
   + **Pdf monthly report** shows your daily work time per projects in a table. Calculates also monthly statistics.
 ## Main Technologies
-+ Android, Jetpack Compose, Kotlin, SQLite
++ Android, Jetpack Compose, Kotlin, Room
 ## Modern App Architecture
 ### Navigation3
 ### Hilt
-### Structure (Compose + MVVM)
+### Structure (Compose + MVVM), based on Clean Architecture
     
 A clean, scalable example of this is:
 + app/
     + core/                 # shared utilities, theme, base classes
     + data/                 # repositories, API, database
-    + domain/               # use cases, business logic (optional but good)
+    + domain/               # use cases, business logic
     + feature/
         + home/
             + HomeScreen.kt
@@ -50,42 +50,67 @@ This is called feature-based packaging.
 + Run test (Unit tests)
 
 ## Features to be implemented still
-+ create full backup support.
-+ Project name edit and validation in SingleProjectScreen
-+ Project name validation in ProjectsScreen. Kilometres validation. 0050 not valid.
-+ Workday: “Open End Time picker to select time and confirm to show the total work time of the day”
-+ Ask to save when coming back from or switching to a screen.
-+ Validation
-+ "Note! Automatic calculations for fields below."
-+ Orientation support
-+ Translate fed "Work type"
-+ Move calculateWorkTimeToday from SingleProjectScreen to SingleProjectViewModel
-+ When is Flex time total updated?
-+ App localization selection
-+ "Clear day" → "Clear details"
-+ Use "Design" and "Other" as Default work types when list is empty
-+ work_type_help
-+ add_project_item_failed_title add_project_item_failed_title_text (Duplicate)
-+ Everything with bigger font
-+ Selecting work type doesn't work in edit mode
-+ DialogMainFields
-+ Flex time total doesn't update
-+ Use Intent to ask user where to save pdf
-+ PDF: Project time sum, Half-allowance and Full-allowance kilometre sum for each project
-+ ProjectsScreen: "No projects" state should be shown on a empty list
-+ Create WorkdayEntity, with date, flex time today, daily work time estimate etc. 
-+ Calculate FlexTimeTotal from WorkdayEntity
-+ Swedish support
-+ Daily work time estimate in Settings (default 7:30). Lunch time estimate default 0:00
++ General
+  + create full backup support.
+  + Sync
+  + Better orientation support
+  + Dark theme
+  + FormChangeRules outside ui package
+  + data classes to map with entities should be in domain.model package
+  + repository interfaces should be in domain.repository package
+  + Simplify SaveSettingsUseCase
+  + Check test coverage and add tests
++ Constants
+  + Regroup
++ SingleProjectScreen
+  + Project name edit and validation
+  + Kilometres validation. 0050 not valid.
+  + Show work_type_help string
+  + Handle duplicate project name, when pressing "Details" or saving
+  + Selecting work type doesn't work in edit mode
+  + Rename DialogMainFields -> UpperTextFields
+  + Own ViewModel. Decouple from WorkdayViewModel.
+  + SingleProject->SingleProjectState
+  + ProjectDetails->ProjectDetailsState
++ WorkdayScreen 
+  + Calculate FlexTimeTotal from WorkdayEntity? Done already?
+  + Ask to save when leaving without saving
+  + Don't show project_names projects, when there are already recorded projects
+  + 
++ ProjectDetailsScreen
+  + "Clear day" → "Clear details"
+  + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
+  + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
+  + ProjectDetailsRepository → Extract WorkStats and Workday stuff into own repositories?
+  + First "Estimated end time" then "End time"
++ CalendarScreen
+  + "Note! Automatic calculations for most fields in this app."
+  + Show color for modified days
++ SettingsScreen
+  + Translate fed "Work type"
+  + App localization selection
+  + Use "Design" and "Other" as Default work types when list is empty
+  + Ask to save does not work
++ PDF
+  + Use Intent to ask user where to save pdf and 
+  + show the pdf instantly on screen
+  + make pdf dynamic?
+  + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
++ Screenshot tests
+  + Add comparison, now just saves image
 
-
-Constantly:
+## What to test constantly
 + Thorough testing of all features in all screens
     + Intro,
-        + Overall functionality
+      + Overall functionality
     + Calendar,
+      + UI features
     + Projects,
+      + UI features
     + Single project,
+      + UI features
     + Project Details,
+      + UI features
     + Settings
-+ detekt, lint, SonarQube run regularly, preferably before pushing code
+      + UI features
+      + PDF creation

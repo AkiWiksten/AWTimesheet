@@ -15,11 +15,10 @@ class EnsureDefaultWorkStatsUseCase @Inject constructor(
 
         projectDetailsRepository.insertWorkStats(
             WorkStatsState(
-                dailyWorkTime = DEFAULT_DAILY_WORK_TIME,
-                lunchTime = ZERO_TIME,
+                dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
+                dailyLunchTimeEstimate = ZERO_TIME,
                 initialFlexTimeTotal = ZERO_TIME
             )
         )
     }
 }
-

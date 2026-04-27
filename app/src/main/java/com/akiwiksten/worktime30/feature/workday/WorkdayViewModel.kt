@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 data class SingleProjectState(
@@ -36,13 +37,21 @@ data class SingleProjectState(
     val date: String = ""
 )
 
+internal fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {
+    return date.isBlank() &&
+        projectTime == ZERO_TIME &&
+        kilometres == "0" &&
+        allowance.isBlank() &&
+        workType.isBlank()
+}
+
 sealed class WorkdayUiState {
     object Loading : WorkdayUiState()
 
     data class Success(
         val date: String = "",
         val workTimeToday: String = ZERO_TIME,
-        val dailyWorkTime: String = ZERO_TIME,
+        val workTimeTodayEstimate: String = ZERO_TIME,
         val flexTimeToday: String = ZERO_TIME,
         val initialFlexTimeTotal: String = ZERO_TIME,
         val calculatedFlexTimeTotal: String = ZERO_TIME,
@@ -84,10 +93,10 @@ class WorkdayViewModel @Inject constructor(
             WorkdayUiState.Success(
                 date = date,
                 workTimeToday = data.projectTime,
-                dailyWorkTime = data.dailyWorkTime,
+                workTimeTodayEstimate = data.workTimeTodayEstimate,
                 flexTimeToday = WorkTimeCalculator.calculateFlexTime(
                     initialTime = data.projectTime,
-                    addedTime = "-${data.dailyWorkTime}"
+                    addedTime = "-${data.workTimeTodayEstimate}"
                 ),
                 initialFlexTimeTotal = data.initialFlexTimeTotal,
                 calculatedFlexTimeTotal = data.calculatedFlexTimeTotal,
@@ -161,18 +170,34 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateWorkStats(dailyWorkTime: String, initialFlexTimeTotal: String) {
-        if (!isValidDailyWorkTimeInput(dailyWorkTime) || !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)) {
+    fun updateWorkStats(workTimeTodayEstimate: String, initialFlexTimeTotal: String) {
+        if (
+            !isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate) ||
+            !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)
+        ) {
             return
         }
 
         viewModelScope.launch {
             try {
-                val currentWorkStats = projectDetailsRepository.getWorkStats()
-                projectDetailsRepository.insertWorkStats(
-                    WorkStatsState(
-                        dailyWorkTime = dailyWorkTime,
-                        lunchTime = currentWorkStats?.lunchTime ?: ZERO_TIME,
+                val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
+                val isCurrentDay = currentUiState.date == LocalDate.now().toString()
+                val canUpdateWorkTimeTodayEstimate = isCurrentDay && currentUiState.workTimeToday == ZERO_TIME
+                val currentWorkStats = projectDetailsRepository.getWorkStatsByDate(currentUiState.date)
+                val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTimeEstimate
+                    ?.ifEmpty { currentUiState.workTimeTodayEstimate }
+                    ?: currentUiState.workTimeTodayEstimate
+
+                projectDetailsRepository.upsertWorkdayStats(
+                    date = currentUiState.date,
+                    workTimeToday = currentUiState.workTimeToday,
+                    workStats = WorkStatsState(
+                        dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
+                            workTimeTodayEstimate
+                        } else {
+                            existingWorkTimeTodayEstimate
+                        },
+                        dailyLunchTimeEstimate = currentWorkStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
                         initialFlexTimeTotal = initialFlexTimeTotal
                     )
                 )
@@ -186,7 +211,7 @@ class WorkdayViewModel @Inject constructor(
     }
 }
 
-private fun isValidDailyWorkTimeInput(value: String): Boolean {
+private fun isValidWorkTimeTodayEstimateInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }
 

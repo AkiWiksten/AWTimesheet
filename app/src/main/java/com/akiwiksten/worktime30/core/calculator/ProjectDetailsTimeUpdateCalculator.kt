@@ -11,12 +11,12 @@ object ProjectDetailsTimeUpdateCalculator {
         params: WorkTimeCalculator.StartTimeUpdateParams
     ): WorkTimeCalculator.TimeUpdateResult {
         return if (params.isNewDay) {
-            val end = params.start.add(params.dailyWorkTime).add(params.lunchTime)
-            val lunchStart = calculateHalfTime(params.start, params.dailyWorkTime)
+            val end = params.start.add(params.dailyWorkTimeEstimate).add(params.dailyLunchTimeEstimate)
+            val lunchStart = calculateHalfTime(params.start, params.dailyWorkTimeEstimate)
             WorkTimeCalculator.TimeUpdateResult(
                 end = end.toString(),
                 lunchStart = lunchStart.toString(),
-                lunchEnd = lunchStart.add(params.lunchTime).toString(),
+                lunchEnd = lunchStart.add(params.dailyLunchTimeEstimate).toString(),
                 breakStart = params.start.toString(),
                 breakEnd = params.start.toString()
             )
@@ -40,13 +40,13 @@ object ProjectDetailsTimeUpdateCalculator {
 
     fun calculateDailyWorkTimeUpdate(
         end: LocalTime,
-        dailyWorkTime: LocalTime,
+        dailyWorkTimeEstimate: LocalTime,
         projectTime: LocalTime,
-        oldDailyWorkTime: LocalTime,
+        oldDailyWorkTimeEstimate: LocalTime,
         isNewDay: Boolean
     ): WorkTimeCalculator.TimeUpdateResult {
         return if (!isNewDay && projectTime == LocalTime.MIDNIGHT) {
-            val newEnd = end.subtract(oldDailyWorkTime).add(dailyWorkTime)
+            val newEnd = end.subtract(oldDailyWorkTimeEstimate).add(dailyWorkTimeEstimate)
             WorkTimeCalculator.TimeUpdateResult(end = newEnd.toString())
         } else {
             WorkTimeCalculator.TimeUpdateResult()
@@ -55,13 +55,13 @@ object ProjectDetailsTimeUpdateCalculator {
 
     fun calculateLunchStartUpdate(
         lunchStart: LocalTime,
-        lunchTime: LocalTime,
+        dailyLunchTimeEstimate: LocalTime,
         projectTime: LocalTime,
         oldLunchStart: LocalTime,
         currentLunchEnd: LocalTime
     ): WorkTimeCalculator.TimeUpdateResult {
         val newLunchEnd = if (projectTime == LocalTime.MIDNIGHT) {
-            lunchStart.add(lunchTime)
+            lunchStart.add(dailyLunchTimeEstimate)
         } else {
             currentLunchEnd.subtract(oldLunchStart).add(lunchStart)
         }
@@ -89,13 +89,13 @@ object ProjectDetailsTimeUpdateCalculator {
     fun calculateLunchTimeUpdate(
         end: LocalTime,
         lunchStart: LocalTime,
-        lunchTime: LocalTime,
+        dailyLunchTimeEstimate: LocalTime,
         projectTime: LocalTime,
-        oldLunchTime: LocalTime
+        oldDailyLunchTimeEstimate: LocalTime
     ): WorkTimeCalculator.TimeUpdateResult {
         return if (projectTime == LocalTime.MIDNIGHT) {
-            val newEnd = end.add(lunchTime).subtract(oldLunchTime)
-            val newLunchEnd = lunchStart.add(lunchTime)
+            val newEnd = end.add(dailyLunchTimeEstimate).subtract(oldDailyLunchTimeEstimate)
+            val newLunchEnd = lunchStart.add(dailyLunchTimeEstimate)
             WorkTimeCalculator.TimeUpdateResult(end = newEnd.toString(), lunchEnd = newLunchEnd.toString())
         } else {
             WorkTimeCalculator.TimeUpdateResult()
@@ -145,12 +145,12 @@ object ProjectDetailsTimeUpdateCalculator {
 
     fun calculateProjectTimeUpdate(
         end: LocalTime,
-        dailyWorkTime: LocalTime,
+        dailyWorkTimeEstimate: LocalTime,
         projectTime: LocalTime,
         oldProjectTime: LocalTime
     ): WorkTimeCalculator.TimeUpdateResult {
         val newEnd = if (oldProjectTime == LocalTime.MIDNIGHT) {
-            end.subtract(dailyWorkTime).add(projectTime)
+            end.subtract(dailyWorkTimeEstimate).add(projectTime)
         } else {
             end.subtract(oldProjectTime).add(projectTime)
         }
@@ -158,8 +158,8 @@ object ProjectDetailsTimeUpdateCalculator {
     }
 }
 
-private fun calculateHalfTime(start: LocalTime, dailyWorkTime: LocalTime): LocalTime {
-    val totalMinutes = (dailyWorkTime.hour * MINUTES_IN_HOUR + dailyWorkTime.minute) / 2
+private fun calculateHalfTime(start: LocalTime, dailyWorkTimeEstimate: LocalTime): LocalTime {
+    val totalMinutes = (dailyWorkTimeEstimate.hour * MINUTES_IN_HOUR + dailyWorkTimeEstimate.minute) / 2
     return start.plusMinutes(totalMinutes.toLong())
 }
 

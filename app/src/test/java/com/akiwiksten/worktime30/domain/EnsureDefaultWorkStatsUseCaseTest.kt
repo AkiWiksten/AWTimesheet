@@ -21,8 +21,8 @@ class EnsureDefaultWorkStatsUseCaseTest {
 
         assertEquals(
             WorkStatsState(
-                dailyWorkTime = DEFAULT_DAILY_WORK_TIME,
-                lunchTime = ZERO_TIME,
+                dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
+                dailyLunchTimeEstimate = ZERO_TIME,
                 initialFlexTimeTotal = ZERO_TIME
             ),
             repository.workStats
@@ -32,8 +32,8 @@ class EnsureDefaultWorkStatsUseCaseTest {
     @Test
     fun invoke_doesNotOverrideExistingWorkStats() = runBlocking {
         val existing = WorkStatsState(
-            dailyWorkTime = "08:00",
-            lunchTime = "00:30",
+            dailyWorkTimeEstimate = "08:00",
+            dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:20"
         )
         val repository = FakeProjectDetailsRepository().apply {
@@ -70,4 +70,3 @@ class EnsureDefaultWorkStatsUseCaseTest {
         ): List<ProjectDetailsState> = emptyList()
     }
 }
-

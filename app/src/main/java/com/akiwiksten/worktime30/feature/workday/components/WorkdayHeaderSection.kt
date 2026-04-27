@@ -86,17 +86,17 @@ internal fun WorkdayStatsCard(
     workStatsEditorState: WorkStatsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
-    val openDailyWorkTimePicker = remember { mutableStateOf(value = false) }
+    val openWorkTimeTodayEstimatePicker = remember { mutableStateOf(value = false) }
 
-    if (openDailyWorkTimePicker.value) {
+    if (openWorkTimeTodayEstimatePicker.value) {
         TimePickerDialog(
-            onDismissRequest = { openDailyWorkTimePicker.value = false },
+            onDismissRequest = { openWorkTimeTodayEstimatePicker.value = false },
             onConfirmation = { time ->
-                headerActions.onDailyWorkTimeChange(time)
-                openDailyWorkTimePicker.value = false
+                headerActions.onWorkTimeTodayEstimateChange(time)
+                openWorkTimeTodayEstimatePicker.value = false
             },
-            time = workStatsEditorState.dailyWorkTime,
-            titleId = R.string.daily_work_time
+            time = workStatsEditorState.workTimeTodayEstimate,
+            titleId = R.string.work_time_today_estimate
         )
     }
 
@@ -106,7 +106,7 @@ internal fun WorkdayStatsCard(
             flexTimeToday = flexTimeToday,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
             workStatsEditorState = workStatsEditorState,
-            onDailyWorkTimePickerClick = { openDailyWorkTimePicker.value = true },
+            onWorkTimeTodayEstimatePickerClick = { openWorkTimeTodayEstimatePicker.value = true },
             onInitialFlexTimeTotalChange = headerActions.onInitialFlexTimeTotalChange,
             onSaveWorkStats = headerActions.onSaveWorkStats
         )
@@ -118,7 +118,7 @@ private fun WorkdayStatsCardContent(
     params: WorkdayStatsCardContentParams
 ) {
     val scrollState = rememberScrollState()
-    val isSaveEnabled = !params.workStatsEditorState.isDailyWorkTimeError &&
+    val isSaveEnabled = !params.workStatsEditorState.isWorkTimeTodayEstimateError &&
         !params.workStatsEditorState.isInitialFlexTimeTotalError &&
         params.workStatsEditorState.hasUnsavedChanges
 
@@ -141,10 +141,10 @@ private fun WorkdayStatsCardContent(
                 flexTimeToday = params.flexTimeToday,
                 calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
-            DailyWorkTimePickerRow(
-                dailyWorkTime = params.workStatsEditorState.dailyWorkTime,
-                isError = params.workStatsEditorState.isDailyWorkTimeError,
-                onPickerClick = params.onDailyWorkTimePickerClick
+            WorkTimeTodayEstimatePickerRow(
+                workTimeTodayEstimate = params.workStatsEditorState.workTimeTodayEstimate,
+                isError = params.workStatsEditorState.isWorkTimeTodayEstimateError,
+                onPickerClick = params.onWorkTimeTodayEstimatePickerClick
             )
             FlexTimeTotalField(
                 initialFlexTimeTotal = params.workStatsEditorState.initialFlexTimeTotal,
@@ -200,7 +200,7 @@ private data class WorkdayStatsCardContentParams(
     val flexTimeToday: String,
     val calculatedFlexTimeTotal: String,
     val workStatsEditorState: WorkStatsEditorState,
-    val onDailyWorkTimePickerClick: () -> Unit,
+    val onWorkTimeTodayEstimatePickerClick: () -> Unit,
     val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onSaveWorkStats: () -> Unit
 )
@@ -235,8 +235,8 @@ private fun FlexTimeTotalField(
 }
 
 @Composable
-private fun DailyWorkTimePickerRow(
-    dailyWorkTime: String,
+private fun WorkTimeTodayEstimatePickerRow(
+    workTimeTodayEstimate: String,
     isError: Boolean,
     onPickerClick: () -> Unit
 ) {
@@ -246,12 +246,12 @@ private fun DailyWorkTimePickerRow(
         horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         OutlinedTextField(
-            value = dailyWorkTime,
+            value = workTimeTodayEstimate,
             onValueChange = {},
             enabled = false,
             label = {
                 Text(
-                    text = stringResource(id = R.string.daily_work_time),
+                    text = stringResource(id = R.string.work_time_today_estimate),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold

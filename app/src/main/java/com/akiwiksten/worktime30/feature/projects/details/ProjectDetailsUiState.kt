@@ -13,8 +13,8 @@ sealed class ProjectDetailsUiState {
 }
 
 data class WorkStatsState(
-    val dailyWorkTime: String = ZERO_TIME,
-    val lunchTime: String = ZERO_TIME,
+    val dailyWorkTimeEstimate: String = ZERO_TIME,
+    val dailyLunchTimeEstimate: String = ZERO_TIME,
     val initialFlexTimeTotal: String = ZERO_TIME
 )
 
@@ -29,9 +29,18 @@ data class ProjectDetailsState(
     val breakEnd: String = ZERO_TIME,
     val projectTime: String = ZERO_TIME,
     val otherProjectsTotalTime: String = ZERO_TIME,
-    val hasOtherProjects: Boolean = false,
     val flexTimeToday: String = ZERO_TIME,
-    val oldFlexTimeToday: String = ZERO_TIME,
-    val isNewDay: Boolean = true,
     val workStats: WorkStatsState = WorkStatsState()
 )
+
+internal fun ProjectDetailsState.isNewDayForProject(): Boolean {
+    fun isZero(time: String) = time == ZERO_TIME || time.isEmpty()
+
+    return isZero(startTime) &&
+        isZero(endTime) &&
+        isZero(projectTime) &&
+        isZero(lunchStart) &&
+        isZero(lunchEnd) &&
+        isZero(breakStart) &&
+        isZero(breakEnd)
+}

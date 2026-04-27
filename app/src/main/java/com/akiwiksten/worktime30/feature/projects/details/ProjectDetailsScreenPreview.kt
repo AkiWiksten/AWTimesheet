@@ -8,24 +8,23 @@ import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 
 @Preview(showBackground = true, name = "ProjectDetails - Loading")
 @Composable
-fun PreviewProjectDetailsLoading() {
-    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
+fun previewProjectDetailsLoading() {
+    projectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
 }
 
 @Preview(showBackground = true, name = "ProjectDetails - Success New Day")
 @Composable
-fun PreviewProjectDetailsSuccessNewDay() {
-    ProjectDetailsPreviewContent(
+fun previewProjectDetailsSuccessNewDay() {
+    projectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
             data = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha Site",
                 workStats = WorkStatsState(
-                    dailyWorkTime = "07:30",
-                    lunchTime = "00:30",
+                    dailyWorkTimeEstimate = "07:30",
+                    dailyLunchTimeEstimate = "00:30",
                     initialFlexTimeTotal = "+03:10"
-                ),
-                isNewDay = true
+                )
             )
         ),
         projectName = "Alpha Site"
@@ -34,8 +33,8 @@ fun PreviewProjectDetailsSuccessNewDay() {
 
 @Preview(showBackground = true, name = "ProjectDetails - Success Existing Day")
 @Composable
-fun PreviewProjectDetailsSuccessExistingDay() {
-    ProjectDetailsPreviewContent(
+fun previewProjectDetailsSuccessExistingDay() {
+    projectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
             data = ProjectDetailsState(
                 date = "2026-04-10",
@@ -49,11 +48,10 @@ fun PreviewProjectDetailsSuccessExistingDay() {
                 projectTime = "08:00",
                 flexTimeToday = "+00:30",
                 workStats = WorkStatsState(
-                    dailyWorkTime = "07:30",
-                    lunchTime = "00:30",
+                    dailyWorkTimeEstimate = "07:30",
+                    dailyLunchTimeEstimate = "00:30",
                     initialFlexTimeTotal = "+04:10"
-                ),
-                isNewDay = false
+                )
             )
         ),
         projectName = "Beta Support"
@@ -62,12 +60,14 @@ fun PreviewProjectDetailsSuccessExistingDay() {
 
 @Preview(showBackground = true, name = "ProjectDetails - Error")
 @Composable
-fun PreviewProjectDetailsError() {
-    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Error(message = "Failed to load project details"))
+fun previewProjectDetailsError() {
+    projectDetailsPreviewContent(
+        uiState = ProjectDetailsUiState.Error(message = "Failed to load project details")
+    )
 }
 
 @Composable
-private fun ProjectDetailsPreviewContent(
+private fun projectDetailsPreviewContent(
     uiState: ProjectDetailsUiState,
     projectName: String? = null
 ) {

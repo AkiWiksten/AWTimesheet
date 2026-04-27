@@ -1,3 +1,5 @@
+@file:Suppress("ImportOrdering")
+
 package com.akiwiksten.worktime30.di
 
 import android.content.Context
@@ -7,6 +9,7 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
@@ -18,8 +21,8 @@ import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -48,7 +51,8 @@ abstract class DatabaseModule {
                 context,
                 AppDatabase::class.java,
                 AppDatabase.DB_NAME
-            ).fallbackToDestructiveMigration(dropAllTables = true)
+            )
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
         }
 
@@ -60,6 +64,9 @@ abstract class DatabaseModule {
 
         @Provides
         fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
+
+        @Provides
+        fun provideWorkdayDao(database: AppDatabase): WorkdayDao = database.workdayDao()
 
         @Provides
         fun provideProjectNameDao(database: AppDatabase): ProjectNameDao = database.projectNameDao()

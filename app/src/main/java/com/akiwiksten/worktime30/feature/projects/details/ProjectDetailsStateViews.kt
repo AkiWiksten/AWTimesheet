@@ -71,7 +71,7 @@ internal fun ProjectDetailsHeaderGroup(
             projectName?.let { ProjectNameField(name = it) }
 
             Text(
-                text = stringResource(id = R.string.new_day),
+                text = stringResource(id = R.string.add_new_project_details),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp)

@@ -1,10 +1,26 @@
 *.iml
-.gradle
-/local.properties
-.idea
+
+# Gradle/Kotlin build outputs
+.gradle/
+.kotlin/
+/build/
+**/build/
+
+# Local machine and IDE files
+.idea/
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+Thumbs.db
+
+# Android local configuration
 local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing credentials and keystores
+key.properties
+*.jks
+*.keystore
+
+# Logs
+*.log

@@ -16,5 +16,7 @@ data class ProjectDetailsFieldActions(
     val onCurrentBreakStart: () -> Unit = {},
     val onSetBreakStart: (String) -> Unit = {},
     val onCurrentBreakEnd: () -> Unit = {},
-    val onSetBreakEnd: (String) -> Unit = {}
+    val onSetBreakEnd: (String) -> Unit = {},
+    val onCurrentDailyWorkTime: () -> Unit = {},
+    val onSetDailyWorkTime: (String) -> Unit = {}
 )

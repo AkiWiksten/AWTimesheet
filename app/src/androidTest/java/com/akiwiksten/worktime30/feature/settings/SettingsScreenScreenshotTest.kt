@@ -83,6 +83,8 @@ class SettingsScreenScreenshotTest {
                         SettingsActions(
                             onNameChange = {},
                             onEmployerChange = {},
+                            onDailyWorkTimeEstimateChange = {},
+                            onDailyLunchTimeEstimateChange = {},
                             onWorkTypeAdded = {},
                             onWorkTypeRemoved = {},
                             onSave = {},

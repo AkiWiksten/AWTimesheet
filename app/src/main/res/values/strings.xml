@@ -1,5 +1,5 @@
 <resources>
-<string name="app_name">AWWorkTime3.0</string>
+<string name="app_name">AWTimesheet3.0</string>
 <string name="selected_date">Selected date</string>
 <string name="select_date">Select date</string>
 <string name="start_time">Start time</string>
@@ -12,9 +12,11 @@
 <string name="lunch_start">Lunch start</string>
 <string name="lunch_end">Lunch end</string>
 <string name="lunch_time">Lunch time estimate</string>
+<string name="daily_lunch_time_estimate">Daily lunch time estimate</string>
 <string name="break_start">Break start</string>
 <string name="break_end">Break end</string>
 <string name="work_time_today">Work time today</string>
+ <string name="work_time_today_estimate">Work time today estimate</string>
 <string name="flex_time_today">Flex time today</string>
 <string name="initial_flex_time_total">Initial flex time total</string>
 <string name="flex_time_total_initial_calculated">Flex time total (Initial+calculated)</string>
@@ -33,7 +35,7 @@
 <string name="delete">Delete</string>
 <string name="saved">Saved!</string>
 <string name="clear_day">Clear day</string>
-<string name="new_day">New work day! Set the start of the work day first! That opens other options. You can first set the estimated lunchtime also. When you end your work day, select \"End time\". That calculates \"Project time\".</string>
+<string name="add_new_project_details">New project of the day! Set the start of today\'s project first! That opens other options. You can first set the estimated lunchtime also. When you end your work day, select \"End time\". That calculates \"Project time\".</string>
 <string name="calendar">Calendar</string>
 <string name="monthly_report">Monthly report</string>
 <string name="name">Name</string>

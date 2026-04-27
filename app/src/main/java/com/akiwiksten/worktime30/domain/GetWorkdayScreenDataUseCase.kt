@@ -23,28 +23,23 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes()
-        val workStats = projectDetailsRepository.getWorkStats()
-        val dailyWorkTime = workStats?.dailyWorkTime?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
+        val workStats = projectDetailsRepository.getWorkStatsByDate(date)
+        val workTimeTodayEstimate =
+            workStats?.dailyWorkTimeEstimate?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
         val initialFlexTimeTotal = workStats?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
-        val calculatedFlexTimeFromAllWorkdays = projectRepository
-            .getProjectsByDateRange(ALL_DATES_START, ALL_DATES_END)
-            .filter { it.projectTime.isNotEmpty() && it.projectTime != ZERO_TIME }
-            .groupBy { it.date }
-            .values
-            .fold(ZERO_TIME) { acc, projectsForDate ->
-                val totalProjectTimeForDate = projectsForDate.fold(ZERO_TIME) { dayAcc, project ->
-                    WorkTimeCalculator.calculateFlexTime(dayAcc, project.projectTime)
-                }
+        val calculatedFlexTimeFromAllWorkdays = projectDetailsRepository
+            .getWorkdayStatsByDateRange(ALL_DATES_START, ALL_DATES_END)
+            .fold(ZERO_TIME) { acc, row ->
                 val dailyFlex = WorkTimeCalculator.calculateFlexTime(
-                    initialTime = totalProjectTimeForDate,
-                    addedTime = "-$dailyWorkTime"
+                    initialTime = row.workTimeToday,
+                    addedTime = "-${row.workTimeTodayEstimate}"
                 )
                 WorkTimeCalculator.calculateFlexTime(acc, dailyFlex)
             }
 
         return WorkdayScreenData(
             projectTime = projectTime,
-            dailyWorkTime = dailyWorkTime,
+            workTimeTodayEstimate = workTimeTodayEstimate,
             initialFlexTimeTotal = initialFlexTimeTotal,
             calculatedFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                 initialTime = initialFlexTimeTotal,
@@ -64,7 +59,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 
 data class WorkdayScreenData(
     val projectTime: String,
-    val dailyWorkTime: String,
+    val workTimeTodayEstimate: String,
     val initialFlexTimeTotal: String,
     val calculatedFlexTimeTotal: String,
     val projects: List<SingleProjectState>,

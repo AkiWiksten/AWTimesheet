@@ -29,6 +29,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.ui.lazyVerticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.feature.workday.isProjectNameOnlyPlaceholder
 
 @Composable
 internal fun WorkdayListSection(
@@ -94,6 +95,8 @@ private fun ProjectListItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val isProjectNameOnlyPlaceholder = item.isProjectNameOnlyPlaceholder()
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -111,40 +114,60 @@ private fun ProjectListItem(
             modifier = Modifier.padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = item.projectName,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = item.projectTime,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ProjectDetails(
-                    workType = item.workType,
-                    allowance = item.allowance,
-                    modifier = Modifier.weight(weight = 1f)
-                )
-                Text(
-                    text = "${item.kilometres} km",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            if (isProjectNameOnlyPlaceholder) {
+                ProjectNameOnlyContent(projectName = item.projectName)
+            } else {
+                ProjectSummaryContent(item = item)
             }
         }
+    }
+}
+
+@Composable
+private fun ProjectNameOnlyContent(projectName: String) {
+    Text(
+        text = projectName,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun ProjectSummaryContent(item: SingleProjectState) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = item.projectName,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = item.projectTime,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium
+        )
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ProjectDetails(
+            workType = item.workType,
+            allowance = item.allowance,
+            modifier = Modifier.weight(weight = 1f)
+        )
+        Text(
+            text = "${item.kilometres} km",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

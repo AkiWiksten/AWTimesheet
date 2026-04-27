@@ -1,8 +1,12 @@
+@file:Suppress("ImportOrdering")
+
 package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.entity.WorkStatsEntity
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
@@ -14,7 +18,8 @@ import org.junit.Test
 class ProjectDetailsRepositoryImplTest {
     private val projectDetailsDao = FakeProjectDetailsDao()
     private val workStatsDao = FakeWorkStatsDao()
-    private val repository = ProjectDetailsRepositoryImpl(projectDetailsDao, workStatsDao)
+    private val workdayDao = FakeWorkdayDao()
+    private val repository = ProjectDetailsRepositoryImpl(projectDetailsDao, workStatsDao, workdayDao)
 
     @Test
     fun getProjectDetails_returnsDataFromDao() = runBlocking {
@@ -66,6 +71,44 @@ class ProjectDetailsRepositoryImplTest {
     }
 
     @Test
+    fun getWorkStatsByDate_returnsWorkdayDataWhenAvailable() = runBlocking {
+        workStatsDao.workStatsResult = WorkStatsState(
+            dailyWorkTimeEstimate = "07:30",
+            dailyLunchTimeEstimate = "00:30",
+            initialFlexTimeTotal = "+01:00"
+        ).toEntity()
+        workdayDao.workdayResult = WorkdayEntity(
+            date = "2026-04-10",
+            workTimeToday = "00:00",
+            workTimeTodayEstimate = "08:00"
+        )
+
+        val result = repository.getWorkStatsByDate("2026-04-10")
+
+        assertEquals("08:00", result?.dailyWorkTimeEstimate)
+        assertEquals("00:30", result?.dailyLunchTimeEstimate)
+        assertEquals("+01:00", result?.initialFlexTimeTotal)
+    }
+
+    @Test
+    fun upsertWorkdayStats_callsWorkdayDaoInsert() = runBlocking {
+        val workStats = WorkStatsState(
+            dailyWorkTimeEstimate = "08:00",
+            dailyLunchTimeEstimate = "00:30",
+            initialFlexTimeTotal = "-00:20"
+        )
+
+        repository.upsertWorkdayStats(date = "2026-04-10", workTimeToday = "00:00", workStats = workStats)
+
+        assertEquals("2026-04-10", workdayDao.insertedWorkday?.date)
+        assertEquals("00:00", workdayDao.insertedWorkday?.workTimeToday)
+        assertEquals("08:00", workdayDao.insertedWorkday?.workTimeTodayEstimate)
+        assertEquals("08:00", workStatsDao.insertedWorkStats?.dailyWorkTimeEstimate)
+        assertEquals("00:30", workStatsDao.insertedWorkStats?.dailyLunchTimeEstimate)
+        assertEquals("-00:20", workStatsDao.insertedWorkStats?.initialFlexTimeTotal)
+    }
+
+    @Test
     fun getProjectDetailsByDateRange_returnsDataFromDao() = runBlocking {
         val expected = listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Alpha"))
         projectDetailsDao.projectDetailsByDateRangeResult = expected.map { it.toEntity() }
@@ -75,6 +118,21 @@ class ProjectDetailsRepositoryImplTest {
         assertEquals(expected, result)
         assertEquals("2026-04-01", projectDetailsDao.lastDateStart)
         assertEquals("2026-04-30", projectDetailsDao.lastDateEnd)
+    }
+
+    @Test
+    fun getWorkdayStatsByDateRange_returnsRowsFromWorkdayDao() = runBlocking {
+        workdayDao.workdaysByDateRange = listOf(
+            WorkdayEntity(date = "2026-04-10", workTimeToday = "08:00", workTimeTodayEstimate = "07:30"),
+            WorkdayEntity(date = "2026-04-11", workTimeToday = "07:00", workTimeTodayEstimate = "07:30")
+        )
+
+        val result = repository.getWorkdayStatsByDateRange("2026-04-01", "2026-04-30")
+
+        assertEquals(2, result.size)
+        assertEquals("2026-04-10", result[0].date)
+        assertEquals("08:00", result[0].workTimeToday)
+        assertEquals("07:30", result[0].workTimeTodayEstimate)
     }
 
     private class FakeProjectDetailsDao : ProjectDetailsDao {
@@ -124,5 +182,22 @@ class ProjectDetailsRepositoryImplTest {
         override suspend fun insertWorkStats(workStats: WorkStatsEntity) {
             insertedWorkStats = workStats
         }
+    }
+
+    private class FakeWorkdayDao : WorkdayDao {
+        var workdayResult: WorkdayEntity? = null
+        var insertedWorkday: WorkdayEntity? = null
+        var workdaysByDateRange: List<WorkdayEntity> = emptyList()
+
+        override suspend fun loadWorkday(date: String): WorkdayEntity? = workdayResult
+
+        override suspend fun insertWorkday(workday: WorkdayEntity) {
+            insertedWorkday = workday
+        }
+
+        override suspend fun getWorkdaysByDateRange(
+            start: String,
+            end: String
+        ): List<WorkdayEntity> = workdaysByDateRange
     }
 }

@@ -40,6 +40,10 @@ fun PreviewWorkdaySuccess() {
                     kilometres = "8",
                     allowance = "",
                     workType = "Maintenance",
+                ),
+                SingleProjectState(
+                    index = 2,
+                    projectName = "Gamma Planning",
                 )
             )
         ),

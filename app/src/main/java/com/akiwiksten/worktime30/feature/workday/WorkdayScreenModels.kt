@@ -9,18 +9,18 @@ data class WorkdayActions(
 )
 
 internal data class WorkStatsEditorState(
-    val dailyWorkTime: String,
+    val workTimeTodayEstimate: String,
     val initialFlexTimeTotal: String,
-    val isDailyWorkTimeError: Boolean,
+    val isWorkTimeTodayEstimateError: Boolean,
     val isInitialFlexTimeTotalError: Boolean,
     val hasUnsavedChanges: Boolean
 )
 
 internal data class WorkdayHeaderActions(
-    val onDailyWorkTimeChange: (String) -> Unit,
+    val onWorkTimeTodayEstimateChange: (String) -> Unit,
     val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onSaveWorkStats: () -> Unit
 )
 
-internal val DAILY_WORK_TIME_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+internal val WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
 internal val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")

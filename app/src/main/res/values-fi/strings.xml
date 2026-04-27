@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AWWorkTime3.0</string>
+    <string name="app_name">AWTimesheet3.0</string>
     <string name="selected_date">Valittu päivämäärä</string>
     <string name="select_date">Valitse päivämäärä</string>
     <string name="start_time">Alkuaika</string>
@@ -13,9 +13,11 @@
     <string name="lunch_end">Lounaan loppu</string>
     <string name="lunch_start">Lounaan alku</string>
     <string name="lunch_time">Lounaan aiottu pituus</string>
+    <string name="daily_lunch_time_estimate">Päivittäinen lounaan aiottu pituus</string>
     <string name="break_start">Tauon alku</string>
     <string name="break_end">Tauon loppu</string>
     <string name="work_time_today">Päivän työaika</string>
+    <string name="work_time_today_estimate">Päivän työajan arvio</string>
     <string name="flex_time_today">Päivän liukuma</string>
     <string name="initial_flex_time_total">Kokonaisliukuma</string>
     <string name="flex_time_total_initial_calculated">Kokonaisliukuma (alkuarvo+laskettu)</string>
@@ -34,7 +36,7 @@
     <string name="delete">Poista</string>
     <string name="saved">Tallennettu!</string>
     <string name="clear_day">Tyhjennä päivä</string>
-    <string name="new_day">Uusi työpäivä! Valitse ensin työpäivän alkuaika! Se avaa muita vaihtoehtoja. Voit tarvitteassa ensin myös määrittää lounaan aiotun pituuden. Lopeta työpäivä valitsemalla \"Lopettamisaika\". Tämä laskee \"Projektin aika\" arvon.</string>
+    <string name="add_new_project_details">Päivän uusi projekti! Aseta ensin tämän päivän projektin aloitusaika! Se avaa muita vaihtoehtoja. Voit ensin myös asettaa lounaan arvioidun keston. Kun lopetat työpäivän, valitse \"Loppuaika\". Se laskee \"Projektin aika\" -arvon.</string>
     <string name="calendar">Kalenteri</string>
     <string name="monthly_report">Kuukausiraportti</string>
     <string name="name">Nimi</string>

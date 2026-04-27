@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.workday
+﻿package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.repository.DateRepository
@@ -7,6 +7,7 @@ import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsViewModel
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.feature.projects.details.isNewDayForProject
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -34,8 +35,8 @@ class ProjectDetailsViewModelTest {
                 flexTimeToday = "00:30"
             )
             workStats = WorkStatsState(
-                dailyWorkTime = "07:30",
-                lunchTime = "00:30",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
             )
         }
@@ -70,8 +71,8 @@ class ProjectDetailsViewModelTest {
                 flexTimeToday = "00:30"
             ),
             workStatsArg = WorkStatsState(
-                dailyWorkTime = "07:30",
-                lunchTime = "00:30",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "02:00"
             )
         )
@@ -107,8 +108,8 @@ class ProjectDetailsViewModelTest {
                 flexTimeToday = "00:30"
             ),
             workStatsArg = WorkStatsState(
-                dailyWorkTime = "07:30",
-                lunchTime = "00:30",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "02:00"
             )
         )
@@ -120,9 +121,37 @@ class ProjectDetailsViewModelTest {
         assertEquals("02:00", updated.data.workStats.initialFlexTimeTotal)
     }
 
+    @Test
+    fun loadProjectDetails_newProjectOfDay_usesDateScopedLunchEstimate() = runTest {
+        val repository = FakeProjectDetailsRepository().apply {
+            projectDetails = null
+            workStats = WorkStatsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:00",
+                initialFlexTimeTotal = "01:00"
+            )
+            workStatsByDate = WorkStatsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(repository, DateRepository())
+
+        viewModel.setDate("2026-04-10")
+        viewModel.setProjectName("Alpha")
+        viewModel.loadProjectDetails()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        assertTrue(state.data.isNewDayForProject())
+        assertEquals("00:30", state.data.workStats.dailyLunchTimeEstimate)
+    }
+
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var projectDetails: ProjectDetailsState? = null
         var workStats: WorkStatsState? = null
+        var workStatsByDate: WorkStatsState? = null
 
         override suspend fun getProjectDetails(
             date: String,
@@ -138,6 +167,8 @@ class ProjectDetailsViewModelTest {
         }
 
         override suspend fun getWorkStats(): WorkStatsState? = workStats
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStatsByDate ?: workStats
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) {
             this.workStats = workStats

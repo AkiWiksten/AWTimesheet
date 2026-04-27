@@ -13,13 +13,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,17 +41,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.worktime30.R
+import com.akiwiksten.worktime30.core.ACTION_BUTTON_FONT_SIZE
+import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
+import com.akiwiksten.worktime30.core.FORM_MAX_WIDTH
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.worktime30.core.SCREEN_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.AddTextFieldDialog
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
+import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -97,7 +107,7 @@ internal fun SettingsStateContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(all = 16.dp),
+                        .padding(all = FORM_SECTION_SPACING),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -121,7 +131,7 @@ internal fun SettingsStateContent(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(all = 16.dp),
+                    .padding(all = FORM_SECTION_SPACING),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -143,16 +153,20 @@ private fun createSettingsActions(
     return SettingsActions(
         onNameChange = settingsViewModel::setName,
         onEmployerChange = settingsViewModel::setEmployer,
+        onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
+        onDailyLunchTimeEstimateChange = settingsViewModel::setLunchTimeEstimate,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
         onSave = { settingsViewModel.saveSettings() },
         onGeneratePdf = {
             generateReport(
-                ctx = ctx,
-                projectsByMonth = successState.data.projectsByMonth,
-                endOfMonthDate = successState.data.endMonthDate,
-                name = successState.data.name,
-                employer = successState.data.employer
+                params = GenerateReportParams(
+                    ctx = ctx,
+                    projectsByMonth = successState.data.projectsByMonth,
+                    endOfMonthDate = successState.data.endMonthDate,
+                    name = successState.data.name,
+                    employer = successState.data.employer
+                )
             )
         }
     )
@@ -161,71 +175,282 @@ private fun createSettingsActions(
 data class SettingsActions(
     val onNameChange: (String) -> Unit,
     val onEmployerChange: (String) -> Unit,
+    val onDailyWorkTimeEstimateChange: (String) -> Unit,
+    val onDailyLunchTimeEstimateChange: (String) -> Unit,
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
     val onGeneratePdf: () -> Unit
 )
 
+private data class WorkTypeDialogState(
+    val selectedWorkType: String,
+    val onWorkTypeSelected: (String) -> Unit,
+    val onAddClick: () -> Unit,
+    val onDeleteClick: () -> Unit
+)
+
+private data class AddWorkTypeDialogState(
+    val isVisible: Boolean,
+    val onDismiss: () -> Unit,
+    val onConfirm: (String) -> Unit
+)
+
+private data class TimePickerState(
+    val onDailyWorkTimePickerClick: () -> Unit,
+    val onDailyLunchTimeEstimatePickerClick: () -> Unit
+)
+
+private data class SettingsContentBodyState(
+    val uiState: SettingsUiState.Success,
+    val actions: SettingsActions,
+    val workTypeState: WorkTypeDialogState,
+    val timePickerState: TimePickerState,
+    val addWorkTypeDialogState: AddWorkTypeDialogState,
+    val scrollState: androidx.compose.foundation.ScrollState,
+    val saveUi: SettingsSaveUi
+)
+
+@Suppress("LongMethod")
 @Composable
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
     actions: SettingsActions
 ) {
-    var showAddWorkTypeDialog by remember { mutableStateOf(value = false) }
-    var selectedWorkType by remember { mutableStateOf(value = "") }
+    val showAddWorkTypeDialogState = remember { mutableStateOf(value = false) }
+    val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
+    val showDailyLunchTimeEstimatePickerDialogState = remember { mutableStateOf(value = false) }
+    val selectedWorkTypeState = remember { mutableStateOf(value = "") }
     val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
     val scrollState = rememberScrollState()
 
+    DailyWorkTimePickerDialogSection(
+        isVisible = showDailyWorkTimePickerDialogState.value,
+        currentDailyWorkTime = uiState.data.dailyWorkTimeEstimate,
+        onDismiss = { showDailyWorkTimePickerDialogState.value = false },
+        onConfirmed = { selectedTime ->
+            actions.onDailyWorkTimeEstimateChange(selectedTime)
+            showDailyWorkTimePickerDialogState.value = false
+        }
+    )
+
+    DailyLunchTimeEstimatePickerDialogSection(
+        isVisible = showDailyLunchTimeEstimatePickerDialogState.value,
+        currentDailyLunchTimeEstimate = uiState.data.lunchTimeEstimate,
+        onDismiss = { showDailyLunchTimeEstimatePickerDialogState.value = false },
+        onConfirmed = { selectedTime ->
+            actions.onDailyLunchTimeEstimateChange(selectedTime)
+            showDailyLunchTimeEstimatePickerDialogState.value = false
+        }
+    )
+
+    SettingsContentBody(
+        state = SettingsContentBodyState(
+            uiState = uiState,
+            actions = actions,
+            workTypeState = WorkTypeDialogState(
+                selectedWorkType = selectedWorkTypeState.value,
+                onWorkTypeSelected = { selectedWorkTypeState.value = it },
+                onAddClick = { showAddWorkTypeDialogState.value = true },
+                onDeleteClick = {
+                    actions.onWorkTypeRemoved(selectedWorkTypeState.value)
+                    // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
+                }
+            ),
+            timePickerState = TimePickerState(
+                onDailyWorkTimePickerClick = { showDailyWorkTimePickerDialogState.value = true },
+                onDailyLunchTimeEstimatePickerClick = {
+                    showDailyLunchTimeEstimatePickerDialogState.value = true
+                }
+            ),
+            addWorkTypeDialogState = AddWorkTypeDialogState(
+                isVisible = showAddWorkTypeDialogState.value,
+                onDismiss = { showAddWorkTypeDialogState.value = false },
+                onConfirm = {
+                    actions.onWorkTypeAdded(it)
+                    showAddWorkTypeDialogState.value = false
+                }
+            ),
+            scrollState = scrollState,
+            saveUi = saveUi
+        )
+    )
+}
+
+@Composable
+private fun SettingsContentBody(
+    state: SettingsContentBodyState
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScrollbar(scrollState = scrollState)
-            .verticalScroll(state = scrollState)
-            .padding(all = 16.dp),
+            .verticalScrollbar(scrollState = state.scrollState)
+            .verticalScroll(state = state.scrollState)
+            .padding(all = FORM_SECTION_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 24.dp)
+        verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
-        HeaderSection(date = uiState.data.selectedDate)
+        HeaderSection(date = state.uiState.data.selectedDate)
 
-        SettingsCard(title = stringResource(id = R.string.name) + " & " + stringResource(id = R.string.employer)) {
+        SettingsCard {
             ProfileSection(
-                name = uiState.data.name,
-                employer = uiState.data.employer,
-                onNameChange = actions.onNameChange,
-                onEmployerChange = actions.onEmployerChange
+                name = state.uiState.data.name,
+                employer = state.uiState.data.employer,
+                onNameChange = state.actions.onNameChange,
+                onEmployerChange = state.actions.onEmployerChange
             )
         }
 
-        SettingsCard(title = stringResource(id = R.string.work_type)) {
+        SettingsCard {
+            DailyWorkTimePickerRow(
+                dailyWorkTime = state.uiState.data.dailyWorkTimeEstimate,
+                onPickerClick = state.timePickerState.onDailyWorkTimePickerClick
+            )
+
+            DailyLunchTimeEstimatePickerRow(
+                dailyLunchTimeEstimate = state.uiState.data.lunchTimeEstimate,
+                onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
+            )
+        }
+
+        SettingsCard {
             WorkTypeSection(
-                workTypes = uiState.data.workTypes,
-                selectedWorkType = selectedWorkType,
-                onWorkTypeSelected = { selectedWorkType = it },
-                onAddClick = { showAddWorkTypeDialog = true },
-                onDeleteClick = {
-                    actions.onWorkTypeRemoved(selectedWorkType)
-                    // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
-                }
+                workTypes = state.uiState.data.workTypes,
+                selectedWorkType = state.workTypeState.selectedWorkType,
+                onWorkTypeSelected = state.workTypeState.onWorkTypeSelected,
+                onAddClick = state.workTypeState.onAddClick,
+                onDeleteClick = state.workTypeState.onDeleteClick
             )
         }
 
         ActionButtonsSection(
-            onSave = saveUi.onSaveRequested,
-            onGeneratePdf = actions.onGeneratePdf,
-            isPdfEnabled = uiState.data.projectsByMonth.isNotEmpty(),
-            isSaveEnabled = saveUi.isSaveEnabled
+            onSave = state.saveUi.onSaveRequested,
+            onGeneratePdf = state.actions.onGeneratePdf,
+            isPdfEnabled = state.uiState.data.projectsByMonth.isNotEmpty(),
+            isSaveEnabled = state.saveUi.isSaveEnabled
         )
 
-        if (showAddWorkTypeDialog) {
-            AddTextFieldDialog(
-                onDismissRequest = { showAddWorkTypeDialog = false },
-                onConfirmation = {
-                    actions.onWorkTypeAdded(it)
-                    showAddWorkTypeDialog = false
-                },
-                label = stringResource(id = R.string.work_type)
-            )
+        AddWorkTypeDialogSection(
+            isVisible = state.addWorkTypeDialogState.isVisible,
+            onDismiss = state.addWorkTypeDialogState.onDismiss,
+            onConfirmed = state.addWorkTypeDialogState.onConfirm
+        )
+    }
+}
+
+@Composable
+private fun DailyLunchTimeEstimatePickerDialogSection(
+    isVisible: Boolean,
+    currentDailyLunchTimeEstimate: String,
+    onDismiss: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+    if (isVisible) {
+        TimePickerDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            titleId = R.string.daily_lunch_time_estimate,
+            time = currentDailyLunchTimeEstimate
+        )
+    }
+}
+
+@Composable
+private fun DailyWorkTimePickerDialogSection(
+    isVisible: Boolean,
+    currentDailyWorkTime: String,
+    onDismiss: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+    if (isVisible) {
+        TimePickerDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            titleId = R.string.daily_work_time,
+            time = currentDailyWorkTime
+        )
+    }
+}
+
+@Composable
+private fun AddWorkTypeDialogSection(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmed: (String) -> Unit
+) {
+    if (isVisible) {
+        AddTextFieldDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            label = stringResource(id = R.string.work_type)
+        )
+    }
+}
+
+@Composable
+private fun DailyWorkTimePickerRow(
+    dailyWorkTime: String,
+    onPickerClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+    ) {
+        OutlinedTextField(
+            value = dailyWorkTime,
+            onValueChange = {},
+            enabled = false,
+            singleLine = true,
+            label = {
+                Text(
+                    text = stringResource(id = R.string.daily_work_time),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            modifier = Modifier.weight(weight = 1f),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+        )
+        IconButton(onClick = onPickerClick) {
+            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+private fun DailyLunchTimeEstimatePickerRow(
+    dailyLunchTimeEstimate: String,
+    onPickerClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+    ) {
+        OutlinedTextField(
+            value = dailyLunchTimeEstimate,
+            onValueChange = {},
+            enabled = false,
+            singleLine = true,
+            label = {
+                Text(
+                    text = stringResource(id = R.string.daily_lunch_time_estimate),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            modifier = Modifier.weight(weight = 1f),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+        )
+        IconButton(onClick = onPickerClick) {
+            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
         }
     }
 }
@@ -236,11 +461,25 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
     val savedText = stringResource(id = R.string.saved)
     val lastSavedNameState = remember(data.selectedDate) { mutableStateOf(value = data.name) }
     val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
+    val lastSavedDailyWorkTimeEstimateState = remember(data.selectedDate) {
+        mutableStateOf(value = data.dailyWorkTimeEstimate)
+    }
+    val lastSavedDailyLunchTimeEstimateState = remember(data.selectedDate) {
+        mutableStateOf(value = data.lunchTimeEstimate)
+    }
     val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
 
     val hasUnsavedChanges =
         hasChanges(current = data.name, baseline = lastSavedNameState.value) ||
             hasChanges(current = data.employer, baseline = lastSavedEmployerState.value) ||
+            hasChanges(
+                current = data.dailyWorkTimeEstimate,
+                baseline = lastSavedDailyWorkTimeEstimateState.value
+            ) ||
+            hasChanges(
+                current = data.lunchTimeEstimate,
+                baseline = lastSavedDailyLunchTimeEstimateState.value
+            ) ||
             hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
 
     return SettingsSaveUi(
@@ -253,6 +492,8 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
                 onSave()
                 lastSavedNameState.value = data.name
                 lastSavedEmployerState.value = data.employer
+                lastSavedDailyWorkTimeEstimateState.value = data.dailyWorkTimeEstimate
+                lastSavedDailyLunchTimeEstimateState.value = data.lunchTimeEstimate
                 lastSavedWorkTypesState.value = data.workTypes
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
@@ -266,17 +507,24 @@ private data class SettingsSaveUi(
 )
 
 @Composable
-private fun SettingsCard(title: String, content: @Composable () -> Unit) {
+private fun SettingsCard(title: String? = null, content: @Composable () -> Unit) {
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
+        modifier = Modifier.fillMaxWidth().widthIn(max = FORM_MAX_WIDTH),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
     ) {
         Column(
             modifier = Modifier.padding(all = FORM_SECTION_SPACING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
         ) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            HorizontalDivider()
+            if (!title.isNullOrBlank()) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                HorizontalDivider()
+            }
             content()
         }
     }
@@ -287,7 +535,8 @@ private fun HeaderSection(date: String) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .widthIn(max = 600.dp),
+            .widthIn(max = FORM_MAX_WIDTH),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(
@@ -325,9 +574,18 @@ private fun SettingsTextField(value: String, label: Int, onValueChange: (String)
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        label = { Text(text = stringResource(id = label)) },
+        label = {
+            Text(
+                text = stringResource(id = label),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
         modifier = Modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyLarge
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
     )
 }
 
@@ -379,7 +637,7 @@ private fun ActionButtonsSection(
     isSaveEnabled: Boolean
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().widthIn(max = 600.dp),
+        modifier = Modifier.fillMaxWidth().widthIn(max = FORM_MAX_WIDTH),
         verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
     ) {
         Button(
@@ -388,7 +646,7 @@ private fun ActionButtonsSection(
             modifier = Modifier.fillMaxWidth(),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Text(text = stringResource(id = R.string.save), fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         Button(
             onClick = onGeneratePdf,
@@ -396,7 +654,7 @@ private fun ActionButtonsSection(
             modifier = Modifier.fillMaxWidth(),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            Text(text = stringResource(id = R.string.generate_pdf), fontSize = 18.sp)
+            Text(text = stringResource(id = R.string.generate_pdf), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         Text(
             text = stringResource(id = R.string.monthly_help),

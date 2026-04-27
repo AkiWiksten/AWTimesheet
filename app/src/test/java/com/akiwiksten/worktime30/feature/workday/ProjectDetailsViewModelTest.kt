@@ -6,6 +6,7 @@ import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
@@ -25,7 +26,7 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun setDate_andProjectName_loadsProjectDetailsData() = runTest {
-        val repository = FakeProjectDetailsRepository().apply {
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             projectDetails = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -34,13 +35,15 @@ class ProjectDetailsViewModelTest {
                 projectTime = "08:00",
                 flexTimeToday = "00:30"
             )
+        }
+        val workStatsRepository = FakeWorkStatsRepository().apply {
             workStats = WorkStatsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(repository, DateRepository())
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, workStatsRepository, DateRepository())
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
@@ -57,7 +60,11 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun loadProjectDetails_withArgs_mapsEntities_andClearDayResetsDailyFields() = runTest {
-        val viewModel = ProjectDetailsViewModel(FakeProjectDetailsRepository(), DateRepository())
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeWorkStatsRepository(),
+            DateRepository()
+        )
 
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
@@ -94,7 +101,11 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun setProjectTime_doesNotMutateInitialFlexTimeTotal() = runTest {
-        val viewModel = ProjectDetailsViewModel(FakeProjectDetailsRepository(), DateRepository())
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeWorkStatsRepository(),
+            DateRepository()
+        )
 
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
@@ -123,8 +134,10 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun loadProjectDetails_newProjectOfDay_usesDateScopedLunchEstimate() = runTest {
-        val repository = FakeProjectDetailsRepository().apply {
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             projectDetails = null
+        }
+        val workStatsRepository = FakeWorkStatsRepository().apply {
             workStats = WorkStatsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:00",
@@ -136,7 +149,7 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(repository, DateRepository())
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, workStatsRepository, DateRepository())
 
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
@@ -150,8 +163,7 @@ class ProjectDetailsViewModelTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var projectDetails: ProjectDetailsState? = null
-        var workStats: WorkStatsState? = null
-        var workStatsByDate: WorkStatsState? = null
+        var projectDetailsByDateRangeResult: List<ProjectDetailsState> = emptyList()
 
         override suspend fun getProjectDetails(
             date: String,
@@ -166,17 +178,22 @@ class ProjectDetailsViewModelTest {
             this.projectDetails = null
         }
 
-        override suspend fun getWorkStats(): WorkStatsState? = workStats
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsState> = projectDetailsByDateRangeResult
+    }
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStatsByDate ?: workStats
+    private class FakeWorkStatsRepository : WorkStatsRepository {
+        var workStats: WorkStatsState? = null
+        var workStatsByDate: WorkStatsState? = null
+
+        override suspend fun getWorkStats(): WorkStatsState? = workStats
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) {
             this.workStats = workStats
         }
 
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = emptyList()
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStatsByDate ?: workStats
     }
 }

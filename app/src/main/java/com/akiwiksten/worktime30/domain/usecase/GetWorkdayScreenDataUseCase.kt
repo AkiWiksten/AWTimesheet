@@ -4,15 +4,17 @@ import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import javax.inject.Inject
 
 class GetWorkdayScreenDataUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val settingsRepository: SettingsRepository,
-    private val projectDetailsRepository: ProjectDetailsRepository
+    private val workStatsRepository: WorkStatsRepository,
+    private val workdayRepository: WorkdayRepository
 ) {
     suspend operator fun invoke(date: String): WorkdayScreenData {
         val projects = projectRepository.getProjectsByDateRange(date, date)
@@ -23,12 +25,12 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes()
-        val workStats = projectDetailsRepository.getWorkStatsByDate(date)
+        val workStats = workStatsRepository.getWorkStatsByDate(date)
         val workTimeTodayEstimate =
             workStats?.dailyWorkTimeEstimate?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
         val initialFlexTimeTotal = workStats?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
-        val calculatedFlexTimeFromAllWorkdays = projectDetailsRepository
-            .getWorkdayStatsByDateRange(ALL_DATES_START, ALL_DATES_END)
+        val calculatedFlexTimeFromAllWorkdays = workdayRepository
+            .getWorkdaysByDateRange(ALL_DATES_START, ALL_DATES_END)
             .fold(ZERO_TIME) { acc, row ->
                 val dailyFlex = WorkTimeCalculator.calculateFlexTime(
                     initialTime = row.workTimeToday,

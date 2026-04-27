@@ -6,6 +6,9 @@ import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -20,7 +23,15 @@ class DeleteWorkdayUseCaseTest {
             isProjectNameUsedByName["Beta"] = false
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = DeleteWorkdayUseCase(projectRepository, projectDetailsRepository)
+        val workStatsRepository = FakeWorkStatsRepository()
+        val workdayRepository = FakeWorkdayRepository()
+
+        val useCase = DeleteWorkdayUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            workStatsRepository = workStatsRepository,
+            workdayRepository = workdayRepository
+        )
 
         useCase(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")
 
@@ -33,8 +44,8 @@ class DeleteWorkdayUseCaseTest {
             listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Beta")),
             projectDetailsRepository.deletedProjectDetails
         )
-        assertEquals("2026-04-10", projectDetailsRepository.upsertedWorkdayDate)
-        assertNotNull(projectDetailsRepository.upsertedWorkStats)
+        assertEquals("2026-04-10", workdayRepository.upsertedWorkdayDate)
+        assertNotNull(workdayRepository.upsertedWorkStats)
     }
 
     @Test
@@ -43,7 +54,15 @@ class DeleteWorkdayUseCaseTest {
             isProjectNameUsedByName["Beta"] = true
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = DeleteWorkdayUseCase(projectRepository, projectDetailsRepository)
+        val workStatsRepository = FakeWorkStatsRepository()
+        val workdayRepository = FakeWorkdayRepository()
+
+        val useCase = DeleteWorkdayUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            workStatsRepository = workStatsRepository,
+            workdayRepository = workdayRepository
+        )
 
         useCase(date = "2026-04-10", projectName = "Beta")
 
@@ -58,7 +77,15 @@ class DeleteWorkdayUseCaseTest {
             isProjectNameUsedByName["Beta"] = true
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = DeleteWorkdayUseCase(projectRepository, projectDetailsRepository)
+        val workStatsRepository = FakeWorkStatsRepository()
+        val workdayRepository = FakeWorkdayRepository()
+
+        val useCase = DeleteWorkdayUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            workStatsRepository = workStatsRepository,
+            workdayRepository = workdayRepository
+        )
 
         useCase(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")
 
@@ -95,8 +122,6 @@ class DeleteWorkdayUseCaseTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         val deletedProjectDetails = mutableListOf<ProjectDetailsState>()
-        var upsertedWorkdayDate: String? = null
-        var upsertedWorkStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
@@ -106,6 +131,13 @@ class DeleteWorkdayUseCaseTest {
             deletedProjectDetails += projectDetails
         }
 
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsState> = emptyList()
+    }
+
+    private class FakeWorkStatsRepository : WorkStatsRepository {
         override suspend fun getWorkStats(): WorkStatsState? = null
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
@@ -116,15 +148,19 @@ class DeleteWorkdayUseCaseTest {
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
             )
+    }
+
+    private class FakeWorkdayRepository : WorkdayRepository {
+        var upsertedWorkdayDate: String? = null
+        var upsertedWorkStats: WorkStatsState? = null
+
+        override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
         override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
             upsertedWorkdayDate = date
             upsertedWorkStats = workStats
         }
 
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = emptyList()
+        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }
 }

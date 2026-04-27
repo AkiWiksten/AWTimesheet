@@ -9,6 +9,8 @@ import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
@@ -295,21 +297,33 @@ class WorkdayViewModelTest {
         settingsRepository: FakeSettingsRepository,
         dateRepository: DateRepository
     ): WorkdayViewModel {
+        val workStatsRepository = FakeWorkStatsRepository(projectDetailsRepository).apply {
+            workStats = projectDetailsRepository.workStats
+        }
+        val workdayRepository = FakeWorkdayRepository(projectDetailsRepository).apply {
+            workdayStatsRows = projectDetailsRepository.workdayStatsRows
+        }
         return WorkdayViewModel(
             getWorkdayScreenDataUseCase = GetWorkdayScreenDataUseCase(
                 projectRepository = projectRepository,
                 settingsRepository = settingsRepository,
-                projectDetailsRepository = projectDetailsRepository
+                workStatsRepository = workStatsRepository,
+                workdayRepository = workdayRepository
             ),
             saveWorkdayUseCase = SaveWorkdayUseCase(
                 projectRepository = projectRepository,
-                projectDetailsRepository = projectDetailsRepository
+                projectDetailsRepository = projectDetailsRepository,
+                workStatsRepository = workStatsRepository,
+                workdayRepository = workdayRepository
             ),
             deleteWorkdayUseCase = DeleteWorkdayUseCase(
                 projectRepository = projectRepository,
-                projectDetailsRepository = projectDetailsRepository
+                projectDetailsRepository = projectDetailsRepository,
+                workStatsRepository = workStatsRepository,
+                workdayRepository = workdayRepository
             ),
-            projectDetailsRepository = projectDetailsRepository,
+            workStatsRepository = workStatsRepository,
+            workdayRepository = workdayRepository,
             dateRepository = dateRepository
         )
     }
@@ -390,11 +404,34 @@ class WorkdayViewModelTest {
                 }
         }
 
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsState> = projectDetailsByDateRange
+    }
+
+    private class FakeWorkStatsRepository(
+        private val projectDetailsRepository: FakeProjectDetailsRepository? = null
+    ) : WorkStatsRepository {
+        var workStats: WorkStatsState? = null
+
         override suspend fun getWorkStats(): WorkStatsState? = workStats
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) {
             this.workStats = workStats
+            projectDetailsRepository?.workStats = workStats
         }
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? =
+            projectDetailsRepository?.workStats ?: workStats
+    }
+
+    private class FakeWorkdayRepository(
+        private val projectDetailsRepository: FakeProjectDetailsRepository? = null
+    ) : WorkdayRepository {
+        var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
+
+        override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
         override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
             val updatedRow = WorkdayStatsRow(
@@ -403,17 +440,13 @@ class WorkdayViewModelTest {
                 workTimeTodayEstimate = workStats.dailyWorkTimeEstimate
             )
             workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
-            this.workStats = workStats
+            projectDetailsRepository?.workdayStatsRows = workdayStatsRows
+            projectDetailsRepository?.workStats = workStats
         }
 
-        override suspend fun getWorkdayStatsByDateRange(start: String, end: String): List<WorkdayStatsRow> {
+        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {
             return workdayStatsRows.filter { it.date in start..end }
         }
-
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = projectDetailsByDateRange
     }
 
     private class FakeSettingsRepository : SettingsRepository {

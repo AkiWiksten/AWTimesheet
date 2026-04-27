@@ -5,6 +5,9 @@ import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -16,7 +19,14 @@ class SaveWorkdayUseCaseTest {
     fun invoke_savesProjectsAndProjectDetails() = runBlocking {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveWorkdayUseCase(projectRepository, projectDetailsRepository)
+        val workStatsRepository = FakeWorkStatsRepository()
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = SaveWorkdayUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            workStatsRepository = workStatsRepository,
+            workdayRepository = workdayRepository
+        )
 
         useCase(
             projectsToSave = listOf(
@@ -36,15 +46,22 @@ class SaveWorkdayUseCaseTest {
         assertEquals(listOf("Alpha"), projectRepository.insertedProjectNames)
         assertEquals(1, projectRepository.insertedProjects.size)
         assertEquals(1, projectDetailsRepository.insertedProjectDetails.size)
-        assertEquals("2026-04-10", projectDetailsRepository.upsertedWorkdayDate)
-        assertEquals("02:00", projectDetailsRepository.upsertedWorkTimeToday)
+        assertEquals("2026-04-10", workdayRepository.upsertedWorkdayDate)
+        assertEquals("02:00", workdayRepository.upsertedWorkTimeToday)
     }
 
     @Test
     fun invoke_doesNotInsertProjectDetails_whenProjectDetailsIsNull() = runBlocking {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val useCase = SaveWorkdayUseCase(projectRepository, projectDetailsRepository)
+        val workStatsRepository = FakeWorkStatsRepository()
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = SaveWorkdayUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            workStatsRepository = workStatsRepository,
+            workdayRepository = workdayRepository
+        )
 
         useCase(
             projectsToSave = listOf(
@@ -58,7 +75,7 @@ class SaveWorkdayUseCaseTest {
         )
 
         assertEquals(emptyList<ProjectDetailsState>(), projectDetailsRepository.insertedProjectDetails)
-        assertEquals("2026-04-10", projectDetailsRepository.upsertedWorkdayDate)
+        assertEquals("2026-04-10", workdayRepository.upsertedWorkdayDate)
     }
 
     private class FakeProjectRepository : ProjectRepository {
@@ -89,9 +106,6 @@ class SaveWorkdayUseCaseTest {
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
-        var upsertedWorkdayDate: String? = null
-        var upsertedWorkTimeToday: String? = null
-        var upsertedWorkStats: WorkStatsState? = null
 
         override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
 
@@ -101,9 +115,26 @@ class SaveWorkdayUseCaseTest {
 
         override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) = Unit
 
+        override suspend fun getProjectDetailsByDateRange(
+            start: String,
+            end: String
+        ): List<ProjectDetailsState> = emptyList()
+    }
+
+    private class FakeWorkStatsRepository : WorkStatsRepository {
         override suspend fun getWorkStats(): WorkStatsState? = null
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
+    }
+
+    private class FakeWorkdayRepository : WorkdayRepository {
+        var upsertedWorkdayDate: String? = null
+        var upsertedWorkTimeToday: String? = null
+        var upsertedWorkStats: WorkStatsState? = null
+
+        override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
         override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
             upsertedWorkdayDate = date
@@ -111,9 +142,6 @@ class SaveWorkdayUseCaseTest {
             upsertedWorkStats = workStats
         }
 
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = emptyList()
+        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }
 }

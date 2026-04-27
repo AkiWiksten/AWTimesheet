@@ -2,9 +2,8 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
-import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.domain.usecase.EnsureDefaultWorkStatsUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -15,7 +14,7 @@ class EnsureDefaultWorkStatsUseCaseTest {
 
     @Test
     fun invoke_insertsDefaultWorkStats_whenMissing() = runBlocking {
-        val repository = FakeProjectDetailsRepository()
+        val repository = FakeWorkStatsRepository()
         val useCase = EnsureDefaultWorkStatsUseCase(repository)
 
         useCase()
@@ -37,7 +36,7 @@ class EnsureDefaultWorkStatsUseCaseTest {
             dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:20"
         )
-        val repository = FakeProjectDetailsRepository().apply {
+        val repository = FakeWorkStatsRepository().apply {
             workStats = existing
         }
         val useCase = EnsureDefaultWorkStatsUseCase(repository)
@@ -48,15 +47,9 @@ class EnsureDefaultWorkStatsUseCaseTest {
         assertNull(repository.insertedWorkStats)
     }
 
-    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
+    private class FakeWorkStatsRepository : WorkStatsRepository {
         var workStats: WorkStatsState? = null
         var insertedWorkStats: WorkStatsState? = null
-
-        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
-
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) = Unit
-
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) = Unit
 
         override suspend fun getWorkStats(): WorkStatsState? = workStats
 
@@ -65,9 +58,6 @@ class EnsureDefaultWorkStatsUseCaseTest {
             this.workStats = workStats
         }
 
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = emptyList()
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
     }
 }

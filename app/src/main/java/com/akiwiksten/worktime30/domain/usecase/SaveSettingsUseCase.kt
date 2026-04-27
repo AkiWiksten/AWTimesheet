@@ -5,15 +5,17 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
-import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import java.time.LocalDate
 import javax.inject.Inject
 
 class SaveSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val projectDetailsRepository: ProjectDetailsRepository,
+    private val workStatsRepository: WorkStatsRepository,
+    private val workdayRepository: WorkdayRepository,
     private val projectRepository: ProjectRepository,
     private val dateRepository: DateRepository
 ) {
@@ -32,8 +34,8 @@ class SaveSettingsUseCase @Inject constructor(
 
         if (dailyWorkTimeEstimate.isNotEmpty()) {
             // Always persist estimates to global WorkStatsEntity
-            val existingGlobalStats = projectDetailsRepository.getWorkStats()
-            projectDetailsRepository.insertWorkStats(
+            val existingGlobalStats = workStatsRepository.getWorkStats()
+            workStatsRepository.insertWorkStats(
                 WorkStatsState(
                     dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                     dailyLunchTimeEstimate = lunchTimeEstimate,
@@ -55,8 +57,8 @@ class SaveSettingsUseCase @Inject constructor(
             }
 
             if (isCurrentDay && workTimeToday == ZERO_TIME && selectedDate.isNotEmpty()) {
-                val existingWorkStats = projectDetailsRepository.getWorkStatsByDate(selectedDate)
-                projectDetailsRepository.upsertWorkdayStats(
+                val existingWorkStats = workStatsRepository.getWorkStatsByDate(selectedDate)
+                workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
                     workTimeToday = workTimeToday,
                     workStats = WorkStatsState(

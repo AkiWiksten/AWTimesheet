@@ -18,6 +18,14 @@ import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
+import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.data.repository.WorkStatsRepositoryImpl
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
+import com.akiwiksten.worktime30.data.repository.WorkdayRepositoryImpl
+import com.akiwiksten.worktime30.domain.repository.ProjectNameRepository
+import com.akiwiksten.worktime30.data.repository.ProjectNameRepositoryImpl
+import com.akiwiksten.worktime30.domain.repository.WorkTypeRepository
+import com.akiwiksten.worktime30.data.repository.WorkTypeRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -42,6 +50,22 @@ abstract class DatabaseModule {
     @Binds
     @Singleton
     abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkStatsRepository(impl: WorkStatsRepositoryImpl): WorkStatsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindProjectNameRepository(impl: ProjectNameRepositoryImpl): ProjectNameRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkTypeRepository(impl: WorkTypeRepositoryImpl): WorkTypeRepository
 
     companion object {
         @Provides

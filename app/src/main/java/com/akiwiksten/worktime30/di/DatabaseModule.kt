@@ -12,11 +12,11 @@ import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
 import dagger.Binds
 import dagger.Module

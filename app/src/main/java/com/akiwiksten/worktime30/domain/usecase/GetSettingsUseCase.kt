@@ -1,6 +1,6 @@
-package com.akiwiksten.worktime30.domain
+package com.akiwiksten.worktime30.domain.usecase
 
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import javax.inject.Inject
 
 class GetSettingsUseCase @Inject constructor(

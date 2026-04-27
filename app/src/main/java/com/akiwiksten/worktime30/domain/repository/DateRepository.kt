@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.data.repository
+package com.akiwiksten.worktime30.domain.repository
 
 import com.akiwiksten.worktime30.core.DATE_FORMAT
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,8 +1,8 @@
 ﻿package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsViewModel

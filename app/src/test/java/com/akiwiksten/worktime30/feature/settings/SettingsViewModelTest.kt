@@ -1,13 +1,13 @@
 package com.akiwiksten.worktime30.feature.settings
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.GetSettingsUseCase
-import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
-import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
+import com.akiwiksten.worktime30.domain.usecase.GetWorkdayByMonthUseCase
+import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState

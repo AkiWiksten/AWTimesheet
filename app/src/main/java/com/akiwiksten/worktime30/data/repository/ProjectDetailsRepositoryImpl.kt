@@ -10,6 +10,8 @@ import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toWorkdayEntity
 import com.akiwiksten.worktime30.data.database.mapper.toWorkStatsState
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import javax.inject.Inject

@@ -1,8 +1,8 @@
-package com.akiwiksten.worktime30.domain
+package com.akiwiksten.worktime30.domain.usecase
 
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import javax.inject.Inject
 

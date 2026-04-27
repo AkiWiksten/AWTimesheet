@@ -5,6 +5,7 @@ import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toWorkTypeEntity
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import javax.inject.Inject
 import javax.inject.Singleton

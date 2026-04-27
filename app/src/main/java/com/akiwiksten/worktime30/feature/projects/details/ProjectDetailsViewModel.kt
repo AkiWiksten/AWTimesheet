@@ -8,8 +8,8 @@ import com.akiwiksten.worktime30.core.calculator.ProjectDetailsTimeUpdateCalcula
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

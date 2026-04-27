@@ -3,9 +3,9 @@ package com.akiwiksten.worktime30.feature.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.DATE_FORMAT
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.domain.CalendarData
-import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.usecase.CalendarData
+import com.akiwiksten.worktime30.domain.usecase.GetCalendarDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

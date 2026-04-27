@@ -5,6 +5,7 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -1,9 +1,9 @@
 package com.akiwiksten.worktime30.feature.calendar
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.usecase.GetCalendarDataUseCase
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi

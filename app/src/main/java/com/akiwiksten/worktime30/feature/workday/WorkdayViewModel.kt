@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
-import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
-import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
+import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import dagger.hilt.android.lifecycle.HiltViewModel

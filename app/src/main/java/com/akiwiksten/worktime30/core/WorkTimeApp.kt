@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.core
 
 import android.app.Application
-import com.akiwiksten.worktime30.domain.EnsureDefaultWorkStatsUseCase
+import com.akiwiksten.worktime30.domain.usecase.EnsureDefaultWorkStatsUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

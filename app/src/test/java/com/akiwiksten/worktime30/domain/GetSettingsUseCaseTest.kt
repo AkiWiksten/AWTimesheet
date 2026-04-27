@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals

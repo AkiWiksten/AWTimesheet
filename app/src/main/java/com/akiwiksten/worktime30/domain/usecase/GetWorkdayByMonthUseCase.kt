@@ -1,6 +1,6 @@
-package com.akiwiksten.worktime30.domain
+package com.akiwiksten.worktime30.domain.usecase
 
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import java.time.LocalDate
 import javax.inject.Inject

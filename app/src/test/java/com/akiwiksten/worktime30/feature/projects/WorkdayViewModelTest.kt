@@ -1,14 +1,14 @@
 package com.akiwiksten.worktime30.feature.projects
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.data.repository.WorkdayStatsRow
-import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
-import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
-import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
+import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
+import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState

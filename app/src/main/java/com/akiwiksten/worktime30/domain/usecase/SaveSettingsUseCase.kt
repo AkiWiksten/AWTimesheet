@@ -1,11 +1,11 @@
-package com.akiwiksten.worktime30.domain
+package com.akiwiksten.worktime30.domain.usecase
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import com.akiwiksten.worktime30.feature.settings.SettingsState
 import java.time.LocalDate

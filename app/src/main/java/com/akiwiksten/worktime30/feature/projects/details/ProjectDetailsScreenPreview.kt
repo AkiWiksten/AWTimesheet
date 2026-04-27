@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
 
 @Preview(showBackground = true, name = "ProjectDetails - Loading")
 @Composable

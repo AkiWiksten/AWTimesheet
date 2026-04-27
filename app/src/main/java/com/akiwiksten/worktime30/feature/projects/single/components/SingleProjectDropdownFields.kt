@@ -7,7 +7,7 @@ import androidx.compose.ui.res.stringResource
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
 @Composable
 internal fun DialogDropdownFields(

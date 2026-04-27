@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.workday
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
 private const val PREVIEW_DATE = "2026-04-10"
 

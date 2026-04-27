@@ -1,8 +1,8 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayByMonthUseCase
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test

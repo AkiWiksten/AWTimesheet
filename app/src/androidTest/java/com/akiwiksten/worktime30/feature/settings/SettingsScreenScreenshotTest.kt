@@ -9,12 +9,13 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.worktime30.core.LOADING_INDICATOR_DELAY_MS
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import java.io.File
 import java.io.FileOutputStream
+import org.junit.Rule
+import org.junit.runner.RunWith
+import org.junit.Test
 
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenScreenshotTest {

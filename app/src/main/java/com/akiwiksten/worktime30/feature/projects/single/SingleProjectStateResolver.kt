@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 
 internal fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): SingleProjectState {

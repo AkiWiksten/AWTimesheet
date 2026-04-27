@@ -1,6 +1,6 @@
 package com.akiwiksten.worktime30.domain.repository
 
-import com.akiwiksten.worktime30.feature.settings.SettingsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 
 interface SettingsRepository {
     suspend fun getSettings(): SettingsState?

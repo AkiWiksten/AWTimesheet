@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.feature.settings
 
 import android.content.Context
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
 internal data class GenerateReportParams(
     val ctx: Context,

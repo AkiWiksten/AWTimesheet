@@ -5,13 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,26 +25,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
-
-data class SingleProjectState(
-    val index: Int = -1,
-    val projectName: String = "",
-    val projectTime: String = ZERO_TIME,
-    val kilometres: String = "0",
-    val allowance: String = "",
-    val workType: String = "",
-    val projectDetails: ProjectDetailsState? = null,
-    val workStats: WorkStatsState? = null,
-    val date: String = ""
-)
-
-internal fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {
-    return date.isBlank() &&
-        projectTime == ZERO_TIME &&
-        kilometres == "0" &&
-        allowance.isBlank() &&
-        workType.isBlank()
-}
 
 sealed class WorkdayUiState {
     object Loading : WorkdayUiState()

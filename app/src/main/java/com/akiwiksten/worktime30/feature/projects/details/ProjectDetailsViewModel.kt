@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.projects.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +8,9 @@ import com.akiwiksten.worktime30.core.calculator.ProjectDetailsTimeUpdateCalcula
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

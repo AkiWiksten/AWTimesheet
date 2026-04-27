@@ -1,13 +1,13 @@
-﻿package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsViewModel
-import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
-import com.akiwiksten.worktime30.feature.projects.details.isNewDayForProject
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle

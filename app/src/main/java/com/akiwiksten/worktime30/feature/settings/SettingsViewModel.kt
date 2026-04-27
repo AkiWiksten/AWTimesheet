@@ -3,13 +3,13 @@ package com.akiwiksten.worktime30.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,17 +27,6 @@ sealed class SettingsUiState {
 
     data class Error(val message: String) : SettingsUiState()
 }
-
-data class SettingsState(
-    val name: String = "",
-    val employer: String = "",
-    val dailyWorkTimeEstimate: String = "",
-    val lunchTimeEstimate: String = ZERO_TIME,
-    val selectedDate: String = "",
-    val endMonthDate: String = "",
-    val workTypes: List<String> = emptyList(),
-    val projectsByMonth: List<SingleProjectState> = emptyList()
-)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(

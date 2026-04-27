@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.domain.repository
 
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
 
 interface ProjectDetailsRepository {
     suspend fun getProjectDetails(date: String, projectName: String = ""): ProjectDetailsState?

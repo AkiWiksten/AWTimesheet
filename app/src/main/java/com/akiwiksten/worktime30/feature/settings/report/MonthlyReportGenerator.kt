@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.extractDayOfMonth
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

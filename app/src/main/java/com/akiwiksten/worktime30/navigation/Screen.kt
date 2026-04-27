@@ -7,8 +7,8 @@ import com.akiwiksten.worktime30.core.PROJECTS_SCREEN
 import com.akiwiksten.worktime30.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
 
 // Navigation routes
 sealed class Screen(val route: String, val titleResId: Int? = null) {

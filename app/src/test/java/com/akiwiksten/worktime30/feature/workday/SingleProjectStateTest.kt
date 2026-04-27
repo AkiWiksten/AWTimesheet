@@ -1,5 +1,7 @@
 package com.akiwiksten.worktime30.feature.workday
 
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.isProjectNameOnlyPlaceholder
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

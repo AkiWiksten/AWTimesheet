@@ -2,7 +2,7 @@ package com.akiwiksten.worktime30.data.database.mapper
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
-import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
 
 fun WorkdayEntity.toWorkStatsState(dailyLunchTimeEstimate: String, initialFlexTimeTotal: String): WorkStatsState {
     return WorkStatsState(

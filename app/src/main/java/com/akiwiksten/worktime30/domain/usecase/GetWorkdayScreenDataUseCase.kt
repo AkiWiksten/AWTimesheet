@@ -3,10 +3,10 @@ package com.akiwiksten.worktime30.domain.usecase
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import javax.inject.Inject
 
 class GetWorkdayScreenDataUseCase @Inject constructor(

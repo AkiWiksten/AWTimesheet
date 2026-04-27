@@ -1,5 +1,7 @@
 package com.akiwiksten.worktime30.feature.workday
 
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+
 data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
     val onNavigateToSingleProject: (Int) -> Unit,

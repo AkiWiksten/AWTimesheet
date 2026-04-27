@@ -16,7 +16,7 @@
 ## Modern App Architecture
 ### Navigation3
 ### Hilt
-### Structure (Compose + MVVM)
+### Structure (Compose + MVVM), based on Clean Architecture
     
 A clean, scalable example of this is:
 + app/
@@ -55,6 +55,11 @@ This is called feature-based packaging.
   + Sync
   + Better orientation support
   + Dark theme
+  + FormChangeRules outside ui package
+  + data classes to map with entities should be in domain.model package
+  + repository interfaces should be in domain.repository package
+  + Simplify SaveSettingsUseCase
+  + Check test coverage and add tests
 + Constants
   + Regroup
 + SingleProjectScreen
@@ -64,28 +69,37 @@ This is called feature-based packaging.
   + Handle duplicate project name, when pressing "Details" or saving
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
+  + Own ViewModel. Decouple from WorkdayViewModel.
+  + SingleProject->SingleProjectState
+  + ProjectDetails->ProjectDetailsState
 + WorkdayScreen 
   + Calculate FlexTimeTotal from WorkdayEntity? Done already?
   + Ask to save when leaving without saving
   + Don't show project_names projects, when there are already recorded projects
+  + 
 + ProjectDetailsScreen
   + "Clear day" → "Clear details"
   + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
   + ProjectDetailsRepository → Extract WorkStats and Workday stuff into own repositories?
+  + First "Estimated end time" then "End time"
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
+  + Show color for modified days
 + SettingsScreen
   + Translate fed "Work type"
   + App localization selection
   + Use "Design" and "Other" as Default work types when list is empty
+  + Ask to save does not work
 + PDF
   + Use Intent to ask user where to save pdf and 
   + show the pdf instantly on screen
   + make pdf dynamic?
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
++ Screenshot tests
+  + Add comparison, now just saves image
 
-## What and how to test constantly
+## What to test constantly
 + Thorough testing of all features in all screens
     + Intro,
       + Overall functionality

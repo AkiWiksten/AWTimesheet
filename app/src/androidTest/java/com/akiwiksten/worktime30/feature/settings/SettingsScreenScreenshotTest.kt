@@ -84,7 +84,7 @@ class SettingsScreenScreenshotTest {
                             onNameChange = {},
                             onEmployerChange = {},
                             onDailyWorkTimeEstimateChange = {},
-                            onLunchTimeEstimateChange = {},
+                            onDailyLunchTimeEstimateChange = {},
                             onWorkTypeAdded = {},
                             onWorkTypeRemoved = {},
                             onSave = {},

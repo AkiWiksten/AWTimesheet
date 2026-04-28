@@ -6,14 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
-import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.UpdateWorkStatsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +23,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 sealed class WorkdayUiState {
@@ -50,8 +48,8 @@ class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
     private val deleteWorkdayUseCase: DeleteWorkdayUseCase,
+    private val updateWorkStatsUseCase: UpdateWorkStatsUseCase,
     private val settingsRepository: SettingsRepository,
-    private val workdayRepository: WorkdayRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -163,35 +161,12 @@ class WorkdayViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
-                val isCurrentDay = currentUiState.date == LocalDate.now().toString()
-                val canUpdateWorkTimeTodayEstimate = isCurrentDay && currentUiState.workTimeToday == ZERO_TIME
-                val currentWorkStats = settingsRepository.getEffectiveSettingsForDate(currentUiState.date)
-                val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTimeEstimate
-                    ?.ifEmpty { currentUiState.workTimeTodayEstimate }
-                    ?: currentUiState.workTimeTodayEstimate
-
-                workdayRepository.upsertWorkdayStats(
+                updateWorkStatsUseCase(
                     date = currentUiState.date,
-                    settingsEstimates = SettingsState(
-                        dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
-                            workTimeTodayEstimate
-                        } else {
-                            existingWorkTimeTodayEstimate
-                        },
-                        dailyLunchTimeEstimate = currentWorkStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
-                        initialFlexTimeTotal = initialFlexTimeTotal
-                    )
-                )
-                settingsRepository.insertSettings(
-                    SettingsState(
-                        dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
-                            workTimeTodayEstimate
-                        } else {
-                            existingWorkTimeTodayEstimate
-                        },
-                        dailyLunchTimeEstimate = currentWorkStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
-                        initialFlexTimeTotal = initialFlexTimeTotal
-                    )
+                    workTimeToday = currentUiState.workTimeToday,
+                    currentWorkTimeTodayEstimate = currentUiState.workTimeTodayEstimate,
+                    newWorkTimeTodayEstimate = workTimeTodayEstimate,
+                    newInitialFlexTimeTotal = initialFlexTimeTotal
                 )
                 requestReload()
             } catch (e: IllegalArgumentException) {

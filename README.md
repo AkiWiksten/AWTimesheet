@@ -58,8 +58,6 @@ This is called feature-based packaging.
   + Better orientation support
   + Dark theme
   + FormChangeRules outside ui package
-  + data classes to map with entities should be in domain.model package
-  + repository interfaces should be in domain.repository package
   + Simplify SaveSettingsUseCase
   + Check test coverage and add tests
 + Constants
@@ -72,8 +70,6 @@ This is called feature-based packaging.
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
   + Own ViewModel. Decouple from WorkdayViewModel.
-  + SingleProject->SingleProjectState
-  + ProjectDetails->ProjectDetailsState
 + WorkdayScreen 
   + Calculate FlexTimeTotal from WorkdayEntity? Done already?
   + Ask to save when leaving without saving
@@ -83,7 +79,6 @@ This is called feature-based packaging.
   + "Clear day" → "Clear details"
   + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
-  + ProjectDetailsRepository → Extract WorkStats and Workday stuff into own repositories?
   + First "Estimated end time" then "End time"
   + ProjectDetailsState clean otherProjectsTotalTime and workStats (=rename to settings everywhere)
 + CalendarScreen

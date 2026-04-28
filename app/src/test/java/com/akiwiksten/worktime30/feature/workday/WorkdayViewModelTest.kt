@@ -14,6 +14,7 @@ import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.UpdateWorkStatsUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -346,8 +347,11 @@ class WorkdayViewModelTest {
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),
+            updateWorkStatsUseCase = UpdateWorkStatsUseCase(
+                settingsRepository = settingsRepository,
+                workdayRepository = workdayRepository
+            ),
             settingsRepository = settingsRepository,
-            workdayRepository = workdayRepository,
             dateRepository = dateRepository
         )
     }

@@ -3,13 +3,13 @@
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 
 object ProjectDetailsUiMapper {
     fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
-        workStats: WorkStatsState?
+        workStats: SettingsState?
     ): ProjectDetailsUiState.Success {
         val stateWithWorkStats = baseState.data.copy(workStats = normalizedWorkStats(workStats = workStats))
         val mappedData = projectDetails?.let {
@@ -19,9 +19,9 @@ object ProjectDetailsUiMapper {
         return baseState.copy(data = mappedData)
     }
 
-    private fun normalizedWorkStats(workStats: WorkStatsState?): WorkStatsState {
-        val data = workStats ?: WorkStatsState()
-        return WorkStatsState(
+    private fun normalizedWorkStats(workStats: SettingsState?): SettingsState {
+        val data = workStats ?: SettingsState()
+        return SettingsState(
             dailyWorkTimeEstimate = data.dailyWorkTimeEstimate.ifEmpty { DEFAULT_DAILY_WORK_TIME },
             dailyLunchTimeEstimate = data.dailyLunchTimeEstimate.ifEmpty { ZERO_TIME },
             initialFlexTimeTotal = data.initialFlexTimeTotal.ifEmpty { ZERO_TIME }

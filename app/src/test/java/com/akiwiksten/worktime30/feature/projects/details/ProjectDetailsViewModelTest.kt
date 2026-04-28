@@ -3,7 +3,6 @@ package com.akiwiksten.worktime30.feature.projects.details
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
@@ -74,7 +73,7 @@ class ProjectDetailsViewModelTest {
                 endTime = "16:00",
                 projectTime = "08:00",
             ),
-            workStatsArg = WorkStatsState(
+            workStatsArg = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "02:00"
@@ -114,7 +113,7 @@ class ProjectDetailsViewModelTest {
                 endTime = "16:00",
                 projectTime = "08:00",
             ),
-            workStatsArg = WorkStatsState(
+            workStatsArg = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "02:00"

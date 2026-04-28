@@ -16,8 +16,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
@@ -137,7 +137,7 @@ internal fun SnapshotStateList<Any>.pop() {
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     projectDetails: ProjectDetailsState,
-    workStats: WorkStatsState
+    workStats: SettingsState
 ) {
     pop()
     val currentLast = lastOrNull()

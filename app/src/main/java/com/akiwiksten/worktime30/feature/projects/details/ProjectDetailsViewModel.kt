@@ -9,6 +9,7 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
@@ -329,11 +330,11 @@ class ProjectDetailsViewModel @Inject constructor(
         (uiState.value as ProjectDetailsUiState.Success).data
     }
 
-    val getWorkStatsState: () -> WorkStatsState = {
+    val getWorkStatsState: () -> SettingsState = {
         (uiState.value as ProjectDetailsUiState.Success).data.workStats
     }
 
-    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsState? = null) {
+    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: SettingsState? = null) {
         _isInitialLoadComplete.value = false
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
@@ -352,7 +353,7 @@ class ProjectDetailsViewModel @Inject constructor(
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
         projectDetailsArg: ProjectDetailsState? = null,
-        workStatsArg: WorkStatsState? = null,
+        workStatsArg: SettingsState? = null,
         showLoading: Boolean
     ) {
         if (showLoading && _uiState.value !is ProjectDetailsUiState.Success) {
@@ -370,20 +371,8 @@ class ProjectDetailsViewModel @Inject constructor(
             val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
             val workStats = when {
                 workStatsArg != null -> workStatsArg
-                projectDetails == null -> settingsRepository.getWorkStatsByDate(date)?.let {
-                    WorkStatsState(
-                        dailyWorkTimeEstimate = it.dailyWorkTimeEstimate,
-                        dailyLunchTimeEstimate = it.dailyLunchTimeEstimate,
-                        initialFlexTimeTotal = it.initialFlexTimeTotal
-                    )
-                }
-                else -> settingsRepository.getWorkStats()?.let {
-                    WorkStatsState(
-                        dailyWorkTimeEstimate = it.dailyWorkTimeEstimate,
-                        dailyLunchTimeEstimate = it.dailyLunchTimeEstimate,
-                        initialFlexTimeTotal = it.initialFlexTimeTotal
-                    )
-                }
+                projectDetails == null -> settingsRepository.getWorkStatsByDate(date)
+                else -> settingsRepository.getWorkStats()
             }
 
             // Fetch other projects for this date to calculate daily flex time correctly.

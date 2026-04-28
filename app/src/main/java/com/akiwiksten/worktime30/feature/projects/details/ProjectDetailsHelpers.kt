@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 
 @Composable
 internal fun rememberBaselineData(
@@ -57,7 +57,7 @@ internal fun UnsavedChangesSection(
     uiState: ProjectDetailsUiState,
     unsavedMessage: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, WorkStatsState) -> Unit,
+    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
 ) {
     if (!showState.value) return
     val successState = uiState as? ProjectDetailsUiState.Success

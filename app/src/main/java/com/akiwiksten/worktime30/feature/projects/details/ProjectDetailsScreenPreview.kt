@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
@@ -25,7 +25,7 @@ fun previewProjectDetailsSuccessNewDay() {
             data = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha Site",
-                workStats = WorkStatsState(
+                workStats = SettingsState(
                     dailyWorkTimeEstimate = "07:30",
                     dailyLunchTimeEstimate = "00:30",
                     initialFlexTimeTotal = "+03:10"
@@ -52,7 +52,7 @@ fun previewProjectDetailsSuccessExistingDay() {
                 breakStart = "14:15",
                 breakEnd = "14:30",
                 projectTime = "08:00",
-                workStats = WorkStatsState(
+                workStats = SettingsState(
                     dailyWorkTimeEstimate = "07:30",
                     dailyLunchTimeEstimate = "00:30",
                     initialFlexTimeTotal = "+04:10"

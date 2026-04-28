@@ -3,9 +3,10 @@ package com.akiwiksten.worktime30.data.repository
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
-import com.akiwiksten.worktime30.data.database.mapper.mergeIntoSettings
+import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toWorkStatsState
 import com.akiwiksten.worktime30.data.database.mapper.toWorkdayEntity
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
@@ -36,7 +37,15 @@ class WorkdayRepositoryImpl @Inject constructor(
             )
         }
         settingsDao.insertSettings(
-            WorkStatsState(
+            (existingSettings?.let {
+                SettingsState(
+                    name = it.name,
+                    employer = it.employer,
+                    dailyWorkTimeEstimate = it.dailyWorkTimeEstimate,
+                    dailyLunchTimeEstimate = it.dailyLunchTimeEstimate,
+                    initialFlexTimeTotal = it.initialFlexTimeTotal
+                )
+            } ?: SettingsState()).copy(
                 dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
                 dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate.ifEmpty {
                     existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME
@@ -44,7 +53,7 @@ class WorkdayRepositoryImpl @Inject constructor(
                 initialFlexTimeTotal = workStats.initialFlexTimeTotal.ifEmpty {
                     existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
                 }
-            ).mergeIntoSettings(existingSettings)
+            ).toEntity()
         )
     }
 

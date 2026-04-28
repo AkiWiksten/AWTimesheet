@@ -45,7 +45,7 @@ class SettingsViewModelTest {
         state as SettingsUiState.Success
         assertEquals("Aki", state.data.name)
         assertEquals("Company", state.data.employer)
-        assertEquals("00:00", state.data.lunchTimeEstimate)
+        assertEquals("00:00", state.data.dailyLunchTimeEstimate)
         assertEquals(listOf("Office", "Remote"), state.data.workTypes)
     }
 
@@ -120,11 +120,11 @@ class SettingsViewModelTest {
             insertedSettings = settings
         }
 
-        override suspend fun getWorkStats(): WorkStatsState? = null
+        override suspend fun getWorkStats(): SettingsState? = null
 
-        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+        override suspend fun insertWorkStats(workStats: SettingsState) = Unit
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
+        override suspend fun getWorkStatsByDate(date: String): SettingsState? = null
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

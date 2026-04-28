@@ -469,13 +469,23 @@ class WorkdayViewModelTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): WorkStatsState? = workStats
-
-        override suspend fun insertWorkStats(workStats: WorkStatsState) {
-            this.workStats = workStats
+        override suspend fun getWorkStats(): SettingsState? = workStats?.let {
+            SettingsState(
+                dailyWorkTimeEstimate = it.dailyWorkTimeEstimate,
+                dailyLunchTimeEstimate = it.dailyLunchTimeEstimate,
+                initialFlexTimeTotal = it.initialFlexTimeTotal
+            )
         }
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStats
+        override suspend fun insertWorkStats(workStats: SettingsState) {
+            this.workStats = WorkStatsState(
+                dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
+                dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate,
+                initialFlexTimeTotal = workStats.initialFlexTimeTotal
+            )
+        }
+
+        override suspend fun getWorkStatsByDate(date: String): SettingsState? = getWorkStats()
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

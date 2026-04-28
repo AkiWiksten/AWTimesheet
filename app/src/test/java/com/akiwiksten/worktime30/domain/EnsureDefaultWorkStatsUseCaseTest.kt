@@ -3,7 +3,6 @@ package com.akiwiksten.worktime30.domain
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.EnsureDefaultWorkStatsUseCase
 import kotlinx.coroutines.runBlocking
@@ -21,7 +20,7 @@ class EnsureDefaultWorkStatsUseCaseTest {
         useCase()
 
         assertEquals(
-            WorkStatsState(
+            SettingsState(
                 dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
                 dailyLunchTimeEstimate = ZERO_TIME,
                 initialFlexTimeTotal = ZERO_TIME
@@ -32,7 +31,7 @@ class EnsureDefaultWorkStatsUseCaseTest {
 
     @Test
     fun invoke_doesNotOverrideExistingWorkStats() = runBlocking {
-        val existing = WorkStatsState(
+        val existing = SettingsState(
             dailyWorkTimeEstimate = "08:00",
             dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:20"
@@ -49,21 +48,21 @@ class EnsureDefaultWorkStatsUseCaseTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var workStats: WorkStatsState? = null
-        var insertedWorkStats: WorkStatsState? = null
+        var workStats: SettingsState? = null
+        var insertedWorkStats: SettingsState? = null
 
         override suspend fun getSettings(): SettingsState? = null
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): WorkStatsState? = workStats
+        override suspend fun getWorkStats(): SettingsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: WorkStatsState) {
+        override suspend fun insertWorkStats(workStats: SettingsState) {
             insertedWorkStats = workStats
             this.workStats = workStats
         }
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
+        override suspend fun getWorkStatsByDate(date: String): SettingsState? = null
 
         override suspend fun getWorkTypes(): List<String> = emptyList()
 

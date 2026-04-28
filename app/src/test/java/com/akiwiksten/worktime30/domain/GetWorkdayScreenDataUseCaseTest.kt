@@ -28,7 +28,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office", "Remote")
-            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
+            workStats = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -61,7 +61,7 @@ class GetWorkdayScreenDataUseCaseTest {
             )
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            workStats = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -88,7 +88,7 @@ class GetWorkdayScreenDataUseCaseTest {
             projectNames = listOf("Alpha")
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            workStats = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -151,8 +151,8 @@ class GetWorkdayScreenDataUseCaseTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         var workTypes: List<String> = emptyList()
-        var workStats: WorkStatsState? =
-            WorkStatsState(
+        var workStats: SettingsState? =
+            SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 initialFlexTimeTotal = ZERO_TIME
             )
@@ -161,13 +161,13 @@ class GetWorkdayScreenDataUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): WorkStatsState? = workStats
+        override suspend fun getWorkStats(): SettingsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: WorkStatsState) {
+        override suspend fun insertWorkStats(workStats: SettingsState) {
             this.workStats = workStats
         }
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStats
+        override suspend fun getWorkStatsByDate(date: String): SettingsState? = workStats
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

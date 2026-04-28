@@ -34,7 +34,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = WorkStatsState(
+            workStats = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
@@ -134,12 +134,12 @@ class ProjectDetailsViewModelTest {
             projectDetails = null
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = WorkStatsState(
+            workStats = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:00",
                 initialFlexTimeTotal = "01:00"
             )
-            workStatsByDate = WorkStatsState(
+            workStatsByDate = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
@@ -182,20 +182,20 @@ class ProjectDetailsViewModelTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var workStats: WorkStatsState? = null
-        var workStatsByDate: WorkStatsState? = null
+        var workStats: SettingsState? = null
+        var workStatsByDate: SettingsState? = null
 
         override suspend fun getSettings(): SettingsState? = null
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): WorkStatsState? = workStats
+        override suspend fun getWorkStats(): SettingsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: WorkStatsState) {
+        override suspend fun insertWorkStats(workStats: SettingsState) {
             this.workStats = workStats
         }
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStatsByDate ?: workStats
+        override suspend fun getWorkStatsByDate(date: String): SettingsState? = workStatsByDate ?: workStats
 
         override suspend fun getWorkTypes(): List<String> = emptyList()
 

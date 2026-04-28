@@ -24,7 +24,7 @@ fun PreviewSettingsSuccess() {
                 name = "Aki Wiksten",
                 employer = "WorkTime Oy",
                 dailyWorkTimeEstimate = "07:30",
-                lunchTimeEstimate = "00:00",
+                dailyLunchTimeEstimate = "00:00",
                 selectedDate = "2026-04-19",
                 endMonthDate = "2026-04-30",
                 workTypes = listOf("Installation", "Maintenance", "Meeting"),

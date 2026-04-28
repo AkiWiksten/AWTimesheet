@@ -237,7 +237,7 @@ internal fun SettingsContent(
 
     DailyLunchTimeEstimatePickerDialogSection(
         isVisible = showDailyLunchTimeEstimatePickerDialogState.value,
-        currentDailyLunchTimeEstimate = uiState.data.lunchTimeEstimate,
+        currentDailyLunchTimeEstimate = uiState.data.dailyLunchTimeEstimate,
         onDismiss = { showDailyLunchTimeEstimatePickerDialogState.value = false },
         onConfirmed = { selectedTime ->
             actions.onDailyLunchTimeEstimateChange(selectedTime)
@@ -309,7 +309,7 @@ private fun SettingsContentBody(
             )
 
             DailyLunchTimeEstimatePickerRow(
-                dailyLunchTimeEstimate = state.uiState.data.lunchTimeEstimate,
+                dailyLunchTimeEstimate = state.uiState.data.dailyLunchTimeEstimate,
                 onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
             )
         }
@@ -466,7 +466,7 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
         mutableStateOf(value = data.dailyWorkTimeEstimate)
     }
     val lastSavedDailyLunchTimeEstimateState = remember(data.selectedDate) {
-        mutableStateOf(value = data.lunchTimeEstimate)
+        mutableStateOf(value = data.dailyLunchTimeEstimate)
     }
     val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
 
@@ -478,7 +478,7 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
                 baseline = lastSavedDailyWorkTimeEstimateState.value
             ) ||
             hasChanges(
-                current = data.lunchTimeEstimate,
+                current = data.dailyLunchTimeEstimate,
                 baseline = lastSavedDailyLunchTimeEstimateState.value
             ) ||
             hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
@@ -494,7 +494,7 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
                 lastSavedNameState.value = data.name
                 lastSavedEmployerState.value = data.employer
                 lastSavedDailyWorkTimeEstimateState.value = data.dailyWorkTimeEstimate
-                lastSavedDailyLunchTimeEstimateState.value = data.lunchTimeEstimate
+                lastSavedDailyLunchTimeEstimateState.value = data.dailyLunchTimeEstimate
                 lastSavedWorkTypesState.value = data.workTypes
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }

@@ -133,12 +133,12 @@ class SaveWorkdayUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): WorkStatsState? =
-            WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+        override suspend fun getWorkStats(): SettingsState? =
+            SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
 
-        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+        override suspend fun insertWorkStats(workStats: SettingsState) = Unit
 
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
+        override suspend fun getWorkStatsByDate(date: String): SettingsState? = null
 
         override suspend fun getWorkTypes(): List<String> = emptyList()
 

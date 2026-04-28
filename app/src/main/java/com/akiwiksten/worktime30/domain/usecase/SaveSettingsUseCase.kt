@@ -21,7 +21,7 @@ class SaveSettingsUseCase @Inject constructor(
         employer: String,
         workTypes: List<String>,
         dailyWorkTimeEstimate: String = "",
-        lunchTimeEstimate: String = ZERO_TIME
+        dailyLunchTimeEstimate: String = ZERO_TIME
     ) {
         settingsRepository.clearWorkTypes()
         workTypes.forEach { workType ->
@@ -33,9 +33,9 @@ class SaveSettingsUseCase @Inject constructor(
             // Persist global estimates to merged settings-backed work stats.
             val existingGlobalStats = settingsRepository.getWorkStats()
             settingsRepository.insertWorkStats(
-                WorkStatsState(
+                SettingsState(
                     dailyWorkTimeEstimate = dailyWorkTimeEstimate,
-                    dailyLunchTimeEstimate = lunchTimeEstimate,
+                    dailyLunchTimeEstimate = dailyLunchTimeEstimate,
                     initialFlexTimeTotal = existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
                 )
             )
@@ -55,7 +55,7 @@ class SaveSettingsUseCase @Inject constructor(
                     date = selectedDate,
                     workStats = WorkStatsState(
                         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
-                        dailyLunchTimeEstimate = lunchTimeEstimate,
+                        dailyLunchTimeEstimate = dailyLunchTimeEstimate,
                         initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME
                     )
                 )

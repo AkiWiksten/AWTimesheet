@@ -90,7 +90,7 @@ class SettingsViewModel @Inject constructor(
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {
             _uiState.value = currentState.copy(
-                data = currentState.data.copy(lunchTimeEstimate = lunchTimeEstimate)
+                data = currentState.data.copy(dailyLunchTimeEstimate = lunchTimeEstimate)
             )
         }
     }
@@ -167,7 +167,8 @@ class SettingsViewModel @Inject constructor(
                         name = loadedData.name,
                         employer = loadedData.employer,
                         dailyWorkTimeEstimate = workStats?.dailyWorkTimeEstimate ?: "",
-                        lunchTimeEstimate = workStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
+                        dailyLunchTimeEstimate = workStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
+                        initialFlexTimeTotal = workStats?.initialFlexTimeTotal ?: ZERO_TIME,
                         selectedDate = currentDate,
                         endMonthDate = endOfMonth,
                         workTypes = loadedData.workTypes,
@@ -192,7 +193,7 @@ class SettingsViewModel @Inject constructor(
                         employer = currentState.data.employer,
                         workTypes = currentState.data.workTypes,
                         dailyWorkTimeEstimate = currentState.data.dailyWorkTimeEstimate,
-                        lunchTimeEstimate = currentState.data.lunchTimeEstimate
+                        dailyLunchTimeEstimate = currentState.data.dailyLunchTimeEstimate
                     )
                 }
             } catch (e: IllegalArgumentException) {

@@ -26,8 +26,8 @@ class WorkdayRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun upsertWorkdayStats(date: String, workStats: SettingsState) {
-        workdayDao.insertWorkday(workStats.toWorkdayEntity(date = date))
+    override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
+        workdayDao.insertWorkday(settingsEstimates.toWorkdayEntity(date = date))
         val existingSettings = settingsDao.loadSettings()
         val existingGlobalStats = existingSettings?.toDomain()
         settingsDao.insertSettings(
@@ -40,11 +40,11 @@ class WorkdayRepositoryImpl @Inject constructor(
                     initialFlexTimeTotal = it.initialFlexTimeTotal
                 )
             } ?: SettingsState()).copy(
-                dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
-                dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate.ifEmpty {
+                dailyWorkTimeEstimate = settingsEstimates.dailyWorkTimeEstimate,
+                dailyLunchTimeEstimate = settingsEstimates.dailyLunchTimeEstimate.ifEmpty {
                     existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME
                 },
-                initialFlexTimeTotal = workStats.initialFlexTimeTotal.ifEmpty {
+                initialFlexTimeTotal = settingsEstimates.initialFlexTimeTotal.ifEmpty {
                     existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
                 }
             ).toEntity()

@@ -10,13 +10,11 @@ import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.ProjectNameRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.WorkTypeRepositoryImpl
 import com.akiwiksten.worktime30.data.repository.WorkdayRepositoryImpl
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.domain.repository.ProjectNameRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkTypeRepository
@@ -50,9 +48,6 @@ abstract class DatabaseModule {
     @Singleton
     abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindProjectNameRepository(impl: ProjectNameRepositoryImpl): ProjectNameRepository
 
     @Binds
     @Singleton

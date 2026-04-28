@@ -42,7 +42,7 @@ class SaveWorkdayUseCase @Inject constructor(
                 )
             workdayRepository.upsertWorkdayStats(
                 date = date,
-                workStats = existing
+                settingsEstimates = existing
             )
         }
     }

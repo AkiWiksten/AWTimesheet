@@ -172,7 +172,7 @@ class WorkdayViewModel @Inject constructor(
 
                 workdayRepository.upsertWorkdayStats(
                     date = currentUiState.date,
-                    workStats = SettingsState(
+                    settingsEstimates = SettingsState(
                         dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
                             workTimeTodayEstimate
                         } else {

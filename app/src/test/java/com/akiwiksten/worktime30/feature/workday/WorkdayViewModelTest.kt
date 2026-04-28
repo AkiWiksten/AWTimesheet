@@ -447,14 +447,14 @@ class WorkdayViewModelTest {
 
         override suspend fun loadWorkday(date: String): SettingsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workStats: SettingsState) {
+        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
             val updatedRow = WorkdayStatsRow(
                 date = date,
-                workTimeTodayEstimate = workStats.dailyWorkTimeEstimate
+                workTimeTodayEstimate = settingsEstimates.dailyWorkTimeEstimate
             )
             workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
             projectDetailsRepository?.workdayStatsRows = workdayStatsRows
-            projectDetailsRepository?.workStats = workStats
+            projectDetailsRepository?.workStats = settingsEstimates
         }
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {

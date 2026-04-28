@@ -217,7 +217,7 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun loadWorkday(date: String): SettingsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workStats: SettingsState) {
+        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
             upsertedWorkdayDate = date
         }
 

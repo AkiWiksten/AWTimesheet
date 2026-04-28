@@ -52,7 +52,7 @@ class SaveSettingsUseCase @Inject constructor(
                 val existingWorkStats = settingsRepository.getEffectiveSettingsForDate(selectedDate)
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
-                    workStats = SettingsState(
+                    settingsEstimates = SettingsState(
                         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                         dailyLunchTimeEstimate = dailyLunchTimeEstimate,
                         initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME

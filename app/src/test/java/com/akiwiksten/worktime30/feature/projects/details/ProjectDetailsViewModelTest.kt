@@ -52,7 +52,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals("2026-04-10", state.data.date)
         Assert.assertEquals("Alpha", state.data.projectName)
         Assert.assertEquals("08:00", state.data.startTime)
-        Assert.assertEquals("01:00", state.data.workStats.initialFlexTimeTotal)
+        Assert.assertEquals("01:00", state.workStats.initialFlexTimeTotal)
     }
 
     @Test
@@ -92,7 +92,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals(ZERO_TIME, cleared.data.startTime)
         Assert.assertEquals(ZERO_TIME, cleared.data.endTime)
         Assert.assertEquals(ZERO_TIME, cleared.data.projectTime)
-        Assert.assertEquals("02:00", cleared.data.workStats.initialFlexTimeTotal)
+        Assert.assertEquals("02:00", cleared.workStats.initialFlexTimeTotal)
     }
 
     @Test
@@ -124,7 +124,7 @@ class ProjectDetailsViewModelTest {
         viewModel.setProjectTime("06:00")
 
         val updated = viewModel.uiState.value as ProjectDetailsUiState.Success
-        Assert.assertEquals("02:00", updated.data.workStats.initialFlexTimeTotal)
+        Assert.assertEquals("02:00", updated.workStats.initialFlexTimeTotal)
     }
 
     @Test

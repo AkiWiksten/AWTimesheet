@@ -12,8 +12,7 @@ data class ProjectDetailsState(
     val breakStart: String = ZERO_TIME,
     val breakEnd: String = ZERO_TIME,
     val projectTime: String = ZERO_TIME,
-    val lunchTimeEstimate: String = ZERO_TIME,
-    val workStats: SettingsState = SettingsState()
+    val lunchTimeEstimate: String = ZERO_TIME
 )
 
 fun ProjectDetailsState.isNewDayForProject(): Boolean {

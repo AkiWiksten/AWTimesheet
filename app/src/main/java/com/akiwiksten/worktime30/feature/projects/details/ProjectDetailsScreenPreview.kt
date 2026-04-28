@@ -24,12 +24,12 @@ fun previewProjectDetailsSuccessNewDay() {
         uiState = ProjectDetailsUiState.Success(
             data = ProjectDetailsState(
                 date = "2026-04-10",
-                projectName = "Alpha Site",
-                workStats = SettingsState(
-                    dailyWorkTimeEstimate = "07:30",
-                    dailyLunchTimeEstimate = "00:30",
-                    initialFlexTimeTotal = "+03:10"
-                )
+                projectName = "Alpha Site"
+            ),
+            workStats = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+03:10"
             )
         ),
         projectName = "Alpha Site"
@@ -51,12 +51,12 @@ fun previewProjectDetailsSuccessExistingDay() {
                 lunchEnd = "12:00",
                 breakStart = "14:15",
                 breakEnd = "14:30",
-                projectTime = "08:00",
-                workStats = SettingsState(
-                    dailyWorkTimeEstimate = "07:30",
-                    dailyLunchTimeEstimate = "00:30",
-                    initialFlexTimeTotal = "+04:10"
-                )
+                projectTime = "08:00"
+            ),
+            workStats = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+04:10"
             )
         ),
         projectName = "Beta Support"

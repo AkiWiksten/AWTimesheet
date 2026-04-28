@@ -25,7 +25,7 @@ internal fun rememberBaselineData(
         val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
         if (isBaselineInitialized || !isInitialLoadComplete) return@LaunchedEffect
         val data = successState.data
-        if (data.date.isNotBlank() && data.matchesArgs(args)) {
+        if (data.date.isNotBlank() && data.matchesArgs(args = args, workStats = successState.workStats)) {
             initialData = data
             isBaselineInitialized = true
         }
@@ -34,7 +34,7 @@ internal fun rememberBaselineData(
     return initialData
 }
 
-internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs): Boolean {
+internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs, workStats: SettingsState): Boolean {
     val projectDetailsArg = args.projectDetails ?: return args.workStats == null || workStats == args.workStats
     val expectedProjectTime = ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
         startTime = projectDetailsArg.startTime.ifEmpty { ZERO_TIME },
@@ -68,7 +68,7 @@ internal fun UnsavedChangesSection(
             {
                 onConfirm(
                     it.data,
-                    it.data.workStats.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
+                    it.workStats.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
                 )
             }
         },

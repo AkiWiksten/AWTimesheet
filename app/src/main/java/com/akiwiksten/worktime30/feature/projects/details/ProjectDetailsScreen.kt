@@ -96,7 +96,7 @@ fun ProjectDetailsScreen(
                 val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
                 onConfirm(
                     successState.data,
-                    successState.data.workStats.copy(
+                    successState.workStats.copy(
                         dailyLunchTimeEstimate = successState.data.lunchTimeEstimate
                     )
                 )

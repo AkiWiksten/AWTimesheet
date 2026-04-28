@@ -11,12 +11,15 @@ object ProjectDetailsUiMapper {
         projectDetails: ProjectDetailsState?,
         workStats: SettingsState?
     ): ProjectDetailsUiState.Success {
-        val stateWithWorkStats = baseState.data.copy(workStats = normalizedWorkStats(workStats = workStats))
+        val normalizedWorkStats = normalizedWorkStats(workStats = workStats)
         val mappedData = projectDetails?.let {
-            applyProjectDetails(state = stateWithWorkStats, projectDetails = it)
-        } ?: applyEmptyDayDefaults(state = stateWithWorkStats)
+            applyProjectDetails(state = baseState.data, projectDetails = it)
+        } ?: applyEmptyDayDefaults(
+            state = baseState.data,
+            lunchTimeEstimate = normalizedWorkStats.dailyLunchTimeEstimate
+        )
 
-        return baseState.copy(data = mappedData)
+        return baseState.copy(data = mappedData, workStats = normalizedWorkStats)
     }
 
     private fun normalizedWorkStats(workStats: SettingsState?): SettingsState {
@@ -54,7 +57,7 @@ object ProjectDetailsUiMapper {
         )
     }
 
-    private fun applyEmptyDayDefaults(state: ProjectDetailsState): ProjectDetailsState {
+    private fun applyEmptyDayDefaults(state: ProjectDetailsState, lunchTimeEstimate: String): ProjectDetailsState {
         return state.copy(
             startTime = ZERO_TIME,
             endTime = ZERO_TIME,
@@ -63,7 +66,7 @@ object ProjectDetailsUiMapper {
             breakStart = ZERO_TIME,
             breakEnd = ZERO_TIME,
             projectTime = ZERO_TIME,
-            lunchTimeEstimate = state.workStats.dailyLunchTimeEstimate
+            lunchTimeEstimate = lunchTimeEstimate
         )
     }
 

@@ -141,7 +141,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
                     dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.data.workStats.dailyWorkTimeEstimate
+                        successState.workStats.dailyWorkTimeEstimate
                     ),
                     dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
                         successState.data.lunchTimeEstimate
@@ -259,9 +259,7 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val updatedState = successState.copy(
-                data = successState.data.copy(
-                    workStats = successState.data.workStats.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
-                )
+                workStats = successState.workStats.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
             )
             // flexTimeToday is now calculated on-the-fly in the UI, not stored in state
             updatedState
@@ -330,7 +328,7 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     val getSettingsEstimatesState: () -> SettingsState = {
-        (uiState.value as ProjectDetailsUiState.Success).data.workStats
+        (uiState.value as ProjectDetailsUiState.Success).workStats
     }
 
     fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: SettingsState? = null) {
@@ -419,7 +417,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.data.workStats.dailyWorkTimeEstimate
+                    successState.workStats.dailyWorkTimeEstimate
                 ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldProjectTime = oldProjectTime

@@ -1,9 +1,9 @@
 package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
+import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
-import com.akiwiksten.worktime30.data.database.mapper.toEntity
+import com.akiwiksten.worktime30.data.database.mapper.mergeIntoSettings
 import com.akiwiksten.worktime30.data.database.mapper.toWorkStatsState
 import com.akiwiksten.worktime30.data.database.mapper.toWorkdayEntity
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class WorkdayRepositoryImpl @Inject constructor(
     private val workdayDao: WorkdayDao,
-    private val workStatsDao: WorkStatsDao
+    private val settingsDao: SettingsDao
 ) : WorkdayRepository {
     override suspend fun loadWorkday(date: String): WorkStatsState? =
         workdayDao.loadWorkday(date)?.let { workday ->
@@ -27,14 +27,15 @@ class WorkdayRepositoryImpl @Inject constructor(
 
     override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) {
         workdayDao.insertWorkday(workStats.toWorkdayEntity(date = date))
-        val existingGlobalStats = workStatsDao.loadWorkStats()?.let {
+        val existingSettings = settingsDao.loadSettings()
+        val existingGlobalStats = existingSettings?.let {
             WorkStatsState(
                 dailyWorkTimeEstimate = it.dailyWorkTimeEstimate,
                 dailyLunchTimeEstimate = it.dailyLunchTimeEstimate,
                 initialFlexTimeTotal = it.initialFlexTimeTotal
             )
         }
-        workStatsDao.insertWorkStats(
+        settingsDao.insertSettings(
             WorkStatsState(
                 dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
                 dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate.ifEmpty {
@@ -43,7 +44,7 @@ class WorkdayRepositoryImpl @Inject constructor(
                 initialFlexTimeTotal = workStats.initialFlexTimeTotal.ifEmpty {
                     existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME
                 }
-            ).toEntity()
+            ).mergeIntoSettings(existingSettings)
         )
     }
 

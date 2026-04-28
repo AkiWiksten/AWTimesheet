@@ -58,7 +58,6 @@ const val EMPLOYER = "employer"
 
 // Database Tables
 const val PROJECT_DETAILS_TABLE = "project_details"
-const val WORK_STATS_TABLE = "work_stats"
 const val PROJECT_TABLE = "project"
 const val WORKDAY_TABLE = "workday"
 const val PROJECT_NAME_TABLE = "project_name"

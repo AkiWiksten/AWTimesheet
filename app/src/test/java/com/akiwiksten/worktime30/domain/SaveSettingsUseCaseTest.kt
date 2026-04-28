@@ -164,7 +164,7 @@ class SaveSettingsUseCaseTest {
             dailyWorkTimeEstimate = "08:00"
         )
 
-        // Global WorkStatsEntity always updated
+        // Global work stats in settings are always updated.
         assertEquals("08:00", workStatsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
         // Workday-per-day entry not updated (non-current day)
         assertNull(workdayRepository.upsertedWorkdayDate)
@@ -205,7 +205,7 @@ class SaveSettingsUseCaseTest {
             dailyWorkTimeEstimate = "08:00"
         )
 
-        // Global WorkStatsEntity always updated
+        // Global work stats in settings are always updated.
         assertEquals("08:00", workStatsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
         // Workday-per-day entry not updated (non-zero work time)
         assertNull(workdayRepository.upsertedWorkdayDate)

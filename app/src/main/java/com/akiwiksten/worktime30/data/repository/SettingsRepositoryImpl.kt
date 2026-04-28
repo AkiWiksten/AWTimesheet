@@ -16,7 +16,16 @@ class SettingsRepositoryImpl @Inject constructor(
     private val workTypeDao: WorkTypeDao
 ) : SettingsRepository {
     override suspend fun getSettings(): SettingsState? = settingsDao.loadSettings()?.toDomain()
-    override suspend fun insertSettings(settings: SettingsState) = settingsDao.insertSettings(settings.toEntity())
+    override suspend fun insertSettings(settings: SettingsState) {
+        val existing = settingsDao.loadSettings()
+        settingsDao.insertSettings(
+            settings.toEntity().copy(
+                dailyWorkTimeEstimate = existing?.dailyWorkTimeEstimate.orEmpty(),
+                dailyLunchTimeEstimate = existing?.dailyLunchTimeEstimate.orEmpty(),
+                initialFlexTimeTotal = existing?.initialFlexTimeTotal.orEmpty()
+            )
+        )
+    }
     override suspend fun getWorkTypes(): List<String> = workTypeDao.loadWorkTypes().map { it.toDomain() }
     override suspend fun insertWorkType(workType: String) = workTypeDao.insertWorkType(workType.toWorkTypeEntity())
     override suspend fun deleteWorkType(workType: String) = workTypeDao.delete(workType.toWorkTypeEntity())

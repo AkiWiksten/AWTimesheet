@@ -10,7 +10,6 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
-import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
@@ -83,8 +82,6 @@ abstract class DatabaseModule {
         @Provides
         fun provideProjectDetailsDao(database: AppDatabase): ProjectDetailsDao = database.projectDetailsDao()
 
-        @Provides
-        fun provideWorkStatsDao(database: AppDatabase): WorkStatsDao = database.workStatsDao()
 
         @Provides
         fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()

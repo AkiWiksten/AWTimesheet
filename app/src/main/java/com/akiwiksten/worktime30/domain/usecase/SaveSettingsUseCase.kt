@@ -32,7 +32,7 @@ class SaveSettingsUseCase @Inject constructor(
         settingsRepository.insertSettings(SettingsState(name = name, employer = employer))
 
         if (dailyWorkTimeEstimate.isNotEmpty()) {
-            // Always persist estimates to global WorkStatsEntity
+            // Persist global estimates to merged settings-backed work stats.
             val existingGlobalStats = workStatsRepository.getWorkStats()
             workStatsRepository.insertWorkStats(
                 WorkStatsState(

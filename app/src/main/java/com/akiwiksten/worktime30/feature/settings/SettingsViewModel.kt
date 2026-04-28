@@ -6,7 +6,6 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
@@ -34,7 +33,6 @@ class SettingsViewModel @Inject constructor(
     private val saveSettingsUseCase: SaveSettingsUseCase,
     private val getWorkdayByMonthUseCase: GetWorkdayByMonthUseCase,
     private val settingsRepository: SettingsRepository,
-    private val workStatsRepository: WorkStatsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -157,7 +155,7 @@ class SettingsViewModel @Inject constructor(
             try {
                 val loadedData = getSettingsUseCase()
                 val currentDate = dateRepository.selectedDate.value
-                val workStats = workStatsRepository.getWorkStatsByDate(currentDate)
+                val workStats = settingsRepository.getWorkStatsByDate(currentDate)
                 val parsedDate = LocalDate.parse(currentDate)
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))

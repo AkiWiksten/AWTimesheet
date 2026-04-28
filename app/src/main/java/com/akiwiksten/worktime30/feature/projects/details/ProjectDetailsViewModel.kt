@@ -13,7 +13,7 @@ import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProjectDetailsViewModel @Inject constructor(
     private val projectDetailsRepository: ProjectDetailsRepository,
-    private val workStatsRepository: WorkStatsRepository,
+    private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -370,8 +370,8 @@ class ProjectDetailsViewModel @Inject constructor(
             val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
             val workStats = when {
                 workStatsArg != null -> workStatsArg
-                projectDetails == null -> workStatsRepository.getWorkStatsByDate(date)
-                else -> workStatsRepository.getWorkStats()
+                projectDetails == null -> settingsRepository.getWorkStatsByDate(date)
+                else -> settingsRepository.getWorkStats()
             }
 
             // Fetch other projects for this date to calculate daily flex time correctly.

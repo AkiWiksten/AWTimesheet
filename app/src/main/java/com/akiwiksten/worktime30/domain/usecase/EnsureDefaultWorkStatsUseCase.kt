@@ -3,17 +3,17 @@ package com.akiwiksten.worktime30.domain.usecase
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import javax.inject.Inject
 
 class EnsureDefaultWorkStatsUseCase @Inject constructor(
-    private val workStatsRepository: WorkStatsRepository
+    private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke() {
-        val existing = workStatsRepository.getWorkStats()
+        val existing = settingsRepository.getWorkStats()
         if (existing != null) return
 
-        workStatsRepository.insertWorkStats(
+        settingsRepository.insertWorkStats(
             WorkStatsState(
                 dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
                 dailyLunchTimeEstimate = ZERO_TIME,

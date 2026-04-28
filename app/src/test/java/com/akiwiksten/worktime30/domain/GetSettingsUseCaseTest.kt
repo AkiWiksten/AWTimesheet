@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import kotlinx.coroutines.runBlocking
@@ -46,6 +47,12 @@ class GetSettingsUseCaseTest {
         override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
+
+        override suspend fun getWorkStats(): WorkStatsState? = null
+
+        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

@@ -6,14 +6,12 @@ import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import java.time.LocalDate
 import javax.inject.Inject
 
 class SaveSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val workStatsRepository: WorkStatsRepository,
     private val workdayRepository: WorkdayRepository,
     private val projectRepository: ProjectRepository,
     private val dateRepository: DateRepository
@@ -33,8 +31,8 @@ class SaveSettingsUseCase @Inject constructor(
 
         if (dailyWorkTimeEstimate.isNotEmpty()) {
             // Persist global estimates to merged settings-backed work stats.
-            val existingGlobalStats = workStatsRepository.getWorkStats()
-            workStatsRepository.insertWorkStats(
+            val existingGlobalStats = settingsRepository.getWorkStats()
+            settingsRepository.insertWorkStats(
                 WorkStatsState(
                     dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                     dailyLunchTimeEstimate = lunchTimeEstimate,
@@ -52,7 +50,7 @@ class SaveSettingsUseCase @Inject constructor(
             }
 
             if (isCurrentDay && workTimeToday == ZERO_TIME && selectedDate.isNotEmpty()) {
-                val existingWorkStats = workStatsRepository.getWorkStatsByDate(selectedDate)
+                val existingWorkStats = settingsRepository.getWorkStatsByDate(selectedDate)
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
                     workStats = WorkStatsState(

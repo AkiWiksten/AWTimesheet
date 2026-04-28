@@ -17,8 +17,6 @@ import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
-import com.akiwiksten.worktime30.data.repository.WorkStatsRepositoryImpl
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.data.repository.WorkdayRepositoryImpl
 import com.akiwiksten.worktime30.domain.repository.ProjectNameRepository
@@ -49,10 +47,6 @@ abstract class DatabaseModule {
     @Binds
     @Singleton
     abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindWorkStatsRepository(impl: WorkStatsRepositoryImpl): WorkStatsRepository
 
     @Binds
     @Singleton

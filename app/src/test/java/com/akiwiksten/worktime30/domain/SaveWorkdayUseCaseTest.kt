@@ -3,11 +3,12 @@ package com.akiwiksten.worktime30.domain
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
@@ -21,12 +22,12 @@ class SaveWorkdayUseCaseTest {
     fun invoke_savesProjectsAndProjectDetails() = runBlocking {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val workStatsRepository = FakeWorkStatsRepository()
+        val settingsRepository = FakeSettingsRepository()
         val workdayRepository = FakeWorkdayRepository()
         val useCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
             projectDetailsRepository = projectDetailsRepository,
-            workStatsRepository = workStatsRepository,
+            settingsRepository = settingsRepository,
             workdayRepository = workdayRepository
         )
 
@@ -55,12 +56,12 @@ class SaveWorkdayUseCaseTest {
     fun invoke_doesNotInsertProjectDetails_whenProjectDetailsIsNull() = runBlocking {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        val workStatsRepository = FakeWorkStatsRepository()
+        val settingsRepository = FakeSettingsRepository()
         val workdayRepository = FakeWorkdayRepository()
         val useCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
             projectDetailsRepository = projectDetailsRepository,
-            workStatsRepository = workStatsRepository,
+            settingsRepository = settingsRepository,
             workdayRepository = workdayRepository
         )
 
@@ -127,13 +128,25 @@ class SaveWorkdayUseCaseTest {
         ): List<ProjectDetailsState> = emptyList()
     }
 
-    private class FakeWorkStatsRepository : WorkStatsRepository {
+    private class FakeSettingsRepository : SettingsRepository {
+        override suspend fun getSettings(): SettingsState? = null
+
+        override suspend fun insertSettings(settings: SettingsState) = Unit
+
         override suspend fun getWorkStats(): WorkStatsState? =
             WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
 
         override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
+
+        override suspend fun getWorkTypes(): List<String> = emptyList()
+
+        override suspend fun insertWorkType(workType: String) = Unit
+
+        override suspend fun deleteWorkType(workType: String) = Unit
+
+        override suspend fun clearWorkTypes() = Unit
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {

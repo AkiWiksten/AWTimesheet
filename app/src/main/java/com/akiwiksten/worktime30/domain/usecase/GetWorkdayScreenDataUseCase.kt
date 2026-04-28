@@ -6,14 +6,12 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import javax.inject.Inject
 
 class GetWorkdayScreenDataUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val settingsRepository: SettingsRepository,
-    private val workStatsRepository: WorkStatsRepository,
     private val workdayRepository: WorkdayRepository
 ) {
     suspend operator fun invoke(date: String): WorkdayScreenData {
@@ -23,7 +21,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes()
-        val workStats = workStatsRepository.getWorkStatsByDate(date)
+        val workStats = settingsRepository.getWorkStatsByDate(date)
         val workTimeTodayEstimate =
             workStats?.dailyWorkTimeEstimate?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
         val initialFlexTimeTotal = workStats?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME

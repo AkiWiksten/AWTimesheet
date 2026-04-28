@@ -7,7 +7,6 @@ import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
@@ -29,8 +28,6 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office", "Remote")
-        }
-        val workStatsRepository = FakeWorkStatsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
         }
         val workdayRepository = FakeWorkdayRepository().apply {
@@ -42,7 +39,6 @@ class GetWorkdayScreenDataUseCaseTest {
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository,
             settingsRepository,
-            workStatsRepository,
             workdayRepository
         )
 
@@ -64,7 +60,7 @@ class GetWorkdayScreenDataUseCaseTest {
                 SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
             )
         }
-        val workStatsRepository = FakeWorkStatsRepository().apply {
+        val settingsRepository = FakeSettingsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val workdayRepository = FakeWorkdayRepository().apply {
@@ -74,8 +70,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = projectRepository,
-            settingsRepository = FakeSettingsRepository(),
-            workStatsRepository = workStatsRepository,
+            settingsRepository = settingsRepository,
             workdayRepository = workdayRepository
         )
 
@@ -92,7 +87,7 @@ class GetWorkdayScreenDataUseCaseTest {
             )
             projectNames = listOf("Alpha")
         }
-        val workStatsRepository = FakeWorkStatsRepository().apply {
+        val settingsRepository = FakeSettingsRepository().apply {
             workStats = WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val workdayRepository = FakeWorkdayRepository().apply {
@@ -102,8 +97,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = projectRepository,
-            settingsRepository = FakeSettingsRepository(),
-            workStatsRepository = workStatsRepository,
+            settingsRepository = settingsRepository,
             workdayRepository = workdayRepository
         )
 
@@ -118,7 +112,6 @@ class GetWorkdayScreenDataUseCaseTest {
         val useCase = GetWorkdayScreenDataUseCase(
             projectRepository = FakeProjectRepository(),
             settingsRepository = FakeSettingsRepository(),
-            workStatsRepository = FakeWorkStatsRepository(),
             workdayRepository = FakeWorkdayRepository()
         )
 
@@ -158,10 +151,23 @@ class GetWorkdayScreenDataUseCaseTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         var workTypes: List<String> = emptyList()
+        var workStats: WorkStatsState? =
+            WorkStatsState(
+                dailyWorkTimeEstimate = "07:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
 
         override suspend fun getSettings(): SettingsState? = null
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
+
+        override suspend fun getWorkStats(): WorkStatsState? = workStats
+
+        override suspend fun insertWorkStats(workStats: WorkStatsState) {
+            this.workStats = workStats
+        }
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStats
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 
@@ -171,21 +177,6 @@ class GetWorkdayScreenDataUseCaseTest {
 
         override suspend fun clearWorkTypes() = Unit
     }
-
-    private class FakeWorkStatsRepository : WorkStatsRepository {
-        var workStats: WorkStatsState? =
-            WorkStatsState(
-                dailyWorkTimeEstimate = "07:30",
-                initialFlexTimeTotal = ZERO_TIME
-            )
-
-        override suspend fun getWorkStats(): WorkStatsState? = workStats
-
-        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
-
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStats
-    }
-
     private class FakeWorkdayRepository : WorkdayRepository {
         var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
 

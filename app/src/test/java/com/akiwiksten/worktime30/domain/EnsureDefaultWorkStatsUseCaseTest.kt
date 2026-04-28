@@ -2,8 +2,9 @@ package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.EnsureDefaultWorkStatsUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -14,7 +15,7 @@ class EnsureDefaultWorkStatsUseCaseTest {
 
     @Test
     fun invoke_insertsDefaultWorkStats_whenMissing() = runBlocking {
-        val repository = FakeWorkStatsRepository()
+        val repository = FakeSettingsRepository()
         val useCase = EnsureDefaultWorkStatsUseCase(repository)
 
         useCase()
@@ -36,7 +37,7 @@ class EnsureDefaultWorkStatsUseCaseTest {
             dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:20"
         )
-        val repository = FakeWorkStatsRepository().apply {
+        val repository = FakeSettingsRepository().apply {
             workStats = existing
         }
         val useCase = EnsureDefaultWorkStatsUseCase(repository)
@@ -47,9 +48,13 @@ class EnsureDefaultWorkStatsUseCaseTest {
         assertNull(repository.insertedWorkStats)
     }
 
-    private class FakeWorkStatsRepository : WorkStatsRepository {
+    private class FakeSettingsRepository : SettingsRepository {
         var workStats: WorkStatsState? = null
         var insertedWorkStats: WorkStatsState? = null
+
+        override suspend fun getSettings(): SettingsState? = null
+
+        override suspend fun insertSettings(settings: SettingsState) = Unit
 
         override suspend fun getWorkStats(): WorkStatsState? = workStats
 
@@ -59,5 +64,13 @@ class EnsureDefaultWorkStatsUseCaseTest {
         }
 
         override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
+
+        override suspend fun getWorkTypes(): List<String> = emptyList()
+
+        override suspend fun insertWorkType(workType: String) = Unit
+
+        override suspend fun deleteWorkType(workType: String) = Unit
+
+        override suspend fun clearWorkTypes() = Unit
     }
 }

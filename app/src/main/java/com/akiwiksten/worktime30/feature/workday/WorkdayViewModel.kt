@@ -9,7 +9,7 @@ import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
@@ -50,7 +50,7 @@ class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
     private val deleteWorkdayUseCase: DeleteWorkdayUseCase,
-    private val workStatsRepository: WorkStatsRepository,
+    private val settingsRepository: SettingsRepository,
     private val workdayRepository: WorkdayRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -125,7 +125,7 @@ class WorkdayViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { workStatsRepository.insertWorkStats(it) }
+                state.workStats?.let { settingsRepository.insertWorkStats(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
@@ -165,7 +165,7 @@ class WorkdayViewModel @Inject constructor(
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
                 val isCurrentDay = currentUiState.date == LocalDate.now().toString()
                 val canUpdateWorkTimeTodayEstimate = isCurrentDay && currentUiState.workTimeToday == ZERO_TIME
-                val currentWorkStats = workStatsRepository.getWorkStatsByDate(currentUiState.date)
+                val currentWorkStats = settingsRepository.getWorkStatsByDate(currentUiState.date)
                 val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTimeEstimate
                     ?.ifEmpty { currentUiState.workTimeTodayEstimate }
                     ?: currentUiState.workTimeTodayEstimate

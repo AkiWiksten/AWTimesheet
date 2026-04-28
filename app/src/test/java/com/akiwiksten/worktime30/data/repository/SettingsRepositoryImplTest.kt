@@ -2,6 +2,8 @@ package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.domain.model.SettingsState
@@ -11,8 +13,9 @@ import org.junit.Test
 
 class SettingsRepositoryImplTest {
     private val settingsDao = FakeSettingsDao()
+    private val workdayDao = FakeWorkdayDao()
     private val workTypeDao = FakeWorkTypeDao()
-    private val repository = SettingsRepositoryImpl(settingsDao, workTypeDao)
+    private val repository = SettingsRepositoryImpl(settingsDao, workdayDao, workTypeDao)
 
     @Test
     fun getSettings_returnsDataFromDao() = runBlocking {
@@ -104,5 +107,16 @@ class SettingsRepositoryImplTest {
         override suspend fun deleteAll() {
             deleteAllCallCount += 1
         }
+    }
+
+    private class FakeWorkdayDao : WorkdayDao {
+        override suspend fun loadWorkday(date: String): WorkdayEntity? = null
+
+        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
+
+        override suspend fun getWorkdaysByDateRange(
+            start: String,
+            end: String
+        ): List<com.akiwiksten.worktime30.data.database.entity.WorkdayEntity> = emptyList()
     }
 }

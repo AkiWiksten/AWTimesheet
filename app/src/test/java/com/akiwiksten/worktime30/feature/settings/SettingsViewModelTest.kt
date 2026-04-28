@@ -8,7 +8,6 @@ import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
@@ -94,20 +93,17 @@ class SettingsViewModelTest {
         projectRepository: FakeProjectRepository,
     ): SettingsViewModel {
         val dateRepository = DateRepository()
-        val workStatsRepository = FakeWorkStatsRepository()
         val workdayRepository = FakeWorkdayRepository()
         return SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
             saveSettingsUseCase = SaveSettingsUseCase(
                 settingsRepository = settingsRepository,
-                workStatsRepository = workStatsRepository,
                 workdayRepository = workdayRepository,
                 projectRepository = projectRepository,
                 dateRepository = dateRepository
             ),
             getWorkdayByMonthUseCase = GetWorkdayByMonthUseCase(projectRepository),
             settingsRepository = settingsRepository,
-            workStatsRepository = workStatsRepository,
             dateRepository = dateRepository
         )
     }
@@ -123,6 +119,12 @@ class SettingsViewModelTest {
         override suspend fun insertSettings(settings: SettingsState) {
             insertedSettings = settings
         }
+
+        override suspend fun getWorkStats(): WorkStatsState? = null
+
+        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
+
+        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 
@@ -168,14 +170,6 @@ class SettingsViewModelTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
 
         override suspend fun getProjectTimeSumByDate(date: String): String = ZERO_TIME
-    }
-
-    private class FakeWorkStatsRepository : WorkStatsRepository {
-        override suspend fun getWorkStats(): WorkStatsState? = null
-
-        override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
-
-        override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = null
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {

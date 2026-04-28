@@ -2,11 +2,12 @@ package com.akiwiksten.worktime30.feature.projects.details
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.domain.repository.WorkStatsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -32,7 +33,7 @@ class ProjectDetailsViewModelTest {
                 projectTime = "08:00",
             )
         }
-        val workStatsRepository = FakeWorkStatsRepository().apply {
+        val settingsRepository = FakeSettingsRepository().apply {
             workStats = WorkStatsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
@@ -40,7 +41,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val viewModel =
-            ProjectDetailsViewModel(projectDetailsRepository, workStatsRepository, DateRepository())
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
@@ -59,7 +60,7 @@ class ProjectDetailsViewModelTest {
     fun loadProjectDetails_withArgs_mapsEntities_andClearDayResetsDailyFields() = runTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeWorkStatsRepository(),
+            FakeSettingsRepository(),
             DateRepository()
         )
 
@@ -99,7 +100,7 @@ class ProjectDetailsViewModelTest {
     fun setProjectTime_doesNotMutateInitialFlexTimeTotal() = runTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeWorkStatsRepository(),
+            FakeSettingsRepository(),
             DateRepository()
         )
 
@@ -132,7 +133,7 @@ class ProjectDetailsViewModelTest {
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             projectDetails = null
         }
-        val workStatsRepository = FakeWorkStatsRepository().apply {
+        val settingsRepository = FakeSettingsRepository().apply {
             workStats = WorkStatsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:00",
@@ -145,7 +146,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val viewModel =
-            ProjectDetailsViewModel(projectDetailsRepository, workStatsRepository, DateRepository())
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.setDate("2026-04-10")
         viewModel.setProjectName("Alpha")
@@ -180,9 +181,13 @@ class ProjectDetailsViewModelTest {
         ): List<ProjectDetailsState> = projectDetailsByDateRangeResult
     }
 
-    private class FakeWorkStatsRepository : WorkStatsRepository {
+    private class FakeSettingsRepository : SettingsRepository {
         var workStats: WorkStatsState? = null
         var workStatsByDate: WorkStatsState? = null
+
+        override suspend fun getSettings(): SettingsState? = null
+
+        override suspend fun insertSettings(settings: SettingsState) = Unit
 
         override suspend fun getWorkStats(): WorkStatsState? = workStats
 
@@ -191,5 +196,13 @@ class ProjectDetailsViewModelTest {
         }
 
         override suspend fun getWorkStatsByDate(date: String): WorkStatsState? = workStatsByDate ?: workStats
+
+        override suspend fun getWorkTypes(): List<String> = emptyList()
+
+        override suspend fun insertWorkType(workType: String) = Unit
+
+        override suspend fun deleteWorkType(workType: String) = Unit
+
+        override suspend fun clearWorkTypes() = Unit
     }
 }

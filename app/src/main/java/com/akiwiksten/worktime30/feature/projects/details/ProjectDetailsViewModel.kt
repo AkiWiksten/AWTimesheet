@@ -374,19 +374,11 @@ class ProjectDetailsViewModel @Inject constructor(
                 else -> settingsRepository.getGlobalSettingsEstimates()
             }
 
-            // Fetch other projects for this date to calculate daily flex time correctly.
-            val allProjectsForDay = projectDetailsRepository.getProjectDetailsByDateRange(date, date)
-            val otherProjects = allProjectsForDay.filter { it.projectName != projectName }
-            val otherProjectsTotal = otherProjects.fold(ZERO_TIME) { acc, p ->
-                WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
-            }
-
             val nextState = ProjectDetailsUiMapper.applyEntitiesToState(
                 baseState.copy(
                     data = baseState.data.copy(
                         date = date,
                         projectName = projectName,
-                        otherProjectsTotalTime = otherProjectsTotal
                     )
                 ),
                 projectDetails,

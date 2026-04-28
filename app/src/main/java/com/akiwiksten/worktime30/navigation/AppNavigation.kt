@@ -90,7 +90,7 @@ private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snapsh
         args = ProjectDetailsArgs(
             projectName = screen.projectName,
             projectDetails = screen.projectDetails,
-            workStats = screen.workStats
+            workStats = screen.settingsEstimates
         ),
         onNavigateBack = { backStack.pop() },
         onConfirm = { projectDetails, workStats ->
@@ -111,7 +111,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
         projectDetails = screen.projectDetails,
-        workStats = screen.workStats,
+        workStats = screen.settingsEstimates,
     )
     SingleProjectScreen(
         initialSingleProjectState = initialSingleProjectState,
@@ -122,7 +122,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                 element = Screen.ProjectDetails(
                     projectName = state.projectName,
                     projectDetails = state.projectDetails,
-                    workStats = state.workStats
+                    settingsEstimates = state.workStats
                 )
             )
         }
@@ -145,7 +145,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
         this[size - 1] = currentLast.copy(
             projectTime = projectDetails.projectTime,
             projectDetails = projectDetails,
-            workStats = workStats
+            settingsEstimates = workStats
         )
     }
 }
@@ -161,7 +161,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(state: SingleProjec
             allowance = state.allowance,
             workType = state.workType,
             projectDetails = state.projectDetails,
-            workStats = state.workStats
+            settingsEstimates = state.workStats
         )
     }
 }

@@ -49,7 +49,8 @@ object ProjectDetailsUiMapper {
             lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
             breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
-            projectTime = normalizedProjectTime
+            projectTime = normalizedProjectTime,
+            lunchTimeEstimate = projectDetails.lunchTimeEstimate.ifEmpty { ZERO_TIME }
         )
     }
 
@@ -61,7 +62,8 @@ object ProjectDetailsUiMapper {
             lunchEnd = ZERO_TIME,
             breakStart = ZERO_TIME,
             breakEnd = ZERO_TIME,
-            projectTime = ZERO_TIME
+            projectTime = ZERO_TIME,
+            lunchTimeEstimate = state.workStats.dailyLunchTimeEstimate
         )
     }
 

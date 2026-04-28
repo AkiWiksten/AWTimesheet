@@ -10,6 +10,7 @@ import com.akiwiksten.worktime30.core.LUNCH_END
 import com.akiwiksten.worktime30.core.LUNCH_START
 import com.akiwiksten.worktime30.core.PROJECT_DETAILS_TABLE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
+import com.akiwiksten.worktime30.core.LUNCH_TIME_ESTIMATE
 import com.akiwiksten.worktime30.core.PROJECT_TIME
 import com.akiwiksten.worktime30.core.START_TIME
 import kotlinx.serialization.Serializable
@@ -29,4 +30,5 @@ data class ProjectDetailsEntity(
     @ColumnInfo(name = BREAK_START) val breakStart: String = "",
     @ColumnInfo(name = BREAK_END) val breakEnd: String = "",
     @ColumnInfo(name = PROJECT_TIME) val projectTime: String = "",
+    @ColumnInfo(name = LUNCH_TIME_ESTIMATE) val lunchTimeEstimate: String = "",
 )

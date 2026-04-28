@@ -14,6 +14,7 @@ fun ProjectDetailsEntity.toDomain(): ProjectDetailsState {
         breakStart = breakStart,
         breakEnd = breakEnd,
         projectTime = projectTime,
+        lunchTimeEstimate = lunchTimeEstimate,
     )
 }
 
@@ -28,5 +29,6 @@ fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
         breakStart = breakStart,
         breakEnd = breakEnd,
         projectTime = projectTime,
+        lunchTimeEstimate = lunchTimeEstimate,
     )
 }

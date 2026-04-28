@@ -35,7 +35,7 @@ const val LUNCH_END = "lunch_end"
 const val DAILY_LUNCH_TIME_ESTIMATE = "daily_lunch_time_estimate"
 const val BREAK_START = "break_start"
 const val BREAK_END = "break_end"
-const val FLEX_TIME_TODAY = "flex_time_today"
+const val LUNCH_TIME_ESTIMATE = "lunch_time_estimate"
 
 // Screens
 const val INTRO_SCREEN = "intro_screen"

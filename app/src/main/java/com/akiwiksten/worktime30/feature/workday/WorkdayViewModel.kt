@@ -125,7 +125,7 @@ class WorkdayViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { settingsRepository.insertWorkStats(it) }
+                state.workStats?.let { settingsRepository.saveGlobalSettingsEstimates(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
@@ -165,7 +165,7 @@ class WorkdayViewModel @Inject constructor(
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
                 val isCurrentDay = currentUiState.date == LocalDate.now().toString()
                 val canUpdateWorkTimeTodayEstimate = isCurrentDay && currentUiState.workTimeToday == ZERO_TIME
-                val currentWorkStats = settingsRepository.getWorkStatsByDate(currentUiState.date)
+                val currentWorkStats = settingsRepository.getEffectiveSettingsForDate(currentUiState.date)
                 val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTimeEstimate
                     ?.ifEmpty { currentUiState.workTimeTodayEstimate }
                     ?: currentUiState.workTimeTodayEstimate

@@ -82,7 +82,7 @@ class ProjectDetailsViewModelTest {
         advanceUntilIdle()
 
         val persistedProjectDetails = viewModel.getProjectDetailsState()
-        val workStats = viewModel.getWorkStatsState()
+        val workStats = viewModel.getSettingsEstimatesState()
         Assert.assertEquals("Alpha", persistedProjectDetails.projectName)
         Assert.assertEquals("02:00", workStats.initialFlexTimeTotal)
 
@@ -188,13 +188,13 @@ class ProjectDetailsViewModelTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): SettingsState? = workStats
+        override suspend fun getGlobalSettingsEstimates(): SettingsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: SettingsState) {
-            this.workStats = workStats
+        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
+            this.workStats = estimates
         }
 
-        override suspend fun getWorkStatsByDate(date: String): SettingsState? = workStatsByDate ?: workStats
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStatsByDate ?: workStats
 
         override suspend fun getWorkTypes(): List<String> = emptyList()
 

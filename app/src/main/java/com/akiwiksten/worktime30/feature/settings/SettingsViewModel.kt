@@ -155,7 +155,7 @@ class SettingsViewModel @Inject constructor(
             try {
                 val loadedData = getSettingsUseCase()
                 val currentDate = dateRepository.selectedDate.value
-                val workStats = settingsRepository.getWorkStatsByDate(currentDate)
+                val workStats = settingsRepository.getEffectiveSettingsForDate(currentDate)
                 val parsedDate = LocalDate.parse(currentDate)
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))

@@ -30,21 +30,21 @@ class SettingsRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getWorkStats(): SettingsState? =
+    override suspend fun getGlobalSettingsEstimates(): SettingsState? =
         settingsDao.loadSettings()?.toDomain()
 
-    override suspend fun insertWorkStats(workStats: SettingsState) {
+    override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
         val existing = settingsDao.loadSettings()?.toDomain() ?: SettingsState()
         settingsDao.insertSettings(
             existing.copy(
-                dailyWorkTimeEstimate = workStats.dailyWorkTimeEstimate,
-                dailyLunchTimeEstimate = workStats.dailyLunchTimeEstimate,
-                initialFlexTimeTotal = workStats.initialFlexTimeTotal
+                dailyWorkTimeEstimate = estimates.dailyWorkTimeEstimate,
+                dailyLunchTimeEstimate = estimates.dailyLunchTimeEstimate,
+                initialFlexTimeTotal = estimates.initialFlexTimeTotal
             ).toEntity()
         )
     }
 
-    override suspend fun getWorkStatsByDate(date: String): SettingsState? {
+    override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? {
         val fallback = settingsDao.loadSettings()?.toDomain()
         val workday = workdayDao.loadWorkday(date)
         return if (workday != null) {

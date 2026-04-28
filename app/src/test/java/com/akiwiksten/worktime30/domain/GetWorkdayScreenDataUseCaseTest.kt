@@ -160,13 +160,13 @@ class GetWorkdayScreenDataUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): SettingsState? = workStats
+        override suspend fun getGlobalSettingsEstimates(): SettingsState? = workStats
 
-        override suspend fun insertWorkStats(workStats: SettingsState) {
-            this.workStats = workStats
+        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
+            this.workStats = estimates
         }
 
-        override suspend fun getWorkStatsByDate(date: String): SettingsState? = workStats
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStats
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

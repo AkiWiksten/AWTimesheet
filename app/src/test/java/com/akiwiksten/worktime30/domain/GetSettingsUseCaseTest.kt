@@ -47,11 +47,11 @@ class GetSettingsUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getWorkStats(): SettingsState? = null
+        override suspend fun getGlobalSettingsEstimates(): SettingsState? = null
 
-        override suspend fun insertWorkStats(workStats: SettingsState) = Unit
+        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) = Unit
 
-        override suspend fun getWorkStatsByDate(date: String): SettingsState? = null
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

@@ -30,8 +30,8 @@ class SaveSettingsUseCase @Inject constructor(
 
         if (dailyWorkTimeEstimate.isNotEmpty()) {
             // Persist global estimates to merged settings-backed work stats.
-            val existingGlobalStats = settingsRepository.getWorkStats()
-            settingsRepository.insertWorkStats(
+            val existingGlobalStats = settingsRepository.getGlobalSettingsEstimates()
+            settingsRepository.saveGlobalSettingsEstimates(
                 SettingsState(
                     dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                     dailyLunchTimeEstimate = dailyLunchTimeEstimate,
@@ -49,7 +49,7 @@ class SaveSettingsUseCase @Inject constructor(
             }
 
             if (isCurrentDay && workTimeToday == ZERO_TIME && selectedDate.isNotEmpty()) {
-                val existingWorkStats = settingsRepository.getWorkStatsByDate(selectedDate)
+                val existingWorkStats = settingsRepository.getEffectiveSettingsForDate(selectedDate)
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
                     workStats = SettingsState(

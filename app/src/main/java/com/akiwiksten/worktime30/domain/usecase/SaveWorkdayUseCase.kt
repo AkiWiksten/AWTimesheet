@@ -33,8 +33,8 @@ class SaveWorkdayUseCase @Inject constructor(
         // Ensure each affected date has an estimate row for flex-time aggregation.
         val affectedDates = projectsToSave.map { it.date }.filter { it.isNotEmpty() }.distinct()
         affectedDates.forEach { date ->
-            val existing = settingsRepository.getWorkStatsByDate(date)
-                ?: settingsRepository.getWorkStats()
+            val existing = settingsRepository.getEffectiveSettingsForDate(date)
+                ?: settingsRepository.getGlobalSettingsEstimates()
                 ?: SettingsState(
                     dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
                     dailyLunchTimeEstimate = ZERO_TIME,

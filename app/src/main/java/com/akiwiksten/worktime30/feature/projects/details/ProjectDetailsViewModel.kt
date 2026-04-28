@@ -329,7 +329,7 @@ class ProjectDetailsViewModel @Inject constructor(
         (uiState.value as ProjectDetailsUiState.Success).data
     }
 
-    val getWorkStatsState: () -> SettingsState = {
+    val getSettingsEstimatesState: () -> SettingsState = {
         (uiState.value as ProjectDetailsUiState.Success).data.workStats
     }
 
@@ -370,8 +370,8 @@ class ProjectDetailsViewModel @Inject constructor(
             val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
             val workStats = when {
                 workStatsArg != null -> workStatsArg
-                projectDetails == null -> settingsRepository.getWorkStatsByDate(date)
-                else -> settingsRepository.getWorkStats()
+                projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
+                else -> settingsRepository.getGlobalSettingsEstimates()
             }
 
             // Fetch other projects for this date to calculate daily flex time correctly.

@@ -123,5 +123,4 @@ class DeleteWorkdayUseCaseTest {
             end: String
         ): List<ProjectDetailsState> = emptyList()
     }
-
 }

@@ -82,7 +82,6 @@ abstract class DatabaseModule {
         @Provides
         fun provideProjectDetailsDao(database: AppDatabase): ProjectDetailsDao = database.projectDetailsDao()
 
-
         @Provides
         fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
 

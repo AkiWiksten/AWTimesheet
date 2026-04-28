@@ -24,7 +24,6 @@ class DeleteWorkdayUseCase @Inject constructor(
             ProjectDetailsState(date = date, projectName = projectName)
         )
 
-
         if (!projectRepository.isProjectNameUsed(projectName)) {
             projectRepository.deleteProjectName(projectName)
         }

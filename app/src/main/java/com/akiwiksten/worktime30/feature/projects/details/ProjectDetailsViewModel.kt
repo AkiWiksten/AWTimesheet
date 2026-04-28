@@ -325,7 +325,6 @@ class ProjectDetailsViewModel @Inject constructor(
         return nextState
     }
 
-
     val getProjectDetailsState: () -> ProjectDetailsState = {
         (uiState.value as ProjectDetailsUiState.Success).data
     }

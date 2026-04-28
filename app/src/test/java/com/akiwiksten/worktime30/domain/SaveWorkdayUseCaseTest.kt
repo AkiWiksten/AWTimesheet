@@ -149,5 +149,4 @@ class SaveWorkdayUseCaseTest {
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }
-
 }

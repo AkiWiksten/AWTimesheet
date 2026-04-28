@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.domain
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.usecase.GetCalendarDataUseCase
@@ -67,5 +68,7 @@ class GetCalendarDataUseCaseTest {
         override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
+
+        override suspend fun getProjectTimeSumByDate(date: String): String = ZERO_TIME
     }
 }

@@ -5,6 +5,8 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
+import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import javax.inject.Inject
@@ -34,4 +36,9 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override suspend fun isProjectNameUsed(projectName: String): Boolean =
         projectDao.isProjectNameUsed(projectName)
+
+    override suspend fun getProjectTimeSumByDate(date: String): String =
+        projectDao.getProjectTimesByDate(date).fold(ZERO_TIME) { acc, time ->
+            WorkTimeCalculator.calculateFlexTime(acc, time)
+        }
 }

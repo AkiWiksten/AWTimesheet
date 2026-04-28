@@ -104,15 +104,9 @@ This is called feature-based packaging.
 ## What to test constantly
 + Thorough testing of all features in all screens
     + Intro,
-      + Overall functionality
     + Calendar,
-      + UI features
     + Projects,
-      + UI features
     + Single project,
-      + UI features
     + Project Details,
-      + UI features
     + Settings
-      + UI features
       + PDF creation

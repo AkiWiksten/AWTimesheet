@@ -121,6 +121,8 @@ class ProjectRepositoryImplTest {
         }
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = projectNameUsed
+
+        override suspend fun getProjectTimesByDate(date: String): List<String> = emptyList()
     }
 
     private class FakeProjectNameDao : ProjectNameDao {

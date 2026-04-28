@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.settings
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
@@ -165,6 +166,8 @@ class SettingsViewModelTest {
         override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
+
+        override suspend fun getProjectTimeSumByDate(date: String): String = ZERO_TIME
     }
 
     private class FakeWorkStatsRepository : WorkStatsRepository {

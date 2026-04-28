@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.domain.usecase
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
@@ -29,11 +28,7 @@ class DeleteWorkdayUseCase @Inject constructor(
             ProjectDetailsState(date = date, projectName = projectName)
         )
 
-        val recalculatedWorkTimeToday = projectRepository
-            .getProjectsByDateRange(date, date)
-            .fold(ZERO_TIME) { acc, project ->
-                WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
-            }
+        val recalculatedWorkTimeToday = projectRepository.getProjectTimeSumByDate(date)
         val currentWorkStats = workStatsRepository.getWorkStatsByDate(date)
         if (currentWorkStats != null) {
             workdayRepository.upsertWorkdayStats(

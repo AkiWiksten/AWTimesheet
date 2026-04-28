@@ -10,4 +10,5 @@ interface ProjectRepository {
     suspend fun insertProjectName(projectName: String)
     suspend fun deleteProjectName(projectName: String)
     suspend fun isProjectNameUsed(projectName: String): Boolean
+    suspend fun getProjectTimeSumByDate(date: String): String
 }

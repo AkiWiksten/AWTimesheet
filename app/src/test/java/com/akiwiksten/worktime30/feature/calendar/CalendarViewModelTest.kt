@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.calendar
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
@@ -103,5 +104,7 @@ class CalendarViewModelTest {
         override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
+
+        override suspend fun getProjectTimeSumByDate(date: String): String = ZERO_TIME
     }
 }

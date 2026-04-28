@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.domain.usecase
 
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
@@ -34,11 +33,7 @@ class SaveWorkdayUseCase @Inject constructor(
         // Keep WorkdayEntity rows in sync for new/updated project data.
         val affectedDates = projectsToSave.map { it.date }.filter { it.isNotEmpty() }.distinct()
         affectedDates.forEach { date ->
-            val workTimeToday = projectRepository
-                .getProjectsByDateRange(date, date)
-                .fold(ZERO_TIME) { acc, project ->
-                    WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
-                }
+            val workTimeToday = projectRepository.getProjectTimeSumByDate(date)
 
             val existing = workStatsRepository.getWorkStatsByDate(date)
                 ?: workStatsRepository.getWorkStats()

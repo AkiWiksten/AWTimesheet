@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
@@ -367,6 +368,11 @@ class WorkdayViewModelTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean {
             return projectsByDateRange.any { it.projectName == projectName }
         }
+
+        override suspend fun getProjectTimeSumByDate(date: String): String =
+            projectsByDateRange.filter { it.date == date }.fold(ZERO_TIME) { acc, p ->
+                WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
+            }
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {

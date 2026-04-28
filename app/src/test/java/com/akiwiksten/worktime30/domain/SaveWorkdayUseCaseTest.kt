@@ -5,7 +5,6 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
@@ -151,11 +150,11 @@ class SaveWorkdayUseCaseTest {
 
     private class FakeWorkdayRepository : WorkdayRepository {
         var upsertedWorkdayDate: String? = null
-        var upsertedWorkStats: WorkStatsState? = null
+        var upsertedWorkStats: SettingsState? = null
 
-        override suspend fun loadWorkday(date: String): WorkStatsState? = null
+        override suspend fun loadWorkday(date: String): SettingsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) {
+        override suspend fun upsertWorkdayStats(date: String, workStats: SettingsState) {
             upsertedWorkdayDate = date
             upsertedWorkStats = workStats
         }

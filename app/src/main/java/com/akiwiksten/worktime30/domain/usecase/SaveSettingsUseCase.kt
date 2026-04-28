@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.domain.usecase
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
@@ -53,7 +52,7 @@ class SaveSettingsUseCase @Inject constructor(
                 val existingWorkStats = settingsRepository.getWorkStatsByDate(selectedDate)
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
-                    workStats = WorkStatsState(
+                    workStats = SettingsState(
                         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                         dailyLunchTimeEstimate = dailyLunchTimeEstimate,
                         initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME

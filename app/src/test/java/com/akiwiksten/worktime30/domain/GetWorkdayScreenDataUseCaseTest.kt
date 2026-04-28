@@ -4,7 +4,6 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
@@ -180,9 +179,9 @@ class GetWorkdayScreenDataUseCaseTest {
     private class FakeWorkdayRepository : WorkdayRepository {
         var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
 
-        override suspend fun loadWorkday(date: String): WorkStatsState? = null
+        override suspend fun loadWorkday(date: String): SettingsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) = Unit
+        override suspend fun upsertWorkdayStats(date: String, workStats: SettingsState) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> =
             workdayStatsRows.filter { it.date in start..end }

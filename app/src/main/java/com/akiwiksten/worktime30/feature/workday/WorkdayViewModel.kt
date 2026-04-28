@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
@@ -172,7 +172,7 @@ class WorkdayViewModel @Inject constructor(
 
                 workdayRepository.upsertWorkdayStats(
                     date = currentUiState.date,
-                    workStats = WorkStatsState(
+                    workStats = SettingsState(
                         dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
                             workTimeTodayEstimate
                         } else {

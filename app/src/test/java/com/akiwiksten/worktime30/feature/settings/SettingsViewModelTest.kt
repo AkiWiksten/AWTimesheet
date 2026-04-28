@@ -4,7 +4,6 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
@@ -173,9 +172,9 @@ class SettingsViewModelTest {
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {
-        override suspend fun loadWorkday(date: String): WorkStatsState? = null
+        override suspend fun loadWorkday(date: String): SettingsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) = Unit
+        override suspend fun upsertWorkdayStats(date: String, workStats: SettingsState) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }

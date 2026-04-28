@@ -10,7 +10,6 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdat
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository

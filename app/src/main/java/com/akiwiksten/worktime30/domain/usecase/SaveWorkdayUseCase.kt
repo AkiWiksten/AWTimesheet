@@ -5,7 +5,6 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
@@ -43,11 +42,7 @@ class SaveWorkdayUseCase @Inject constructor(
                 )
             workdayRepository.upsertWorkdayStats(
                 date = date,
-                workStats = WorkStatsState(
-                    dailyWorkTimeEstimate = existing.dailyWorkTimeEstimate,
-                    dailyLunchTimeEstimate = existing.dailyLunchTimeEstimate,
-                    initialFlexTimeTotal = existing.initialFlexTimeTotal
-                )
+                workStats = existing
             )
         }
     }

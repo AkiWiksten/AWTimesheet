@@ -11,5 +11,5 @@ interface SettingsRepository {
     suspend fun getWorkTypes(): List<String>
     suspend fun insertWorkType(workType: String)
     suspend fun deleteWorkType(workType: String)
-    suspend fun clearWorkTypes()
+    suspend fun deleteAllWorkTypes()
 }

@@ -65,8 +65,8 @@ class SettingsRepositoryImplTest {
     }
 
     @Test
-    fun clearWorkTypes_callsDaoDeleteAll() = runBlocking {
-        repository.clearWorkTypes()
+    fun deleteAllWorkTypes_callsDaoDeleteAllWorkTypes() = runBlocking {
+        repository.deleteAllWorkTypes()
 
         assertEquals(1, workTypeDao.deleteAllCallCount)
     }
@@ -104,7 +104,7 @@ class SettingsRepositoryImplTest {
             deletedWorkType = workType.workType
         }
 
-        override suspend fun deleteAll() {
+        override suspend fun deleteAllWorkTypes() {
             deleteAllCallCount += 1
         }
     }

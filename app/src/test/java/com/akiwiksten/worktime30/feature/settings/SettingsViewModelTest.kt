@@ -136,7 +136,7 @@ class SettingsViewModelTest {
             workTypes = workTypes.filterNot { it == workType }.toMutableList()
         }
 
-        override suspend fun clearWorkTypes() {
+        override suspend fun deleteAllWorkTypes() {
             workTypes.clear()
         }
     }

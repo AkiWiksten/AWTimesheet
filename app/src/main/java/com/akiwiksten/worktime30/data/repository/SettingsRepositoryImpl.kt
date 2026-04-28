@@ -61,5 +61,5 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun getWorkTypes(): List<String> = workTypeDao.loadWorkTypes().map { it.toDomain() }
     override suspend fun insertWorkType(workType: String) = workTypeDao.insertWorkType(workType.toWorkTypeEntity())
     override suspend fun deleteWorkType(workType: String) = workTypeDao.delete(workType.toWorkTypeEntity())
-    override suspend fun clearWorkTypes() = workTypeDao.deleteAll()
+    override suspend fun deleteAllWorkTypes() = workTypeDao.deleteAllWorkTypes()
 }

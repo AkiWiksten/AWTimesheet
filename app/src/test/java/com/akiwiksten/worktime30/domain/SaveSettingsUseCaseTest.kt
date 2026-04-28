@@ -180,7 +180,7 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun deleteWorkType(workType: String) = Unit
 
-        override suspend fun clearWorkTypes() {
+        override suspend fun deleteAllWorkTypes() {
             operations += "clearWorkTypes"
         }
     }

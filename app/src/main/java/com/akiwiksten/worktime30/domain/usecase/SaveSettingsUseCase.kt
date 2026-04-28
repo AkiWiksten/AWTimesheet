@@ -22,7 +22,7 @@ class SaveSettingsUseCase @Inject constructor(
         dailyWorkTimeEstimate: String = "",
         dailyLunchTimeEstimate: String = ZERO_TIME
     ) {
-        settingsRepository.clearWorkTypes()
+        settingsRepository.deleteAllWorkTypes()
         workTypes.forEach { workType ->
             settingsRepository.insertWorkType(workType)
         }

@@ -147,7 +147,7 @@ class SaveWorkdayUseCaseTest {
 
         override suspend fun deleteWorkType(workType: String) = Unit
 
-        override suspend fun clearWorkTypes() = Unit
+        override suspend fun deleteAllWorkTypes() = Unit
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {

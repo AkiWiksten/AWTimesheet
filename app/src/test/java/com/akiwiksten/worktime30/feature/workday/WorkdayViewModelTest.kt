@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects
+package com.akiwiksten.worktime30.feature.workday
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
@@ -16,14 +16,11 @@ import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
-import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
@@ -52,7 +49,11 @@ class WorkdayViewModelTest {
             initialFlexTimeTotal = "+01:45"
         )
         projectDetailsRepository.workdayStatsRows = listOf(
-            WorkdayStatsRow(date = "2026-04-10", workTimeToday = "02:30", workTimeTodayEstimate = "07:30")
+            WorkdayStatsRow(
+                date = "2026-04-10",
+                workTimeToday = "02:30",
+                workTimeTodayEstimate = "07:30"
+            )
         )
         projectDetailsRepository.projectDetailsByDateRange = listOf(
             ProjectDetailsState(date = "2026-04-10", projectName = "Beta")
@@ -63,19 +64,24 @@ class WorkdayViewModelTest {
         val dateRepository = DateRepository()
         dateRepository.updateDate("2026-04-10")
 
-        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue("Expected Success state but was $state", state is WorkdayUiState.Success)
+        Assert.assertTrue("Expected Success state but was $state", state is WorkdayUiState.Success)
         state as WorkdayUiState.Success
-        assertEquals("2026-04-10", state.date)
-        assertEquals("02:30", state.workTimeToday)
-        assertEquals("07:30", state.workTimeTodayEstimate)
-        assertEquals("-05:00", state.flexTimeToday)
-        assertEquals("+01:45", state.initialFlexTimeTotal)
-        assertEquals("-03:15", state.calculatedFlexTimeTotal)
-        assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
+        Assert.assertEquals("2026-04-10", state.date)
+        Assert.assertEquals("02:30", state.workTimeToday)
+        Assert.assertEquals("07:30", state.workTimeTodayEstimate)
+        Assert.assertEquals("-05:00", state.flexTimeToday)
+        Assert.assertEquals("+01:45", state.initialFlexTimeTotal)
+        Assert.assertEquals("-03:15", state.calculatedFlexTimeTotal)
+        Assert.assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
     }
 
     @Test
@@ -88,7 +94,12 @@ class WorkdayViewModelTest {
         val dateRepository = DateRepository()
         dateRepository.updateDate("2026-04-10")
 
-        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
         advanceUntilIdle()
 
         viewModel.saveProject(
@@ -99,8 +110,8 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        assertTrue(projectRepository.insertedProjects.any { it.projectName == "Alpha" })
-        assertTrue(projectDetailsRepository.insertedProjectDetails.any { it.projectName == "Alpha" })
+        Assert.assertTrue(projectRepository.insertedProjects.any { it.projectName == "Alpha" })
+        Assert.assertTrue(projectDetailsRepository.insertedProjectDetails.any { it.projectName == "Alpha" })
     }
 
     @Test
@@ -135,7 +146,7 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
-        assertEquals("00:30", state.calculatedFlexTimeTotal)
+        Assert.assertEquals("00:30", state.calculatedFlexTimeTotal)
     }
 
     @Test
@@ -162,7 +173,12 @@ class WorkdayViewModelTest {
             updateDate("2026-04-10")
         }
 
-        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
         advanceUntilIdle()
 
         viewModel.saveProject(
@@ -175,8 +191,8 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
-        assertEquals("08:00", projectRepository.projectsByDateRange.single().projectTime)
-        assertEquals("00:30", state.calculatedFlexTimeTotal)
+        Assert.assertEquals("08:00", projectRepository.projectsByDateRange.single().projectTime)
+        Assert.assertEquals("00:30", state.calculatedFlexTimeTotal)
     }
 
     @Test
@@ -193,15 +209,20 @@ class WorkdayViewModelTest {
         val dateRepository = DateRepository()
         dateRepository.updateDate(LocalDate.now().toString())
 
-        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
         advanceUntilIdle()
 
         viewModel.updateWorkStats(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
-        assertEquals("08:00", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
-        assertEquals("00:30", projectDetailsRepository.workStats?.dailyLunchTimeEstimate)
-        assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
+        Assert.assertEquals("08:00", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
+        Assert.assertEquals("00:30", projectDetailsRepository.workStats?.dailyLunchTimeEstimate)
+        Assert.assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
     }
 
     @Test
@@ -239,8 +260,8 @@ class WorkdayViewModelTest {
         viewModel.updateWorkStats(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
-        assertEquals("07:30", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
-        assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
+        Assert.assertEquals("07:30", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
+        Assert.assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
     }
 
     @Test
@@ -258,14 +279,19 @@ class WorkdayViewModelTest {
             updateDate("2000-01-01")
         }
 
-        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
         advanceUntilIdle()
 
         viewModel.updateWorkStats(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
-        assertEquals("07:30", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
-        assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
+        Assert.assertEquals("07:30", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
+        Assert.assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
     }
 
     @Test
@@ -283,13 +309,18 @@ class WorkdayViewModelTest {
         val dateRepository = DateRepository()
         dateRepository.updateDate("2026-04-10")
 
-        val viewModel = createViewModel(projectRepository, projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
         advanceUntilIdle()
 
         viewModel.updateWorkStats(workTimeTodayEstimate = "8:00", initialFlexTimeTotal = "invalid")
         advanceUntilIdle()
 
-        assertEquals(initialStats, projectDetailsRepository.workStats)
+        Assert.assertEquals(initialStats, projectDetailsRepository.workStats)
     }
 
     private fun createViewModel(

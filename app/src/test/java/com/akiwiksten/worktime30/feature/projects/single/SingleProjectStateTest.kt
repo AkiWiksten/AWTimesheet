@@ -1,9 +1,8 @@
-package com.akiwiksten.worktime30.feature.workday
+package com.akiwiksten.worktime30.feature.projects.single
 
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.model.isProjectNameOnlyPlaceholder
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Test
 
 class SingleProjectStateTest {
@@ -12,7 +11,7 @@ class SingleProjectStateTest {
     fun isProjectNameOnlyPlaceholder_returnsTrueForUnrecordedProjectNameItem() {
         val state = SingleProjectState(projectName = "Alpha")
 
-        assertTrue(state.isProjectNameOnlyPlaceholder())
+        Assert.assertTrue(state.isProjectNameOnlyPlaceholder())
     }
 
     @Test
@@ -22,6 +21,6 @@ class SingleProjectStateTest {
             projectName = "Alpha"
         )
 
-        assertFalse(state.isProjectNameOnlyPlaceholder())
+        Assert.assertFalse(state.isProjectNameOnlyPlaceholder())
     }
 }

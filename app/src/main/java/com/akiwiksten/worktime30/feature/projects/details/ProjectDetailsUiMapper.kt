@@ -49,8 +49,7 @@ object ProjectDetailsUiMapper {
             lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
             breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
-            projectTime = normalizedProjectTime,
-            flexTimeToday = projectDetails.flexTimeToday.ifEmpty { ZERO_TIME }
+            projectTime = normalizedProjectTime
         )
     }
 
@@ -62,8 +61,7 @@ object ProjectDetailsUiMapper {
             lunchEnd = ZERO_TIME,
             breakStart = ZERO_TIME,
             breakEnd = ZERO_TIME,
-            projectTime = ZERO_TIME,
-            flexTimeToday = ZERO_TIME
+            projectTime = ZERO_TIME
         )
     }
 

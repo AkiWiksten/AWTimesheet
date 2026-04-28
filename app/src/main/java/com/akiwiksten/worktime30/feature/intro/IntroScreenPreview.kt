@@ -2,8 +2,8 @@ package com.akiwiksten.worktime30.feature.intro
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.android.tools.screenshot.PreviewTest
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
 @Preview(showBackground = true, name = "Intro - Loading")

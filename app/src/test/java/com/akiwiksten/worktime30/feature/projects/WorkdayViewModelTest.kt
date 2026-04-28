@@ -55,7 +55,7 @@ class WorkdayViewModelTest {
             WorkdayStatsRow(date = "2026-04-10", workTimeToday = "02:30", workTimeTodayEstimate = "07:30")
         )
         projectDetailsRepository.projectDetailsByDateRange = listOf(
-            ProjectDetailsState(date = "2026-04-10", projectName = "Beta", flexTimeToday = "-05:00")
+            ProjectDetailsState(date = "2026-04-10", projectName = "Beta")
         )
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office")
@@ -393,8 +393,7 @@ class WorkdayViewModelTest {
                     lunchEnd = it.lunchEnd,
                     breakStart = it.breakStart,
                     breakEnd = it.breakEnd,
-                    projectTime = it.projectTime,
-                    flexTimeToday = it.flexTimeToday
+                    projectTime = it.projectTime
                 )
             }
         }

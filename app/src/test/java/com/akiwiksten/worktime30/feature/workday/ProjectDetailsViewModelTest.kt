@@ -33,7 +33,6 @@ class ProjectDetailsViewModelTest {
                 startTime = "08:00",
                 endTime = "16:00",
                 projectTime = "08:00",
-                flexTimeToday = "00:30"
             )
         }
         val workStatsRepository = FakeWorkStatsRepository().apply {
@@ -75,7 +74,6 @@ class ProjectDetailsViewModelTest {
                 startTime = "08:00",
                 endTime = "16:00",
                 projectTime = "08:00",
-                flexTimeToday = "00:30"
             ),
             workStatsArg = WorkStatsState(
                 dailyWorkTimeEstimate = "07:30",
@@ -116,7 +114,6 @@ class ProjectDetailsViewModelTest {
                 startTime = "08:00",
                 endTime = "16:00",
                 projectTime = "08:00",
-                flexTimeToday = "00:30"
             ),
             workStatsArg = WorkStatsState(
                 dailyWorkTimeEstimate = "07:30",

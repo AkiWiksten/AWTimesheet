@@ -14,7 +14,6 @@ fun ProjectDetailsEntity.toDomain(): ProjectDetailsState {
         breakStart = breakStart,
         breakEnd = breakEnd,
         projectTime = projectTime,
-        flexTimeToday = flexTimeToday,
     )
 }
 
@@ -29,6 +28,5 @@ fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
         breakStart = breakStart,
         breakEnd = breakEnd,
         projectTime = projectTime,
-        flexTimeToday = flexTimeToday,
     )
 }

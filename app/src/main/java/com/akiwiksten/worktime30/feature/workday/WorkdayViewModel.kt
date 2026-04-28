@@ -117,8 +117,7 @@ class WorkdayViewModel @Inject constructor(
                 ) ?: ProjectDetailsState(
                     date = date,
                     projectName = state.projectName,
-                    projectTime = state.projectTime,
-                    flexTimeToday = ZERO_TIME
+                    projectTime = state.projectTime
                 )
 
                 saveWorkdayUseCase(

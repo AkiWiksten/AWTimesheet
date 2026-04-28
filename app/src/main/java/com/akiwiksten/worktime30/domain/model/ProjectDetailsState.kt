@@ -13,7 +13,6 @@ data class ProjectDetailsState(
     val breakEnd: String = ZERO_TIME,
     val projectTime: String = ZERO_TIME,
     val otherProjectsTotalTime: String = ZERO_TIME,
-    val flexTimeToday: String = ZERO_TIME,
     val workStats: WorkStatsState = WorkStatsState()
 )
 

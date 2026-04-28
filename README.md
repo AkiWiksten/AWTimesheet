@@ -49,7 +49,7 @@ This is called feature-based packaging.
 + Run androidTest (DAO tests)
 + Run test (Unit tests)
 + Run official Compose screenshot baseline update: ./gradlew updateScreenshotTest
-+ Run official Compose screenshot validation: ./gradlew validateScreenshotTest
++ Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
 
 ## Features to be implemented still
 + General

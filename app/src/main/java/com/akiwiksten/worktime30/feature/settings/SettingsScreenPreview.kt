@@ -2,10 +2,10 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.android.tools.screenshot.PreviewTest
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
 @Preview(showBackground = true, name = "Settings - Loading")

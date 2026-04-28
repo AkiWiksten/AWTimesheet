@@ -263,8 +263,8 @@ class ProjectDetailsViewModel @Inject constructor(
                     workStats = successState.data.workStats.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
                 )
             )
-            // Recalculate flex time today with new daily work time
-            updateFlexTimeTodayIfNeeded(updatedState)
+            // flexTimeToday is now calculated on-the-fly in the UI, not stored in state
+            updatedState
         }
     }
 
@@ -321,42 +321,10 @@ class ProjectDetailsViewModel @Inject constructor(
 
         result.projectTime?.let {
             nextState = nextState.copy(data = nextState.data.copy(projectTime = it))
-            nextState = calculateFlexTimeUpdatesInState(
-                nextState,
-                result.shouldRecalculateFlexTime
-            )
         }
         return nextState
     }
 
-    private fun calculateFlexTimeUpdatesInState(
-        state: ProjectDetailsUiState.Success,
-        calculateToday: Boolean
-    ): ProjectDetailsUiState.Success {
-        var nextState = state
-        if (calculateToday) {
-            nextState = updateFlexTimeTodayIfNeeded(nextState)
-        }
-
-        return nextState
-    }
-
-    private fun updateFlexTimeTodayIfNeeded(
-        state: ProjectDetailsUiState.Success
-    ): ProjectDetailsUiState.Success {
-        val totalProjectTimeForDay = WorkTimeCalculator.calculateFlexTime(
-            state.data.otherProjectsTotalTime,
-            state.data.projectTime
-        )
-        return state.copy(
-            data = state.data.copy(
-                flexTimeToday = WorkTimeCalculator.calculateFlexTime(
-                    initialTime = totalProjectTimeForDay,
-                    addedTime = "-" + state.data.workStats.dailyWorkTimeEstimate
-                )
-            )
-        )
-    }
 
     val getProjectDetailsState: () -> ProjectDetailsState = {
         (uiState.value as ProjectDetailsUiState.Success).data
@@ -447,8 +415,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     lunchEnd = ZERO_TIME,
                     breakStart = ZERO_TIME,
                     breakEnd = ZERO_TIME,
-                    projectTime = ZERO_TIME,
-                    flexTimeToday = ZERO_TIME
+                    projectTime = ZERO_TIME
                 )
             )
         }

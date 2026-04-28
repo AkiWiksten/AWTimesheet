@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.android.tools.screenshot.PreviewTest
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
+import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Loading")
@@ -52,7 +52,6 @@ fun previewProjectDetailsSuccessExistingDay() {
                 breakStart = "14:15",
                 breakEnd = "14:30",
                 projectTime = "08:00",
-                flexTimeToday = "+00:30",
                 workStats = WorkStatsState(
                     dailyWorkTimeEstimate = "07:30",
                     dailyLunchTimeEstimate = "00:30",

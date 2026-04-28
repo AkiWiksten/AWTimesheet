@@ -186,6 +186,8 @@ class SaveSettingsUseCaseTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
+        override suspend fun anyRecords(): Boolean = false
+
         var projectsByDateRange: List<SingleProjectState> = emptyList()
 
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {

@@ -11,7 +11,6 @@ import javax.inject.Singleton
 class ProjectNameRepositoryImpl @Inject constructor(
     private val projectNameDao: ProjectNameDao
 ) : ProjectNameRepository {
-    override suspend fun anyRecords(): Boolean = projectNameDao.anyRecords()
 
     override suspend fun insertProjectName(projectName: String) =
         projectNameDao.insertProjectName(projectName.toProjectNameEntity())

@@ -51,6 +51,8 @@ class GetCalendarDataUseCaseTest {
         val projectsByRange = mutableMapOf<String, List<SingleProjectState>>()
         val requestedRanges = mutableListOf<String>()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             val key = "$start|$end"
             requestedRanges += key

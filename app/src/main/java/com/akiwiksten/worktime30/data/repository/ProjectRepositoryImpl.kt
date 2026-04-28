@@ -17,6 +17,8 @@ class ProjectRepositoryImpl @Inject constructor(
     private val projectDao: ProjectDao,
     private val projectNameDao: ProjectNameDao
 ) : ProjectRepository {
+    override suspend fun anyRecords(): Boolean = projectNameDao.anyRecords()
+
     override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> =
         projectDao.getProjectsByDateRange(start, end).map { it.toDomain() }
 

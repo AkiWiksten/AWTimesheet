@@ -123,6 +123,8 @@ class GetWorkdayScreenDataUseCaseTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
+        override suspend fun anyRecords(): Boolean = false
+
         var projects: List<SingleProjectState> = emptyList()
         var projectNames: List<String> = emptyList()
 

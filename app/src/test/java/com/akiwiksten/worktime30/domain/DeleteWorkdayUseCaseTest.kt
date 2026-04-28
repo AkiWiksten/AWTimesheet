@@ -75,6 +75,8 @@ class DeleteWorkdayUseCaseTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
+        override suspend fun anyRecords(): Boolean = false
+
         val deletedProjects = mutableListOf<SingleProjectState>()
         val deletedProjectNames = mutableListOf<String>()
         val isProjectNameUsedByName = mutableMapOf<String, Boolean>()

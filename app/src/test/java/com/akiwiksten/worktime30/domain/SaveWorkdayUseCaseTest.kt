@@ -80,6 +80,8 @@ class SaveWorkdayUseCaseTest {
     }
 
     private class FakeProjectRepository : ProjectRepository {
+        override suspend fun anyRecords(): Boolean = false
+
         val insertedProjects = mutableListOf<SingleProjectState>()
         val insertedProjectNames = mutableListOf<String>()
 

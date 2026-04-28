@@ -358,6 +358,8 @@ class WorkdayViewModelTest {
         val insertedProjects = mutableListOf<SingleProjectState>()
         val deletedProjects = mutableListOf<SingleProjectState>()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             return projectsByDateRange.filter { it.date in start..end }
         }

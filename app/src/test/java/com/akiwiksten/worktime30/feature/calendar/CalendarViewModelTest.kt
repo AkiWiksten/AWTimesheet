@@ -80,6 +80,8 @@ class CalendarViewModelTest {
     private open class FakeProjectRepository : ProjectRepository {
         val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             return (dataByRange["$start|$end"] ?: emptyList()).map { entity ->
                 SingleProjectState(

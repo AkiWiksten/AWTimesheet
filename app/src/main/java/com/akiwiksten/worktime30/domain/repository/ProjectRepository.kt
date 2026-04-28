@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.domain.repository
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
 interface ProjectRepository {
+    suspend fun anyRecords(): Boolean
     suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState>
     suspend fun insertProject(project: SingleProjectState)
     suspend fun deleteProject(project: SingleProjectState)

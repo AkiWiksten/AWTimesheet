@@ -144,6 +144,8 @@ class SettingsViewModelTest {
     private class FakeProjectRepository : ProjectRepository {
         val projectsByRange = mutableMapOf<String, List<ProjectEntity>>()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             return (projectsByRange["$start|$end"] ?: emptyList()).map { entity ->
                 SingleProjectState(

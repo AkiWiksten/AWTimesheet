@@ -40,6 +40,8 @@ class GetWorkdayByMonthUseCaseTest {
         var lastEnd: String? = null
         var projectsResult: List<SingleProjectState> = emptyList()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             lastStart = start
             lastEnd = end

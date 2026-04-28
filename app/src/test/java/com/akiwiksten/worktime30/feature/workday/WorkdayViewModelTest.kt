@@ -466,17 +466,13 @@ class WorkdayViewModelTest {
         var workTypes: List<String> = emptyList()
         var workStats: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = null
+        override suspend fun getSettings(): SettingsState? = workStats
 
-        override suspend fun insertSettings(settings: SettingsState) = Unit
-
-        override suspend fun getGlobalSettingsEstimates(): SettingsState? = workStats
-
-        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
-            this.workStats = estimates
+        override suspend fun insertSettings(settings: SettingsState) {
+            this.workStats = settings
         }
 
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = getGlobalSettingsEstimates()
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStats
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

@@ -64,7 +64,14 @@ internal fun UnsavedChangesSection(
     UnsavedChangesDialog(
         onDismiss = { showState.value = false },
         onDiscard = onNavigateBack,
-        onSave = successState?.let { { onConfirm(it.data, it.data.workStats) } },
+        onSave = successState?.let {
+            {
+                onConfirm(
+                    it.data,
+                    it.data.workStats.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
+                )
+            }
+        },
         dialogText = unsavedMessage
     )
 }

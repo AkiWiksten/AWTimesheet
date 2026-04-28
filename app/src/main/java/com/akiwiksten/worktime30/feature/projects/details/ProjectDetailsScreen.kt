@@ -94,7 +94,12 @@ fun ProjectDetailsScreen(
         val actions = remember(viewModel, onConfirm, uiState) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
-                onConfirm(successState.data, successState.data.workStats)
+                onConfirm(
+                    successState.data,
+                    successState.data.workStats.copy(
+                        dailyLunchTimeEstimate = successState.data.lunchTimeEstimate
+                    )
+                )
             }
         }
 

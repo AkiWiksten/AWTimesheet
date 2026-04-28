@@ -19,27 +19,32 @@ class SettingsRepositoryImpl @Inject constructor(
     private val workTypeDao: WorkTypeDao
 ) : SettingsRepository {
     override suspend fun getSettings(): SettingsState? = settingsDao.loadSettings()?.toDomain()
+
     override suspend fun insertSettings(settings: SettingsState) {
-        val existing = settingsDao.loadSettings()
-        settingsDao.insertSettings(
-            settings.toEntity().copy(
-                dailyWorkTimeEstimate = existing?.dailyWorkTimeEstimate ?: settings.dailyWorkTimeEstimate,
-                dailyLunchTimeEstimate = existing?.dailyLunchTimeEstimate ?: settings.dailyLunchTimeEstimate,
-                initialFlexTimeTotal = existing?.initialFlexTimeTotal ?: settings.initialFlexTimeTotal
-            )
-        )
-    }
+        val existing = settingsDao.loadSettings()?.toDomain()
+        val shouldUpdateEstimates = settings.dailyWorkTimeEstimate.isNotEmpty() ||
+            settings.dailyLunchTimeEstimate != ZERO_TIME ||
+            settings.initialFlexTimeTotal != ZERO_TIME
 
-    override suspend fun getGlobalSettingsEstimates(): SettingsState? =
-        settingsDao.loadSettings()?.toDomain()
-
-    override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
-        val existing = settingsDao.loadSettings()?.toDomain() ?: SettingsState()
         settingsDao.insertSettings(
-            existing.copy(
-                dailyWorkTimeEstimate = estimates.dailyWorkTimeEstimate,
-                dailyLunchTimeEstimate = estimates.dailyLunchTimeEstimate,
-                initialFlexTimeTotal = estimates.initialFlexTimeTotal
+            SettingsState(
+                name = settings.name.ifEmpty { existing?.name.orEmpty() },
+                employer = settings.employer.ifEmpty { existing?.employer.orEmpty() },
+                dailyWorkTimeEstimate = if (shouldUpdateEstimates) {
+                    settings.dailyWorkTimeEstimate
+                } else {
+                    existing?.dailyWorkTimeEstimate.orEmpty()
+                },
+                dailyLunchTimeEstimate = if (shouldUpdateEstimates) {
+                    settings.dailyLunchTimeEstimate
+                } else {
+                    existing?.dailyLunchTimeEstimate ?: ZERO_TIME
+                },
+                initialFlexTimeTotal = if (shouldUpdateEstimates) {
+                    settings.initialFlexTimeTotal
+                } else {
+                    existing?.initialFlexTimeTotal ?: ZERO_TIME
+                }
             ).toEntity()
         )
     }

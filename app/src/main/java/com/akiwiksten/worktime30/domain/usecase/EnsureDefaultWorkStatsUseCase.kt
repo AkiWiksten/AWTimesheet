@@ -10,10 +10,10 @@ class EnsureDefaultWorkStatsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke() {
-        val existing = settingsRepository.getGlobalSettingsEstimates()
+        val existing = settingsRepository.getSettings()
         if (existing != null) return
 
-        settingsRepository.saveGlobalSettingsEstimates(
+        settingsRepository.insertSettings(
             SettingsState(
                 dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
                 dailyLunchTimeEstimate = ZERO_TIME,

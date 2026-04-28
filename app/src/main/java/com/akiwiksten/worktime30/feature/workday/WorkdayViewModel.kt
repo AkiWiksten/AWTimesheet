@@ -125,7 +125,7 @@ class WorkdayViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { settingsRepository.saveGlobalSettingsEstimates(it) }
+                state.workStats?.let { settingsRepository.insertSettings(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
@@ -173,6 +173,17 @@ class WorkdayViewModel @Inject constructor(
                 workdayRepository.upsertWorkdayStats(
                     date = currentUiState.date,
                     settingsEstimates = SettingsState(
+                        dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
+                            workTimeTodayEstimate
+                        } else {
+                            existingWorkTimeTodayEstimate
+                        },
+                        dailyLunchTimeEstimate = currentWorkStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
+                        initialFlexTimeTotal = initialFlexTimeTotal
+                    )
+                )
+                settingsRepository.insertSettings(
+                    SettingsState(
                         dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
                             workTimeTodayEstimate
                         } else {

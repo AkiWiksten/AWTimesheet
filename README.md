@@ -85,7 +85,7 @@ This is called feature-based packaging.
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
   + ProjectDetailsRepository → Extract WorkStats and Workday stuff into own repositories?
   + First "Estimated end time" then "End time"
-  + ProjectDetailsState clean otherProjectsTotalTime and workStats
+  + ProjectDetailsState clean otherProjectsTotalTime and workStats (=rename to settings everywhere)
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
   + Show color for modified days

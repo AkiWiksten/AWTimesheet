@@ -130,14 +130,10 @@ class SaveWorkdayUseCaseTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        override suspend fun getSettings(): SettingsState? = null
-
-        override suspend fun insertSettings(settings: SettingsState) = Unit
-
-        override suspend fun getGlobalSettingsEstimates(): SettingsState? =
+        override suspend fun getSettings(): SettingsState? =
             SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
 
-        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) = Unit
+        override suspend fun insertSettings(settings: SettingsState) = Unit
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
 

@@ -154,7 +154,7 @@ class ProjectDetailsViewModelTest {
 
         val state = viewModel.uiState.value as ProjectDetailsUiState.Success
         Assert.assertTrue(state.data.isNewDayForProject())
-        Assert.assertEquals("00:30", state.data.workStats.dailyLunchTimeEstimate)
+        Assert.assertEquals("00:30", state.data.lunchTimeEstimate)
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
@@ -184,15 +184,10 @@ class ProjectDetailsViewModelTest {
         var workStats: SettingsState? = null
         var workStatsByDate: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = null
+        override suspend fun getSettings(): SettingsState? = workStats
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getGlobalSettingsEstimates(): SettingsState? = workStats
-
-        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
-            this.workStats = estimates
-        }
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStatsByDate ?: workStats
 

@@ -144,7 +144,7 @@ class ProjectDetailsViewModel @Inject constructor(
                         successState.data.workStats.dailyWorkTimeEstimate
                     ),
                     dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.data.workStats.dailyLunchTimeEstimate
+                        successState.data.lunchTimeEstimate
                     ),
                     projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                     oldStartTime = oldStart,
@@ -195,7 +195,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
                 dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.data.workStats.dailyLunchTimeEstimate
+                    successState.data.lunchTimeEstimate
                 ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 oldLunchStart = oldLunchStart,
@@ -231,7 +231,7 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                successState.data.workStats.dailyLunchTimeEstimate
+                successState.data.lunchTimeEstimate
             )
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
@@ -243,7 +243,7 @@ class ProjectDetailsViewModel @Inject constructor(
             applyUpdateToState(
                 successState.copy(
                     data = successState.data.copy(
-                        workStats = successState.data.workStats.copy(dailyLunchTimeEstimate = dailyLunchTimeEstimate)
+                        lunchTimeEstimate = dailyLunchTimeEstimate
                     )
                 ),
                 update
@@ -371,7 +371,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val workStats = when {
                 workStatsArg != null -> workStatsArg
                 projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
-                else -> settingsRepository.getGlobalSettingsEstimates()
+                else -> settingsRepository.getSettings()
             }
 
             val nextState = ProjectDetailsUiMapper.applyEntitiesToState(

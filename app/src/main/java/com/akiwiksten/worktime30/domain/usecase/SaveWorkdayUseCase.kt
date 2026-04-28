@@ -34,7 +34,7 @@ class SaveWorkdayUseCase @Inject constructor(
         val affectedDates = projectsToSave.map { it.date }.filter { it.isNotEmpty() }.distinct()
         affectedDates.forEach { date ->
             val existing = settingsRepository.getEffectiveSettingsForDate(date)
-                ?: settingsRepository.getGlobalSettingsEstimates()
+                ?: settingsRepository.getSettings()
                 ?: SettingsState(
                     dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
                     dailyLunchTimeEstimate = ZERO_TIME,

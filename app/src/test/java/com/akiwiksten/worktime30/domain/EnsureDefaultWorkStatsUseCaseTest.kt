@@ -51,15 +51,11 @@ class EnsureDefaultWorkStatsUseCaseTest {
         var workStats: SettingsState? = null
         var insertedWorkStats: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = null
+        override suspend fun getSettings(): SettingsState? = workStats
 
-        override suspend fun insertSettings(settings: SettingsState) = Unit
-
-        override suspend fun getGlobalSettingsEstimates(): SettingsState? = workStats
-
-        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) {
-            insertedWorkStats = estimates
-            this.workStats = estimates
+        override suspend fun insertSettings(settings: SettingsState) {
+            insertedWorkStats = settings
+            workStats = settings
         }
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null

@@ -47,9 +47,6 @@ class GetSettingsUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getGlobalSettingsEstimates(): SettingsState? = null
-
-        override suspend fun saveGlobalSettingsEstimates(estimates: SettingsState) = Unit
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
 

@@ -25,8 +25,8 @@ class WorkdayRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
-        workdayDao.insertWorkday(workStats.toWorkdayEntity(date = date, workTimeToday = workTimeToday))
+    override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) {
+        workdayDao.insertWorkday(workStats.toWorkdayEntity(date = date))
         val existingGlobalStats = workStatsDao.loadWorkStats()?.let {
             WorkStatsState(
                 dailyWorkTimeEstimate = it.dailyWorkTimeEstimate,
@@ -51,7 +51,6 @@ class WorkdayRepositoryImpl @Inject constructor(
         workdayDao.getWorkdaysByDateRange(start, end).map { row ->
             WorkdayStatsRow(
                 date = row.date,
-                workTimeToday = row.workTimeToday,
                 workTimeTodayEstimate = row.workTimeTodayEstimate
             )
         }

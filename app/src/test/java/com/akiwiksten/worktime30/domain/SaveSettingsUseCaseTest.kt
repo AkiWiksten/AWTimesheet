@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.domain
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.data.database.entity.WorkTypeEntity
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
@@ -255,7 +256,10 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
 
-        override suspend fun getProjectTimeSumByDate(date: String): String = ZERO_TIME
+        override suspend fun getProjectTimeSumByDate(date: String): String =
+            projectsByDateRange.filter { it.date == date }.fold(ZERO_TIME) { acc, project ->
+                WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
+            }
     }
 
     private class FakeWorkStatsRepository : WorkStatsRepository {
@@ -277,7 +281,7 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) {
             upsertedWorkdayDate = date
         }
 

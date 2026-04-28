@@ -49,7 +49,6 @@ class SaveWorkdayUseCaseTest {
         assertEquals(1, projectRepository.insertedProjects.size)
         assertEquals(1, projectDetailsRepository.insertedProjectDetails.size)
         assertEquals("2026-04-10", workdayRepository.upsertedWorkdayDate)
-        assertEquals("02:00", workdayRepository.upsertedWorkTimeToday)
     }
 
     @Test
@@ -129,7 +128,8 @@ class SaveWorkdayUseCaseTest {
     }
 
     private class FakeWorkStatsRepository : WorkStatsRepository {
-        override suspend fun getWorkStats(): WorkStatsState? = null
+        override suspend fun getWorkStats(): WorkStatsState? =
+            WorkStatsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
 
         override suspend fun insertWorkStats(workStats: WorkStatsState) = Unit
 
@@ -138,17 +138,16 @@ class SaveWorkdayUseCaseTest {
 
     private class FakeWorkdayRepository : WorkdayRepository {
         var upsertedWorkdayDate: String? = null
-        var upsertedWorkTimeToday: String? = null
         var upsertedWorkStats: WorkStatsState? = null
 
         override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) {
             upsertedWorkdayDate = date
-            upsertedWorkTimeToday = workTimeToday
             upsertedWorkStats = workStats
         }
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }
+
 }

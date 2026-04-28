@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.domain.usecase
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.WorkStatsState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
@@ -47,11 +46,7 @@ class SaveSettingsUseCase @Inject constructor(
             val isCurrentDay = selectedDate == LocalDate.now().toString()
 
             val workTimeToday = if (selectedDate.isNotEmpty()) {
-                projectRepository
-                    .getProjectsByDateRange(selectedDate, selectedDate)
-                    .fold(ZERO_TIME) { acc, project ->
-                        WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
-                    }
+                projectRepository.getProjectTimeSumByDate(selectedDate)
             } else {
                 ZERO_TIME
             }
@@ -60,7 +55,6 @@ class SaveSettingsUseCase @Inject constructor(
                 val existingWorkStats = workStatsRepository.getWorkStatsByDate(selectedDate)
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
-                    workTimeToday = workTimeToday,
                     workStats = WorkStatsState(
                         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                         dailyLunchTimeEstimate = lunchTimeEstimate,

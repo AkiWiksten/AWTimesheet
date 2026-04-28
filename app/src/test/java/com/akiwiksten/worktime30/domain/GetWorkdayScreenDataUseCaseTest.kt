@@ -35,8 +35,8 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
-                WorkdayStatsRow(date = "2026-04-10", workTimeToday = "07:30", workTimeTodayEstimate = "07:30"),
-                WorkdayStatsRow(date = "2026-04-11", workTimeToday = "07:00", workTimeTodayEstimate = "07:30")
+                WorkdayStatsRow(date = "2026-04-10", workTimeTodayEstimate = "07:30"),
+                WorkdayStatsRow(date = "2026-04-11", workTimeTodayEstimate = "07:30")
             )
         }
         val useCase = GetWorkdayScreenDataUseCase(
@@ -69,7 +69,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
-                WorkdayStatsRow(date = "2026-04-10", workTimeToday = "08:00", workTimeTodayEstimate = "07:30")
+                WorkdayStatsRow(date = "2026-04-10", workTimeTodayEstimate = "07:30")
             )
         }
         val useCase = GetWorkdayScreenDataUseCase(
@@ -97,7 +97,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
-                WorkdayStatsRow(date = "2026-04-10", workTimeToday = "08:00", workTimeTodayEstimate = "07:30")
+                WorkdayStatsRow(date = "2026-04-10", workTimeTodayEstimate = "07:30")
             )
         }
         val useCase = GetWorkdayScreenDataUseCase(
@@ -191,7 +191,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) = Unit
+        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> =
             workdayStatsRows.filter { it.date in start..end }

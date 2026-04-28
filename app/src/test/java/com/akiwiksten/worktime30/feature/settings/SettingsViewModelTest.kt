@@ -181,7 +181,7 @@ class SettingsViewModelTest {
     private class FakeWorkdayRepository : WorkdayRepository {
         override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) = Unit
+        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }

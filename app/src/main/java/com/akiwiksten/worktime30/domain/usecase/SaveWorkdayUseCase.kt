@@ -30,11 +30,9 @@ class SaveWorkdayUseCase @Inject constructor(
             projectDetailsRepository.insertProjectDetails(it)
         }
 
-        // Keep WorkdayEntity rows in sync for new/updated project data.
+        // Ensure each affected date has an estimate row for flex-time aggregation.
         val affectedDates = projectsToSave.map { it.date }.filter { it.isNotEmpty() }.distinct()
         affectedDates.forEach { date ->
-            val workTimeToday = projectRepository.getProjectTimeSumByDate(date)
-
             val existing = workStatsRepository.getWorkStatsByDate(date)
                 ?: workStatsRepository.getWorkStats()
                 ?: WorkStatsState(
@@ -42,12 +40,8 @@ class SaveWorkdayUseCase @Inject constructor(
                     dailyLunchTimeEstimate = ZERO_TIME,
                     initialFlexTimeTotal = ZERO_TIME
                 )
-
-            workdayRepository.upsertWorkdayStats(
-                date = date,
-                workTimeToday = workTimeToday,
-                workStats = existing
-            )
+            workdayRepository.upsertWorkdayStats(date = date, workStats = existing)
         }
+
     }
 }

@@ -51,7 +51,6 @@ class WorkdayViewModelTest {
         projectDetailsRepository.workdayStatsRows = listOf(
             WorkdayStatsRow(
                 date = "2026-04-10",
-                workTimeToday = "02:30",
                 workTimeTodayEstimate = "07:30"
             )
         )
@@ -350,9 +349,7 @@ class WorkdayViewModelTest {
             ),
             deleteWorkdayUseCase = DeleteWorkdayUseCase(
                 projectRepository = projectRepository,
-                projectDetailsRepository = projectDetailsRepository,
-                workStatsRepository = workStatsRepository,
-                workdayRepository = workdayRepository
+                projectDetailsRepository = projectDetailsRepository
             ),
             workStatsRepository = workStatsRepository,
             workdayRepository = workdayRepository,
@@ -469,10 +466,9 @@ class WorkdayViewModelTest {
 
         override suspend fun loadWorkday(date: String): WorkStatsState? = null
 
-        override suspend fun upsertWorkdayStats(date: String, workTimeToday: String, workStats: WorkStatsState) {
+        override suspend fun upsertWorkdayStats(date: String, workStats: WorkStatsState) {
             val updatedRow = WorkdayStatsRow(
                 date = date,
-                workTimeToday = workTimeToday,
                 workTimeTodayEstimate = workStats.dailyWorkTimeEstimate
             )
             workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow

@@ -29,9 +29,9 @@ class UpdateSettingsUseCaseTest {
         useCase(
             UpdateSettingsParams(
                 date = LocalDate.now().toString(),
-                workTimeToday = ZERO_TIME,
-                currentWorkTimeTodayEstimate = "07:30",
-                newWorkTimeTodayEstimate = "08:00",
+                workTimeByDate = ZERO_TIME,
+                currentWorkTimeByDateEstimate = "07:30",
+                newWorkTimeByDateEstimate = "08:00",
                 newInitialFlexTimeTotal = "+01:00",
                 updateGlobalSettings = false
             )
@@ -59,9 +59,9 @@ class UpdateSettingsUseCaseTest {
         useCase(
             UpdateSettingsParams(
                 date = LocalDate.now().toString(),
-                workTimeToday = ZERO_TIME,
-                currentWorkTimeTodayEstimate = "07:30",
-                newWorkTimeTodayEstimate = "08:00",
+                workTimeByDate = ZERO_TIME,
+                currentWorkTimeByDateEstimate = "07:30",
+                newWorkTimeByDateEstimate = "08:00",
                 newInitialFlexTimeTotal = "+01:00",
                 updateGlobalSettings = true
             )
@@ -89,9 +89,9 @@ class UpdateSettingsUseCaseTest {
         useCase(
             UpdateSettingsParams(
                 date = "2000-01-01",
-                workTimeToday = "01:00",
-                currentWorkTimeTodayEstimate = "07:30",
-                newWorkTimeTodayEstimate = "08:00",
+                workTimeByDate = "01:00",
+                currentWorkTimeByDateEstimate = "07:30",
+                newWorkTimeByDateEstimate = "08:00",
                 newInitialFlexTimeTotal = "+01:00",
                 updateGlobalSettings = true
             )

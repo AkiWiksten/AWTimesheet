@@ -11,5 +11,5 @@ interface ProjectDetailsRepository {
 
 data class WorkdayStatsRow(
     val date: String,
-    val workTimeTodayEstimate: String
+    val workTimeByDateEstimate: String
 )

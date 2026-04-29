@@ -29,7 +29,7 @@ class WorkdayRepositoryImpl @Inject constructor(
         workdayDao.getWorkdaysByDateRange(start, end).map { row ->
             WorkdayStatsRow(
                 date = row.date,
-                workTimeTodayEstimate = row.workTimeTodayEstimate
+                workTimeByDateEstimate = row.workTimeByDateEstimate
             )
         }
 }

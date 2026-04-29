@@ -32,8 +32,8 @@ sealed class WorkdayUiState {
 
     data class Success(
         val date: String = "",
-        val workTimeToday: String = ZERO_TIME,
-        val workTimeTodayEstimate: String = ZERO_TIME,
+        val workTimeByDate: String = ZERO_TIME,
+        val workTimeByDateEstimate: String = ZERO_TIME,
         val flexTimeToday: String = ZERO_TIME,
         val initialFlexTimeTotal: String = ZERO_TIME,
         val calculatedFlexTimeTotal: String = ZERO_TIME,
@@ -77,11 +77,11 @@ class WorkdayViewModel @Inject constructor(
 
             WorkdayUiState.Success(
                 date = date,
-                workTimeToday = data.workTimeByDate,
-                workTimeTodayEstimate = data.workTimeTodayEstimate,
+                workTimeByDate = data.workTimeByDate,
+                workTimeByDateEstimate = data.workTimeByDateEstimate,
                 flexTimeToday = WorkTimeCalculator.calculateFlexTime(
                     initialTime = data.workTimeByDate,
-                    addedTime = "-${data.workTimeTodayEstimate}"
+                    addedTime = "-${data.workTimeByDateEstimate}"
                 ),
                 initialFlexTimeTotal = data.initialFlexTimeTotal,
                 calculatedFlexTimeTotal = data.calculatedFlexTimeTotal,
@@ -158,8 +158,8 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateSettings(workTimeTodayEstimate: String, updateGlobalSettings: Boolean = false) {
-        if (!isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate)) {
+    fun updateSettings(workTimeByDateEstimate: String, updateGlobalSettings: Boolean = false) {
+        if (!isValidWorkTimeByDateEstimateInput(workTimeByDateEstimate)) {
             return
         }
 
@@ -169,9 +169,9 @@ class WorkdayViewModel @Inject constructor(
                 updateSettingsUseCase(
                     UpdateSettingsParams(
                         date = currentUiState.date,
-                        workTimeToday = currentUiState.workTimeToday,
-                        currentWorkTimeTodayEstimate = currentUiState.workTimeTodayEstimate,
-                        newWorkTimeTodayEstimate = workTimeTodayEstimate,
+                        workTimeByDate = currentUiState.workTimeByDate,
+                        currentWorkTimeByDateEstimate = currentUiState.workTimeByDateEstimate,
+                        newWorkTimeByDateEstimate = workTimeByDateEstimate,
                         newInitialFlexTimeTotal = currentUiState.initialFlexTimeTotal,
                         updateGlobalSettings = updateGlobalSettings
                     )
@@ -186,6 +186,6 @@ class WorkdayViewModel @Inject constructor(
     }
 }
 
-private fun isValidWorkTimeTodayEstimateInput(value: String): Boolean {
+private fun isValidWorkTimeByDateEstimateInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }

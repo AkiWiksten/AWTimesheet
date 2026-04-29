@@ -32,8 +32,8 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
-                WorkdayStatsRow(date = "2026-04-10", workTimeTodayEstimate = "07:30"),
-                WorkdayStatsRow(date = "2026-04-11", workTimeTodayEstimate = "07:30")
+                WorkdayStatsRow(date = "2026-04-10", workTimeByDateEstimate = "07:30"),
+                WorkdayStatsRow(date = "2026-04-11", workTimeByDateEstimate = "07:30")
             )
         }
         val useCase = GetWorkdayScreenDataUseCase(
@@ -45,7 +45,7 @@ class GetWorkdayScreenDataUseCaseTest {
         val result = useCase("2026-04-10")
 
         assertEquals("07:30", result.workTimeByDate)
-        assertEquals("07:30", result.workTimeTodayEstimate)
+        assertEquals("07:30", result.workTimeByDateEstimate)
         assertEquals("+04:15", result.initialFlexTimeTotal)
         assertEquals("03:45", result.calculatedFlexTimeTotal)
         assertEquals(2, result.projects.size)
@@ -65,7 +65,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
-                WorkdayStatsRow(date = "2026-04-10", workTimeTodayEstimate = "07:30")
+                WorkdayStatsRow(date = "2026-04-10", workTimeByDateEstimate = "07:30")
             )
         }
         val useCase = GetWorkdayScreenDataUseCase(
@@ -93,7 +93,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
-                WorkdayStatsRow(date = "2026-04-10", workTimeTodayEstimate = "07:30")
+                WorkdayStatsRow(date = "2026-04-10", workTimeByDateEstimate = "07:30")
             )
         }
         val useCase = GetWorkdayScreenDataUseCase(
@@ -119,7 +119,7 @@ class GetWorkdayScreenDataUseCaseTest {
         val result = useCase("2026-04-10")
 
         assertEquals(ZERO_TIME, result.workTimeByDate)
-        assertEquals("07:30", result.workTimeTodayEstimate)
+        assertEquals("07:30", result.workTimeByDateEstimate)
         assertEquals(ZERO_TIME, result.initialFlexTimeTotal)
         assertEquals(ZERO_TIME, result.calculatedFlexTimeTotal)
     }
@@ -144,7 +144,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals("08:00", result.workTimeTodayEstimate)
+        assertEquals("08:00", result.workTimeByDateEstimate)
     }
 
     private class FakeProjectRepository : ProjectRepository {

@@ -11,12 +11,12 @@ data class WorkdayActions(
 )
 
 internal data class SettingsEditorState(
-    val workTimeTodayEstimate: String,
-    val isWorkTimeTodayEstimateError: Boolean
+    val workTimeByDateEstimate: String,
+    val isWorkTimeByDateEstimateError: Boolean
 )
 
 internal data class WorkdayHeaderActions(
-    val onWorkTimeTodayEstimateChange: (String) -> Unit
+    val onWorkTimeByDateEstimateChange: (String) -> Unit
 )
 
-internal val WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+internal val WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")

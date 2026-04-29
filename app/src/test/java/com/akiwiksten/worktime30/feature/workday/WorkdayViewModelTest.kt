@@ -50,7 +50,7 @@ class WorkdayViewModelTest {
         projectDetailsRepository.workdayStatsRows = listOf(
             WorkdayStatsRow(
                 date = "2026-04-10",
-                workTimeTodayEstimate = "07:30"
+                workTimeByDateEstimate = "07:30"
             )
         )
         projectDetailsRepository.projectDetailsByDateRange = listOf(
@@ -74,8 +74,8 @@ class WorkdayViewModelTest {
         Assert.assertTrue("Expected Success state but was $state", state is WorkdayUiState.Success)
         state as WorkdayUiState.Success
         Assert.assertEquals("2026-04-10", state.date)
-        Assert.assertEquals("02:30", state.workTimeToday)
-        Assert.assertEquals("07:30", state.workTimeTodayEstimate)
+        Assert.assertEquals("02:30", state.workTimeByDate)
+        Assert.assertEquals("07:30", state.workTimeByDateEstimate)
         Assert.assertEquals("-05:00", state.flexTimeToday)
         Assert.assertEquals("+01:45", state.initialFlexTimeTotal)
         Assert.assertEquals("-03:15", state.calculatedFlexTimeTotal)
@@ -215,7 +215,7 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00")
+        viewModel.updateSettings(workTimeByDateEstimate = "08:00")
         advanceUntilIdle()
 
         Assert.assertEquals("08:00", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
@@ -255,7 +255,7 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00")
+        viewModel.updateSettings(workTimeByDateEstimate = "08:00")
         advanceUntilIdle()
 
         Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
@@ -285,7 +285,7 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00")
+        viewModel.updateSettings(workTimeByDateEstimate = "08:00")
         advanceUntilIdle()
 
         Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
@@ -315,14 +315,14 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "8:00")
+        viewModel.updateSettings(workTimeByDateEstimate = "8:00")
         advanceUntilIdle()
 
         Assert.assertEquals(initialStats, projectDetailsRepository.settings)
     }
 
     @Test
-    fun newDateWithoutWorkdayRow_usesGlobalDailyEstimateForWorkTimeTodayEstimate() = runTest {
+    fun newDateWithoutWorkdayRow_usesGlobalDailyEstimateForworkTimeByDateEstimate() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             settings = SettingsState(
@@ -347,8 +347,8 @@ class WorkdayViewModelTest {
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
         Assert.assertEquals("2026-04-12", state.date)
-        Assert.assertEquals(ZERO_TIME, state.workTimeToday)
-        Assert.assertEquals("08:00", state.workTimeTodayEstimate)
+        Assert.assertEquals(ZERO_TIME, state.workTimeByDate)
+        Assert.assertEquals("08:00", state.workTimeByDateEstimate)
     }
 
     @Test
@@ -382,7 +382,7 @@ class WorkdayViewModelTest {
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
         Assert.assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
-        Assert.assertEquals("07:30", state.workTimeTodayEstimate)
+        Assert.assertEquals("07:30", state.workTimeByDateEstimate)
     }
 
     @Test
@@ -416,7 +416,7 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00", updateGlobalSettings = true)
+        viewModel.updateSettings(workTimeByDateEstimate = "08:00", updateGlobalSettings = true)
         advanceUntilIdle()
 
         // Local/day value remains guarded due to non-current date and non-zero work time.
@@ -558,7 +558,7 @@ class WorkdayViewModelTest {
         override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
             val updatedRow = WorkdayStatsRow(
                 date = date,
-                workTimeTodayEstimate = settingsEstimates.dailyWorkTimeEstimate
+                workTimeByDateEstimate = settingsEstimates.dailyWorkTimeEstimate
             )
             workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
             projectDetailsRepository?.workdayStatsRows = workdayStatsRows

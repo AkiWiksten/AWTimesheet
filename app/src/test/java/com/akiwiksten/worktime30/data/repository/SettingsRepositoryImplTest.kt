@@ -92,7 +92,7 @@ class SettingsRepositoryImplTest {
         settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
         workdayDao.workdayResult = WorkdayEntity(
             date = "2026-04-10",
-            workTimeTodayEstimate = "07:45"
+            workTimeByDateEstimate = "07:45"
         )
 
         val result = repository.getEffectiveSettingsForDate("2026-04-10")
@@ -105,7 +105,7 @@ class SettingsRepositoryImplTest {
         settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
         workdayDao.workdayResult = WorkdayEntity(
             date = "2026-04-10",
-            workTimeTodayEstimate = ""
+            workTimeByDateEstimate = ""
         )
 
         val result = repository.getEffectiveSettingsForDate("2026-04-10")

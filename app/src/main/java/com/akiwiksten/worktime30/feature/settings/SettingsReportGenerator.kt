@@ -16,7 +16,7 @@ internal fun generateReport(
     val titles = listOf(
         R.string.date,
         R.string.project,
-        R.string.work_time_today,
+        R.string.work_time_by_date,
         R.string.allowance,
         R.string.work_type,
         R.string.kilometres

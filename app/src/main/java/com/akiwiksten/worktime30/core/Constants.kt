@@ -26,8 +26,8 @@ val ACTION_BUTTON_FONT_SIZE = 18.sp
 // Project Details
 const val START_TIME = "start_time"
 const val END_TIME = "end_time"
-const val WORK_TIME_TODAY = "work_time_today"
-const val WORK_TIME_TODAY_ESTIMATE = "work_time_today_estimate"
+const val WORK_TIME_BY_DATE = "work_time_today"
+const val WORK_TIME_BY_DATE_ESTIMATE = "work_time_today_estimate"
 const val INITIAL_FLEX_TIME_TOTAL = "initial_flex_time_total"
 const val DAILY_WORK_TIME_ESTIMATE = "daily_work_time_estimate"
 const val LUNCH_START = "lunch_start"

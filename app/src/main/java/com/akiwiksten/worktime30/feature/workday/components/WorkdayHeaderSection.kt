@@ -77,17 +77,17 @@ internal fun WorkdayStatsCard(
     settingsEditorState: SettingsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
-    val openWorkTimeTodayEstimatePicker = remember { mutableStateOf(value = false) }
+    val openWorkTimeByDateEstimatePicker = remember { mutableStateOf(value = false) }
 
-    if (openWorkTimeTodayEstimatePicker.value) {
+    if (openWorkTimeByDateEstimatePicker.value) {
         TimePickerDialog(
-            onDismissRequest = { openWorkTimeTodayEstimatePicker.value = false },
+            onDismissRequest = { openWorkTimeByDateEstimatePicker.value = false },
             onConfirmation = { time ->
-                headerActions.onWorkTimeTodayEstimateChange(time)
-                openWorkTimeTodayEstimatePicker.value = false
+                headerActions.onWorkTimeByDateEstimateChange(time)
+                openWorkTimeByDateEstimatePicker.value = false
             },
-            time = settingsEditorState.workTimeTodayEstimate,
-            titleId = R.string.work_time_today_estimate
+            time = settingsEditorState.workTimeByDateEstimate,
+            titleId = R.string.work_time_by_date_estimate
         )
     }
 
@@ -97,7 +97,7 @@ internal fun WorkdayStatsCard(
             flexTimeToday = flexTimeToday,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
             settingsEditorState = settingsEditorState,
-            onWorkTimeTodayEstimatePickerClick = { openWorkTimeTodayEstimatePicker.value = true }
+            onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
     )
 }
@@ -123,10 +123,10 @@ private fun WorkdayStatsCardContent(
                 flexTimeToday = params.flexTimeToday,
                 calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
-            WorkTimeTodayEstimatePickerRow(
-                workTimeTodayEstimate = params.settingsEditorState.workTimeTodayEstimate,
-                isError = params.settingsEditorState.isWorkTimeTodayEstimateError,
-                onPickerClick = params.onWorkTimeTodayEstimatePickerClick
+            WorkTimeByDateEstimatePickerRow(
+                workTimeByDateEstimate = params.settingsEditorState.workTimeByDateEstimate,
+                isError = params.settingsEditorState.isWorkTimeByDateEstimateError,
+                onPickerClick = params.onWorkTimeByDateEstimatePickerClick
             )
         }
     }
@@ -139,7 +139,7 @@ private fun WorkdayStatsSummaryTexts(
     calculatedFlexTimeTotal: String
 ) {
     Text(
-        text = "${stringResource(id = R.string.work_time_today)}: $workTime",
+        text = "${stringResource(id = R.string.work_time_by_date)}: $workTime",
         style = MaterialTheme.typography.bodyLarge.copy(
             fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
             fontWeight = FontWeight.Bold
@@ -170,12 +170,12 @@ private data class WorkdayStatsCardContentParams(
     val flexTimeToday: String,
     val calculatedFlexTimeTotal: String,
     val settingsEditorState: SettingsEditorState,
-    val onWorkTimeTodayEstimatePickerClick: () -> Unit
+    val onWorkTimeByDateEstimatePickerClick: () -> Unit
 )
 
 @Composable
-private fun WorkTimeTodayEstimatePickerRow(
-    workTimeTodayEstimate: String,
+private fun WorkTimeByDateEstimatePickerRow(
+    workTimeByDateEstimate: String,
     isError: Boolean,
     onPickerClick: () -> Unit
 ) {
@@ -185,12 +185,12 @@ private fun WorkTimeTodayEstimatePickerRow(
         horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         OutlinedTextField(
-            value = workTimeTodayEstimate,
+            value = workTimeByDateEstimate,
             onValueChange = {},
             enabled = false,
             label = {
                 Text(
-                    text = stringResource(id = R.string.work_time_today_estimate),
+                    text = stringResource(id = R.string.work_time_by_date_estimate),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold

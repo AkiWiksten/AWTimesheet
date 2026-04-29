@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
-import com.akiwiksten.worktime30.feature.workday.WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX
+import com.akiwiksten.worktime30.feature.workday.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
@@ -60,7 +60,7 @@ internal fun ColumnScope.WorkdaySuccessContent(
     actions: WorkdayActions
 ) {
     val saveUi = rememberWorkdaySaveUi(
-        initialWorkTimeTodayEstimate = state.workTimeTodayEstimate,
+        initialWorkTimeByDateEstimate = state.workTimeByDateEstimate,
         onSaveSettings = actions.onSaveSettings
     )
 
@@ -70,7 +70,7 @@ internal fun ColumnScope.WorkdaySuccessContent(
         date = state.date
     )
     WorkdayStatsCard(
-        workTime = state.workTimeToday,
+        workTime = state.workTimeByDate,
         flexTimeToday = displayState.displayedFlexTimeToday,
         calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
         settingsEditorState = displayState.settingsEditorState,
@@ -101,15 +101,15 @@ private fun rememberWorkdayDisplayState(
     saveUi: WorkdaySaveUi
 ): WorkdayDisplayState {
     val displayedFlexTimeToday = remember(
-        state.workTimeToday,
+        state.workTimeByDate,
         state.flexTimeToday,
-        saveUi.workTimeTodayEstimate,
-        saveUi.isWorkTimeTodayEstimateValid
+        saveUi.workTimeByDateEstimate,
+        saveUi.isWorkTimeByDateEstimateValid
     ) {
-        if (saveUi.isWorkTimeTodayEstimateValid) {
+        if (saveUi.isWorkTimeByDateEstimateValid) {
             WorkTimeCalculator.calculateFlexTime(
-                initialTime = state.workTimeToday,
-                addedTime = "-${saveUi.workTimeTodayEstimate}"
+                initialTime = state.workTimeByDate,
+                addedTime = "-${saveUi.workTimeByDateEstimate}"
             )
         } else {
             state.flexTimeToday
@@ -134,11 +134,11 @@ private fun rememberWorkdayDisplayState(
         displayedFlexTimeToday = displayedFlexTimeToday,
         displayedCalculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
         settingsEditorState = SettingsEditorState(
-            workTimeTodayEstimate = saveUi.workTimeTodayEstimate,
-            isWorkTimeTodayEstimateError = !saveUi.isWorkTimeTodayEstimateValid
+            workTimeByDateEstimate = saveUi.workTimeByDateEstimate,
+            isWorkTimeByDateEstimateError = !saveUi.isWorkTimeByDateEstimateValid
         ),
         headerActions = WorkdayHeaderActions(
-            onWorkTimeTodayEstimateChange = saveUi.onWorkTimeTodayEstimateChange
+            onWorkTimeByDateEstimateChange = saveUi.onWorkTimeByDateEstimateChange
         )
     )
 }
@@ -172,20 +172,20 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
 
 @Composable
 private fun rememberWorkdaySaveUi(
-    initialWorkTimeTodayEstimate: String,
+    initialWorkTimeByDateEstimate: String,
     onSaveSettings: (String, Boolean) -> Unit
 ): WorkdaySaveUi {
     val context = LocalContext.current
     val globalSavedText = stringResource(id = R.string.saved_globally)
     val todaySavedText = stringResource(id = R.string.saved_today)
-    var editedWorkTimeTodayEstimate by remember(initialWorkTimeTodayEstimate) {
-        mutableStateOf(value = initialWorkTimeTodayEstimate)
+    var editedWorkTimeByDateEstimate by remember(initialWorkTimeByDateEstimate) {
+        mutableStateOf(value = initialWorkTimeByDateEstimate)
     }
     var showSaveDialog by remember { mutableStateOf(false) }
-    var pendingWorkTimeTodayEstimate by remember { mutableStateOf("") }
+    var pendingWorkTimeByDateEstimate by remember { mutableStateOf("") }
 
-    val isWorkTimeTodayEstimateValid = remember(editedWorkTimeTodayEstimate) {
-        editedWorkTimeTodayEstimate.matches(WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX)
+    val isWorkTimeByDateEstimateValid = remember(editedWorkTimeByDateEstimate) {
+        editedWorkTimeByDateEstimate.matches(WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX)
     }
 
     if (showSaveDialog) {
@@ -193,24 +193,24 @@ private fun rememberWorkdaySaveUi(
             onDismiss = { showSaveDialog = false },
             onSaveToday = {
                 showSaveDialog = false
-                onSaveSettings(pendingWorkTimeTodayEstimate, false)
+                onSaveSettings(pendingWorkTimeByDateEstimate, false)
                 Toast.makeText(context, todaySavedText, Toast.LENGTH_SHORT).show()
             },
             onSaveGlobally = {
                 showSaveDialog = false
-                onSaveSettings(pendingWorkTimeTodayEstimate, true)
+                onSaveSettings(pendingWorkTimeByDateEstimate, true)
                 Toast.makeText(context, globalSavedText, Toast.LENGTH_SHORT).show()
             }
         )
     }
 
     return WorkdaySaveUi(
-        workTimeTodayEstimate = editedWorkTimeTodayEstimate,
-        isWorkTimeTodayEstimateValid = isWorkTimeTodayEstimateValid,
-        onWorkTimeTodayEstimateChange = { value ->
-            editedWorkTimeTodayEstimate = value
-            if (value != initialWorkTimeTodayEstimate && value.matches(WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX)) {
-                pendingWorkTimeTodayEstimate = value
+        workTimeByDateEstimate = editedWorkTimeByDateEstimate,
+        isWorkTimeByDateEstimateValid = isWorkTimeByDateEstimateValid,
+        onWorkTimeByDateEstimateChange = { value ->
+            editedWorkTimeByDateEstimate = value
+            if (value != initialWorkTimeByDateEstimate && value.matches(WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX)) {
+                pendingWorkTimeByDateEstimate = value
                 showSaveDialog = true
             }
         }
@@ -266,9 +266,9 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
 }
 
 private data class WorkdaySaveUi(
-    val workTimeTodayEstimate: String,
-    val isWorkTimeTodayEstimateValid: Boolean,
-    val onWorkTimeTodayEstimateChange: (String) -> Unit
+    val workTimeByDateEstimate: String,
+    val isWorkTimeByDateEstimateValid: Boolean,
+    val onWorkTimeByDateEstimateChange: (String) -> Unit
 )
 
 private data class WorkdayDisplayState(

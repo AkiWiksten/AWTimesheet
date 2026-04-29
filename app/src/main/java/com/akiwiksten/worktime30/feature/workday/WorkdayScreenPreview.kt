@@ -25,7 +25,7 @@ fun PreviewWorkdaySuccess() {
     WorkdayPreviewContent(
         uiState = WorkdayUiState.Success(
             date = PREVIEW_DATE,
-            workTimeToday = "07:45",
+            workTimeByDate = "07:45",
             projects = listOf(
                 SingleProjectState(
                     date = PREVIEW_DATE,
@@ -62,7 +62,7 @@ fun PreviewWorkdayEmpty() {
     WorkdayPreviewContent(
         uiState = WorkdayUiState.Success(
             date = PREVIEW_DATE,
-            workTimeToday = "00:00",
+            workTimeByDate = "00:00",
             projects = emptyList()
         ),
         selectedItemIndex = -1

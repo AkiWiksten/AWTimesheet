@@ -44,7 +44,7 @@ fun PreviewSingleProjectSuccessAdd() {
             isAddMode = true,
             projectsUiState = WorkdayUiState.Success(
                 date = PREVIEW_DATE,
-                workTimeToday = "07:45",
+                workTimeByDate = "07:45",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
             isConfirmEnabled = false,
@@ -74,7 +74,7 @@ fun PreviewSingleProjectSuccessEdit() {
             isAddMode = false,
             projectsUiState = WorkdayUiState.Success(
                 date = PREVIEW_DATE,
-                workTimeToday = "07:45",
+                workTimeByDate = "07:45",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
             isConfirmEnabled = true,

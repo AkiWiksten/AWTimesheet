@@ -5,7 +5,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 
 fun WorkdayEntity.toSettingsState(dailyLunchTimeEstimate: String, initialFlexTimeTotal: String): SettingsState {
     return SettingsState(
-        dailyWorkTimeEstimate = workTimeTodayEstimate,
+        dailyWorkTimeEstimate = workTimeByDateEstimate,
         dailyLunchTimeEstimate = dailyLunchTimeEstimate,
         initialFlexTimeTotal = initialFlexTimeTotal
     )
@@ -14,6 +14,6 @@ fun WorkdayEntity.toSettingsState(dailyLunchTimeEstimate: String, initialFlexTim
 fun SettingsState.toWorkdayEntity(date: String): WorkdayEntity {
     return WorkdayEntity(
         date = date,
-        workTimeTodayEstimate = dailyWorkTimeEstimate
+        workTimeByDateEstimate = dailyWorkTimeEstimate
     )
 }

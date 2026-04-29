@@ -303,17 +303,17 @@ private fun SingleProjectSuccessContent(
         ?.projectTime
         ?: ZERO_TIME
     val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
-        initialTime = successState?.workTimeToday ?: ZERO_TIME,
+        initialTime = successState?.workTimeByDate ?: ZERO_TIME,
         addedTime = "-$originalProjectTime"
     )
-    val workTimeToday = WorkTimeCalculator.calculateFlexTime(
+    val workTimeByDate = WorkTimeCalculator.calculateFlexTime(
         initialTime = baseWithoutCurrent,
         addedTime = params.state.projectTime
     )
 
     SingleProjectContent(
         padding = padding,
-        workTimeToday = workTimeToday,
+        workTimeByDate = workTimeByDate,
         screenState = SingleProjectScreenState(
             date = params.date,
             editedProjectIndex = params.index,
@@ -375,7 +375,7 @@ private fun SingleProjectTopSection(
 @Composable
 private fun SingleProjectContent(
     padding: PaddingValues,
-    workTimeToday: String,
+    workTimeByDate: String,
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
@@ -390,7 +390,7 @@ private fun SingleProjectContent(
     ) {
         HeaderSection(
             date = screenState.date,
-            workTimeToday = workTimeToday
+            workTimeByDate = workTimeByDate
         )
 
         ElevatedCard(

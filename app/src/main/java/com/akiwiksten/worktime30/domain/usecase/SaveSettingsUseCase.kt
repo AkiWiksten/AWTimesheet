@@ -46,7 +46,7 @@ class SaveSettingsUseCase @Inject constructor(
             val isCurrentDay = selectedDate == LocalDate.now().toString()
 
             val workTimeToday = if (selectedDate.isNotEmpty()) {
-                projectRepository.getProjectTimeSumByDate(selectedDate)
+                projectRepository.getWorkTimeByDate(selectedDate)
             } else {
                 ZERO_TIME
             }

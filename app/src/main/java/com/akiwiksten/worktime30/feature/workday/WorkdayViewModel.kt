@@ -73,18 +73,20 @@ class WorkdayViewModel @Inject constructor(
                 .sortedBy { it.projectName }
                 .mapIndexed { index, project -> project.copy(index = index) }
 
+            val workTypes = settingsRepository.getWorkTypes()
+
             WorkdayUiState.Success(
                 date = date,
-                workTimeToday = data.projectTime,
+                workTimeToday = data.workTimeByDate,
                 workTimeTodayEstimate = data.workTimeTodayEstimate,
                 flexTimeToday = WorkTimeCalculator.calculateFlexTime(
-                    initialTime = data.projectTime,
+                    initialTime = data.workTimeByDate,
                     addedTime = "-${data.workTimeTodayEstimate}"
                 ),
                 initialFlexTimeTotal = data.initialFlexTimeTotal,
                 calculatedFlexTimeTotal = data.calculatedFlexTimeTotal,
                 projects = allProjects,
-                workTypes = data.workTypes
+                workTypes = workTypes
             ) as WorkdayUiState
         }
         .onStart { emit(value = WorkdayUiState.Loading) }

@@ -44,13 +44,12 @@ class GetWorkdayScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals("07:30", result.projectTime)
+        assertEquals("07:30", result.workTimeByDate)
         assertEquals("07:30", result.workTimeTodayEstimate)
         assertEquals("+04:15", result.initialFlexTimeTotal)
         assertEquals("03:45", result.calculatedFlexTimeTotal)
         assertEquals(2, result.projects.size)
         assertEquals(3, result.projectNames.size)
-        assertEquals(listOf("Office", "Remote"), result.workTypes)
     }
 
     @Test
@@ -105,7 +104,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals("08:00", result.projectTime)
+        assertEquals("08:00", result.workTimeByDate)
         assertEquals("00:30", result.calculatedFlexTimeTotal)
     }
 
@@ -119,7 +118,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals(ZERO_TIME, result.projectTime)
+        assertEquals(ZERO_TIME, result.workTimeByDate)
         assertEquals("07:30", result.workTimeTodayEstimate)
         assertEquals(ZERO_TIME, result.initialFlexTimeTotal)
         assertEquals(ZERO_TIME, result.calculatedFlexTimeTotal)
@@ -170,7 +169,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
 
-        override suspend fun getProjectTimeSumByDate(date: String): String =
+        override suspend fun getWorkTimeByDate(date: String): String =
             projects.filter { it.date == date }.fold(ZERO_TIME) { acc, p ->
                 WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
             }

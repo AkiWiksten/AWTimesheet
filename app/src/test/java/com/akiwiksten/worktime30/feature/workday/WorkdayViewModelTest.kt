@@ -502,7 +502,7 @@ class WorkdayViewModelTest {
             return projectsByDateRange.any { it.projectName == projectName }
         }
 
-        override suspend fun getProjectTimeSumByDate(date: String): String =
+        override suspend fun getWorkTimeByDate(date: String): String =
             projectsByDateRange.filter { it.date == date }.fold(ZERO_TIME) { acc, p ->
                 WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
             }

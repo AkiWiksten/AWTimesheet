@@ -33,13 +33,13 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val workdayRows = workdayRepository.getWorkdaysByDateRange(ALL_DATES_START, ALL_DATES_END)
         for (row in workdayRows) {
             val workedTime = projectRepository.getWorkTimeByDate(row.date)
-            val flexTimeToday = WorkTimeCalculator.calculateFlexTime(
+            val flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
                 initialTime = workedTime,
                 addedTime = "-${row.workTimeByDateEstimate}"
             )
             calculatedFlexTimeFromAllWorkdays = WorkTimeCalculator.calculateFlexTime(
                 calculatedFlexTimeFromAllWorkdays,
-                flexTimeToday
+                flexTimeByDate
             )
         }
 

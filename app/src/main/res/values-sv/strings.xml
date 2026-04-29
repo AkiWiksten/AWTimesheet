@@ -18,7 +18,7 @@
     <string name="break_end">Pausslut</string>
     <string name="work_time_by_date">Arbetstid per datum</string>
     <string name="work_time_by_date_estimate">Uppskattad arbetstid per datum</string>
-    <string name="flex_time_today">Flex idag</string>
+    <string name="flex_time_by_date">Flex per datum</string>
     <string name="initial_flex_time_total">Initial total flex</string>
     <string name="flex_time_total_initial_calculated">Total flex (initial+beräknad)</string>
     <string name="projects">Arbetsdagar</string>

@@ -72,7 +72,7 @@ internal fun WorkdayHeader(
 @Composable
 internal fun WorkdayStatsCard(
     workTime: String,
-    flexTimeToday: String,
+    flexTimeByDate: String,
     calculatedFlexTimeTotal: String,
     settingsEditorState: SettingsEditorState,
     headerActions: WorkdayHeaderActions
@@ -94,7 +94,7 @@ internal fun WorkdayStatsCard(
     WorkdayStatsCardContent(
         params = WorkdayStatsCardContentParams(
             workTime = workTime,
-            flexTimeToday = flexTimeToday,
+            flexTimeByDate = flexTimeByDate,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
             settingsEditorState = settingsEditorState,
             onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
@@ -120,7 +120,7 @@ private fun WorkdayStatsCardContent(
         ) {
             WorkdayStatsSummaryTexts(
                 workTime = params.workTime,
-                flexTimeToday = params.flexTimeToday,
+                flexTimeByDate = params.flexTimeByDate,
                 calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
             WorkTimeByDateEstimatePickerRow(
@@ -135,7 +135,7 @@ private fun WorkdayStatsCardContent(
 @Composable
 private fun WorkdayStatsSummaryTexts(
     workTime: String,
-    flexTimeToday: String,
+    flexTimeByDate: String,
     calculatedFlexTimeTotal: String
 ) {
     Text(
@@ -147,7 +147,7 @@ private fun WorkdayStatsSummaryTexts(
         color = MaterialTheme.colorScheme.onSurface
     )
     Text(
-        text = "${stringResource(id = R.string.flex_time_today)}: $flexTimeToday",
+        text = "${stringResource(id = R.string.flex_time_by_date)}: $flexTimeByDate",
         style = MaterialTheme.typography.bodyLarge.copy(
             fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
             fontWeight = FontWeight.Bold
@@ -167,7 +167,7 @@ private fun WorkdayStatsSummaryTexts(
 
 private data class WorkdayStatsCardContentParams(
     val workTime: String,
-    val flexTimeToday: String,
+    val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
     val settingsEditorState: SettingsEditorState,
     val onWorkTimeByDateEstimatePickerClick: () -> Unit

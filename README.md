@@ -43,13 +43,13 @@ A clean, scalable example of this is:
 This is called feature-based packaging.
 
 ## Code analysis and testing
-+ ./gradlew detekt
-+ ./gradlew lint
-+ Run SonarCube
-+ Run androidTest (DAO tests)
-+ Run test (Unit tests)
-+ Run official Compose screenshot baseline update: ./gradlew updateScreenshotTest
-+ Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
+1. Run unit tests
+2. Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
+3. (If needed, run official Compose screenshot baseline update: ./gradlew updateScreenshotTest)
+4. (If needed, run androidTest (DAO tests))
+5. ./gradlew detekt
+6. ./gradlew lint
+7. Run SonarCube
 
 ## Features to be implemented still
 + General

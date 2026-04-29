@@ -261,7 +261,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val updatedState = successState.copy(
                 settings = successState.settings.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
             )
-            // flexTimeToday is now calculated on-the-fly in the UI, not stored in state
+            // flexTimeByDate is now calculated on-the-fly in the UI, not stored in state
             updatedState
         }
     }

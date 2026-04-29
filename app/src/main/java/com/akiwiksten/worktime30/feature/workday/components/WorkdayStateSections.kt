@@ -71,7 +71,7 @@ internal fun ColumnScope.WorkdaySuccessContent(
     )
     WorkdayStatsCard(
         workTime = state.workTimeByDate,
-        flexTimeToday = displayState.displayedFlexTimeToday,
+        flexTimeByDate = displayState.displayedflexTimeByDate,
         calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
         settingsEditorState = displayState.settingsEditorState,
         headerActions = displayState.headerActions
@@ -100,9 +100,9 @@ private fun rememberWorkdayDisplayState(
     state: WorkdayUiState.Success,
     saveUi: WorkdaySaveUi
 ): WorkdayDisplayState {
-    val displayedFlexTimeToday = remember(
+    val displayedflexTimeByDate = remember(
         state.workTimeByDate,
-        state.flexTimeToday,
+        state.flexTimeByDate,
         saveUi.workTimeByDateEstimate,
         saveUi.isWorkTimeByDateEstimateValid
     ) {
@@ -112,26 +112,26 @@ private fun rememberWorkdayDisplayState(
                 addedTime = "-${saveUi.workTimeByDateEstimate}"
             )
         } else {
-            state.flexTimeToday
+            state.flexTimeByDate
         }
     }
 
     val displayedCalculatedFlexTimeTotal = remember(
         state.initialFlexTimeTotal,
         state.calculatedFlexTimeTotal,
-        state.flexTimeToday,
-        displayedFlexTimeToday
+        state.flexTimeByDate,
+        displayedflexTimeByDate
     ) {
         calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
             persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-            persistedFlexTimeToday = state.flexTimeToday,
-            editedFlexTimeToday = displayedFlexTimeToday
+            persistedflexTimeByDate = state.flexTimeByDate,
+            editedflexTimeByDate = displayedflexTimeByDate
         )
     }
 
     return WorkdayDisplayState(
-        displayedFlexTimeToday = displayedFlexTimeToday,
+        displayedflexTimeByDate = displayedflexTimeByDate,
         displayedCalculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
         settingsEditorState = SettingsEditorState(
             workTimeByDateEstimate = saveUi.workTimeByDateEstimate,
@@ -146,22 +146,22 @@ private fun rememberWorkdayDisplayState(
 internal fun calculateDisplayedCalculatedFlexTimeTotal(
     persistedInitialFlexTimeTotal: String,
     persistedCalculatedFlexTimeTotal: String,
-    persistedFlexTimeToday: String,
-    editedFlexTimeToday: String
+    persistedflexTimeByDate: String,
+    editedflexTimeByDate: String
 ): String {
     val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
         initialTime = persistedCalculatedFlexTimeTotal,
         addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedInitialFlexTimeTotal")
     )
 
-    val flexTimeTodayDelta = WorkTimeCalculator.calculateFlexTime(
-        initialTime = editedFlexTimeToday,
-        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedFlexTimeToday")
+    val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
+        initialTime = editedflexTimeByDate,
+        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedflexTimeByDate")
     )
 
     val recalculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
         initialTime = calculatedOnlyFlexTimeTotal,
-        addedTime = flexTimeTodayDelta
+        addedTime = flexTimeByDateDelta
     )
 
     return WorkTimeCalculator.calculateFlexTime(
@@ -170,6 +170,7 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
     )
 }
 
+@Suppress("kotlin:S6615", "UNUSED_VALUE")
 @Composable
 private fun rememberWorkdaySaveUi(
     initialWorkTimeByDateEstimate: String,
@@ -181,24 +182,24 @@ private fun rememberWorkdaySaveUi(
     var editedWorkTimeByDateEstimate by remember(initialWorkTimeByDateEstimate) {
         mutableStateOf(value = initialWorkTimeByDateEstimate)
     }
-    var showSaveDialog by remember { mutableStateOf(false) }
-    var pendingWorkTimeByDateEstimate by remember { mutableStateOf("") }
+    val showSaveDialogState = remember { mutableStateOf(false) }
+    val pendingWorkTimeByDateEstimateState = remember { mutableStateOf("") }
 
     val isWorkTimeByDateEstimateValid = remember(editedWorkTimeByDateEstimate) {
         editedWorkTimeByDateEstimate.matches(WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX)
     }
 
-    if (showSaveDialog) {
+    if (showSaveDialogState.value) {
         SaveWorkTimeEstimateDialog(
-            onDismiss = { showSaveDialog = false },
+            onDismiss = { showSaveDialogState.value = false },
             onSaveToday = {
-                showSaveDialog = false
-                onSaveSettings(pendingWorkTimeByDateEstimate, false)
+                showSaveDialogState.value = false
+                onSaveSettings(pendingWorkTimeByDateEstimateState.value, false)
                 Toast.makeText(context, todaySavedText, Toast.LENGTH_SHORT).show()
             },
             onSaveGlobally = {
-                showSaveDialog = false
-                onSaveSettings(pendingWorkTimeByDateEstimate, true)
+                showSaveDialogState.value = false
+                onSaveSettings(pendingWorkTimeByDateEstimateState.value, true)
                 Toast.makeText(context, globalSavedText, Toast.LENGTH_SHORT).show()
             }
         )
@@ -210,8 +211,8 @@ private fun rememberWorkdaySaveUi(
         onWorkTimeByDateEstimateChange = { value ->
             editedWorkTimeByDateEstimate = value
             if (value != initialWorkTimeByDateEstimate && value.matches(WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX)) {
-                pendingWorkTimeByDateEstimate = value
-                showSaveDialog = true
+                pendingWorkTimeByDateEstimateState.value = value
+                showSaveDialogState.value = true
             }
         }
     )
@@ -272,7 +273,7 @@ private data class WorkdaySaveUi(
 )
 
 private data class WorkdayDisplayState(
-    val displayedFlexTimeToday: String,
+    val displayedflexTimeByDate: String,
     val displayedCalculatedFlexTimeTotal: String,
     val settingsEditorState: SettingsEditorState,
     val headerActions: WorkdayHeaderActions

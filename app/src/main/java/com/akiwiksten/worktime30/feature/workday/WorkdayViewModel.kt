@@ -34,7 +34,7 @@ sealed class WorkdayUiState {
         val date: String = "",
         val workTimeByDate: String = ZERO_TIME,
         val workTimeByDateEstimate: String = ZERO_TIME,
-        val flexTimeToday: String = ZERO_TIME,
+        val flexTimeByDate: String = ZERO_TIME,
         val initialFlexTimeTotal: String = ZERO_TIME,
         val calculatedFlexTimeTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
@@ -79,7 +79,7 @@ class WorkdayViewModel @Inject constructor(
                 date = date,
                 workTimeByDate = data.workTimeByDate,
                 workTimeByDateEstimate = data.workTimeByDateEstimate,
-                flexTimeToday = WorkTimeCalculator.calculateFlexTime(
+                flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
                     initialTime = data.workTimeByDate,
                     addedTime = "-${data.workTimeByDateEstimate}"
                 ),

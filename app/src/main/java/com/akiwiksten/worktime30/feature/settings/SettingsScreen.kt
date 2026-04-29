@@ -161,13 +161,11 @@ private fun createSettingsActions(
         onSave = { settingsViewModel.saveSettings() },
         onGeneratePdf = {
             generateReport(
-                params = GenerateReportParams(
-                    ctx = ctx,
-                    projectsByMonth = successState.projectsByMonth,
-                    endOfMonthDate = successState.data.endMonthDate,
-                    name = successState.data.name,
-                    employer = successState.data.employer
-                )
+                ctx = ctx,
+                projectsByMonth = successState.projectsByMonth,
+                endOfMonthDate = successState.data.endMonthDate,
+                name = successState.data.name,
+                employer = successState.data.employer
             )
         }
     )

@@ -6,8 +6,8 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
-import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,7 +33,7 @@ sealed class SettingsUiState {
 class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val saveSettingsUseCase: SaveSettingsUseCase,
-    private val projectRepository: ProjectRepository,
+    private val getProjectsByMonthUseCase: GetProjectsByMonthUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -130,11 +130,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val parsedDate = LocalDate.parse(date)
-                val startOfMonth = parsedDate.withDayOfMonth(1).toString()
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
-                val projects = projectRepository.getProjectsByDateRange(startOfMonth, endOfMonth)
+                val projects = getProjectsByMonthUseCase(date)
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     _uiState.value = currentState.copy(
@@ -163,8 +162,7 @@ class SettingsViewModel @Inject constructor(
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
-                val startOfMonth = parsedDate.withDayOfMonth(1).toString()
-                val projects = projectRepository.getProjectsByDateRange(startOfMonth, endOfMonth)
+                val projects = getProjectsByMonthUseCase(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
                     data = SettingsState(

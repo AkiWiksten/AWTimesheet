@@ -9,6 +9,7 @@ import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
+import com.akiwiksten.worktime30.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
@@ -100,7 +101,7 @@ class SettingsViewModelTest {
                 projectRepository = projectRepository,
                 dateRepository = dateRepository
             ),
-            projectRepository = projectRepository,
+            getProjectsByMonthUseCase = GetProjectsByMonthUseCase(projectRepository),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
         )

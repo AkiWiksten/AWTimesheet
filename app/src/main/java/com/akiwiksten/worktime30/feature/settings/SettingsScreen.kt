@@ -342,7 +342,6 @@ private fun GlobalDefaultsCard(state: SettingsContentBodyState) {
             text = stringResource(id = R.string.global_defaults),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.error
         )
         HorizontalDivider()
 

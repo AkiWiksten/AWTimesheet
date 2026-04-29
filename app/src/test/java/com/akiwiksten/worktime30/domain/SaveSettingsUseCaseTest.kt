@@ -73,8 +73,8 @@ class SaveSettingsUseCaseTest {
 
         useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList(), dailyWorkTimeEstimate = "07:30")
 
-        assertEquals("07:30", settingsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
-        assertEquals("00:00", settingsRepository.insertedWorkStats?.dailyLunchTimeEstimate)
+        assertEquals("07:30", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
+        assertEquals("00:00", settingsRepository.insertedSettings?.dailyLunchTimeEstimate)
     }
 
     @Test
@@ -95,13 +95,13 @@ class SaveSettingsUseCaseTest {
             dailyLunchTimeEstimate = "00:30"
         )
 
-        assertEquals("00:30", settingsRepository.insertedWorkStats?.dailyLunchTimeEstimate)
+        assertEquals("00:30", settingsRepository.insertedSettings?.dailyLunchTimeEstimate)
     }
 
     @Test
     fun invoke_withDailyWorkTimeEstimate_nonCurrentDay_updatesGlobalStatsButNotWorkday() = runBlocking {
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:00"
@@ -117,7 +117,7 @@ class SaveSettingsUseCaseTest {
 
         useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList(), dailyWorkTimeEstimate = "08:00")
 
-        assertEquals("08:00", settingsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
+        assertEquals("08:00", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
         assertNull(workdayRepository.upsertedWorkdayDate)
     }
 
@@ -125,7 +125,7 @@ class SaveSettingsUseCaseTest {
     fun invoke_withDailyWorkTimeEstimate_currentDayAndNonZeroWorkTime_updatesGlobalStatsButNotWorkday() = runBlocking {
         val today = LocalDate.now().toString()
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:00"
@@ -144,7 +144,7 @@ class SaveSettingsUseCaseTest {
 
         useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList(), dailyWorkTimeEstimate = "08:00")
 
-        assertEquals("08:00", settingsRepository.insertedWorkStats?.dailyWorkTimeEstimate)
+        assertEquals("08:00", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
         assertNull(workdayRepository.upsertedWorkdayDate)
     }
 
@@ -152,24 +152,24 @@ class SaveSettingsUseCaseTest {
         val operations = mutableListOf<String>()
         val insertedWorkTypes = mutableListOf<WorkTypeEntity>()
         var savedSettings: SettingsState? = null
-        var workStats: SettingsState? = null
-        var insertedWorkStats: SettingsState? = null
+        var settings: SettingsState? = null
+        var insertedSettings: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = workStats
+        override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) {
             operations += "insertSettings"
             savedSettings = settings
-            val isWorkStatsWrite = settings.dailyWorkTimeEstimate.isNotEmpty() ||
+            val isSettingsWrite = settings.dailyWorkTimeEstimate.isNotEmpty() ||
                 settings.dailyLunchTimeEstimate != ZERO_TIME ||
                 settings.initialFlexTimeTotal != ZERO_TIME
-            if (isWorkStatsWrite) {
-                insertedWorkStats = settings
-                workStats = settings
+            if (isSettingsWrite) {
+                insertedSettings = settings
+                this.settings = settings
             }
         }
 
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStats
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = settings
 
         override suspend fun getWorkTypes(): List<String> = emptyList()
 

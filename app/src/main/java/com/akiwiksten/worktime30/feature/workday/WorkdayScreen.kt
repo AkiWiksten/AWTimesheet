@@ -48,7 +48,7 @@ fun WorkdayScreen(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onNavigateToSingleProject = onNavigateToSingleProject,
             onRetry = workdayViewModel::retryLoad,
-            onSaveWorkStats = workdayViewModel::updateWorkStats,
+            onSaveSettings = workdayViewModel::updateSettings,
             onDeleteProject = { project ->
                 workdayViewModel.deleteProject(state = project)
                 selectedItemIndexState.intValue = -1

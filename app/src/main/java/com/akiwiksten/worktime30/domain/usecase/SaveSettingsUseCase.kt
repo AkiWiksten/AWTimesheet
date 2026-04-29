@@ -49,13 +49,13 @@ class SaveSettingsUseCase @Inject constructor(
             }
 
             if (isCurrentDay && workTimeToday == ZERO_TIME && selectedDate.isNotEmpty()) {
-                val existingWorkStats = settingsRepository.getEffectiveSettingsForDate(selectedDate)
+                val existingSettings = settingsRepository.getEffectiveSettingsForDate(selectedDate)
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
                     settingsEstimates = SettingsState(
                         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
                         dailyLunchTimeEstimate = dailyLunchTimeEstimate,
-                        initialFlexTimeTotal = existingWorkStats?.initialFlexTimeTotal ?: ZERO_TIME
+                        initialFlexTimeTotal = existingSettings?.initialFlexTimeTotal ?: ZERO_TIME
                     )
                 )
             }

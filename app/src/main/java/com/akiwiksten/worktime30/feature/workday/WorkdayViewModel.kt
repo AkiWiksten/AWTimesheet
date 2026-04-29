@@ -13,7 +13,7 @@ import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.domain.usecase.UpdateWorkStatsUseCase
+import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +49,7 @@ class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
     private val deleteWorkdayUseCase: DeleteWorkdayUseCase,
-    private val updateWorkStatsUseCase: UpdateWorkStatsUseCase,
+    private val updateSettingsUseCase: UpdateSettingsUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -104,7 +104,7 @@ class WorkdayViewModel @Inject constructor(
     fun saveProject(
         state: SingleProjectState,
         projectDetails: ProjectDetailsState? = null,
-        workStats: SettingsState? = null
+        settings: SettingsState? = null
     ) {
         viewModelScope.launch {
             try {
@@ -128,7 +128,7 @@ class WorkdayViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                workStats?.let { settingsRepository.insertSettings(it) }
+                settings?.let { settingsRepository.insertSettings(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
@@ -155,7 +155,7 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateWorkStats(workTimeTodayEstimate: String, initialFlexTimeTotal: String) {
+    fun updateSettings(workTimeTodayEstimate: String, initialFlexTimeTotal: String) {
         if (
             !isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate) ||
             !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)
@@ -166,7 +166,7 @@ class WorkdayViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
-                updateWorkStatsUseCase(
+                updateSettingsUseCase(
                     date = currentUiState.date,
                     workTimeToday = currentUiState.workTimeToday,
                     currentWorkTimeTodayEstimate = currentUiState.workTimeTodayEstimate,
@@ -175,9 +175,9 @@ class WorkdayViewModel @Inject constructor(
                 )
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                Log.e("WorkdayViewModel", "updateWorkStats: ", e)
+                Log.e("WorkdayViewModel", "updateSettings: ", e)
             } catch (e: IllegalStateException) {
-                Log.e("WorkdayViewModel", "updateWorkStats: ", e)
+                Log.e("WorkdayViewModel", "updateSettings: ", e)
             }
         }
     }

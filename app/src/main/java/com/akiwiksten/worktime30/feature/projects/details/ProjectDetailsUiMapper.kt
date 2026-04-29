@@ -9,21 +9,21 @@ object ProjectDetailsUiMapper {
     fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
-        workStats: SettingsState?
+        settings: SettingsState?
     ): ProjectDetailsUiState.Success {
-        val normalizedWorkStats = normalizedWorkStats(workStats = workStats)
+        val normalizedSettings = normalizedSettings(settings = settings)
         val mappedData = projectDetails?.let {
             applyProjectDetails(state = baseState.data, projectDetails = it)
         } ?: applyEmptyDayDefaults(
             state = baseState.data,
-            lunchTimeEstimate = normalizedWorkStats.dailyLunchTimeEstimate
+            lunchTimeEstimate = normalizedSettings.dailyLunchTimeEstimate
         )
 
-        return baseState.copy(data = mappedData, workStats = normalizedWorkStats)
+        return baseState.copy(data = mappedData, settings = normalizedSettings)
     }
 
-    private fun normalizedWorkStats(workStats: SettingsState?): SettingsState {
-        val data = workStats ?: SettingsState()
+    private fun normalizedSettings(settings: SettingsState?): SettingsState {
+        val data = settings ?: SettingsState()
         return SettingsState(
             dailyWorkTimeEstimate = data.dailyWorkTimeEstimate.ifEmpty { DEFAULT_DAILY_WORK_TIME },
             dailyLunchTimeEstimate = data.dailyLunchTimeEstimate.ifEmpty { ZERO_TIME },

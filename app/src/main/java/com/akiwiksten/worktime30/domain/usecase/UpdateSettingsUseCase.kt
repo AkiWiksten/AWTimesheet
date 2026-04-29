@@ -7,7 +7,7 @@ import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import java.time.LocalDate
 import javax.inject.Inject
 
-class UpdateWorkStatsUseCase @Inject constructor(
+class UpdateSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val workdayRepository: WorkdayRepository
 ) {
@@ -20,8 +20,8 @@ class UpdateWorkStatsUseCase @Inject constructor(
     ) {
         val isCurrentDay = date == LocalDate.now().toString()
         val canUpdateWorkTimeTodayEstimate = isCurrentDay && workTimeToday == ZERO_TIME
-        val currentWorkStats = settingsRepository.getEffectiveSettingsForDate(date)
-        val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTimeEstimate
+        val currentSettings = settingsRepository.getEffectiveSettingsForDate(date)
+        val existingWorkTimeTodayEstimate = currentSettings?.dailyWorkTimeEstimate
             ?.ifEmpty { currentWorkTimeTodayEstimate }
             ?: currentWorkTimeTodayEstimate
 
@@ -31,7 +31,7 @@ class UpdateWorkStatsUseCase @Inject constructor(
             } else {
                 existingWorkTimeTodayEstimate
             },
-            dailyLunchTimeEstimate = currentWorkStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
+            dailyLunchTimeEstimate = currentSettings?.dailyLunchTimeEstimate ?: ZERO_TIME,
             initialFlexTimeTotal = newInitialFlexTimeTotal
         )
 
@@ -39,3 +39,4 @@ class UpdateWorkStatsUseCase @Inject constructor(
         settingsRepository.insertSettings(nextStats)
     }
 }
+

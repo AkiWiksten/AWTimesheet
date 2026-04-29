@@ -25,7 +25,7 @@ internal fun rememberBaselineData(
         val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
         if (isBaselineInitialized || !isInitialLoadComplete) return@LaunchedEffect
         val data = successState.data
-        if (data.date.isNotBlank() && data.matchesArgs(args = args, workStats = successState.workStats)) {
+        if (data.date.isNotBlank() && data.matchesArgs(args = args, settings = successState.settings)) {
             initialData = data
             isBaselineInitialized = true
         }
@@ -34,8 +34,8 @@ internal fun rememberBaselineData(
     return initialData
 }
 
-internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs, workStats: SettingsState): Boolean {
-    val projectDetailsArg = args.projectDetails ?: return args.workStats == null || workStats == args.workStats
+internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs, settings: SettingsState): Boolean {
+    val projectDetailsArg = args.projectDetails ?: return args.settings == null || settings == args.settings
     val expectedProjectTime = ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
         startTime = projectDetailsArg.startTime.ifEmpty { ZERO_TIME },
         endTime = projectDetailsArg.endTime.ifEmpty { ZERO_TIME },
@@ -48,7 +48,7 @@ internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs, workStats
         breakStart == projectDetailsArg.breakStart &&
         breakEnd == projectDetailsArg.breakEnd &&
         projectTime == expectedProjectTime
-    return matchesDetails && (args.workStats == null || workStats == args.workStats)
+    return matchesDetails && (args.settings == null || settings == args.settings)
 }
 
 @Composable
@@ -68,7 +68,7 @@ internal fun UnsavedChangesSection(
             {
                 onConfirm(
                     it.data,
-                    it.workStats.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
+                    it.settings.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
                 )
             }
         },

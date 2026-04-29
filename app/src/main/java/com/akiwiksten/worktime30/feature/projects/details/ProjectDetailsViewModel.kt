@@ -141,7 +141,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
                     dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.workStats.dailyWorkTimeEstimate
+                        successState.settings.dailyWorkTimeEstimate
                     ),
                     dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
                         successState.data.lunchTimeEstimate
@@ -259,7 +259,7 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val updatedState = successState.copy(
-                workStats = successState.workStats.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
+                settings = successState.settings.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
             )
             // flexTimeToday is now calculated on-the-fly in the UI, not stored in state
             updatedState
@@ -328,10 +328,10 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     val getSettingsEstimatesState: () -> SettingsState = {
-        (uiState.value as ProjectDetailsUiState.Success).workStats
+        (uiState.value as ProjectDetailsUiState.Success).settings
     }
 
-    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: SettingsState? = null) {
+    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, settingsArg: SettingsState? = null) {
         _isInitialLoadComplete.value = false
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
@@ -341,7 +341,7 @@ class ProjectDetailsViewModel @Inject constructor(
             loadProjectDetailsInternal(
                 baseState = baseState,
                 projectDetailsArg = projectDetailsArg,
-                workStatsArg = workStatsArg,
+                settingsArg = settingsArg,
                 showLoading = showLoading
             )
         }
@@ -350,7 +350,7 @@ class ProjectDetailsViewModel @Inject constructor(
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
         projectDetailsArg: ProjectDetailsState? = null,
-        workStatsArg: SettingsState? = null,
+        settingsArg: SettingsState? = null,
         showLoading: Boolean
     ) {
         if (showLoading && _uiState.value !is ProjectDetailsUiState.Success) {
@@ -366,8 +366,8 @@ class ProjectDetailsViewModel @Inject constructor(
             if (date.isEmpty()) return
 
             val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
-            val workStats = when {
-                workStatsArg != null -> workStatsArg
+            val settings = when {
+                settingsArg != null -> settingsArg
                 projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
                 else -> settingsRepository.getSettings()
             }
@@ -380,7 +380,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     )
                 ),
                 projectDetails,
-                workStats
+                settings
             )
             _uiState.value = nextState
         } catch (e: IllegalArgumentException) {
@@ -417,7 +417,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.workStats.dailyWorkTimeEstimate
+                    successState.settings.dailyWorkTimeEstimate
                 ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldProjectTime = oldProjectTime

@@ -27,7 +27,7 @@ class GetWorkdayScreenDataUseCaseTest {
         }
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office", "Remote")
-            workStats = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
+            settings = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -60,7 +60,7 @@ class GetWorkdayScreenDataUseCaseTest {
             )
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            settings = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -87,7 +87,7 @@ class GetWorkdayScreenDataUseCaseTest {
             projectNames = listOf("Alpha")
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
+            settings = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -152,17 +152,17 @@ class GetWorkdayScreenDataUseCaseTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         var workTypes: List<String> = emptyList()
-        var workStats: SettingsState? =
+        var settings: SettingsState? =
             SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 initialFlexTimeTotal = ZERO_TIME
             )
 
-        override suspend fun getSettings(): SettingsState? = workStats
+        override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStats
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = settings
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

@@ -6,7 +6,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import javax.inject.Inject
 
-class EnsureDefaultWorkStatsUseCase @Inject constructor(
+class EnsureDefaultSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke() {
@@ -22,3 +22,4 @@ class EnsureDefaultWorkStatsUseCase @Inject constructor(
         )
     }
 }
+

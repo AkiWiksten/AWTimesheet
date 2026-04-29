@@ -75,7 +75,7 @@ fun SingleProjectScreen(
             onNavigateBack = navigationActions.onNavigateBack,
             onOpenProjectDetails = navigationActions.onOpenProjectDetails,
             onSave = { state ->
-                viewModel.saveProject(state, args.initialProjectDetails, args.initialWorkStats)
+                viewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
         )
@@ -96,13 +96,13 @@ private fun SingleProjectScreenStateful(
         args.initialSingleProjectState.projectTime,
         args.initialSingleProjectState.projectName,
         args.initialProjectDetails,
-        args.initialWorkStats,
+        args.initialSettings,
         config.noAllowanceText
     ) {
         resolveInitialSingleProjectState(
             initialSingleProjectState = args.initialSingleProjectState,
             initialProjectDetails = args.initialProjectDetails,
-            initialWorkStats = args.initialWorkStats,
+            initialSettings = args.initialSettings,
             projectsUiState = projectsUiState
         ).withDefaultAllowance(defaultAllowance = config.noAllowanceText)
     }
@@ -133,7 +133,7 @@ private fun SingleProjectScreenStateful(
             onStateChange = { state = it },
             onNavigateBack = config.onNavigateBack,
             onOpenProjectDetails = {
-                config.onOpenProjectDetails(state, args.initialProjectDetails, args.initialWorkStats)
+                config.onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
             },
             onConfirm = {
                 config.onSave(state)
@@ -154,7 +154,7 @@ private data class SingleProjectScreenStatefulConfig(
 data class SingleProjectScreenArgs(
     val initialSingleProjectState: SingleProjectState,
     val initialProjectDetails: ProjectDetailsState? = null,
-    val initialWorkStats: SettingsState? = null
+    val initialSettings: SettingsState? = null
 )
 
 data class SingleProjectNavigationActions(

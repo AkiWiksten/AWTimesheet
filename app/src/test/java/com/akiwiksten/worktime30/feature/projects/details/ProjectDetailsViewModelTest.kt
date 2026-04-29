@@ -33,7 +33,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
@@ -52,7 +52,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals("2026-04-10", state.data.date)
         Assert.assertEquals("Alpha", state.data.projectName)
         Assert.assertEquals("08:00", state.data.startTime)
-        Assert.assertEquals("01:00", state.workStats.initialFlexTimeTotal)
+        Assert.assertEquals("01:00", state.settings.initialFlexTimeTotal)
     }
 
     @Test
@@ -73,7 +73,7 @@ class ProjectDetailsViewModelTest {
                 endTime = "16:00",
                 projectTime = "08:00",
             ),
-            workStatsArg = SettingsState(
+            settingsArg = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "02:00"
@@ -82,9 +82,9 @@ class ProjectDetailsViewModelTest {
         advanceUntilIdle()
 
         val persistedProjectDetails = viewModel.getProjectDetailsState()
-        val workStats = viewModel.getSettingsEstimatesState()
+        val settings = viewModel.getSettingsEstimatesState()
         Assert.assertEquals("Alpha", persistedProjectDetails.projectName)
-        Assert.assertEquals("02:00", workStats.initialFlexTimeTotal)
+        Assert.assertEquals("02:00", settings.initialFlexTimeTotal)
 
         viewModel.clearDay()
 
@@ -92,7 +92,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals(ZERO_TIME, cleared.data.startTime)
         Assert.assertEquals(ZERO_TIME, cleared.data.endTime)
         Assert.assertEquals(ZERO_TIME, cleared.data.projectTime)
-        Assert.assertEquals("02:00", cleared.workStats.initialFlexTimeTotal)
+        Assert.assertEquals("02:00", cleared.settings.initialFlexTimeTotal)
     }
 
     @Test
@@ -113,7 +113,7 @@ class ProjectDetailsViewModelTest {
                 endTime = "16:00",
                 projectTime = "08:00",
             ),
-            workStatsArg = SettingsState(
+            settingsArg = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "02:00"
@@ -124,7 +124,7 @@ class ProjectDetailsViewModelTest {
         viewModel.setProjectTime("06:00")
 
         val updated = viewModel.uiState.value as ProjectDetailsUiState.Success
-        Assert.assertEquals("02:00", updated.workStats.initialFlexTimeTotal)
+        Assert.assertEquals("02:00", updated.settings.initialFlexTimeTotal)
     }
 
     @Test
@@ -133,12 +133,12 @@ class ProjectDetailsViewModelTest {
             projectDetails = null
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:00",
                 initialFlexTimeTotal = "01:00"
             )
-            workStatsByDate = SettingsState(
+            settingsByDate = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
@@ -181,14 +181,14 @@ class ProjectDetailsViewModelTest {
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var workStats: SettingsState? = null
-        var workStatsByDate: SettingsState? = null
+        var settings: SettingsState? = null
+        var settingsByDate: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = workStats
+        override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStatsByDate ?: workStats
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = settingsByDate ?: settings
 
         override suspend fun getWorkTypes(): List<String> = emptyList()
 

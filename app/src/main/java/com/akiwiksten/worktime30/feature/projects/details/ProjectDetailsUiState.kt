@@ -8,7 +8,7 @@ sealed class ProjectDetailsUiState {
 
     data class Success(
         val data: ProjectDetailsState,
-        val workStats: SettingsState = SettingsState()
+        val settings: SettingsState = SettingsState()
     ) : ProjectDetailsUiState()
 
     data class Error(val message: String) : ProjectDetailsUiState()

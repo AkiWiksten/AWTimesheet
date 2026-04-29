@@ -26,7 +26,7 @@ fun previewProjectDetailsSuccessNewDay() {
                 date = "2026-04-10",
                 projectName = "Alpha Site"
             ),
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+03:10"
@@ -53,7 +53,7 @@ fun previewProjectDetailsSuccessExistingDay() {
                 breakEnd = "14:30",
                 projectTime = "08:00"
             ),
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+04:10"

@@ -14,7 +14,7 @@ import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.domain.usecase.UpdateWorkStatsUseCase
+import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -43,7 +43,7 @@ class WorkdayViewModelTest {
             projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        projectDetailsRepository.workStats = SettingsState(
+        projectDetailsRepository.settings = SettingsState(
             dailyWorkTimeEstimate = "07:30",
             initialFlexTimeTotal = "+01:45"
         )
@@ -116,7 +116,7 @@ class WorkdayViewModelTest {
     fun saveProject_withNonZeroTime_updatesCalculatedFlexTimeTotal() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
@@ -160,7 +160,7 @@ class WorkdayViewModelTest {
             projectNames = listOf("Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
@@ -194,10 +194,10 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun updateWorkStats_currentDayWithZeroWorkTime_updatesDailyAndBalanceValues() = runTest {
+    fun updateSettings_currentDayWithZeroWorkTime_updatesDailyAndBalanceValues() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -215,16 +215,16 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
-        Assert.assertEquals("08:00", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
-        Assert.assertEquals("00:30", projectDetailsRepository.workStats?.dailyLunchTimeEstimate)
-        Assert.assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
+        Assert.assertEquals("08:00", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
+        Assert.assertEquals("00:30", projectDetailsRepository.settings?.dailyLunchTimeEstimate)
+        Assert.assertEquals("-00:20", projectDetailsRepository.settings?.initialFlexTimeTotal)
     }
 
     @Test
-    fun updateWorkStats_currentDayWithNonZeroWorkTime_keepsExistingDailyWorkTime() = runTest {
+    fun updateSettings_currentDayWithNonZeroWorkTime_keepsExistingDailyWorkTime() = runTest {
         val today = LocalDate.now().toString()
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
@@ -236,7 +236,7 @@ class WorkdayViewModelTest {
             )
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -255,18 +255,18 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
-        Assert.assertEquals("07:30", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
-        Assert.assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
+        Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
+        Assert.assertEquals("-00:20", projectDetailsRepository.settings?.initialFlexTimeTotal)
     }
 
     @Test
-    fun updateWorkStats_nonCurrentDayWithZeroWorkTime_keepsExistingDailyWorkTime() = runTest {
+    fun updateSettings_nonCurrentDayWithZeroWorkTime_keepsExistingDailyWorkTime() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = SettingsState(
+            settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -285,15 +285,15 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
         advanceUntilIdle()
 
-        Assert.assertEquals("07:30", projectDetailsRepository.workStats?.dailyWorkTimeEstimate)
-        Assert.assertEquals("-00:20", projectDetailsRepository.workStats?.initialFlexTimeTotal)
+        Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
+        Assert.assertEquals("-00:20", projectDetailsRepository.settings?.initialFlexTimeTotal)
     }
 
     @Test
-    fun updateWorkStats_invalidInput_doesNotPersist() = runTest {
+    fun updateSettings_invalidInput_doesNotPersist() = runTest {
         val projectRepository = FakeProjectRepository()
         val initialStats = SettingsState(
             dailyWorkTimeEstimate = "07:30",
@@ -301,7 +301,7 @@ class WorkdayViewModelTest {
             initialFlexTimeTotal = "+01:45"
         )
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            workStats = initialStats
+            settings = initialStats
         }
         val settingsRepository = FakeSettingsRepository()
         val dateRepository = DateRepository()
@@ -315,10 +315,10 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateWorkStats(workTimeTodayEstimate = "8:00", initialFlexTimeTotal = "invalid")
+        viewModel.updateSettings(workTimeTodayEstimate = "8:00", initialFlexTimeTotal = "invalid")
         advanceUntilIdle()
 
-        Assert.assertEquals(initialStats, projectDetailsRepository.workStats)
+        Assert.assertEquals(initialStats, projectDetailsRepository.settings)
     }
 
     private fun createViewModel(
@@ -327,7 +327,7 @@ class WorkdayViewModelTest {
         settingsRepository: FakeSettingsRepository,
         dateRepository: DateRepository
     ): WorkdayViewModel {
-        settingsRepository.workStats = projectDetailsRepository.workStats
+        settingsRepository.settings = projectDetailsRepository.settings
         val workdayRepository = FakeWorkdayRepository(projectDetailsRepository).apply {
             workdayStatsRows = projectDetailsRepository.workdayStatsRows
         }
@@ -347,7 +347,7 @@ class WorkdayViewModelTest {
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),
-            updateWorkStatsUseCase = UpdateWorkStatsUseCase(
+            updateSettingsUseCase = UpdateSettingsUseCase(
                 settingsRepository = settingsRepository,
                 workdayRepository = workdayRepository
             ),
@@ -405,7 +405,7 @@ class WorkdayViewModelTest {
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        var workStats: SettingsState? = null
+        var settings: SettingsState? = null
         var projectDetailsByDateRange: List<ProjectDetailsState> = emptyList()
         var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
         val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
@@ -458,7 +458,7 @@ class WorkdayViewModelTest {
             )
             workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
             projectDetailsRepository?.workdayStatsRows = workdayStatsRows
-            projectDetailsRepository?.workStats = settingsEstimates
+            projectDetailsRepository?.settings = settingsEstimates
         }
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {
@@ -468,15 +468,15 @@ class WorkdayViewModelTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         var workTypes: List<String> = emptyList()
-        var workStats: SettingsState? = null
+        var settings: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = workStats
+        override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) {
-            this.workStats = settings
+            this.settings = settings
         }
 
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStats
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = settings
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

@@ -80,7 +80,6 @@ This is called feature-based packaging.
   + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
   + First "Estimated end time" then "End time"
-  + ProjectDetailsState clean otherProjectsTotalTime and workStats (=rename to settings everywhere)
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
   + Show color for modified days

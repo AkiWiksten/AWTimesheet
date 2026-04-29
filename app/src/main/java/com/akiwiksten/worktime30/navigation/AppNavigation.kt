@@ -92,11 +92,11 @@ private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snapsh
         args = ProjectDetailsArgs(
             projectName = screen.projectName,
             projectDetails = screen.projectDetails,
-            workStats = screen.settingsEstimates
+            settings = screen.settingsEstimates
         ),
         onNavigateBack = { backStack.pop() },
-        onConfirm = { projectDetails, workStats ->
-            backStack.updateSingleProjectWorkTime(projectDetails = projectDetails, workStats = workStats)
+        onConfirm = { projectDetails, settings ->
+            backStack.updateSingleProjectWorkTime(projectDetails = projectDetails, settings = settings)
         }
     )
 }
@@ -117,21 +117,21 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         args = SingleProjectScreenArgs(
             initialSingleProjectState = initialSingleProjectState,
             initialProjectDetails = screen.projectDetails,
-            initialWorkStats = screen.settingsEstimates
+            initialSettings = screen.settingsEstimates
         ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
-            onOpenProjectDetails = { state, projectDetails, workStats ->
+            onOpenProjectDetails = { state, projectDetails, settings ->
                 backStack.updateSingleProjectState(
                     state = state,
                     projectDetails = projectDetails,
-                    workStats = workStats
+                    settings = settings
                 )
                 backStack.add(
                     element = Screen.ProjectDetails(
                         projectName = state.projectName,
                         projectDetails = projectDetails,
-                        settingsEstimates = workStats
+                        settingsEstimates = settings
                     )
                 )
             }
@@ -147,7 +147,7 @@ internal fun SnapshotStateList<Any>.pop() {
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     projectDetails: ProjectDetailsState,
-    workStats: SettingsState
+    settings: SettingsState
 ) {
     pop()
     val currentLast = lastOrNull()
@@ -155,7 +155,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
         this[size - 1] = currentLast.copy(
             projectTime = projectDetails.projectTime,
             projectDetails = projectDetails,
-            settingsEstimates = workStats
+            settingsEstimates = settings
         )
     }
 }
@@ -163,7 +163,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
 internal fun SnapshotStateList<Any>.updateSingleProjectState(
     state: SingleProjectState,
     projectDetails: ProjectDetailsState?,
-    workStats: SettingsState?
+    settings: SettingsState?
 ) {
     val index = size - 1
     val current = getOrNull(index = index)
@@ -175,7 +175,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
             allowance = state.allowance,
             workType = state.workType,
             projectDetails = projectDetails,
-            settingsEstimates = workStats
+            settingsEstimates = settings
         )
     }
 }

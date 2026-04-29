@@ -66,7 +66,7 @@ class SingleProjectScreenStateResolverTest {
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
             initialProjectDetails = ProjectDetailsState(projectTime = "01:45"),
-            initialWorkStats = null,
+            initialSettings = null,
             projectsUiState = projectsUiState
         )
 
@@ -98,7 +98,7 @@ class SingleProjectScreenStateResolverTest {
     }
 
     @Test
-    fun editMode_withNavigationWorkStats_prefersNavigationState() {
+    fun editMode_withNavigationSettings_prefersNavigationState() {
         val initialState = SingleProjectState(index = 0)
         val projectsUiState = WorkdayUiState.Success(
             projects = listOf(
@@ -109,7 +109,7 @@ class SingleProjectScreenStateResolverTest {
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
             initialProjectDetails = null,
-            initialWorkStats = SettingsState(dailyWorkTimeEstimate = "07:30"),
+            initialSettings = SettingsState(dailyWorkTimeEstimate = "07:30"),
             projectsUiState = projectsUiState
         )
 

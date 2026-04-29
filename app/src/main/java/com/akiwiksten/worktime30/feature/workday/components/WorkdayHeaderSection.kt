@@ -41,7 +41,7 @@ import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
-import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
@@ -83,7 +83,7 @@ internal fun WorkdayStatsCard(
     workTime: String,
     flexTimeToday: String,
     calculatedFlexTimeTotal: String,
-    workStatsEditorState: WorkStatsEditorState,
+    settingsEditorState: SettingsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
     val openWorkTimeTodayEstimatePicker = remember { mutableStateOf(value = false) }
@@ -95,7 +95,7 @@ internal fun WorkdayStatsCard(
                 headerActions.onWorkTimeTodayEstimateChange(time)
                 openWorkTimeTodayEstimatePicker.value = false
             },
-            time = workStatsEditorState.workTimeTodayEstimate,
+            time = settingsEditorState.workTimeTodayEstimate,
             titleId = R.string.work_time_today_estimate
         )
     }
@@ -105,10 +105,10 @@ internal fun WorkdayStatsCard(
             workTime = workTime,
             flexTimeToday = flexTimeToday,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
-            workStatsEditorState = workStatsEditorState,
+            settingsEditorState = settingsEditorState,
             onWorkTimeTodayEstimatePickerClick = { openWorkTimeTodayEstimatePicker.value = true },
             onInitialFlexTimeTotalChange = headerActions.onInitialFlexTimeTotalChange,
-            onSaveWorkStats = headerActions.onSaveWorkStats
+            onSaveSettings = headerActions.onSaveSettings
         )
     )
 }
@@ -118,9 +118,9 @@ private fun WorkdayStatsCardContent(
     params: WorkdayStatsCardContentParams
 ) {
     val scrollState = rememberScrollState()
-    val isSaveEnabled = !params.workStatsEditorState.isWorkTimeTodayEstimateError &&
-        !params.workStatsEditorState.isInitialFlexTimeTotalError &&
-        params.workStatsEditorState.hasUnsavedChanges
+    val isSaveEnabled = !params.settingsEditorState.isWorkTimeTodayEstimateError &&
+        !params.settingsEditorState.isInitialFlexTimeTotalError &&
+        params.settingsEditorState.hasUnsavedChanges
 
     ElevatedCard(
         modifier = Modifier
@@ -142,18 +142,18 @@ private fun WorkdayStatsCardContent(
                 calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
             WorkTimeTodayEstimatePickerRow(
-                workTimeTodayEstimate = params.workStatsEditorState.workTimeTodayEstimate,
-                isError = params.workStatsEditorState.isWorkTimeTodayEstimateError,
+                workTimeTodayEstimate = params.settingsEditorState.workTimeTodayEstimate,
+                isError = params.settingsEditorState.isWorkTimeTodayEstimateError,
                 onPickerClick = params.onWorkTimeTodayEstimatePickerClick
             )
             FlexTimeTotalField(
-                initialFlexTimeTotal = params.workStatsEditorState.initialFlexTimeTotal,
-                isError = params.workStatsEditorState.isInitialFlexTimeTotalError,
+                initialFlexTimeTotal = params.settingsEditorState.initialFlexTimeTotal,
+                isError = params.settingsEditorState.isInitialFlexTimeTotalError,
                 onValueChange = params.onInitialFlexTimeTotalChange
             )
-            SaveWorkStatsButton(
+            SaveSettingsButton(
                 isEnabled = isSaveEnabled,
-                onClick = params.onSaveWorkStats,
+                onClick = params.onSaveSettings,
                 modifier = Modifier
                     .align(alignment = Alignment.End)
                     .padding(top = SAVE_BUTTON_TOP_PADDING)
@@ -199,10 +199,10 @@ private data class WorkdayStatsCardContentParams(
     val workTime: String,
     val flexTimeToday: String,
     val calculatedFlexTimeTotal: String,
-    val workStatsEditorState: WorkStatsEditorState,
+    val settingsEditorState: SettingsEditorState,
     val onWorkTimeTodayEstimatePickerClick: () -> Unit,
     val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onSaveWorkStats: () -> Unit
+    val onSaveSettings: () -> Unit
 )
 
 @Composable
@@ -274,7 +274,7 @@ private fun WorkTimeTodayEstimatePickerRow(
 }
 
 @Composable
-private fun SaveWorkStatsButton(
+private fun SaveSettingsButton(
     isEnabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier

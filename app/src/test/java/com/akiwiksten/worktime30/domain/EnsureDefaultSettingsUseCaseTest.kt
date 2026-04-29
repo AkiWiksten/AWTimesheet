@@ -4,18 +4,18 @@ import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.usecase.EnsureDefaultWorkStatsUseCase
+import com.akiwiksten.worktime30.domain.usecase.EnsureDefaultSettingsUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-class EnsureDefaultWorkStatsUseCaseTest {
+class EnsureDefaultSettingsUseCaseTest {
 
     @Test
-    fun invoke_insertsDefaultWorkStats_whenMissing() = runBlocking {
+    fun invoke_insertsDefaultSettings_whenMissing() = runBlocking {
         val repository = FakeSettingsRepository()
-        val useCase = EnsureDefaultWorkStatsUseCase(repository)
+        val useCase = EnsureDefaultSettingsUseCase(repository)
 
         useCase()
 
@@ -25,37 +25,37 @@ class EnsureDefaultWorkStatsUseCaseTest {
                 dailyLunchTimeEstimate = ZERO_TIME,
                 initialFlexTimeTotal = ZERO_TIME
             ),
-            repository.workStats
+            repository.settings
         )
     }
 
     @Test
-    fun invoke_doesNotOverrideExistingWorkStats() = runBlocking {
+    fun invoke_doesNotOverrideExistingSettings() = runBlocking {
         val existing = SettingsState(
             dailyWorkTimeEstimate = "08:00",
             dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:20"
         )
         val repository = FakeSettingsRepository().apply {
-            workStats = existing
+            settings = existing
         }
-        val useCase = EnsureDefaultWorkStatsUseCase(repository)
+        val useCase = EnsureDefaultSettingsUseCase(repository)
 
         useCase()
 
-        assertEquals(existing, repository.workStats)
-        assertNull(repository.insertedWorkStats)
+        assertEquals(existing, repository.settings)
+        assertNull(repository.insertedSettings)
     }
 
     private class FakeSettingsRepository : SettingsRepository {
-        var workStats: SettingsState? = null
-        var insertedWorkStats: SettingsState? = null
+        var settings: SettingsState? = null
+        var insertedSettings: SettingsState? = null
 
-        override suspend fun getSettings(): SettingsState? = workStats
+        override suspend fun getSettings(): SettingsState? = settings
 
         override suspend fun insertSettings(settings: SettingsState) {
-            insertedWorkStats = settings
-            workStats = settings
+            insertedSettings = settings
+            this.settings = settings
         }
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
@@ -69,3 +69,4 @@ class EnsureDefaultWorkStatsUseCaseTest {
         override suspend fun deleteAllWorkTypes() = Unit
     }
 }
+

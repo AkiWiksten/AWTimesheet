@@ -13,13 +13,13 @@ internal fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): 
 internal fun resolveInitialSingleProjectState(
     initialSingleProjectState: SingleProjectState,
     initialProjectDetails: ProjectDetailsState?,
-    initialWorkStats: SettingsState?,
+    initialSettings: SettingsState?,
     projectsUiState: WorkdayUiState
 ): SingleProjectState {
     val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
         initialSingleProjectState.projectTime != ZERO_TIME ||
         initialProjectDetails != null ||
-        initialWorkStats != null
+        initialSettings != null
 
     return when {
         initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState

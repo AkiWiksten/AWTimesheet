@@ -59,7 +59,7 @@ fun ProjectDetailsScreen(
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
         viewModel.loadProjectDetails(
             projectDetailsArg = args.projectDetails,
-            workStatsArg = args.workStats
+            settingsArg = args.settings
         )
     }
 
@@ -96,7 +96,7 @@ fun ProjectDetailsScreen(
                 val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
                 onConfirm(
                     successState.data,
-                    successState.workStats.copy(
+                    successState.settings.copy(
                         dailyLunchTimeEstimate = successState.data.lunchTimeEstimate
                     )
                 )
@@ -263,5 +263,5 @@ private fun createProjectDetailsScreenActions(
 data class ProjectDetailsArgs(
     val projectName: String? = null,
     val projectDetails: ProjectDetailsState? = null,
-    val workStats: SettingsState? = null
+    val settings: SettingsState? = null
 )

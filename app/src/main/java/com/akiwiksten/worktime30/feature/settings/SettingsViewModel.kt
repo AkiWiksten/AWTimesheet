@@ -158,7 +158,7 @@ class SettingsViewModel @Inject constructor(
             try {
                 val loadedData = getSettingsUseCase()
                 val currentDate = dateRepository.selectedDate.value
-                val workStats = settingsRepository.getEffectiveSettingsForDate(currentDate)
+                val settings = settingsRepository.getEffectiveSettingsForDate(currentDate)
                 val parsedDate = LocalDate.parse(currentDate)
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
@@ -170,9 +170,9 @@ class SettingsViewModel @Inject constructor(
                     data = SettingsState(
                         name = loadedData.name,
                         employer = loadedData.employer,
-                        dailyWorkTimeEstimate = workStats?.dailyWorkTimeEstimate ?: "",
-                        dailyLunchTimeEstimate = workStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
-                        initialFlexTimeTotal = workStats?.initialFlexTimeTotal ?: ZERO_TIME,
+                        dailyWorkTimeEstimate = settings?.dailyWorkTimeEstimate ?: "",
+                        dailyLunchTimeEstimate = settings?.dailyLunchTimeEstimate ?: ZERO_TIME,
+                        initialFlexTimeTotal = settings?.initialFlexTimeTotal ?: ZERO_TIME,
                         selectedDate = currentDate,
                         endMonthDate = endOfMonth,
                         workTypes = loadedData.workTypes

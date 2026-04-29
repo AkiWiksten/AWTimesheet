@@ -22,4 +22,3 @@ class EnsureDefaultSettingsUseCase @Inject constructor(
         )
     }
 }
-

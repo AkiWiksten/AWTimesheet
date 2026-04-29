@@ -7,7 +7,7 @@ import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import javax.inject.Inject
 
-class DeleteWorkdayUseCase @Inject constructor(
+class DeleteProjectUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val projectDetailsRepository: ProjectDetailsRepository
 ) {

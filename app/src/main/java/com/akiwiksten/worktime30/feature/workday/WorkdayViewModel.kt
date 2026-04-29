@@ -10,7 +10,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
@@ -48,7 +48,7 @@ sealed class WorkdayUiState {
 class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
-    private val deleteWorkdayUseCase: DeleteWorkdayUseCase,
+    private val deleteProjectUseCase: DeleteProjectUseCase,
     private val updateSettingsUseCase: UpdateSettingsUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
@@ -145,7 +145,7 @@ class WorkdayViewModel @Inject constructor(
                 val currentState = uiState.value
                 val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
 
-                deleteWorkdayUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
+                deleteProjectUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
                 requestReload()
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "deleteProject: ", e)

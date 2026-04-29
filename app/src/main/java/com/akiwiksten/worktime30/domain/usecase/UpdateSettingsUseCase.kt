@@ -39,4 +39,3 @@ class UpdateSettingsUseCase @Inject constructor(
         settingsRepository.insertSettings(nextStats)
     }
 }
-

@@ -11,7 +11,7 @@ import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
-import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
@@ -343,7 +343,7 @@ class WorkdayViewModelTest {
                 settingsRepository = settingsRepository,
                 workdayRepository = workdayRepository
             ),
-            deleteWorkdayUseCase = DeleteWorkdayUseCase(
+            deleteProjectUseCase = DeleteProjectUseCase(
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),

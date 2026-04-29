@@ -6,12 +6,12 @@ import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
-import com.akiwiksten.worktime30.domain.usecase.DeleteWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.DeleteProjectUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class DeleteWorkdayUseCaseTest {
+class DeleteProjectUseCaseTest {
 
     @Test
     fun invoke_nonZeroTime_deletesProjectAndProjectDetails_andDeletesUnusedProjectName() = runBlocking {
@@ -20,7 +20,7 @@ class DeleteWorkdayUseCaseTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
 
-        val useCase = DeleteWorkdayUseCase(
+        val useCase = DeleteProjectUseCase(
             projectRepository = projectRepository,
             projectDetailsRepository = projectDetailsRepository
         )
@@ -45,7 +45,7 @@ class DeleteWorkdayUseCaseTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
 
-        val useCase = DeleteWorkdayUseCase(
+        val useCase = DeleteProjectUseCase(
             projectRepository = projectRepository,
             projectDetailsRepository = projectDetailsRepository
         )
@@ -64,7 +64,7 @@ class DeleteWorkdayUseCaseTest {
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
 
-        val useCase = DeleteWorkdayUseCase(
+        val useCase = DeleteProjectUseCase(
             projectRepository = projectRepository,
             projectDetailsRepository = projectDetailsRepository
         )

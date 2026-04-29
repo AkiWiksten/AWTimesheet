@@ -69,4 +69,3 @@ class EnsureDefaultSettingsUseCaseTest {
         override suspend fun deleteAllWorkTypes() = Unit
     }
 }
-

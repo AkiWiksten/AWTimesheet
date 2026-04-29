@@ -27,8 +27,8 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.feature.workday.INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX
-import com.akiwiksten.worktime30.feature.workday.WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
+import com.akiwiksten.worktime30.feature.workday.WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState

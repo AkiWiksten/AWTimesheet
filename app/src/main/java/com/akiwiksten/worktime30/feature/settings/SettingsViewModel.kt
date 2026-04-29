@@ -22,6 +22,7 @@ sealed class SettingsUiState {
 
     data class Success(
         val data: SettingsState,
+        val selectedDate: String = "",
         val endMonthDate: String = "",
         val projectsByMonth: List<SingleProjectState> = emptyList()
     ) : SettingsUiState()
@@ -52,7 +53,7 @@ class SettingsViewModel @Inject constructor(
                     val currentState = _uiState.value
                     if (currentState is SettingsUiState.Success) {
                         _uiState.value = currentState.copy(
-                            data = currentState.data.copy(selectedDate = date)
+                            selectedDate = date
                         )
                     }
                     loadProjectsByMonth(date)
@@ -161,9 +162,9 @@ class SettingsViewModel @Inject constructor(
                         dailyWorkTimeEstimate = settings?.dailyWorkTimeEstimate ?: "",
                         dailyLunchTimeEstimate = settings?.dailyLunchTimeEstimate ?: ZERO_TIME,
                         initialFlexTimeTotal = settings?.initialFlexTimeTotal ?: ZERO_TIME,
-                        selectedDate = currentDate,
                         workTypes = loadedData.workTypes
                     ),
+                    selectedDate = currentDate,
                     endMonthDate = monthlyResult.endOfMonth,
                     projectsByMonth = monthlyResult.projects
                 )

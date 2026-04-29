@@ -220,7 +220,11 @@ internal fun SettingsContent(
     val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
     val showDailyLunchTimeEstimatePickerDialogState = remember { mutableStateOf(value = false) }
     val selectedWorkTypeState = remember { mutableStateOf(value = "") }
-    val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
+    val saveUi = rememberSettingsSaveUi(
+        data = uiState.data,
+        selectedDate = uiState.selectedDate,
+        onSave = actions.onSave
+    )
     val scrollState = rememberScrollState()
 
     DailyWorkTimePickerDialogSection(
@@ -289,7 +293,7 @@ private fun SettingsContentBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
-        HeaderSection(date = state.uiState.data.selectedDate)
+        HeaderSection(date = state.uiState.selectedDate)
 
         SettingsCard {
             ProfileSection(
@@ -455,18 +459,22 @@ private fun DailyLunchTimeEstimatePickerRow(
 }
 
 @Composable
-private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): SettingsSaveUi {
+private fun rememberSettingsSaveUi(
+    data: SettingsState,
+    selectedDate: String,
+    onSave: () -> Unit
+): SettingsSaveUi {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
-    val lastSavedNameState = remember(data.selectedDate) { mutableStateOf(value = data.name) }
-    val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
-    val lastSavedDailyWorkTimeEstimateState = remember(data.selectedDate) {
+    val lastSavedNameState = remember(selectedDate) { mutableStateOf(value = data.name) }
+    val lastSavedEmployerState = remember(selectedDate) { mutableStateOf(value = data.employer) }
+    val lastSavedDailyWorkTimeEstimateState = remember(selectedDate) {
         mutableStateOf(value = data.dailyWorkTimeEstimate)
     }
-    val lastSavedDailyLunchTimeEstimateState = remember(data.selectedDate) {
+    val lastSavedDailyLunchTimeEstimateState = remember(selectedDate) {
         mutableStateOf(value = data.dailyLunchTimeEstimate)
     }
-    val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
+    val lastSavedWorkTypesState = remember(selectedDate) { mutableStateOf(value = data.workTypes) }
 
     val hasUnsavedChanges =
         hasChanges(current = data.name, baseline = lastSavedNameState.value) ||

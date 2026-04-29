@@ -8,6 +8,5 @@ data class SettingsState(
     val dailyWorkTimeEstimate: String = "",
     val dailyLunchTimeEstimate: String = ZERO_TIME,
     val initialFlexTimeTotal: String = ZERO_TIME,
-    val selectedDate: String = "",
     val workTypes: List<String> = emptyList()
 )

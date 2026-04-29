@@ -25,9 +25,9 @@ fun PreviewSettingsSuccess() {
                 employer = "WorkTime Oy",
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:00",
-                selectedDate = "2026-04-19",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
+            selectedDate = "2026-04-19",
             endMonthDate = "2026-04-30",
             projectsByMonth = listOf(
                 SingleProjectState(

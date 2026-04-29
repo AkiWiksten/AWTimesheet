@@ -9,7 +9,6 @@ data class SingleProjectState(
     val kilometres: String = "0",
     val allowance: String = "",
     val workType: String = "",
-    val projectDetails: ProjectDetailsState? = null,
     val date: String = ""
 )
 

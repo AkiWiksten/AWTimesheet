@@ -101,7 +101,11 @@ class WorkdayViewModel @Inject constructor(
         refreshTrigger.value += 1
     }
 
-    fun saveProject(state: SingleProjectState, workStats: SettingsState? = null) {
+    fun saveProject(
+        state: SingleProjectState,
+        projectDetails: ProjectDetailsState? = null,
+        workStats: SettingsState? = null
+    ) {
         viewModelScope.launch {
             try {
                 val currentState = uiState.value
@@ -109,7 +113,7 @@ class WorkdayViewModel @Inject constructor(
 
                 val projectToSave = state.copy(date = date)
 
-                val projectDetailsToSave = state.projectDetails?.copy(
+                val projectDetailsToSave = projectDetails?.copy(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime

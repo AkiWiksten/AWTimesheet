@@ -22,7 +22,9 @@ import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectNavigationActions
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenArgs
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
 
@@ -110,22 +112,30 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             .takeUnless { it.isNullOrBlank() }
             ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
-        projectDetails = screen.projectDetails,
     )
     SingleProjectScreen(
-        initialSingleProjectState = initialSingleProjectState,
-        initialWorkStats = screen.settingsEstimates,
-        onNavigateBack = { backStack.pop() },
-        onOpenProjectDetails = { state, workStats ->
-            backStack.updateSingleProjectState(state = state, workStats = workStats)
-            backStack.add(
-                element = Screen.ProjectDetails(
-                    projectName = state.projectName,
-                    projectDetails = state.projectDetails,
-                    settingsEstimates = workStats
+        args = SingleProjectScreenArgs(
+            initialSingleProjectState = initialSingleProjectState,
+            initialProjectDetails = screen.projectDetails,
+            initialWorkStats = screen.settingsEstimates
+        ),
+        navigationActions = SingleProjectNavigationActions(
+            onNavigateBack = { backStack.pop() },
+            onOpenProjectDetails = { state, projectDetails, workStats ->
+                backStack.updateSingleProjectState(
+                    state = state,
+                    projectDetails = projectDetails,
+                    workStats = workStats
                 )
-            )
-        }
+                backStack.add(
+                    element = Screen.ProjectDetails(
+                        projectName = state.projectName,
+                        projectDetails = projectDetails,
+                        settingsEstimates = workStats
+                    )
+                )
+            }
+        )
     )
 }
 
@@ -152,6 +162,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
 
 internal fun SnapshotStateList<Any>.updateSingleProjectState(
     state: SingleProjectState,
+    projectDetails: ProjectDetailsState?,
     workStats: SettingsState?
 ) {
     val index = size - 1
@@ -163,7 +174,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
             kilometres = state.kilometres,
             allowance = state.allowance,
             workType = state.workType,
-            projectDetails = state.projectDetails,
+            projectDetails = projectDetails,
             settingsEstimates = workStats
         )
     }

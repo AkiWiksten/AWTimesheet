@@ -55,8 +55,7 @@ class SingleProjectScreenStateResolverTest {
         val initialState = SingleProjectState(
             index = 0,
             projectName = "Alpha",
-            projectTime = "01:45",
-            projectDetails = ProjectDetailsState(projectTime = "01:45")
+            projectTime = "01:45"
         )
         val projectsUiState = WorkdayUiState.Success(
             projects = listOf(
@@ -64,7 +63,12 @@ class SingleProjectScreenStateResolverTest {
             )
         )
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, projectsUiState)
+        val resolved = resolveInitialSingleProjectState(
+            initialSingleProjectState = initialState,
+            initialProjectDetails = ProjectDetailsState(projectTime = "01:45"),
+            initialWorkStats = null,
+            projectsUiState = projectsUiState
+        )
 
         assertEquals("01:45", resolved.projectTime)
     }
@@ -78,7 +82,7 @@ class SingleProjectScreenStateResolverTest {
             )
         )
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, projectsUiState)
+        val resolved = resolveInitialSingleProjectState(initialState, null, null, projectsUiState)
 
         assertEquals("Alpha", resolved.projectName)
         assertEquals("02:10", resolved.projectTime)
@@ -88,7 +92,7 @@ class SingleProjectScreenStateResolverTest {
     fun addMode_returnsInitialState() {
         val initialState = SingleProjectState(index = -1, projectName = "New", projectTime = "00:30")
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, WorkdayUiState.Loading)
+        val resolved = resolveInitialSingleProjectState(initialState, null, null, WorkdayUiState.Loading)
 
         assertEquals(initialState, resolved)
     }
@@ -104,6 +108,7 @@ class SingleProjectScreenStateResolverTest {
 
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
+            initialProjectDetails = null,
             initialWorkStats = SettingsState(dailyWorkTimeEstimate = "07:30"),
             projectsUiState = projectsUiState
         )

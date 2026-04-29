@@ -65,4 +65,3 @@ class GetProjectsByMonthUseCaseTest {
         override suspend fun getProjectTimeSumByDate(date: String): String = ZERO_TIME
     }
 }
-

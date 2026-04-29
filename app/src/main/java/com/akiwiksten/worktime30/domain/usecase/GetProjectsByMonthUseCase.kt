@@ -26,4 +26,3 @@ class GetProjectsByMonthUseCase @Inject constructor(
         )
     }
 }
-

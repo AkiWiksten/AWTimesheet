@@ -2,7 +2,6 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
@@ -150,20 +149,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = SettingsUiState.Loading
             try {
-                val loadedData = getSettingsUseCase()
                 val currentDate = dateRepository.selectedDate.value
-                val settings = settingsRepository.getEffectiveSettingsForDate(currentDate)
+                val loadedData = getSettingsUseCase(currentDate)
                 val monthlyResult = getProjectsByMonthUseCase(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
-                    data = SettingsState(
-                        name = loadedData.name,
-                        employer = loadedData.employer,
-                        dailyWorkTimeEstimate = settings?.dailyWorkTimeEstimate ?: "",
-                        dailyLunchTimeEstimate = settings?.dailyLunchTimeEstimate ?: ZERO_TIME,
-                        initialFlexTimeTotal = settings?.initialFlexTimeTotal ?: ZERO_TIME,
-                        workTypes = loadedData.workTypes
-                    ),
+                    data = loadedData,
                     selectedDate = currentDate,
                     endMonthDate = monthlyResult.endOfMonth,
                     projectsByMonth = monthlyResult.projects

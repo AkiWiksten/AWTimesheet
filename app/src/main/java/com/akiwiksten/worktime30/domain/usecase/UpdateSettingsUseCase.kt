@@ -38,7 +38,9 @@ class UpdateSettingsUseCase @Inject constructor(
             initialFlexTimeTotal = params.newInitialFlexTimeTotal
         )
 
-        workdayRepository.upsertWorkdayStats(date = params.date, settingsEstimates = localNextStats)
+        workdayRepository.upsertWorkdayStats(date = params.date,
+            workTimeByDateEstimate = localNextStats.dailyWorkTimeEstimate
+        )
         if (params.updateGlobalSettings) {
             val globalNextStats = localNextStats.copy(
                 dailyWorkTimeEstimate = params.newWorkTimeByDateEstimate

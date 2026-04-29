@@ -46,6 +46,7 @@ import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
@@ -55,8 +56,9 @@ import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 @Composable
 fun SingleProjectScreen(
     onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState) -> Unit,
+    onOpenProjectDetails: (SingleProjectState, SettingsState?) -> Unit,
     initialSingleProjectState: SingleProjectState,
+    initialWorkStats: SettingsState? = null,
     viewModel: WorkdayViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
@@ -74,11 +76,12 @@ fun SingleProjectScreen(
         initialSingleProjectState.projectTime,
         initialSingleProjectState.projectName,
         initialSingleProjectState.projectDetails,
-        initialSingleProjectState.workStats,
+        initialWorkStats,
         noAllowanceText
     ) {
         resolveInitialSingleProjectState(
             initialSingleProjectState = initialSingleProjectState,
+            initialWorkStats = initialWorkStats,
             projectsUiState = currentProjectsState
         ).withDefaultAllowance(defaultAllowance = noAllowanceText)
     }
@@ -110,9 +113,9 @@ fun SingleProjectScreen(
             isConfirmEnabled = isConfirmEnabled,
             onStateChange = { state = it },
             onNavigateBack = onNavigateBack,
-            onOpenProjectDetails = { onOpenProjectDetails(state) },
+            onOpenProjectDetails = { onOpenProjectDetails(state, initialWorkStats) },
             onConfirm = {
-                viewModel.saveProject(state = state)
+                viewModel.saveProject(state, initialWorkStats)
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
                 onNavigateBack()
             }

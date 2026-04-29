@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import org.junit.Assert.assertEquals
@@ -63,7 +64,7 @@ class SingleProjectScreenStateResolverTest {
             )
         )
 
-        val resolved = resolveInitialSingleProjectState(initialState, projectsUiState)
+        val resolved = resolveInitialSingleProjectState(initialState, null, projectsUiState)
 
         assertEquals("01:45", resolved.projectTime)
     }
@@ -77,7 +78,7 @@ class SingleProjectScreenStateResolverTest {
             )
         )
 
-        val resolved = resolveInitialSingleProjectState(initialState, projectsUiState)
+        val resolved = resolveInitialSingleProjectState(initialState, null, projectsUiState)
 
         assertEquals("Alpha", resolved.projectName)
         assertEquals("02:10", resolved.projectTime)
@@ -87,7 +88,25 @@ class SingleProjectScreenStateResolverTest {
     fun addMode_returnsInitialState() {
         val initialState = SingleProjectState(index = -1, projectName = "New", projectTime = "00:30")
 
-        val resolved = resolveInitialSingleProjectState(initialState, WorkdayUiState.Loading)
+        val resolved = resolveInitialSingleProjectState(initialState, null, WorkdayUiState.Loading)
+
+        assertEquals(initialState, resolved)
+    }
+
+    @Test
+    fun editMode_withNavigationWorkStats_prefersNavigationState() {
+        val initialState = SingleProjectState(index = 0)
+        val projectsUiState = WorkdayUiState.Success(
+            projects = listOf(
+                SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10")
+            )
+        )
+
+        val resolved = resolveInitialSingleProjectState(
+            initialSingleProjectState = initialState,
+            initialWorkStats = SettingsState(dailyWorkTimeEstimate = "07:30"),
+            projectsUiState = projectsUiState
+        )
 
         assertEquals(initialState, resolved)
     }

@@ -10,7 +10,6 @@ data class SingleProjectState(
     val allowance: String = "",
     val workType: String = "",
     val projectDetails: ProjectDetailsState? = null,
-    val workStats: SettingsState? = null,
     val date: String = ""
 )
 

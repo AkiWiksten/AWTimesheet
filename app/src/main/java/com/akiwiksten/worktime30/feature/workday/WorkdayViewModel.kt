@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
@@ -100,7 +101,7 @@ class WorkdayViewModel @Inject constructor(
         refreshTrigger.value += 1
     }
 
-    fun saveProject(state: SingleProjectState) {
+    fun saveProject(state: SingleProjectState, workStats: SettingsState? = null) {
         viewModelScope.launch {
             try {
                 val currentState = uiState.value
@@ -123,7 +124,7 @@ class WorkdayViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { settingsRepository.insertSettings(it) }
+                workStats?.let { settingsRepository.insertSettings(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {

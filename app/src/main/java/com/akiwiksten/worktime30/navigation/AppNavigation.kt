@@ -111,18 +111,18 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
         projectDetails = screen.projectDetails,
-        workStats = screen.settingsEstimates,
     )
     SingleProjectScreen(
         initialSingleProjectState = initialSingleProjectState,
+        initialWorkStats = screen.settingsEstimates,
         onNavigateBack = { backStack.pop() },
-        onOpenProjectDetails = { state ->
-            backStack.updateSingleProjectState(state = state)
+        onOpenProjectDetails = { state, workStats ->
+            backStack.updateSingleProjectState(state = state, workStats = workStats)
             backStack.add(
                 element = Screen.ProjectDetails(
                     projectName = state.projectName,
                     projectDetails = state.projectDetails,
-                    settingsEstimates = state.workStats
+                    settingsEstimates = workStats
                 )
             )
         }
@@ -150,7 +150,10 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     }
 }
 
-internal fun SnapshotStateList<Any>.updateSingleProjectState(state: SingleProjectState) {
+internal fun SnapshotStateList<Any>.updateSingleProjectState(
+    state: SingleProjectState,
+    workStats: SettingsState?
+) {
     val index = size - 1
     val current = getOrNull(index = index)
     if (current is Screen.SingleProject) {
@@ -161,7 +164,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(state: SingleProjec
             allowance = state.allowance,
             workType = state.workType,
             projectDetails = state.projectDetails,
-            settingsEstimates = state.workStats
+            settingsEstimates = workStats
         )
     }
 }

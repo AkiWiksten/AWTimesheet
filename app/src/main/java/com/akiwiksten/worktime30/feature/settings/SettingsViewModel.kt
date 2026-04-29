@@ -4,10 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
-import com.akiwiksten.worktime30.domain.usecase.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ sealed class SettingsUiState {
     object Loading : SettingsUiState()
 
     data class Success(
-        val data: SettingsState
+        val data: SettingsState,
+        val projectsByMonth: List<SingleProjectState> = emptyList()
     ) : SettingsUiState()
 
     data class Error(val message: String) : SettingsUiState()
@@ -31,7 +33,7 @@ sealed class SettingsUiState {
 class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val saveSettingsUseCase: SaveSettingsUseCase,
-    private val getWorkdayByMonthUseCase: GetWorkdayByMonthUseCase,
+    private val projectRepository: ProjectRepository,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -128,17 +130,18 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val parsedDate = LocalDate.parse(date)
+                val startOfMonth = parsedDate.withDayOfMonth(1).toString()
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
-                val projects = getWorkdayByMonthUseCase(date)
+                val projects = projectRepository.getProjectsByDateRange(startOfMonth, endOfMonth)
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     _uiState.value = currentState.copy(
                         data = currentState.data.copy(
-                            endMonthDate = endOfMonth,
-                            projectsByMonth = projects
-                        )
+                            endMonthDate = endOfMonth
+                        ),
+                        projectsByMonth = projects
                     )
                 }
             } catch (e: IllegalArgumentException) {
@@ -160,7 +163,8 @@ class SettingsViewModel @Inject constructor(
                 val endOfMonth = parsedDate
                     .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
                     .toString()
-                val projects = getWorkdayByMonthUseCase(currentDate)
+                val startOfMonth = parsedDate.withDayOfMonth(1).toString()
+                val projects = projectRepository.getProjectsByDateRange(startOfMonth, endOfMonth)
 
                 _uiState.value = SettingsUiState.Success(
                     data = SettingsState(
@@ -171,9 +175,9 @@ class SettingsViewModel @Inject constructor(
                         initialFlexTimeTotal = workStats?.initialFlexTimeTotal ?: ZERO_TIME,
                         selectedDate = currentDate,
                         endMonthDate = endOfMonth,
-                        workTypes = loadedData.workTypes,
-                        projectsByMonth = projects
-                    )
+                        workTypes = loadedData.workTypes
+                    ),
+                    projectsByMonth = projects
                 )
             } catch (e: IllegalArgumentException) {
                 handleException(e, "Failed to load settings")

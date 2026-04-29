@@ -39,4 +39,3 @@ class UpdateWorkStatsUseCase @Inject constructor(
         settingsRepository.insertSettings(nextStats)
     }
 }
-

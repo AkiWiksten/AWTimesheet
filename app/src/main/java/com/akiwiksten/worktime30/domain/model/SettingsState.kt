@@ -10,6 +10,5 @@ data class SettingsState(
     val initialFlexTimeTotal: String = ZERO_TIME,
     val selectedDate: String = "",
     val endMonthDate: String = "",
-    val workTypes: List<String> = emptyList(),
-    val projectsByMonth: List<SingleProjectState> = emptyList()
+    val workTypes: List<String> = emptyList()
 )

@@ -163,7 +163,7 @@ private fun createSettingsActions(
             generateReport(
                 params = GenerateReportParams(
                     ctx = ctx,
-                    projectsByMonth = successState.data.projectsByMonth,
+                    projectsByMonth = successState.projectsByMonth,
                     endOfMonthDate = successState.data.endMonthDate,
                     name = successState.data.name,
                     employer = successState.data.employer
@@ -327,7 +327,7 @@ private fun SettingsContentBody(
         ActionButtonsSection(
             onSave = state.saveUi.onSaveRequested,
             onGeneratePdf = state.actions.onGeneratePdf,
-            isPdfEnabled = state.uiState.data.projectsByMonth.isNotEmpty(),
+            isPdfEnabled = state.uiState.projectsByMonth.isNotEmpty(),
             isSaveEnabled = state.saveUi.isSaveEnabled
         )
 

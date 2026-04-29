@@ -47,7 +47,6 @@ class GetSettingsUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
 
         override suspend fun getWorkTypes(): List<String> = workTypes

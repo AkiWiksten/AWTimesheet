@@ -162,7 +162,6 @@ class GetWorkdayScreenDataUseCaseTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStats
 
         override suspend fun getWorkTypes(): List<String> = workTypes

@@ -60,7 +60,6 @@ class EnsureDefaultWorkStatsUseCaseTest {
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
 
-
         override suspend fun getWorkTypes(): List<String> = emptyList()
 
         override suspend fun insertWorkType(workType: String) = Unit

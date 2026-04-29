@@ -188,7 +188,6 @@ class ProjectDetailsViewModelTest {
 
         override suspend fun insertSettings(settings: SettingsState) = Unit
 
-
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = workStatsByDate ?: workStats
 
         override suspend fun getWorkTypes(): List<String> = emptyList()

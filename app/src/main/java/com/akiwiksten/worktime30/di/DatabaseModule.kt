@@ -46,7 +46,6 @@ abstract class DatabaseModule {
     @Singleton
     abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
 
-
     companion object {
         @Provides
         @Singleton

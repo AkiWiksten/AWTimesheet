@@ -10,7 +10,6 @@ import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
-import com.akiwiksten.worktime30.domain.usecase.GetWorkdayByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,7 +65,7 @@ class SettingsViewModelTest {
 
         val state = viewModel.uiState.value as SettingsUiState.Success
         assertEquals("2026-04-30", state.data.endMonthDate)
-        assertEquals(1, state.data.projectsByMonth.size)
+        assertEquals(1, state.projectsByMonth.size)
     }
 
     @Test
@@ -101,7 +100,7 @@ class SettingsViewModelTest {
                 projectRepository = projectRepository,
                 dateRepository = dateRepository
             ),
-            getWorkdayByMonthUseCase = GetWorkdayByMonthUseCase(projectRepository),
+            projectRepository = projectRepository,
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
         )
@@ -118,7 +117,6 @@ class SettingsViewModelTest {
         override suspend fun insertSettings(settings: SettingsState) {
             insertedSettings = settings
         }
-
 
         override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
 

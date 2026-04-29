@@ -58,7 +58,6 @@ This is called feature-based packaging.
   + Better orientation support
   + Dark theme
   + FormChangeRules outside ui package
-  + Simplify SaveSettingsUseCase
   + Check test coverage and add tests
 + Constants
   + Regroup
@@ -71,10 +70,8 @@ This is called feature-based packaging.
   + Rename DialogMainFields -> UpperTextFields
   + Own ViewModel. Decouple from WorkdayViewModel.
 + WorkdayScreen 
-  + Calculate FlexTimeTotal from WorkdayEntity? Done already?
-  + Ask to save when leaving without saving
+  + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects
-  + 
 + ProjectDetailsScreen
   + "Clear day" → "Clear details"
   + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
@@ -93,8 +90,6 @@ This is called feature-based packaging.
   + show the pdf instantly on screen
   + make pdf dynamic?
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
-+ Screenshot tests
-  + Expand official Compose screenshot coverage and maintain baselines with validateScreenshotTest
 
 ## What to test constantly
 + Thorough testing of all features in all screens

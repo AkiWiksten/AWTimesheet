@@ -21,7 +21,8 @@ class GetProjectsByMonthUseCaseTest {
 
         assertEquals("2026-04-01", repository.lastStart)
         assertEquals("2026-04-30", repository.lastEnd)
-        assertEquals(1, result.size)
+        assertEquals("2026-04-30", result.endOfMonth)
+        assertEquals(1, result.projects.size)
     }
 
     @Test
@@ -29,10 +30,11 @@ class GetProjectsByMonthUseCaseTest {
         val repository = FakeProjectRepository()
         val useCase = GetProjectsByMonthUseCase(repository)
 
-        useCase("2024-02-15")
+        val result = useCase("2024-02-15")
 
         assertEquals("2024-02-01", repository.lastStart)
         assertEquals("2024-02-29", repository.lastEnd)
+        assertEquals("2024-02-29", result.endOfMonth)
     }
 
     private class FakeProjectRepository : ProjectRepository {

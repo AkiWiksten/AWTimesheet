@@ -163,7 +163,7 @@ private fun createSettingsActions(
             generateReport(
                 ctx = ctx,
                 projectsByMonth = successState.projectsByMonth,
-                endOfMonthDate = successState.data.endMonthDate,
+                endOfMonthDate = successState.endMonthDate,
                 name = successState.data.name,
                 employer = successState.data.employer
             )

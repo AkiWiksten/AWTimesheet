@@ -65,7 +65,7 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as SettingsUiState.Success
-        assertEquals("2026-04-30", state.data.endMonthDate)
+        assertEquals("2026-04-30", state.endMonthDate)
         assertEquals(1, state.projectsByMonth.size)
     }
 

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 sealed class SettingsUiState {
@@ -23,6 +22,7 @@ sealed class SettingsUiState {
 
     data class Success(
         val data: SettingsState,
+        val endMonthDate: String = "",
         val projectsByMonth: List<SingleProjectState> = emptyList()
     ) : SettingsUiState()
 
@@ -129,18 +129,12 @@ class SettingsViewModel @Inject constructor(
     fun loadProjectsByMonth(date: String) {
         viewModelScope.launch {
             try {
-                val parsedDate = LocalDate.parse(date)
-                val endOfMonth = parsedDate
-                    .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
-                    .toString()
-                val projects = getProjectsByMonthUseCase(date)
+                val monthlyResult = getProjectsByMonthUseCase(date)
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     _uiState.value = currentState.copy(
-                        data = currentState.data.copy(
-                            endMonthDate = endOfMonth
-                        ),
-                        projectsByMonth = projects
+                        endMonthDate = monthlyResult.endOfMonth,
+                        projectsByMonth = monthlyResult.projects
                     )
                 }
             } catch (e: IllegalArgumentException) {
@@ -158,11 +152,7 @@ class SettingsViewModel @Inject constructor(
                 val loadedData = getSettingsUseCase()
                 val currentDate = dateRepository.selectedDate.value
                 val settings = settingsRepository.getEffectiveSettingsForDate(currentDate)
-                val parsedDate = LocalDate.parse(currentDate)
-                val endOfMonth = parsedDate
-                    .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
-                    .toString()
-                val projects = getProjectsByMonthUseCase(currentDate)
+                val monthlyResult = getProjectsByMonthUseCase(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
                     data = SettingsState(
@@ -172,10 +162,10 @@ class SettingsViewModel @Inject constructor(
                         dailyLunchTimeEstimate = settings?.dailyLunchTimeEstimate ?: ZERO_TIME,
                         initialFlexTimeTotal = settings?.initialFlexTimeTotal ?: ZERO_TIME,
                         selectedDate = currentDate,
-                        endMonthDate = endOfMonth,
                         workTypes = loadedData.workTypes
                     ),
-                    projectsByMonth = projects
+                    endMonthDate = monthlyResult.endOfMonth,
+                    projectsByMonth = monthlyResult.projects
                 )
             } catch (e: IllegalArgumentException) {
                 handleException(e, "Failed to load settings")

@@ -63,6 +63,8 @@ import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.domain.model.SettingsState
 
+private val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
@@ -156,6 +158,7 @@ private fun createSettingsActions(
         onEmployerChange = settingsViewModel::setEmployer,
         onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
         onDailyLunchTimeEstimateChange = settingsViewModel::setLunchTimeEstimate,
+        onInitialFlexTimeTotalChange = settingsViewModel::setInitialFlexTimeTotal,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
         onSave = { settingsViewModel.saveSettings() },
@@ -176,6 +179,7 @@ data class SettingsActions(
     val onEmployerChange: (String) -> Unit,
     val onDailyWorkTimeEstimateChange: (String) -> Unit,
     val onDailyLunchTimeEstimateChange: (String) -> Unit,
+    val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
@@ -313,6 +317,13 @@ private fun SettingsContentBody(
             DailyLunchTimeEstimatePickerRow(
                 dailyLunchTimeEstimate = state.uiState.data.dailyLunchTimeEstimate,
                 onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
+            )
+
+            SettingsTextField(
+                value = state.uiState.data.initialFlexTimeTotal,
+                label = R.string.initial_flex_time_total,
+                onValueChange = state.actions.onInitialFlexTimeTotalChange,
+                isError = state.saveUi.isInitialFlexTimeTotalError
             )
         }
 
@@ -474,6 +485,9 @@ private fun rememberSettingsSaveUi(
     val lastSavedDailyLunchTimeEstimateState = remember(selectedDate) {
         mutableStateOf(value = data.dailyLunchTimeEstimate)
     }
+    val lastSavedInitialFlexTimeTotalState = remember(selectedDate) {
+        mutableStateOf(value = data.initialFlexTimeTotal)
+    }
     val lastSavedWorkTypesState = remember(selectedDate) { mutableStateOf(value = data.workTypes) }
 
     val hasUnsavedChanges =
@@ -487,13 +501,21 @@ private fun rememberSettingsSaveUi(
                 current = data.dailyLunchTimeEstimate,
                 baseline = lastSavedDailyLunchTimeEstimateState.value
             ) ||
+            hasChanges(
+                current = data.initialFlexTimeTotal,
+                baseline = lastSavedInitialFlexTimeTotalState.value
+            ) ||
             hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
+    val isInitialFlexTimeTotalError = remember(data.initialFlexTimeTotal) {
+        !data.initialFlexTimeTotal.matches(INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX)
+    }
 
     return SettingsSaveUi(
         isSaveEnabled = isActionEnabled(
-            hasRequiredFields = true,
+            hasRequiredFields = !isInitialFlexTimeTotalError,
             hasUnsavedChanges = hasUnsavedChanges
         ),
+        isInitialFlexTimeTotalError = isInitialFlexTimeTotalError,
         onSaveRequested = {
             if (hasUnsavedChanges) {
                 onSave()
@@ -501,6 +523,7 @@ private fun rememberSettingsSaveUi(
                 lastSavedEmployerState.value = data.employer
                 lastSavedDailyWorkTimeEstimateState.value = data.dailyWorkTimeEstimate
                 lastSavedDailyLunchTimeEstimateState.value = data.dailyLunchTimeEstimate
+                lastSavedInitialFlexTimeTotalState.value = data.initialFlexTimeTotal
                 lastSavedWorkTypesState.value = data.workTypes
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
@@ -510,6 +533,7 @@ private fun rememberSettingsSaveUi(
 
 private data class SettingsSaveUi(
     val isSaveEnabled: Boolean,
+    val isInitialFlexTimeTotalError: Boolean,
     val onSaveRequested: () -> Unit
 )
 
@@ -576,11 +600,17 @@ private fun ProfileSection(
 }
 
 @Composable
-private fun SettingsTextField(value: String, label: Int, onValueChange: (String) -> Unit) {
+private fun SettingsTextField(
+    value: String,
+    label: Int,
+    onValueChange: (String) -> Unit,
+    isError: Boolean = false
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
+        isError = isError,
         label = {
             Text(
                 text = stringResource(id = label),

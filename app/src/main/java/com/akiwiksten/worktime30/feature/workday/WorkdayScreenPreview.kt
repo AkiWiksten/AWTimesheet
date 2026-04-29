@@ -92,7 +92,7 @@ private fun WorkdayPreviewContent(
                 onSelectedItemIndexChange = {},
                 onNavigateToSingleProject = {},
                 onRetry = {},
-                onSaveSettings = { _, _ -> },
+                onSaveSettings = {},
                 onDeleteProject = {}
             )
         )

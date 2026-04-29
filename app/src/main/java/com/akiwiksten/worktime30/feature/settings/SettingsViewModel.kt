@@ -97,6 +97,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setInitialFlexTimeTotal(initialFlexTimeTotal: String) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(initialFlexTimeTotal = initialFlexTimeTotal)
+            )
+        }
+    }
+
     fun addWorkType(workType: String) {
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {
@@ -173,11 +182,7 @@ class SettingsViewModel @Inject constructor(
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     saveSettingsUseCase(
-                        name = currentState.data.name,
-                        employer = currentState.data.employer,
-                        workTypes = currentState.data.workTypes,
-                        dailyWorkTimeEstimate = currentState.data.dailyWorkTimeEstimate,
-                        dailyLunchTimeEstimate = currentState.data.dailyLunchTimeEstimate
+                        settings = currentState.data
                     )
                 }
             } catch (e: IllegalArgumentException) {

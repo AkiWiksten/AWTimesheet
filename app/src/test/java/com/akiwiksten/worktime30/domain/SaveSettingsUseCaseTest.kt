@@ -33,9 +33,11 @@ class SaveSettingsUseCaseTest {
         )
 
         useCase(
-            name = "Aki",
-            employer = "WorkTime",
-            workTypes = listOf("Office", "Remote")
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                workTypes = listOf("Office", "Remote")
+            )
         )
 
         assertEquals(
@@ -55,7 +57,7 @@ class SaveSettingsUseCaseTest {
             dateRepository = DateRepository()
         )
 
-        useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList())
+        useCase(settings = SettingsState(name = "Aki", employer = "WorkTime", workTypes = emptyList()))
 
         assertEquals(listOf("clearWorkTypes", "insertSettings"), settingsRepository.operations)
         assertEquals(SettingsState(name = "Aki", employer = "WorkTime"), settingsRepository.savedSettings)
@@ -71,7 +73,14 @@ class SaveSettingsUseCaseTest {
             dateRepository = DateRepository().apply { updateDate(LocalDate.now().toString()) }
         )
 
-        useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList(), dailyWorkTimeEstimate = "07:30")
+        useCase(
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                workTypes = emptyList(),
+                dailyWorkTimeEstimate = "07:30"
+            )
+        )
 
         assertEquals("07:30", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
         assertEquals("00:00", settingsRepository.insertedSettings?.dailyLunchTimeEstimate)
@@ -88,11 +97,13 @@ class SaveSettingsUseCaseTest {
         )
 
         useCase(
-            name = "Aki",
-            employer = "WorkTime",
-            workTypes = emptyList(),
-            dailyWorkTimeEstimate = "07:30",
-            dailyLunchTimeEstimate = "00:30"
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                workTypes = emptyList(),
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30"
+            )
         )
 
         assertEquals("00:30", settingsRepository.insertedSettings?.dailyLunchTimeEstimate)
@@ -115,7 +126,14 @@ class SaveSettingsUseCaseTest {
             dateRepository = DateRepository().apply { updateDate("2000-01-01") }
         )
 
-        useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList(), dailyWorkTimeEstimate = "08:00")
+        useCase(
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                workTypes = emptyList(),
+                dailyWorkTimeEstimate = "08:00"
+            )
+        )
 
         assertEquals("08:00", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
         assertNull(workdayRepository.upsertedWorkdayDate)
@@ -142,7 +160,14 @@ class SaveSettingsUseCaseTest {
             dateRepository = DateRepository().apply { updateDate(today) }
         )
 
-        useCase(name = "Aki", employer = "WorkTime", workTypes = emptyList(), dailyWorkTimeEstimate = "08:00")
+        useCase(
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                workTypes = emptyList(),
+                dailyWorkTimeEstimate = "08:00"
+            )
+        )
 
         assertEquals("08:00", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
         assertNull(workdayRepository.upsertedWorkdayDate)

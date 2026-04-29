@@ -155,11 +155,8 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateSettings(workTimeTodayEstimate: String, initialFlexTimeTotal: String) {
-        if (
-            !isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate) ||
-            !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)
-        ) {
+    fun updateSettings(workTimeTodayEstimate: String) {
+        if (!isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate)) {
             return
         }
 
@@ -171,7 +168,7 @@ class WorkdayViewModel @Inject constructor(
                     workTimeToday = currentUiState.workTimeToday,
                     currentWorkTimeTodayEstimate = currentUiState.workTimeTodayEstimate,
                     newWorkTimeTodayEstimate = workTimeTodayEstimate,
-                    newInitialFlexTimeTotal = initialFlexTimeTotal
+                    newInitialFlexTimeTotal = currentUiState.initialFlexTimeTotal
                 )
                 requestReload()
             } catch (e: IllegalArgumentException) {
@@ -185,8 +182,4 @@ class WorkdayViewModel @Inject constructor(
 
 private fun isValidWorkTimeTodayEstimateInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
-}
-
-private fun isValidInitialFlexTimeTotalInput(value: String): Boolean {
-    return value.matches(regex = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }

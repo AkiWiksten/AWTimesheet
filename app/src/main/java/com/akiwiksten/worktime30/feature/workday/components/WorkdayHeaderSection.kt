@@ -3,19 +3,12 @@ package com.akiwiksten.worktime30.feature.workday.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -40,12 +33,10 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
-import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
-private val SAVE_BUTTON_TOP_PADDING = 4.dp
 
 @Composable
 internal fun WorkdayHeader(
@@ -106,9 +97,7 @@ internal fun WorkdayStatsCard(
             flexTimeToday = flexTimeToday,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
             settingsEditorState = settingsEditorState,
-            onWorkTimeTodayEstimatePickerClick = { openWorkTimeTodayEstimatePicker.value = true },
-            onInitialFlexTimeTotalChange = headerActions.onInitialFlexTimeTotalChange,
-            onSaveSettings = headerActions.onSaveSettings
+            onWorkTimeTodayEstimatePickerClick = { openWorkTimeTodayEstimatePicker.value = true }
         )
     )
 }
@@ -117,11 +106,6 @@ internal fun WorkdayStatsCard(
 private fun WorkdayStatsCardContent(
     params: WorkdayStatsCardContentParams
 ) {
-    val scrollState = rememberScrollState()
-    val isSaveEnabled = !params.settingsEditorState.isWorkTimeTodayEstimateError &&
-        !params.settingsEditorState.isInitialFlexTimeTotalError &&
-        params.settingsEditorState.hasUnsavedChanges
-
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,8 +114,6 @@ private fun WorkdayStatsCardContent(
     ) {
         Column(
             modifier = Modifier
-                .verticalScrollbar(scrollState = scrollState)
-                .verticalScroll(state = scrollState)
                 .padding(all = FORM_SECTION_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
@@ -145,18 +127,6 @@ private fun WorkdayStatsCardContent(
                 workTimeTodayEstimate = params.settingsEditorState.workTimeTodayEstimate,
                 isError = params.settingsEditorState.isWorkTimeTodayEstimateError,
                 onPickerClick = params.onWorkTimeTodayEstimatePickerClick
-            )
-            FlexTimeTotalField(
-                initialFlexTimeTotal = params.settingsEditorState.initialFlexTimeTotal,
-                isError = params.settingsEditorState.isInitialFlexTimeTotalError,
-                onValueChange = params.onInitialFlexTimeTotalChange
-            )
-            SaveSettingsButton(
-                isEnabled = isSaveEnabled,
-                onClick = params.onSaveSettings,
-                modifier = Modifier
-                    .align(alignment = Alignment.End)
-                    .padding(top = SAVE_BUTTON_TOP_PADDING)
             )
         }
     }
@@ -200,39 +170,8 @@ private data class WorkdayStatsCardContentParams(
     val flexTimeToday: String,
     val calculatedFlexTimeTotal: String,
     val settingsEditorState: SettingsEditorState,
-    val onWorkTimeTodayEstimatePickerClick: () -> Unit,
-    val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onSaveSettings: () -> Unit
+    val onWorkTimeTodayEstimatePickerClick: () -> Unit
 )
-
-@Composable
-private fun FlexTimeTotalField(
-    initialFlexTimeTotal: String,
-    isError: Boolean,
-    onValueChange: (String) -> Unit
-) {
-    OutlinedTextField(
-        value = initialFlexTimeTotal,
-        onValueChange = onValueChange,
-        label = {
-            Text(
-                text = stringResource(id = R.string.initial_flex_time_total),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        },
-        textStyle = MaterialTheme.typography.bodyLarge.copy(
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-            fontWeight = FontWeight.Bold
-        ),
-        singleLine = true,
-        isError = isError,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-    )
-}
 
 @Composable
 private fun WorkTimeTodayEstimatePickerRow(
@@ -270,23 +209,5 @@ private fun WorkTimeTodayEstimatePickerRow(
         IconButton(onClick = onPickerClick) {
             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
         }
-    }
-}
-
-@Composable
-private fun SaveSettingsButton(
-    isEnabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        enabled = isEnabled,
-        modifier = modifier,
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-    ) {
-        Icon(imageVector = Icons.Default.Save, contentDescription = null)
-        Spacer(modifier = Modifier.width(width = 8.dp))
-        Text(text = stringResource(id = R.string.save))
     }
 }

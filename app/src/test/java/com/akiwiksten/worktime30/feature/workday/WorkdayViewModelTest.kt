@@ -215,12 +215,12 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00")
         advanceUntilIdle()
 
         Assert.assertEquals("08:00", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
         Assert.assertEquals("00:30", projectDetailsRepository.settings?.dailyLunchTimeEstimate)
-        Assert.assertEquals("-00:20", projectDetailsRepository.settings?.initialFlexTimeTotal)
+        Assert.assertEquals("+01:45", projectDetailsRepository.settings?.initialFlexTimeTotal)
     }
 
     @Test
@@ -255,11 +255,11 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00")
         advanceUntilIdle()
 
         Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
-        Assert.assertEquals("-00:20", projectDetailsRepository.settings?.initialFlexTimeTotal)
+        Assert.assertEquals("+01:45", projectDetailsRepository.settings?.initialFlexTimeTotal)
     }
 
     @Test
@@ -285,11 +285,11 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "08:00", initialFlexTimeTotal = "-00:20")
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00")
         advanceUntilIdle()
 
         Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
-        Assert.assertEquals("-00:20", projectDetailsRepository.settings?.initialFlexTimeTotal)
+        Assert.assertEquals("+01:45", projectDetailsRepository.settings?.initialFlexTimeTotal)
     }
 
     @Test
@@ -315,7 +315,7 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        viewModel.updateSettings(workTimeTodayEstimate = "8:00", initialFlexTimeTotal = "invalid")
+        viewModel.updateSettings(workTimeTodayEstimate = "8:00")
         advanceUntilIdle()
 
         Assert.assertEquals(initialStats, projectDetailsRepository.settings)

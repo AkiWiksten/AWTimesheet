@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.workday.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -173,6 +175,9 @@ private fun rememberWorkdaySaveUi(
     initialWorkTimeTodayEstimate: String,
     onSaveSettings: (String, Boolean) -> Unit
 ): WorkdaySaveUi {
+    val context = LocalContext.current
+    val globalSavedText = stringResource(id = R.string.saved_globally)
+    val todaySavedText = stringResource(id = R.string.saved_today)
     var editedWorkTimeTodayEstimate by remember(initialWorkTimeTodayEstimate) {
         mutableStateOf(value = initialWorkTimeTodayEstimate)
     }
@@ -189,10 +194,12 @@ private fun rememberWorkdaySaveUi(
             onSaveToday = {
                 showSaveDialog = false
                 onSaveSettings(pendingWorkTimeTodayEstimate, false)
+                Toast.makeText(context, todaySavedText, Toast.LENGTH_SHORT).show()
             },
             onSaveGlobally = {
                 showSaveDialog = false
                 onSaveSettings(pendingWorkTimeTodayEstimate, true)
+                Toast.makeText(context, globalSavedText, Toast.LENGTH_SHORT).show()
             }
         )
     }

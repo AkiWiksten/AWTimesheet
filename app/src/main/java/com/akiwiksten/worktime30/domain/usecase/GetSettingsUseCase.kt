@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetSettingsUseCase @Inject constructor(
     private val repository: SettingsRepository
 ) {
-    suspend operator fun invoke(_date: String): SettingsState {
+    suspend operator fun invoke(): SettingsState {
         val settings = repository.getSettings()
         val workTypes = repository.getWorkTypes().sorted()
         return SettingsState(

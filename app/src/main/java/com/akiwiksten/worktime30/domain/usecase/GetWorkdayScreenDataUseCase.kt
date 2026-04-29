@@ -21,9 +21,14 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val workTypes = settingsRepository.getWorkTypes()
+        val globalSettings = settingsRepository.getSettings()
         val settings = settingsRepository.getEffectiveSettingsForDate(date)
+        val globalDailyWorkTimeEstimate = globalSettings?.dailyWorkTimeEstimate
+            ?.ifEmpty { DEFAULT_DAILY_WORK_TIME }
+            ?: DEFAULT_DAILY_WORK_TIME
         val workTimeTodayEstimate =
-            settings?.dailyWorkTimeEstimate?.ifEmpty { DEFAULT_DAILY_WORK_TIME } ?: DEFAULT_DAILY_WORK_TIME
+            settings?.dailyWorkTimeEstimate?.ifEmpty { globalDailyWorkTimeEstimate }
+                ?: globalDailyWorkTimeEstimate
         val initialFlexTimeTotal = settings?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
         var calculatedFlexTimeFromAllWorkdays = ZERO_TIME
         val workdayRows = workdayRepository.getWorkdaysByDateRange(ALL_DATES_START, ALL_DATES_END)

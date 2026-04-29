@@ -73,8 +73,10 @@
     <string name="discard">Hylkää</string>
     <string name="stay">Jää</string>
     <string name="save_work_time_estimate">Tallenna päivän työajan arvio</string>
-    <string name="save_work_time_estimate_message">Haluatko tallentaa tämän globaaliksi päivittäiseksi työajan arvioksi vai vain tänään?</string>
+    <string name="save_work_time_estimate_message">Haluatko tallentaa tämän globaaliksi päivittäiseksi työajan arvioksi myöskin vai vain tänään?</string>
     <string name="save_today">Tallenna tänään</string>
     <string name="save_globally">Tallenna globaalisti</string>
-    <string name="global_settings_hint">Nämä ovat globaalit oletukset. Työpäivän muutokset voi tallentaa vain yhdelle päivälle.</string>
+    <string name="saved_globally">Tallennettu globaaleihin asetuksiin!</string>
+    <string name="saved_today">Tallennettu vain tälle päivälle!</string>
+    <string name="global_defaults">Globaalit oletukset</string>
 </resources>

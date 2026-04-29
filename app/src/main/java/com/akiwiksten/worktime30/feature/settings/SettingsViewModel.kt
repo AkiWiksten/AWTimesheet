@@ -159,7 +159,7 @@ class SettingsViewModel @Inject constructor(
             _uiState.value = SettingsUiState.Loading
             try {
                 val currentDate = dateRepository.selectedDate.value
-                val loadedData = getSettingsUseCase(currentDate)
+                val loadedData = getSettingsUseCase()
                 val monthlyResult = getProjectsByMonthUseCase(currentDate)
 
                 _uiState.value = SettingsUiState.Success(

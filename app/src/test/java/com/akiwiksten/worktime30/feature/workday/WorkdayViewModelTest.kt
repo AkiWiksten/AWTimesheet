@@ -321,6 +321,110 @@ class WorkdayViewModelTest {
         Assert.assertEquals(initialStats, projectDetailsRepository.settings)
     }
 
+    @Test
+    fun newDateWithoutWorkdayRow_usesGlobalDailyEstimateForWorkTimeTodayEstimate() = runTest {
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "08:00",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+            workdayStatsRows = emptyList()
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-12")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("2026-04-12", state.date)
+        Assert.assertEquals(ZERO_TIME, state.workTimeToday)
+        Assert.assertEquals("08:00", state.workTimeTodayEstimate)
+    }
+
+    @Test
+    fun dateWithEffectiveOverride_usesPerDayEstimateInsteadOfGlobal() = runTest {
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "08:00",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            effectiveSettings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-13")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
+        Assert.assertEquals("07:30", state.workTimeTodayEstimate)
+    }
+
+    @Test
+    fun updateSettings_saveGlobally_whenLocalUpdateBlocked_updatesGlobalEstimate() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                SingleProjectState(
+                    date = "2000-01-01",
+                    projectName = "Alpha",
+                    projectTime = "01:00"
+                )
+            )
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:45"
+            )
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate("2000-01-01")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        viewModel.updateSettings(workTimeTodayEstimate = "08:00", updateGlobalSettings = true)
+        advanceUntilIdle()
+
+        // Local/day value remains guarded due to non-current date and non-zero work time.
+        Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
+        // Global settings are still updated when user chooses Save globally.
+        Assert.assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
+    }
+
     private fun createViewModel(
         projectRepository: FakeProjectRepository,
         projectDetailsRepository: FakeProjectDetailsRepository,
@@ -469,6 +573,7 @@ class WorkdayViewModelTest {
     private class FakeSettingsRepository : SettingsRepository {
         var workTypes: List<String> = emptyList()
         var settings: SettingsState? = null
+        var effectiveSettings: SettingsState? = null
 
         override suspend fun getSettings(): SettingsState? = settings
 
@@ -476,7 +581,7 @@ class WorkdayViewModelTest {
             this.settings = settings
         }
 
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = settings
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = effectiveSettings ?: settings
 
         override suspend fun getWorkTypes(): List<String> = workTypes
 

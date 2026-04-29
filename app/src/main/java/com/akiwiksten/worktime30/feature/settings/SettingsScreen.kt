@@ -308,30 +308,7 @@ private fun SettingsContentBody(
             )
         }
 
-        SettingsCard {
-            DailyWorkTimePickerRow(
-                dailyWorkTime = state.uiState.data.dailyWorkTimeEstimate,
-                onPickerClick = state.timePickerState.onDailyWorkTimePickerClick
-            )
-
-            DailyLunchTimeEstimatePickerRow(
-                dailyLunchTimeEstimate = state.uiState.data.dailyLunchTimeEstimate,
-                onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
-            )
-
-            Text(
-                text = stringResource(id = R.string.global_settings_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.secondary
-            )
-
-            SettingsTextField(
-                value = state.uiState.data.initialFlexTimeTotal,
-                label = R.string.initial_flex_time_total,
-                onValueChange = state.actions.onInitialFlexTimeTotalChange,
-                isError = state.saveUi.isInitialFlexTimeTotalError
-            )
-        }
+        GlobalDefaultsCard(state = state)
 
         SettingsCard {
             WorkTypeSection(
@@ -354,6 +331,36 @@ private fun SettingsContentBody(
             isVisible = state.addWorkTypeDialogState.isVisible,
             onDismiss = state.addWorkTypeDialogState.onDismiss,
             onConfirmed = state.addWorkTypeDialogState.onConfirm
+        )
+    }
+}
+
+@Composable
+private fun GlobalDefaultsCard(state: SettingsContentBodyState) {
+    SettingsCard {
+        Text(
+            text = stringResource(id = R.string.global_defaults),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.error
+        )
+        HorizontalDivider()
+
+        DailyWorkTimePickerRow(
+            dailyWorkTime = state.uiState.data.dailyWorkTimeEstimate,
+            onPickerClick = state.timePickerState.onDailyWorkTimePickerClick
+        )
+
+        DailyLunchTimeEstimatePickerRow(
+            dailyLunchTimeEstimate = state.uiState.data.dailyLunchTimeEstimate,
+            onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
+        )
+
+        SettingsTextField(
+            value = state.uiState.data.initialFlexTimeTotal,
+            label = R.string.initial_flex_time_total,
+            onValueChange = state.actions.onInitialFlexTimeTotalChange,
+            isError = state.saveUi.isInitialFlexTimeTotalError
         )
     }
 }
@@ -702,7 +709,6 @@ private fun ActionButtonsSection(
         Text(
             text = stringResource(id = R.string.monthly_help),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         )
     }

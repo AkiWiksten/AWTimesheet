@@ -54,7 +54,8 @@ class SettingsRepositoryImpl @Inject constructor(
         val workday = workdayDao.loadWorkday(date)
         return if (workday != null) {
             (fallback ?: SettingsState()).copy(
-                dailyWorkTimeEstimate = workday.workTimeTodayEstimate,
+                dailyWorkTimeEstimate = workday.workTimeTodayEstimate
+                    .ifEmpty { fallback?.dailyWorkTimeEstimate.orEmpty() },
                 dailyLunchTimeEstimate = fallback?.dailyLunchTimeEstimate ?: ZERO_TIME,
                 initialFlexTimeTotal = fallback?.initialFlexTimeTotal ?: ZERO_TIME
             )

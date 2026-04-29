@@ -72,6 +72,38 @@ class UpdateSettingsUseCaseTest {
         assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
     }
 
+    @Test
+    fun invoke_saveGlobally_whenLocalUpdateBlocked_updatesGlobalOnly() = runBlocking {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
+        }
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = UpdateSettingsUseCase(settingsRepository, workdayRepository)
+
+        useCase(
+            UpdateSettingsParams(
+                date = "2000-01-01",
+                workTimeToday = "01:00",
+                currentWorkTimeTodayEstimate = "07:30",
+                newWorkTimeTodayEstimate = "08:00",
+                newInitialFlexTimeTotal = "+01:00",
+                updateGlobalSettings = true
+            )
+        )
+
+        // Local/day estimate remains unchanged due to guard.
+        assertEquals("07:30", workdayRepository.lastSaved?.dailyWorkTimeEstimate)
+        // Global save still applies requested value.
+        assertEquals(1, settingsRepository.insertCalls)
+        assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
+    }
+
     private class FakeSettingsRepository : SettingsRepository {
         var settings: SettingsState? = null
         var insertCalls: Int = 0
@@ -110,5 +142,3 @@ class UpdateSettingsUseCaseTest {
         }
     }
 }
-
-

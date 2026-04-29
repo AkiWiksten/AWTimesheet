@@ -29,7 +29,7 @@ class GetSettingsUseCaseTest {
         }
         val useCase = GetSettingsUseCase(repository)
 
-        val result = useCase("2026-04-10")
+        val result = useCase()
 
         assertEquals("Aki", result.name)
         assertEquals("WorkTime", result.employer)
@@ -48,7 +48,7 @@ class GetSettingsUseCaseTest {
         }
         val useCase = GetSettingsUseCase(repository)
 
-        val result = useCase("2026-04-10")
+        val result = useCase()
 
         assertEquals("", result.name)
         assertEquals("", result.employer)

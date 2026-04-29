@@ -71,6 +71,48 @@ class SettingsRepositoryImplTest {
         assertEquals(1, workTypeDao.deleteAllCallCount)
     }
 
+    @Test
+    fun getEffectiveSettingsForDate_withoutWorkday_returnsGlobalSettings() = runBlocking {
+        settingsDao.settingsResult = SettingsState(
+            dailyWorkTimeEstimate = "08:00",
+            dailyLunchTimeEstimate = "00:30",
+            initialFlexTimeTotal = "+01:00"
+        )
+        workdayDao.workdayResult = null
+
+        val result = repository.getEffectiveSettingsForDate("2026-04-10")
+
+        assertEquals("08:00", result?.dailyWorkTimeEstimate)
+        assertEquals("00:30", result?.dailyLunchTimeEstimate)
+        assertEquals("+01:00", result?.initialFlexTimeTotal)
+    }
+
+    @Test
+    fun getEffectiveSettingsForDate_withWorkdayOverride_returnsPerDayEstimate() = runBlocking {
+        settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
+        workdayDao.workdayResult = WorkdayEntity(
+            date = "2026-04-10",
+            workTimeTodayEstimate = "07:45"
+        )
+
+        val result = repository.getEffectiveSettingsForDate("2026-04-10")
+
+        assertEquals("07:45", result?.dailyWorkTimeEstimate)
+    }
+
+    @Test
+    fun getEffectiveSettingsForDate_withEmptyWorkdayEstimate_fallsBackToGlobalEstimate() = runBlocking {
+        settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
+        workdayDao.workdayResult = WorkdayEntity(
+            date = "2026-04-10",
+            workTimeTodayEstimate = ""
+        )
+
+        val result = repository.getEffectiveSettingsForDate("2026-04-10")
+
+        assertEquals("08:00", result?.dailyWorkTimeEstimate)
+    }
+
     private class FakeSettingsDao : SettingsDao {
         var settingsResult: SettingsState? = null
         var insertedSettings: SettingsState? = null
@@ -110,7 +152,9 @@ class SettingsRepositoryImplTest {
     }
 
     private class FakeWorkdayDao : WorkdayDao {
-        override suspend fun loadWorkday(date: String): WorkdayEntity? = null
+        var workdayResult: WorkdayEntity? = null
+
+        override suspend fun loadWorkday(date: String): WorkdayEntity? = workdayResult
 
         override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
 

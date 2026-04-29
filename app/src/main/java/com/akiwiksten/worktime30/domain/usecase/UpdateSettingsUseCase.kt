@@ -28,7 +28,7 @@ class UpdateSettingsUseCase @Inject constructor(
             ?.ifEmpty { params.currentWorkTimeTodayEstimate }
             ?: params.currentWorkTimeTodayEstimate
 
-        val nextStats = SettingsState(
+        val localNextStats = SettingsState(
             dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
                 params.newWorkTimeTodayEstimate
             } else {
@@ -38,9 +38,12 @@ class UpdateSettingsUseCase @Inject constructor(
             initialFlexTimeTotal = params.newInitialFlexTimeTotal
         )
 
-        workdayRepository.upsertWorkdayStats(date = params.date, settingsEstimates = nextStats)
+        workdayRepository.upsertWorkdayStats(date = params.date, settingsEstimates = localNextStats)
         if (params.updateGlobalSettings) {
-            settingsRepository.insertSettings(nextStats)
+            val globalNextStats = localNextStats.copy(
+                dailyWorkTimeEstimate = params.newWorkTimeTodayEstimate
+            )
+            settingsRepository.insertSettings(globalNextStats)
         }
     }
 }

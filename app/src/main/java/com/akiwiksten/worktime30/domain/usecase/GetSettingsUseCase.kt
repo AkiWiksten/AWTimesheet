@@ -8,16 +8,16 @@ import javax.inject.Inject
 class GetSettingsUseCase @Inject constructor(
     private val repository: SettingsRepository
 ) {
-    suspend operator fun invoke(date: String): SettingsState {
+    suspend operator fun invoke(_date: String): SettingsState {
         val settings = repository.getSettings()
-        val effectiveSettings = repository.getEffectiveSettingsForDate(date)
         val workTypes = repository.getWorkTypes().sorted()
         return SettingsState(
             name = settings?.name ?: "",
             employer = settings?.employer ?: "",
-            dailyWorkTimeEstimate = effectiveSettings?.dailyWorkTimeEstimate ?: "",
-            dailyLunchTimeEstimate = effectiveSettings?.dailyLunchTimeEstimate ?: ZERO_TIME,
-            initialFlexTimeTotal = effectiveSettings?.initialFlexTimeTotal ?: ZERO_TIME,
+            // Settings screen should show global defaults only.
+            dailyWorkTimeEstimate = settings?.dailyWorkTimeEstimate ?: "",
+            dailyLunchTimeEstimate = settings?.dailyLunchTimeEstimate ?: ZERO_TIME,
+            initialFlexTimeTotal = settings?.initialFlexTimeTotal ?: ZERO_TIME,
             workTypes = workTypes
         )
     }

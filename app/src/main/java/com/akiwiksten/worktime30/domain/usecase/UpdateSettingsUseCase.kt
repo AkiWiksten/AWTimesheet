@@ -7,35 +7,40 @@ import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import java.time.LocalDate
 import javax.inject.Inject
 
+data class UpdateSettingsParams(
+    val date: String,
+    val workTimeToday: String,
+    val currentWorkTimeTodayEstimate: String,
+    val newWorkTimeTodayEstimate: String,
+    val newInitialFlexTimeTotal: String,
+    val updateGlobalSettings: Boolean = false
+)
+
 class UpdateSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val workdayRepository: WorkdayRepository
 ) {
-    suspend operator fun invoke(
-        date: String,
-        workTimeToday: String,
-        currentWorkTimeTodayEstimate: String,
-        newWorkTimeTodayEstimate: String,
-        newInitialFlexTimeTotal: String
-    ) {
-        val isCurrentDay = date == LocalDate.now().toString()
-        val canUpdateWorkTimeTodayEstimate = isCurrentDay && workTimeToday == ZERO_TIME
-        val currentSettings = settingsRepository.getEffectiveSettingsForDate(date)
+    suspend operator fun invoke(params: UpdateSettingsParams) {
+        val isCurrentDay = params.date == LocalDate.now().toString()
+        val canUpdateWorkTimeTodayEstimate = isCurrentDay && params.workTimeToday == ZERO_TIME
+        val currentSettings = settingsRepository.getEffectiveSettingsForDate(params.date)
         val existingWorkTimeTodayEstimate = currentSettings?.dailyWorkTimeEstimate
-            ?.ifEmpty { currentWorkTimeTodayEstimate }
-            ?: currentWorkTimeTodayEstimate
+            ?.ifEmpty { params.currentWorkTimeTodayEstimate }
+            ?: params.currentWorkTimeTodayEstimate
 
         val nextStats = SettingsState(
             dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
-                newWorkTimeTodayEstimate
+                params.newWorkTimeTodayEstimate
             } else {
                 existingWorkTimeTodayEstimate
             },
             dailyLunchTimeEstimate = currentSettings?.dailyLunchTimeEstimate ?: ZERO_TIME,
-            initialFlexTimeTotal = newInitialFlexTimeTotal
+            initialFlexTimeTotal = params.newInitialFlexTimeTotal
         )
 
-        workdayRepository.upsertWorkdayStats(date = date, settingsEstimates = nextStats)
-        settingsRepository.insertSettings(nextStats)
+        workdayRepository.upsertWorkdayStats(date = params.date, settingsEstimates = nextStats)
+        if (params.updateGlobalSettings) {
+            settingsRepository.insertSettings(nextStats)
+        }
     }
 }

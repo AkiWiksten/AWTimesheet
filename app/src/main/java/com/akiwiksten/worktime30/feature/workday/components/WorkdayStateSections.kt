@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -170,14 +171,30 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
 @Composable
 private fun rememberWorkdaySaveUi(
     initialWorkTimeTodayEstimate: String,
-    onSaveSettings: (String) -> Unit
+    onSaveSettings: (String, Boolean) -> Unit
 ): WorkdaySaveUi {
     var editedWorkTimeTodayEstimate by remember(initialWorkTimeTodayEstimate) {
         mutableStateOf(value = initialWorkTimeTodayEstimate)
     }
+    var showSaveDialog by remember { mutableStateOf(false) }
+    var pendingWorkTimeTodayEstimate by remember { mutableStateOf("") }
 
     val isWorkTimeTodayEstimateValid = remember(editedWorkTimeTodayEstimate) {
         editedWorkTimeTodayEstimate.matches(WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX)
+    }
+
+    if (showSaveDialog) {
+        SaveWorkTimeEstimateDialog(
+            onDismiss = { showSaveDialog = false },
+            onSaveToday = {
+                showSaveDialog = false
+                onSaveSettings(pendingWorkTimeTodayEstimate, false)
+            },
+            onSaveGlobally = {
+                showSaveDialog = false
+                onSaveSettings(pendingWorkTimeTodayEstimate, true)
+            }
+        )
     }
 
     return WorkdaySaveUi(
@@ -186,7 +203,36 @@ private fun rememberWorkdaySaveUi(
         onWorkTimeTodayEstimateChange = { value ->
             editedWorkTimeTodayEstimate = value
             if (value != initialWorkTimeTodayEstimate && value.matches(WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX)) {
-                onSaveSettings(value)
+                pendingWorkTimeTodayEstimate = value
+                showSaveDialog = true
+            }
+        }
+    )
+}
+
+@Composable
+private fun SaveWorkTimeEstimateDialog(
+    onDismiss: () -> Unit,
+    onSaveToday: () -> Unit,
+    onSaveGlobally: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(id = R.string.save_work_time_estimate)) },
+        text = {
+            Text(
+                text = stringResource(id = R.string.save_work_time_estimate_message),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onSaveGlobally) {
+                Text(text = stringResource(id = R.string.save_globally))
+            }
+        },
+        dismissButton = {
+            Button(onClick = onSaveToday) {
+                Text(text = stringResource(id = R.string.save_today))
             }
         }
     )

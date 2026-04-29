@@ -1,0 +1,114 @@
+package com.akiwiksten.worktime30.domain.usecase
+
+import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayStatsRow
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import java.time.LocalDate
+
+class UpdateSettingsUseCaseTest {
+
+    @Test
+    fun invoke_saveToday_onlyUpdatesWorkdayStats() = runBlocking {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
+        }
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = UpdateSettingsUseCase(settingsRepository, workdayRepository)
+
+        useCase(
+            UpdateSettingsParams(
+                date = LocalDate.now().toString(),
+                workTimeToday = ZERO_TIME,
+                currentWorkTimeTodayEstimate = "07:30",
+                newWorkTimeTodayEstimate = "08:00",
+                newInitialFlexTimeTotal = "+01:00",
+                updateGlobalSettings = false
+            )
+        )
+
+        assertEquals("08:00", workdayRepository.lastSaved?.dailyWorkTimeEstimate)
+        assertEquals(0, settingsRepository.insertCalls)
+        assertEquals("07:30", settingsRepository.settings?.dailyWorkTimeEstimate)
+    }
+
+    @Test
+    fun invoke_saveGlobally_updatesWorkdayAndGlobalSettings() = runBlocking {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
+        }
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = UpdateSettingsUseCase(settingsRepository, workdayRepository)
+
+        useCase(
+            UpdateSettingsParams(
+                date = LocalDate.now().toString(),
+                workTimeToday = ZERO_TIME,
+                currentWorkTimeTodayEstimate = "07:30",
+                newWorkTimeTodayEstimate = "08:00",
+                newInitialFlexTimeTotal = "+01:00",
+                updateGlobalSettings = true
+            )
+        )
+
+        assertEquals("08:00", workdayRepository.lastSaved?.dailyWorkTimeEstimate)
+        assertEquals(1, settingsRepository.insertCalls)
+        assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
+    }
+
+    private class FakeSettingsRepository : SettingsRepository {
+        var settings: SettingsState? = null
+        var insertCalls: Int = 0
+
+        override suspend fun getSettings(): SettingsState? = settings
+
+        override suspend fun insertSettings(settings: SettingsState) {
+            insertCalls += 1
+            this.settings = settings
+        }
+
+        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = settings
+
+        override suspend fun getWorkTypes(): List<String> = emptyList()
+
+        override suspend fun insertWorkType(workType: String) = Unit
+
+        override suspend fun deleteWorkType(workType: String) = Unit
+
+        override suspend fun deleteAllWorkTypes() = Unit
+    }
+
+    private class FakeWorkdayRepository : WorkdayRepository {
+        var lastDate: String? = null
+        var lastSaved: SettingsState? = null
+
+        override suspend fun loadWorkday(date: String): SettingsState? = null
+
+        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
+            lastDate = date
+            lastSaved = settingsEstimates
+        }
+
+        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {
+            return emptyList()
+        }
+    }
+}
+
+

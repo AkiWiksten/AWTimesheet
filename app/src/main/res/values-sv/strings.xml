@@ -72,5 +72,10 @@
     <string name="unsaved_data_message">Du har osparade ändringar. Spara innan du lämnar?</string>
     <string name="discard">Förkasta</string>
     <string name="stay">Stanna</string>
+    <string name="save_work_time_estimate">Spara uppskattad arbetstid</string>
+    <string name="save_work_time_estimate_message">Vill du spara detta som den globala beräknade dagliga arbetstiden eller bara för idag?</string>
+    <string name="save_today">Spara för idag</string>
+    <string name="save_globally">Spara globalt</string>
+    <string name="global_settings_hint">Detta är globala standardvärden. Ändringar i arbetsdagen kan sparas endast för en dag.</string>
 </resources>
 

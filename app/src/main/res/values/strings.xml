@@ -71,4 +71,9 @@
     <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
     <string name="discard">Discard</string>
     <string name="stay">Stay</string>
+    <string name="save_work_time_estimate">Save work time estimate</string>
+    <string name="save_work_time_estimate_message">Do you want to save this as the global daily work time estimate, or just for today?</string>
+    <string name="save_today">Save today</string>
+    <string name="save_globally">Save globally</string>
+    <string name="global_settings_hint">These are global defaults. Workday changes can be saved for one day only.</string>
 </resources>

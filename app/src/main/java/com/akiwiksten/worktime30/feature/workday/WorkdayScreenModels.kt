@@ -6,7 +6,7 @@ data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
     val onNavigateToSingleProject: (Int) -> Unit,
     val onRetry: () -> Unit,
-    val onSaveSettings: (String) -> Unit,
+    val onSaveSettings: (String, Boolean) -> Unit,
     val onDeleteProject: (SingleProjectState) -> Unit
 )
 

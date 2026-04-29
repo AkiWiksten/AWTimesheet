@@ -13,6 +13,7 @@ import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsParams
 import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -155,7 +156,7 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateSettings(workTimeTodayEstimate: String) {
+    fun updateSettings(workTimeTodayEstimate: String, updateGlobalSettings: Boolean = false) {
         if (!isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate)) {
             return
         }
@@ -164,11 +165,14 @@ class WorkdayViewModel @Inject constructor(
             try {
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
                 updateSettingsUseCase(
-                    date = currentUiState.date,
-                    workTimeToday = currentUiState.workTimeToday,
-                    currentWorkTimeTodayEstimate = currentUiState.workTimeTodayEstimate,
-                    newWorkTimeTodayEstimate = workTimeTodayEstimate,
-                    newInitialFlexTimeTotal = currentUiState.initialFlexTimeTotal
+                    UpdateSettingsParams(
+                        date = currentUiState.date,
+                        workTimeToday = currentUiState.workTimeToday,
+                        currentWorkTimeTodayEstimate = currentUiState.workTimeTodayEstimate,
+                        newWorkTimeTodayEstimate = workTimeTodayEstimate,
+                        newInitialFlexTimeTotal = currentUiState.initialFlexTimeTotal,
+                        updateGlobalSettings = updateGlobalSettings
+                    )
                 )
                 requestReload()
             } catch (e: IllegalArgumentException) {

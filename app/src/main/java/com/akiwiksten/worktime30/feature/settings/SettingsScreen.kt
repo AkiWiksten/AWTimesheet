@@ -319,6 +319,12 @@ private fun SettingsContentBody(
                 onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
             )
 
+            Text(
+                text = stringResource(id = R.string.global_settings_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.secondary
+            )
+
             SettingsTextField(
                 value = state.uiState.data.initialFlexTimeTotal,
                 label = R.string.initial_flex_time_total,

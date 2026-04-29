@@ -13,7 +13,13 @@ class GetSettingsUseCaseTest {
     @Test
     fun invoke_returnsMappedValuesAndSortedWorkTypes() = runBlocking {
         val repository = FakeSettingsRepository().apply {
-            settings = SettingsState(name = "Aki", employer = "WorkTime")
+            settings = SettingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                dailyWorkTimeEstimate = "08:00",
+                dailyLunchTimeEstimate = "00:45",
+                initialFlexTimeTotal = "+01:30"
+            )
             effectiveSettings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
@@ -27,9 +33,9 @@ class GetSettingsUseCaseTest {
 
         assertEquals("Aki", result.name)
         assertEquals("WorkTime", result.employer)
-        assertEquals("07:30", result.dailyWorkTimeEstimate)
-        assertEquals("00:30", result.dailyLunchTimeEstimate)
-        assertEquals("01:00", result.initialFlexTimeTotal)
+        assertEquals("08:00", result.dailyWorkTimeEstimate)
+        assertEquals("00:45", result.dailyLunchTimeEstimate)
+        assertEquals("+01:30", result.initialFlexTimeTotal)
         assertEquals(listOf("Office", "Remote"), result.workTypes)
     }
 

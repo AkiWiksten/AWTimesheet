@@ -201,9 +201,9 @@ class GetWorkdayScreenDataUseCaseTest {
     private class FakeWorkdayRepository : WorkdayRepository {
         var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
 
-        override suspend fun loadWorkday(date: String): SettingsState? = null
+        override suspend fun loadWorkday(date: String): String? = null
 
-        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) = Unit
+        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> =
             workdayStatsRows.filter { it.date in start..end }

@@ -85,6 +85,7 @@ This is called feature-based packaging.
   + App localization selection
   + Use "Design" and "Other" as Default work types when list is empty
   + Ask to save does not work
+  + SettingsViewModel.refreshProjectsByMonth maybe be called when pushing pdf button, not on VM init
 + PDF
   + Use Intent to ask user where to save pdf and 
   + show the pdf instantly on screen

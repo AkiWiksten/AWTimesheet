@@ -37,7 +37,7 @@ class UpdateSettingsUseCaseTest {
             )
         )
 
-        assertEquals("08:00", workdayRepository.lastSaved?.dailyWorkTimeEstimate)
+        assertEquals("08:00", workdayRepository.lastSaved)
         assertEquals(0, settingsRepository.insertCalls)
         assertEquals("07:30", settingsRepository.settings?.dailyWorkTimeEstimate)
     }
@@ -67,7 +67,7 @@ class UpdateSettingsUseCaseTest {
             )
         )
 
-        assertEquals("08:00", workdayRepository.lastSaved?.dailyWorkTimeEstimate)
+        assertEquals("08:00", workdayRepository.lastSaved)
         assertEquals(1, settingsRepository.insertCalls)
         assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
     }
@@ -98,7 +98,7 @@ class UpdateSettingsUseCaseTest {
         )
 
         // Local/day estimate remains unchanged due to guard.
-        assertEquals("07:30", workdayRepository.lastSaved?.dailyWorkTimeEstimate)
+        assertEquals("07:30", workdayRepository.lastSaved)
         // Global save still applies requested value.
         assertEquals(1, settingsRepository.insertCalls)
         assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
@@ -128,13 +128,13 @@ class UpdateSettingsUseCaseTest {
 
     private class FakeWorkdayRepository : WorkdayRepository {
         var lastDate: String? = null
-        var lastSaved: SettingsState? = null
+        var lastSaved: String? = null
 
-        override suspend fun loadWorkday(date: String): SettingsState? = null
+        override suspend fun loadWorkday(date: String): String? = null
 
-        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
+        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) {
             lastDate = date
-            lastSaved = settingsEstimates
+            lastSaved = workTimeByDateEstimate
         }
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {

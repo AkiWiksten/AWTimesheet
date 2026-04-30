@@ -49,7 +49,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun loadProjectsByMonth_setsEndOfMonthAndProjects() = runTest {
+    fun refreshProjectsByMonth_setsEndOfMonthAndProjects() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
             settings = SettingsState(name = "Aki", employer = "Company")
         }
@@ -61,12 +61,54 @@ class SettingsViewModelTest {
         val viewModel = createViewModel(settingsRepository, projectRepository)
 
         viewModel.loadSettings()
-        viewModel.loadProjectsByMonth("2026-04-10")
+        viewModel.refreshProjectsByMonth("2026-04-10")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as SettingsUiState.Success
         assertEquals("2026-04-30", state.endMonthDate)
         assertEquals(1, state.projectsByMonth.size)
+    }
+
+    @Test
+    fun selectedDateChange_refreshesMonthDataWithoutOverwritingUnsavedSettings() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(name = "Aki", employer = "Company")
+        }
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByRange["2026-04-01|2026-04-30"] = listOf(
+                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
+            )
+            projectsByRange["2026-05-01|2026-05-31"] = listOf(
+                ProjectEntity(date = "2026-05-10", projectName = "Beta", projectTime = "04:00")
+            )
+        }
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val workdayRepository = FakeWorkdayRepository()
+        val viewModel = SettingsViewModel(
+            getSettingsUseCase = GetSettingsUseCase(settingsRepository),
+            saveSettingsUseCase = SaveSettingsUseCase(
+                settingsRepository = settingsRepository,
+                workdayRepository = workdayRepository,
+                projectRepository = projectRepository,
+                dateRepository = dateRepository
+            ),
+            getProjectsByMonthUseCase = GetProjectsByMonthUseCase(projectRepository),
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+
+        viewModel.loadSettings()
+        advanceUntilIdle()
+        viewModel.setName("Edited Name")
+
+        dateRepository.updateDate("2026-05-10")
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as SettingsUiState.Success
+        assertEquals("Edited Name", state.data.name)
+        assertEquals("2026-05-10", state.selectedDate)
+        assertEquals("2026-05-31", state.endMonthDate)
+        assertEquals(listOf("Beta"), state.projectsByMonth.map { it.projectName })
     }
 
     @Test
@@ -170,9 +212,9 @@ class SettingsViewModelTest {
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {
-        override suspend fun loadWorkday(date: String): SettingsState? = null
+        override suspend fun loadWorkday(date: String): String? = null
 
-        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) = Unit
+        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) = Unit
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }

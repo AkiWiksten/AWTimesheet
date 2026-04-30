@@ -38,7 +38,8 @@ class UpdateSettingsUseCase @Inject constructor(
             initialFlexTimeTotal = params.newInitialFlexTimeTotal
         )
 
-        workdayRepository.upsertWorkdayStats(date = params.date,
+        workdayRepository.upsertWorkdayStats(
+            date = params.date,
             workTimeByDateEstimate = localNextStats.dailyWorkTimeEstimate
         )
         if (params.updateGlobalSettings) {

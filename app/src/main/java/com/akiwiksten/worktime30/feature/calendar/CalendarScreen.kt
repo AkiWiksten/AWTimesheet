@@ -28,9 +28,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -45,7 +43,6 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.Header
-import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import java.time.LocalDate
 import java.time.ZoneId
@@ -120,18 +117,7 @@ internal fun CalendarContent(
     uiState: CalendarUiState,
     datePickerState: DatePickerState
 ) {
-    val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = uiState is CalendarUiState.Loading
-    )
     val scrollState = rememberScrollState()
-    var lastSuccessState by remember { mutableStateOf<CalendarUiState.Success?>(value = null) }
-    val fallbackSuccessState = remember { CalendarUiState.Success() }
-
-    LaunchedEffect(uiState) {
-        if (uiState is CalendarUiState.Success) {
-            lastSuccessState = uiState
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -143,11 +129,7 @@ internal fun CalendarContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp)
     ) {
         when (uiState) {
-            is CalendarUiState.Loading -> LoadingContent(
-                showLoadingIndicator = showLoadingIndicator,
-                cachedState = lastSuccessState ?: fallbackSuccessState,
-                datePickerState = datePickerState
-            )
+            is CalendarUiState.Loading -> LoadingContent()
             is CalendarUiState.Success -> {
                 DatePickerSection(selectedDate = uiState.date, datePickerState = datePickerState)
                 WorkTimeSummarySection(uiState = uiState)
@@ -159,21 +141,12 @@ internal fun CalendarContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LoadingContent(
-    showLoadingIndicator: Boolean,
-    cachedState: CalendarUiState.Success,
-    datePickerState: DatePickerState
-) {
-    if (showLoadingIndicator) {
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        DatePickerSection(selectedDate = cachedState.date, datePickerState = datePickerState)
-        WorkTimeSummarySection(uiState = cachedState)
+private fun LoadingContent() {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
     }
 }
 

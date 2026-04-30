@@ -553,16 +553,20 @@ class WorkdayViewModelTest {
     ) : WorkdayRepository {
         var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
 
-        override suspend fun loadWorkday(date: String): SettingsState? = null
+        override suspend fun loadWorkday(date: String): String? = null
 
-        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
+        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) {
             val updatedRow = WorkdayStatsRow(
                 date = date,
-                workTimeByDateEstimate = settingsEstimates.dailyWorkTimeEstimate
+                workTimeByDateEstimate = workTimeByDateEstimate
             )
             workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
-            projectDetailsRepository?.workdayStatsRows = workdayStatsRows
-            projectDetailsRepository?.settings = settingsEstimates
+            projectDetailsRepository?.let { repository ->
+                repository.workdayStatsRows = workdayStatsRows
+                repository.settings = (repository.settings ?: SettingsState()).copy(
+                    dailyWorkTimeEstimate = workTimeByDateEstimate
+                )
+            }
         }
 
         override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {

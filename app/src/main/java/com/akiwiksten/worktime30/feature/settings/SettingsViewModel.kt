@@ -8,6 +8,7 @@ import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
+import com.akiwiksten.worktime30.domain.usecase.ProjectsByMonthResult
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,20 +43,11 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
-        observeDate()
-    }
-
-    private fun observeDate() {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 if (date.isNotEmpty()) {
-                    val currentState = _uiState.value
-                    if (currentState is SettingsUiState.Success) {
-                        _uiState.value = currentState.copy(
-                            selectedDate = date
-                        )
-                    }
-                    loadProjectsByMonth(date)
+                    _uiState.updateSelectedDate(date)
+                    refreshProjectsByMonth(date)
                 }
             }
         }
@@ -135,10 +127,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun loadProjectsByMonth(date: String) {
+    fun refreshProjectsByMonth(date: String) {
         viewModelScope.launch {
             try {
-                val monthlyResult = getProjectsByMonthUseCase(date)
+                val monthlyResult = getProjectsByMonthUseCase.getMonthlyProjects(date)
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     _uiState.value = currentState.copy(
@@ -147,9 +139,9 @@ class SettingsViewModel @Inject constructor(
                     )
                 }
             } catch (e: IllegalArgumentException) {
-                handleException(e, "Failed to load projects")
+                _uiState.handleException(e, "Failed to load projects")
             } catch (e: IllegalStateException) {
-                handleException(e, "Failed to load projects")
+                _uiState.handleException(e, "Failed to load projects")
             }
         }
     }
@@ -160,7 +152,7 @@ class SettingsViewModel @Inject constructor(
             try {
                 val currentDate = dateRepository.selectedDate.value
                 val loadedData = getSettingsUseCase()
-                val monthlyResult = getProjectsByMonthUseCase(currentDate)
+                val monthlyResult = getProjectsByMonthUseCase.getMonthlyProjects(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
                     data = loadedData,
@@ -169,9 +161,9 @@ class SettingsViewModel @Inject constructor(
                     projectsByMonth = monthlyResult.projects
                 )
             } catch (e: IllegalArgumentException) {
-                handleException(e, "Failed to load settings")
+                _uiState.handleException(e, "Failed to load settings")
             } catch (e: IllegalStateException) {
-                handleException(e, "Failed to load settings")
+                _uiState.handleException(e, "Failed to load settings")
             }
         }
     }
@@ -186,14 +178,25 @@ class SettingsViewModel @Inject constructor(
                     )
                 }
             } catch (e: IllegalArgumentException) {
-                handleException(e, "Failed to save settings")
+                _uiState.handleException(e, "Failed to save settings")
             } catch (e: IllegalStateException) {
-                handleException(e, "Failed to save settings")
+                _uiState.handleException(e, "Failed to save settings")
             }
         }
     }
+}
 
-    private fun handleException(exception: Exception, message: String) {
-        _uiState.value = SettingsUiState.Error("$message: ${exception.message}")
+private fun MutableStateFlow<SettingsUiState>.updateSelectedDate(date: String) {
+    val currentState = value
+    if (currentState is SettingsUiState.Success) {
+        value = currentState.copy(selectedDate = date)
     }
+}
+
+private suspend fun GetProjectsByMonthUseCase.getMonthlyProjects(date: String): ProjectsByMonthResult {
+    return invoke(date)
+}
+
+private fun MutableStateFlow<SettingsUiState>.handleException(exception: Exception, message: String) {
+    value = SettingsUiState.Error("$message: ${exception.message}")
 }

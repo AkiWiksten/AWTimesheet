@@ -240,9 +240,9 @@ class SaveSettingsUseCaseTest {
     private class FakeWorkdayRepository : WorkdayRepository {
         var upsertedWorkdayDate: String? = null
 
-        override suspend fun loadWorkday(date: String): SettingsState? = null
+        override suspend fun loadWorkday(date: String): String? = null
 
-        override suspend fun upsertWorkdayStats(date: String, settingsEstimates: SettingsState) {
+        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) {
             upsertedWorkdayDate = date
         }
 

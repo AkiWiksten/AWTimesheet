@@ -8,6 +8,10 @@ import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.usecase.GetCalendarDataUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -61,6 +65,45 @@ class CalendarViewModelTest {
     }
 
     @Test
+    fun onDateSelected_afterInitialSuccess_doesNotEmitLoading() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val projectRepository = FakeProjectRepository().apply {
+            dataByRange["2026-04-01|2026-04-30"] = listOf(
+                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00", 0, "", "")
+            )
+            dataByRange["2026-05-01|2026-05-31"] = listOf(
+                ProjectEntity(date = "2026-05-10", projectName = "Beta", projectTime = "03:00", 0, "", "")
+            )
+        }
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+        val emissions = mutableListOf<CalendarUiState>()
+        val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { emissions += it }
+        }
+
+        advanceUntilIdle()
+        emissions.clear()
+
+        projectRepository.readDelayMillis = 1_000
+        viewModel.onDateSelected("2026-05-10")
+        advanceTimeBy(500)
+
+        assertTrue(emissions.none { it is CalendarUiState.Loading })
+
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as CalendarUiState.Success
+        assertEquals("2026-05-10", state.date)
+        assertEquals("03:00", state.timePerMonth)
+        assertEquals("03:00", state.timePerDay)
+
+        job.cancel()
+    }
+
+    @Test
     fun convertMillisToDate_returnsCorrectIsoFormat() {
         val viewModel = CalendarViewModel(
             getCalendarDataUseCase = GetCalendarDataUseCase(FakeProjectRepository()),
@@ -79,10 +122,14 @@ class CalendarViewModelTest {
 
     private open class FakeProjectRepository : ProjectRepository {
         val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
+        var readDelayMillis: Long = 0
 
         override suspend fun anyRecords(): Boolean = false
 
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
+            if (readDelayMillis > 0) {
+                delay(readDelayMillis)
+            }
             return (dataByRange["$start|$end"] ?: emptyList()).map { entity ->
                 SingleProjectState(
                     date = entity.date,

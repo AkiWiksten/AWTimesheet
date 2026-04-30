@@ -33,8 +33,12 @@ class CalendarViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
-                _uiState.value = CalendarUiState.Loading
-                calculateSums(date)
+                if (date.isNotEmpty()) {
+                    refreshCalendarData(
+                        date = date,
+                        showLoading = _uiState.value !is CalendarUiState.Success
+                    )
+                }
             }
         }
     }
@@ -56,21 +60,23 @@ class CalendarViewModel @Inject constructor(
         dateRepository.updateDate(selectedDate)
     }
 
-    private fun calculateSums(date: String) {
-        viewModelScope.launch {
-            try {
-                val data: CalendarData = getCalendarDataUseCase(date)
-                _uiState.value = CalendarUiState.Success(
-                    date = date,
-                    timePerMonth = data.timePerMonth,
-                    timePerWeek = data.timePerWeek,
-                    timePerDay = data.timePerDay
-                )
-            } catch (e: IllegalArgumentException) {
-                _uiState.value = CalendarUiState.Error(e.message ?: "Invalid argument provided")
-            } catch (e: IllegalStateException) {
-                _uiState.value = CalendarUiState.Error(e.message ?: "Invalid state")
-            }
+    private suspend fun refreshCalendarData(date: String, showLoading: Boolean) {
+        if (showLoading) {
+            _uiState.value = CalendarUiState.Loading
+        }
+
+        try {
+            val data: CalendarData = getCalendarDataUseCase(date)
+            _uiState.value = CalendarUiState.Success(
+                date = date,
+                timePerMonth = data.timePerMonth,
+                timePerWeek = data.timePerWeek,
+                timePerDay = data.timePerDay
+            )
+        } catch (e: IllegalArgumentException) {
+            _uiState.value = CalendarUiState.Error(e.message ?: "Invalid argument provided")
+        } catch (e: IllegalStateException) {
+            _uiState.value = CalendarUiState.Error(e.message ?: "Invalid state")
         }
     }
 }

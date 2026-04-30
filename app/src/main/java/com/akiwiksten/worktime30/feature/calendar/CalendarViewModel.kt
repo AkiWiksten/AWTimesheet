@@ -71,7 +71,8 @@ class CalendarViewModel @Inject constructor(
                 date = date,
                 timePerMonth = data.timePerMonth,
                 timePerWeek = data.timePerWeek,
-                timePerDay = data.timePerDay
+                timePerDay = data.timePerDay,
+                datesWithWork = data.datesWithWork
             )
         } catch (e: IllegalArgumentException) {
             _uiState.value = CalendarUiState.Error(e.message ?: "Invalid argument provided")
@@ -88,7 +89,8 @@ sealed class CalendarUiState {
         val date: String = "",
         val timePerMonth: String = "",
         val timePerWeek: String = "",
-        val timePerDay: String = ""
+        val timePerDay: String = "",
+        val datesWithWork: Set<String> = emptySet()
     ) : CalendarUiState()
 
     data class Error(val message: String) : CalendarUiState()

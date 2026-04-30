@@ -47,10 +47,13 @@ class GetCalendarDataUseCase @Inject constructor(
             projectTimesMonth.filter { it.date == date }
         )
 
+        val datesWithWork = projectTimesMonth.map { it.date }.toSet()
+
         return CalendarData(
             timePerMonth = timePerMonth,
             timePerWeek = timePerWeek,
-            timePerDay = timePerDay
+            timePerDay = timePerDay,
+            datesWithWork = datesWithWork
         )
     }
 
@@ -69,5 +72,6 @@ class GetCalendarDataUseCase @Inject constructor(
 data class CalendarData(
     val timePerMonth: String,
     val timePerWeek: String,
-    val timePerDay: String
+    val timePerDay: String,
+    val datesWithWork: Set<String> = emptySet()
 )

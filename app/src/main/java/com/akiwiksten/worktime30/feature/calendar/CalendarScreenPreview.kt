@@ -1,7 +1,5 @@
 package com.akiwiksten.worktime30.feature.calendar
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.android.tools.screenshot.PreviewTest
@@ -11,18 +9,16 @@ private const val PREVIEW_WEEK_TIME = "42:30 h"
 private const val PREVIEW_DAY_TIME = "8:30 h"
 private const val PREVIEW_DATE = "2026-04-10"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalendarContentLoading() {
     CalendarContent(
         uiState = CalendarUiState.Loading,
-        datePickerState = rememberDatePickerState()
+        onDateSelected = {}
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @PreviewTest
 @Preview(showBackground = true)
 @Composable
@@ -35,29 +31,17 @@ fun PreviewCalendarContentSuccess() {
     )
     CalendarContent(
         uiState = successState,
-        datePickerState = rememberDatePickerState()
+        onDateSelected = {}
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalendarContentError() {
     CalendarContent(
         uiState = CalendarUiState.Error("Failed to load calendar data"),
-        datePickerState = rememberDatePickerState()
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@PreviewTest
-@Preview(showBackground = true)
-@Composable
-fun PreviewDatePickerSection() {
-    DatePickerSection(
-        selectedDate = PREVIEW_DATE,
-        datePickerState = rememberDatePickerState()
+        onDateSelected = {}
     )
 }
 

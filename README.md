@@ -79,7 +79,6 @@ This is called feature-based packaging.
   + First "Estimated end time" then "End time"
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
-  + Show color for modified days
 + SettingsScreen
   + Translate fed "Work type"
   + App localization selection

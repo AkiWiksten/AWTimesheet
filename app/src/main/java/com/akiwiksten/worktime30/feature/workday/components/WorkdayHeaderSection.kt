@@ -3,19 +3,12 @@ package com.akiwiksten.worktime30.feature.workday.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -40,12 +33,10 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
-import com.akiwiksten.worktime30.core.ui.verticalScrollbar
-import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
-private val SAVE_BUTTON_TOP_PADDING = 4.dp
 
 @Composable
 internal fun WorkdayHeader(
@@ -81,34 +72,32 @@ internal fun WorkdayHeader(
 @Composable
 internal fun WorkdayStatsCard(
     workTime: String,
-    flexTimeToday: String,
+    flexTimeByDate: String,
     calculatedFlexTimeTotal: String,
-    workStatsEditorState: WorkStatsEditorState,
+    settingsEditorState: SettingsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
-    val openWorkTimeTodayEstimatePicker = remember { mutableStateOf(value = false) }
+    val openWorkTimeByDateEstimatePicker = remember { mutableStateOf(value = false) }
 
-    if (openWorkTimeTodayEstimatePicker.value) {
+    if (openWorkTimeByDateEstimatePicker.value) {
         TimePickerDialog(
-            onDismissRequest = { openWorkTimeTodayEstimatePicker.value = false },
+            onDismissRequest = { openWorkTimeByDateEstimatePicker.value = false },
             onConfirmation = { time ->
-                headerActions.onWorkTimeTodayEstimateChange(time)
-                openWorkTimeTodayEstimatePicker.value = false
+                headerActions.onWorkTimeByDateEstimateChange(time)
+                openWorkTimeByDateEstimatePicker.value = false
             },
-            time = workStatsEditorState.workTimeTodayEstimate,
-            titleId = R.string.work_time_today_estimate
+            time = settingsEditorState.workTimeByDateEstimate,
+            titleId = R.string.work_time_by_date_estimate
         )
     }
 
     WorkdayStatsCardContent(
         params = WorkdayStatsCardContentParams(
             workTime = workTime,
-            flexTimeToday = flexTimeToday,
+            flexTimeByDate = flexTimeByDate,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
-            workStatsEditorState = workStatsEditorState,
-            onWorkTimeTodayEstimatePickerClick = { openWorkTimeTodayEstimatePicker.value = true },
-            onInitialFlexTimeTotalChange = headerActions.onInitialFlexTimeTotalChange,
-            onSaveWorkStats = headerActions.onSaveWorkStats
+            settingsEditorState = settingsEditorState,
+            onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
     )
 }
@@ -117,11 +106,6 @@ internal fun WorkdayStatsCard(
 private fun WorkdayStatsCardContent(
     params: WorkdayStatsCardContentParams
 ) {
-    val scrollState = rememberScrollState()
-    val isSaveEnabled = !params.workStatsEditorState.isWorkTimeTodayEstimateError &&
-        !params.workStatsEditorState.isInitialFlexTimeTotalError &&
-        params.workStatsEditorState.hasUnsavedChanges
-
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,33 +114,19 @@ private fun WorkdayStatsCardContent(
     ) {
         Column(
             modifier = Modifier
-                .verticalScrollbar(scrollState = scrollState)
-                .verticalScroll(state = scrollState)
                 .padding(all = FORM_SECTION_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
         ) {
             WorkdayStatsSummaryTexts(
                 workTime = params.workTime,
-                flexTimeToday = params.flexTimeToday,
+                flexTimeByDate = params.flexTimeByDate,
                 calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
-            WorkTimeTodayEstimatePickerRow(
-                workTimeTodayEstimate = params.workStatsEditorState.workTimeTodayEstimate,
-                isError = params.workStatsEditorState.isWorkTimeTodayEstimateError,
-                onPickerClick = params.onWorkTimeTodayEstimatePickerClick
-            )
-            FlexTimeTotalField(
-                initialFlexTimeTotal = params.workStatsEditorState.initialFlexTimeTotal,
-                isError = params.workStatsEditorState.isInitialFlexTimeTotalError,
-                onValueChange = params.onInitialFlexTimeTotalChange
-            )
-            SaveWorkStatsButton(
-                isEnabled = isSaveEnabled,
-                onClick = params.onSaveWorkStats,
-                modifier = Modifier
-                    .align(alignment = Alignment.End)
-                    .padding(top = SAVE_BUTTON_TOP_PADDING)
+            WorkTimeByDateEstimatePickerRow(
+                workTimeByDateEstimate = params.settingsEditorState.workTimeByDateEstimate,
+                isError = params.settingsEditorState.isWorkTimeByDateEstimateError,
+                onPickerClick = params.onWorkTimeByDateEstimatePickerClick
             )
         }
     }
@@ -165,11 +135,11 @@ private fun WorkdayStatsCardContent(
 @Composable
 private fun WorkdayStatsSummaryTexts(
     workTime: String,
-    flexTimeToday: String,
+    flexTimeByDate: String,
     calculatedFlexTimeTotal: String
 ) {
     Text(
-        text = "${stringResource(id = R.string.work_time_today)}: $workTime",
+        text = "${stringResource(id = R.string.work_time_by_date)}: $workTime",
         style = MaterialTheme.typography.bodyLarge.copy(
             fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
             fontWeight = FontWeight.Bold
@@ -177,7 +147,7 @@ private fun WorkdayStatsSummaryTexts(
         color = MaterialTheme.colorScheme.onSurface
     )
     Text(
-        text = "${stringResource(id = R.string.flex_time_today)}: $flexTimeToday",
+        text = "${stringResource(id = R.string.flex_time_by_date)}: $flexTimeByDate",
         style = MaterialTheme.typography.bodyLarge.copy(
             fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
             fontWeight = FontWeight.Bold
@@ -197,46 +167,15 @@ private fun WorkdayStatsSummaryTexts(
 
 private data class WorkdayStatsCardContentParams(
     val workTime: String,
-    val flexTimeToday: String,
+    val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
-    val workStatsEditorState: WorkStatsEditorState,
-    val onWorkTimeTodayEstimatePickerClick: () -> Unit,
-    val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onSaveWorkStats: () -> Unit
+    val settingsEditorState: SettingsEditorState,
+    val onWorkTimeByDateEstimatePickerClick: () -> Unit
 )
 
 @Composable
-private fun FlexTimeTotalField(
-    initialFlexTimeTotal: String,
-    isError: Boolean,
-    onValueChange: (String) -> Unit
-) {
-    OutlinedTextField(
-        value = initialFlexTimeTotal,
-        onValueChange = onValueChange,
-        label = {
-            Text(
-                text = stringResource(id = R.string.initial_flex_time_total),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        },
-        textStyle = MaterialTheme.typography.bodyLarge.copy(
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-            fontWeight = FontWeight.Bold
-        ),
-        singleLine = true,
-        isError = isError,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-    )
-}
-
-@Composable
-private fun WorkTimeTodayEstimatePickerRow(
-    workTimeTodayEstimate: String,
+private fun WorkTimeByDateEstimatePickerRow(
+    workTimeByDateEstimate: String,
     isError: Boolean,
     onPickerClick: () -> Unit
 ) {
@@ -246,12 +185,12 @@ private fun WorkTimeTodayEstimatePickerRow(
         horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         OutlinedTextField(
-            value = workTimeTodayEstimate,
+            value = workTimeByDateEstimate,
             onValueChange = {},
             enabled = false,
             label = {
                 Text(
-                    text = stringResource(id = R.string.work_time_today_estimate),
+                    text = stringResource(id = R.string.work_time_by_date_estimate),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold
@@ -270,23 +209,5 @@ private fun WorkTimeTodayEstimatePickerRow(
         IconButton(onClick = onPickerClick) {
             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
         }
-    }
-}
-
-@Composable
-private fun SaveWorkStatsButton(
-    isEnabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        enabled = isEnabled,
-        modifier = modifier,
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-    ) {
-        Icon(imageVector = Icons.Default.Save, contentDescription = null)
-        Spacer(modifier = Modifier.width(width = 8.dp))
-        Text(text = stringResource(id = R.string.save))
     }
 }

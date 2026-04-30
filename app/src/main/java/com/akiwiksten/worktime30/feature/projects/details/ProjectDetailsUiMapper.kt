@@ -2,24 +2,29 @@
 
 import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 
 object ProjectDetailsUiMapper {
     fun applyEntitiesToState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
-        workStats: WorkStatsState?
+        settings: SettingsState?
     ): ProjectDetailsUiState.Success {
-        val stateWithWorkStats = baseState.data.copy(workStats = normalizedWorkStats(workStats = workStats))
+        val normalizedSettings = normalizedSettings(settings = settings)
         val mappedData = projectDetails?.let {
-            applyProjectDetails(state = stateWithWorkStats, projectDetails = it)
-        } ?: applyEmptyDayDefaults(state = stateWithWorkStats)
+            applyProjectDetails(state = baseState.data, projectDetails = it)
+        } ?: applyEmptyDayDefaults(
+            state = baseState.data,
+            lunchTimeEstimate = normalizedSettings.dailyLunchTimeEstimate
+        )
 
-        return baseState.copy(data = mappedData)
+        return baseState.copy(data = mappedData, settings = normalizedSettings)
     }
 
-    private fun normalizedWorkStats(workStats: WorkStatsState?): WorkStatsState {
-        val data = workStats ?: WorkStatsState()
-        return WorkStatsState(
+    private fun normalizedSettings(settings: SettingsState?): SettingsState {
+        val data = settings ?: SettingsState()
+        return SettingsState(
             dailyWorkTimeEstimate = data.dailyWorkTimeEstimate.ifEmpty { DEFAULT_DAILY_WORK_TIME },
             dailyLunchTimeEstimate = data.dailyLunchTimeEstimate.ifEmpty { ZERO_TIME },
             initialFlexTimeTotal = data.initialFlexTimeTotal.ifEmpty { ZERO_TIME }
@@ -48,11 +53,11 @@ object ProjectDetailsUiMapper {
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
             breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
             projectTime = normalizedProjectTime,
-            flexTimeToday = projectDetails.flexTimeToday.ifEmpty { ZERO_TIME }
+            lunchTimeEstimate = projectDetails.lunchTimeEstimate.ifEmpty { ZERO_TIME }
         )
     }
 
-    private fun applyEmptyDayDefaults(state: ProjectDetailsState): ProjectDetailsState {
+    private fun applyEmptyDayDefaults(state: ProjectDetailsState, lunchTimeEstimate: String): ProjectDetailsState {
         return state.copy(
             startTime = ZERO_TIME,
             endTime = ZERO_TIME,
@@ -61,7 +66,7 @@ object ProjectDetailsUiMapper {
             breakStart = ZERO_TIME,
             breakEnd = ZERO_TIME,
             projectTime = ZERO_TIME,
-            flexTimeToday = ZERO_TIME
+            lunchTimeEstimate = lunchTimeEstimate
         )
     }
 

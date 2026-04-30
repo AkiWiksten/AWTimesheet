@@ -1,7 +1,9 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 
 internal fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): SingleProjectState {
@@ -10,12 +12,14 @@ internal fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): 
 
 internal fun resolveInitialSingleProjectState(
     initialSingleProjectState: SingleProjectState,
+    initialProjectDetails: ProjectDetailsState?,
+    initialSettings: SettingsState?,
     projectsUiState: WorkdayUiState
 ): SingleProjectState {
     val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
         initialSingleProjectState.projectTime != ZERO_TIME ||
-        initialSingleProjectState.projectDetails != null ||
-        initialSingleProjectState.workStats != null
+        initialProjectDetails != null ||
+        initialSettings != null
 
     return when {
         initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState

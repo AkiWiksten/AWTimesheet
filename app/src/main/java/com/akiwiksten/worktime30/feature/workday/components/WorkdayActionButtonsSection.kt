@@ -23,7 +23,7 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
 @Composable
 internal fun WorkdayActionButtons(

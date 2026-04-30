@@ -3,9 +3,12 @@ package com.akiwiksten.worktime30.feature.workday
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.android.tools.screenshot.PreviewTest
 
 private const val PREVIEW_DATE = "2026-04-10"
 
+@PreviewTest
 @Preview(showBackground = true, name = "Workday - Loading")
 @Composable
 fun PreviewWorkdayLoading() {
@@ -15,13 +18,14 @@ fun PreviewWorkdayLoading() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Workday - Success")
 @Composable
 fun PreviewWorkdaySuccess() {
     WorkdayPreviewContent(
         uiState = WorkdayUiState.Success(
             date = PREVIEW_DATE,
-            workTimeToday = "07:45",
+            workTimeByDate = "07:45",
             projects = listOf(
                 SingleProjectState(
                     date = PREVIEW_DATE,
@@ -51,19 +55,21 @@ fun PreviewWorkdaySuccess() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Workday - Empty")
 @Composable
 fun PreviewWorkdayEmpty() {
     WorkdayPreviewContent(
         uiState = WorkdayUiState.Success(
             date = PREVIEW_DATE,
-            workTimeToday = "00:00",
+            workTimeByDate = "00:00",
             projects = emptyList()
         ),
         selectedItemIndex = -1
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Workday - Error")
 @Composable
 fun PreviewWorkdayError() {
@@ -86,7 +92,7 @@ private fun WorkdayPreviewContent(
                 onSelectedItemIndexChange = {},
                 onNavigateToSingleProject = {},
                 onRetry = {},
-                onSaveWorkStats = { _, _ -> },
+                onSaveSettings = { _, _ -> },
                 onDeleteProject = {}
             )
         )

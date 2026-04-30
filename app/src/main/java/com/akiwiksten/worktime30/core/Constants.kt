@@ -26,8 +26,8 @@ val ACTION_BUTTON_FONT_SIZE = 18.sp
 // Project Details
 const val START_TIME = "start_time"
 const val END_TIME = "end_time"
-const val WORK_TIME_TODAY = "work_time_today"
-const val WORK_TIME_TODAY_ESTIMATE = "work_time_today_estimate"
+const val WORK_TIME_BY_DATE = "work_time_today"
+const val WORK_TIME_BY_DATE_ESTIMATE = "work_time_today_estimate"
 const val INITIAL_FLEX_TIME_TOTAL = "initial_flex_time_total"
 const val DAILY_WORK_TIME_ESTIMATE = "daily_work_time_estimate"
 const val LUNCH_START = "lunch_start"
@@ -35,7 +35,7 @@ const val LUNCH_END = "lunch_end"
 const val DAILY_LUNCH_TIME_ESTIMATE = "daily_lunch_time_estimate"
 const val BREAK_START = "break_start"
 const val BREAK_END = "break_end"
-const val FLEX_TIME_TODAY = "flex_time_today"
+const val LUNCH_TIME_ESTIMATE = "lunch_time_estimate"
 
 // Screens
 const val INTRO_SCREEN = "intro_screen"
@@ -58,7 +58,6 @@ const val EMPLOYER = "employer"
 
 // Database Tables
 const val PROJECT_DETAILS_TABLE = "project_details"
-const val WORK_STATS_TABLE = "work_stats"
 const val PROJECT_TABLE = "project"
 const val WORKDAY_TABLE = "workday"
 const val PROJECT_NAME_TABLE = "project_name"

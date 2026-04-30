@@ -61,6 +61,9 @@ import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.domain.model.SettingsState
+
+private val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
 
 @Composable
 fun SettingsScreen(
@@ -155,18 +158,17 @@ private fun createSettingsActions(
         onEmployerChange = settingsViewModel::setEmployer,
         onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
         onDailyLunchTimeEstimateChange = settingsViewModel::setLunchTimeEstimate,
+        onInitialFlexTimeTotalChange = settingsViewModel::setInitialFlexTimeTotal,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
         onSave = { settingsViewModel.saveSettings() },
         onGeneratePdf = {
             generateReport(
-                params = GenerateReportParams(
-                    ctx = ctx,
-                    projectsByMonth = successState.data.projectsByMonth,
-                    endOfMonthDate = successState.data.endMonthDate,
-                    name = successState.data.name,
-                    employer = successState.data.employer
-                )
+                ctx = ctx,
+                projectsByMonth = successState.projectsByMonth,
+                endOfMonthDate = successState.endMonthDate,
+                name = successState.data.name,
+                employer = successState.data.employer
             )
         }
     )
@@ -177,6 +179,7 @@ data class SettingsActions(
     val onEmployerChange: (String) -> Unit,
     val onDailyWorkTimeEstimateChange: (String) -> Unit,
     val onDailyLunchTimeEstimateChange: (String) -> Unit,
+    val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
@@ -221,7 +224,11 @@ internal fun SettingsContent(
     val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
     val showDailyLunchTimeEstimatePickerDialogState = remember { mutableStateOf(value = false) }
     val selectedWorkTypeState = remember { mutableStateOf(value = "") }
-    val saveUi = rememberSettingsSaveUi(data = uiState.data, onSave = actions.onSave)
+    val saveUi = rememberSettingsSaveUi(
+        data = uiState.data,
+        selectedDate = uiState.selectedDate,
+        onSave = actions.onSave
+    )
     val scrollState = rememberScrollState()
 
     DailyWorkTimePickerDialogSection(
@@ -236,7 +243,7 @@ internal fun SettingsContent(
 
     DailyLunchTimeEstimatePickerDialogSection(
         isVisible = showDailyLunchTimeEstimatePickerDialogState.value,
-        currentDailyLunchTimeEstimate = uiState.data.lunchTimeEstimate,
+        currentDailyLunchTimeEstimate = uiState.data.dailyLunchTimeEstimate,
         onDismiss = { showDailyLunchTimeEstimatePickerDialogState.value = false },
         onConfirmed = { selectedTime ->
             actions.onDailyLunchTimeEstimateChange(selectedTime)
@@ -290,7 +297,7 @@ private fun SettingsContentBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
-        HeaderSection(date = state.uiState.data.selectedDate)
+        HeaderSection(date = state.uiState.selectedDate)
 
         SettingsCard {
             ProfileSection(
@@ -301,17 +308,7 @@ private fun SettingsContentBody(
             )
         }
 
-        SettingsCard {
-            DailyWorkTimePickerRow(
-                dailyWorkTime = state.uiState.data.dailyWorkTimeEstimate,
-                onPickerClick = state.timePickerState.onDailyWorkTimePickerClick
-            )
-
-            DailyLunchTimeEstimatePickerRow(
-                dailyLunchTimeEstimate = state.uiState.data.lunchTimeEstimate,
-                onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
-            )
-        }
+        GlobalDefaultsCard(state = state)
 
         SettingsCard {
             WorkTypeSection(
@@ -326,7 +323,7 @@ private fun SettingsContentBody(
         ActionButtonsSection(
             onSave = state.saveUi.onSaveRequested,
             onGeneratePdf = state.actions.onGeneratePdf,
-            isPdfEnabled = state.uiState.data.projectsByMonth.isNotEmpty(),
+            isPdfEnabled = state.uiState.projectsByMonth.isNotEmpty(),
             isSaveEnabled = state.saveUi.isSaveEnabled
         )
 
@@ -334,6 +331,35 @@ private fun SettingsContentBody(
             isVisible = state.addWorkTypeDialogState.isVisible,
             onDismiss = state.addWorkTypeDialogState.onDismiss,
             onConfirmed = state.addWorkTypeDialogState.onConfirm
+        )
+    }
+}
+
+@Composable
+private fun GlobalDefaultsCard(state: SettingsContentBodyState) {
+    SettingsCard {
+        Text(
+            text = stringResource(id = R.string.global_defaults),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+        )
+        HorizontalDivider()
+
+        DailyWorkTimePickerRow(
+            dailyWorkTime = state.uiState.data.dailyWorkTimeEstimate,
+            onPickerClick = state.timePickerState.onDailyWorkTimePickerClick
+        )
+
+        DailyLunchTimeEstimatePickerRow(
+            dailyLunchTimeEstimate = state.uiState.data.dailyLunchTimeEstimate,
+            onPickerClick = state.timePickerState.onDailyLunchTimeEstimatePickerClick
+        )
+
+        SettingsTextField(
+            value = state.uiState.data.initialFlexTimeTotal,
+            label = R.string.initial_flex_time_total,
+            onValueChange = state.actions.onInitialFlexTimeTotalChange,
+            isError = state.saveUi.isInitialFlexTimeTotalError
         )
     }
 }
@@ -456,18 +482,25 @@ private fun DailyLunchTimeEstimatePickerRow(
 }
 
 @Composable
-private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): SettingsSaveUi {
+private fun rememberSettingsSaveUi(
+    data: SettingsState,
+    selectedDate: String,
+    onSave: () -> Unit
+): SettingsSaveUi {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
-    val lastSavedNameState = remember(data.selectedDate) { mutableStateOf(value = data.name) }
-    val lastSavedEmployerState = remember(data.selectedDate) { mutableStateOf(value = data.employer) }
-    val lastSavedDailyWorkTimeEstimateState = remember(data.selectedDate) {
+    val lastSavedNameState = remember(selectedDate) { mutableStateOf(value = data.name) }
+    val lastSavedEmployerState = remember(selectedDate) { mutableStateOf(value = data.employer) }
+    val lastSavedDailyWorkTimeEstimateState = remember(selectedDate) {
         mutableStateOf(value = data.dailyWorkTimeEstimate)
     }
-    val lastSavedDailyLunchTimeEstimateState = remember(data.selectedDate) {
-        mutableStateOf(value = data.lunchTimeEstimate)
+    val lastSavedDailyLunchTimeEstimateState = remember(selectedDate) {
+        mutableStateOf(value = data.dailyLunchTimeEstimate)
     }
-    val lastSavedWorkTypesState = remember(data.selectedDate) { mutableStateOf(value = data.workTypes) }
+    val lastSavedInitialFlexTimeTotalState = remember(selectedDate) {
+        mutableStateOf(value = data.initialFlexTimeTotal)
+    }
+    val lastSavedWorkTypesState = remember(selectedDate) { mutableStateOf(value = data.workTypes) }
 
     val hasUnsavedChanges =
         hasChanges(current = data.name, baseline = lastSavedNameState.value) ||
@@ -477,23 +510,32 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
                 baseline = lastSavedDailyWorkTimeEstimateState.value
             ) ||
             hasChanges(
-                current = data.lunchTimeEstimate,
+                current = data.dailyLunchTimeEstimate,
                 baseline = lastSavedDailyLunchTimeEstimateState.value
             ) ||
+            hasChanges(
+                current = data.initialFlexTimeTotal,
+                baseline = lastSavedInitialFlexTimeTotalState.value
+            ) ||
             hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
+    val isInitialFlexTimeTotalError = remember(data.initialFlexTimeTotal) {
+        !data.initialFlexTimeTotal.matches(INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX)
+    }
 
     return SettingsSaveUi(
         isSaveEnabled = isActionEnabled(
-            hasRequiredFields = true,
+            hasRequiredFields = !isInitialFlexTimeTotalError,
             hasUnsavedChanges = hasUnsavedChanges
         ),
+        isInitialFlexTimeTotalError = isInitialFlexTimeTotalError,
         onSaveRequested = {
             if (hasUnsavedChanges) {
                 onSave()
                 lastSavedNameState.value = data.name
                 lastSavedEmployerState.value = data.employer
                 lastSavedDailyWorkTimeEstimateState.value = data.dailyWorkTimeEstimate
-                lastSavedDailyLunchTimeEstimateState.value = data.lunchTimeEstimate
+                lastSavedDailyLunchTimeEstimateState.value = data.dailyLunchTimeEstimate
+                lastSavedInitialFlexTimeTotalState.value = data.initialFlexTimeTotal
                 lastSavedWorkTypesState.value = data.workTypes
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
@@ -503,6 +545,7 @@ private fun rememberSettingsSaveUi(data: SettingsState, onSave: () -> Unit): Set
 
 private data class SettingsSaveUi(
     val isSaveEnabled: Boolean,
+    val isInitialFlexTimeTotalError: Boolean,
     val onSaveRequested: () -> Unit
 )
 
@@ -569,11 +612,17 @@ private fun ProfileSection(
 }
 
 @Composable
-private fun SettingsTextField(value: String, label: Int, onValueChange: (String) -> Unit) {
+private fun SettingsTextField(
+    value: String,
+    label: Int,
+    onValueChange: (String) -> Unit,
+    isError: Boolean = false
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
+        isError = isError,
         label = {
             Text(
                 text = stringResource(id = label),
@@ -659,7 +708,6 @@ private fun ActionButtonsSection(
         Text(
             text = stringResource(id = R.string.monthly_help),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         )
     }

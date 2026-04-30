@@ -1,26 +1,22 @@
 package com.akiwiksten.worktime30.feature.workday
 
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+
 data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
     val onNavigateToSingleProject: (Int) -> Unit,
     val onRetry: () -> Unit,
-    val onSaveWorkStats: (String, String) -> Unit,
+    val onSaveSettings: (String, Boolean) -> Unit,
     val onDeleteProject: (SingleProjectState) -> Unit
 )
 
-internal data class WorkStatsEditorState(
-    val workTimeTodayEstimate: String,
-    val initialFlexTimeTotal: String,
-    val isWorkTimeTodayEstimateError: Boolean,
-    val isInitialFlexTimeTotalError: Boolean,
-    val hasUnsavedChanges: Boolean
+internal data class SettingsEditorState(
+    val workTimeByDateEstimate: String,
+    val isWorkTimeByDateEstimateError: Boolean
 )
 
 internal data class WorkdayHeaderActions(
-    val onWorkTimeTodayEstimateChange: (String) -> Unit,
-    val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onSaveWorkStats: () -> Unit
+    val onWorkTimeByDateEstimateChange: (String) -> Unit
 )
 
-internal val WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
-internal val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+internal val WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")

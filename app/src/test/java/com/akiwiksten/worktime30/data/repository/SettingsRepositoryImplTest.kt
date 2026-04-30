@@ -2,17 +2,20 @@ package com.akiwiksten.worktime30.data.repository
 
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
+import com.akiwiksten.worktime30.data.database.entity.WorkdayEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
-import com.akiwiksten.worktime30.feature.settings.SettingsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class SettingsRepositoryImplTest {
     private val settingsDao = FakeSettingsDao()
+    private val workdayDao = FakeWorkdayDao()
     private val workTypeDao = FakeWorkTypeDao()
-    private val repository = SettingsRepositoryImpl(settingsDao, workTypeDao)
+    private val repository = SettingsRepositoryImpl(settingsDao, workdayDao, workTypeDao)
 
     @Test
     fun getSettings_returnsDataFromDao() = runBlocking {
@@ -62,10 +65,52 @@ class SettingsRepositoryImplTest {
     }
 
     @Test
-    fun clearWorkTypes_callsDaoDeleteAll() = runBlocking {
-        repository.clearWorkTypes()
+    fun deleteAllWorkTypes_callsDaoDeleteAllWorkTypes() = runBlocking {
+        repository.deleteAllWorkTypes()
 
         assertEquals(1, workTypeDao.deleteAllCallCount)
+    }
+
+    @Test
+    fun getEffectiveSettingsForDate_withoutWorkday_returnsGlobalSettings() = runBlocking {
+        settingsDao.settingsResult = SettingsState(
+            dailyWorkTimeEstimate = "08:00",
+            dailyLunchTimeEstimate = "00:30",
+            initialFlexTimeTotal = "+01:00"
+        )
+        workdayDao.workdayResult = null
+
+        val result = repository.getEffectiveSettingsForDate("2026-04-10")
+
+        assertEquals("08:00", result?.dailyWorkTimeEstimate)
+        assertEquals("00:30", result?.dailyLunchTimeEstimate)
+        assertEquals("+01:00", result?.initialFlexTimeTotal)
+    }
+
+    @Test
+    fun getEffectiveSettingsForDate_withWorkdayOverride_returnsPerDayEstimate() = runBlocking {
+        settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
+        workdayDao.workdayResult = WorkdayEntity(
+            date = "2026-04-10",
+            workTimeByDateEstimate = "07:45"
+        )
+
+        val result = repository.getEffectiveSettingsForDate("2026-04-10")
+
+        assertEquals("07:45", result?.dailyWorkTimeEstimate)
+    }
+
+    @Test
+    fun getEffectiveSettingsForDate_withEmptyWorkdayEstimate_fallsBackToGlobalEstimate() = runBlocking {
+        settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
+        workdayDao.workdayResult = WorkdayEntity(
+            date = "2026-04-10",
+            workTimeByDateEstimate = ""
+        )
+
+        val result = repository.getEffectiveSettingsForDate("2026-04-10")
+
+        assertEquals("08:00", result?.dailyWorkTimeEstimate)
     }
 
     private class FakeSettingsDao : SettingsDao {
@@ -101,8 +146,21 @@ class SettingsRepositoryImplTest {
             deletedWorkType = workType.workType
         }
 
-        override suspend fun deleteAll() {
+        override suspend fun deleteAllWorkTypes() {
             deleteAllCallCount += 1
         }
+    }
+
+    private class FakeWorkdayDao : WorkdayDao {
+        var workdayResult: WorkdayEntity? = null
+
+        override suspend fun loadWorkday(date: String): WorkdayEntity? = workdayResult
+
+        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
+
+        override suspend fun getWorkdaysByDateRange(
+            start: String,
+            end: String
+        ): List<com.akiwiksten.worktime30.data.database.entity.WorkdayEntity> = emptyList()
     }
 }

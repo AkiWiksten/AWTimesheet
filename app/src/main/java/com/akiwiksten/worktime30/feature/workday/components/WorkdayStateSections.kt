@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -24,11 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
-import com.akiwiksten.worktime30.core.ui.hasChanges
-import com.akiwiksten.worktime30.core.ui.isActionEnabled
-import com.akiwiksten.worktime30.feature.workday.INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX
-import com.akiwiksten.worktime30.feature.workday.WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX
-import com.akiwiksten.worktime30.feature.workday.WorkStatsEditorState
+import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
+import com.akiwiksten.worktime30.feature.workday.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
@@ -62,9 +60,8 @@ internal fun ColumnScope.WorkdaySuccessContent(
     actions: WorkdayActions
 ) {
     val saveUi = rememberWorkdaySaveUi(
-        initialWorkTimeTodayEstimate = state.workTimeTodayEstimate,
-        initialFlexTimeTotal = state.initialFlexTimeTotal,
-        onSaveWorkStats = actions.onSaveWorkStats
+        initialWorkTimeByDateEstimate = state.workTimeByDateEstimate,
+        onSaveSettings = actions.onSaveSettings
     )
 
     val displayState = rememberWorkdayDisplayState(state = state, saveUi = saveUi)
@@ -73,10 +70,10 @@ internal fun ColumnScope.WorkdaySuccessContent(
         date = state.date
     )
     WorkdayStatsCard(
-        workTime = state.workTimeToday,
-        flexTimeToday = displayState.displayedFlexTimeToday,
+        workTime = state.workTimeByDate,
+        flexTimeByDate = displayState.displayedflexTimeByDate,
         calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
-        workStatsEditorState = displayState.workStatsEditorState,
+        settingsEditorState = displayState.settingsEditorState,
         headerActions = displayState.headerActions
     )
 
@@ -103,52 +100,45 @@ private fun rememberWorkdayDisplayState(
     state: WorkdayUiState.Success,
     saveUi: WorkdaySaveUi
 ): WorkdayDisplayState {
-    val displayedFlexTimeToday = remember(
-        state.workTimeToday,
-        state.flexTimeToday,
-        saveUi.workTimeTodayEstimate,
-        saveUi.isWorkTimeTodayEstimateValid
+    val displayedflexTimeByDate = remember(
+        state.workTimeByDate,
+        state.flexTimeByDate,
+        saveUi.workTimeByDateEstimate,
+        saveUi.isWorkTimeByDateEstimateValid
     ) {
-        if (saveUi.isWorkTimeTodayEstimateValid) {
+        if (saveUi.isWorkTimeByDateEstimateValid) {
             WorkTimeCalculator.calculateFlexTime(
-                initialTime = state.workTimeToday,
-                addedTime = "-${saveUi.workTimeTodayEstimate}"
+                initialTime = state.workTimeByDate,
+                addedTime = "-${saveUi.workTimeByDateEstimate}"
             )
         } else {
-            state.flexTimeToday
+            state.flexTimeByDate
         }
     }
 
     val displayedCalculatedFlexTimeTotal = remember(
         state.initialFlexTimeTotal,
         state.calculatedFlexTimeTotal,
-        state.flexTimeToday,
-        displayedFlexTimeToday,
-        saveUi.initialFlexTimeTotal
+        state.flexTimeByDate,
+        displayedflexTimeByDate
     ) {
         calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
             persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-            persistedFlexTimeToday = state.flexTimeToday,
-            editedFlexTimeToday = displayedFlexTimeToday,
-            editedInitialFlexTimeTotal = saveUi.initialFlexTimeTotal
+            persistedflexTimeByDate = state.flexTimeByDate,
+            editedflexTimeByDate = displayedflexTimeByDate
         )
     }
 
     return WorkdayDisplayState(
-        displayedFlexTimeToday = displayedFlexTimeToday,
+        displayedflexTimeByDate = displayedflexTimeByDate,
         displayedCalculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
-        workStatsEditorState = WorkStatsEditorState(
-            workTimeTodayEstimate = saveUi.workTimeTodayEstimate,
-            initialFlexTimeTotal = saveUi.initialFlexTimeTotal,
-            isWorkTimeTodayEstimateError = !saveUi.isWorkTimeTodayEstimateValid,
-            isInitialFlexTimeTotalError = !saveUi.isInitialFlexTimeTotalValid,
-            hasUnsavedChanges = saveUi.hasUnsavedChanges
+        settingsEditorState = SettingsEditorState(
+            workTimeByDateEstimate = saveUi.workTimeByDateEstimate,
+            isWorkTimeByDateEstimateError = !saveUi.isWorkTimeByDateEstimateValid
         ),
         headerActions = WorkdayHeaderActions(
-            onWorkTimeTodayEstimateChange = saveUi.onWorkTimeTodayEstimateChange,
-            onInitialFlexTimeTotalChange = saveUi.onInitialFlexTimeTotalChange,
-            onSaveWorkStats = saveUi.onSaveRequested
+            onWorkTimeByDateEstimateChange = saveUi.onWorkTimeByDateEstimateChange
         )
     )
 }
@@ -156,80 +146,101 @@ private fun rememberWorkdayDisplayState(
 internal fun calculateDisplayedCalculatedFlexTimeTotal(
     persistedInitialFlexTimeTotal: String,
     persistedCalculatedFlexTimeTotal: String,
-    persistedFlexTimeToday: String,
-    editedFlexTimeToday: String,
-    editedInitialFlexTimeTotal: String
+    persistedflexTimeByDate: String,
+    editedflexTimeByDate: String
 ): String {
     val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
         initialTime = persistedCalculatedFlexTimeTotal,
         addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedInitialFlexTimeTotal")
     )
 
-    val flexTimeTodayDelta = WorkTimeCalculator.calculateFlexTime(
-        initialTime = editedFlexTimeToday,
-        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedFlexTimeToday")
+    val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
+        initialTime = editedflexTimeByDate,
+        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedflexTimeByDate")
     )
 
     val recalculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
         initialTime = calculatedOnlyFlexTimeTotal,
-        addedTime = flexTimeTodayDelta
+        addedTime = flexTimeByDateDelta
     )
 
     return WorkTimeCalculator.calculateFlexTime(
-        initialTime = editedInitialFlexTimeTotal,
+        initialTime = persistedInitialFlexTimeTotal,
         addedTime = recalculatedOnlyFlexTimeTotal
     )
 }
 
+@Suppress("kotlin:S6615", "UNUSED_VALUE")
 @Composable
 private fun rememberWorkdaySaveUi(
-    initialWorkTimeTodayEstimate: String,
-    initialFlexTimeTotal: String,
-    onSaveWorkStats: (String, String) -> Unit
+    initialWorkTimeByDateEstimate: String,
+    onSaveSettings: (String, Boolean) -> Unit
 ): WorkdaySaveUi {
     val context = LocalContext.current
-    val savedText = stringResource(id = R.string.saved)
-    var editedWorkTimeTodayEstimate by remember(initialWorkTimeTodayEstimate) {
-        mutableStateOf(value = initialWorkTimeTodayEstimate)
+    val globalSavedText = stringResource(id = R.string.saved_globally)
+    val todaySavedText = stringResource(id = R.string.saved_today)
+    var editedWorkTimeByDateEstimate by remember(initialWorkTimeByDateEstimate) {
+        mutableStateOf(value = initialWorkTimeByDateEstimate)
     }
-    var editedInitialFlexTimeTotal by remember(initialFlexTimeTotal) {
-        mutableStateOf(value = initialFlexTimeTotal)
-    }
-    val lastSavedWorkTimeTodayEstimateState = remember(initialWorkTimeTodayEstimate) {
-        mutableStateOf(value = initialWorkTimeTodayEstimate)
-    }
-    val lastSavedInitialFlexTimeTotalState = remember(initialFlexTimeTotal) {
-        mutableStateOf(value = initialFlexTimeTotal)
+    val showSaveDialogState = remember { mutableStateOf(false) }
+    val pendingWorkTimeByDateEstimateState = remember { mutableStateOf("") }
+
+    val isWorkTimeByDateEstimateValid = remember(editedWorkTimeByDateEstimate) {
+        editedWorkTimeByDateEstimate.matches(WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX)
     }
 
-    val isWorkTimeTodayEstimateValid = remember(editedWorkTimeTodayEstimate) {
-        editedWorkTimeTodayEstimate.matches(WORK_TIME_TODAY_ESTIMATE_INPUT_REGEX)
+    if (showSaveDialogState.value) {
+        SaveWorkTimeEstimateDialog(
+            onDismiss = { showSaveDialogState.value = false },
+            onSaveToday = {
+                showSaveDialogState.value = false
+                onSaveSettings(pendingWorkTimeByDateEstimateState.value, false)
+                Toast.makeText(context, todaySavedText, Toast.LENGTH_SHORT).show()
+            },
+            onSaveGlobally = {
+                showSaveDialogState.value = false
+                onSaveSettings(pendingWorkTimeByDateEstimateState.value, true)
+                Toast.makeText(context, globalSavedText, Toast.LENGTH_SHORT).show()
+            }
+        )
     }
-    val isInitialFlexTimeTotalValid = remember(editedInitialFlexTimeTotal) {
-        editedInitialFlexTimeTotal.matches(INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX)
-    }
-    val hasUnsavedChanges =
-        hasChanges(current = editedWorkTimeTodayEstimate, baseline = lastSavedWorkTimeTodayEstimateState.value) ||
-            hasChanges(current = editedInitialFlexTimeTotal, baseline = lastSavedInitialFlexTimeTotalState.value)
-    val isSaveEnabled = isActionEnabled(
-        hasRequiredFields = isWorkTimeTodayEstimateValid && isInitialFlexTimeTotalValid,
-        hasUnsavedChanges = hasUnsavedChanges
-    )
 
     return WorkdaySaveUi(
-        workTimeTodayEstimate = editedWorkTimeTodayEstimate,
-        initialFlexTimeTotal = editedInitialFlexTimeTotal,
-        isWorkTimeTodayEstimateValid = isWorkTimeTodayEstimateValid,
-        isInitialFlexTimeTotalValid = isInitialFlexTimeTotalValid,
-        hasUnsavedChanges = hasUnsavedChanges,
-        onWorkTimeTodayEstimateChange = { editedWorkTimeTodayEstimate = it },
-        onInitialFlexTimeTotalChange = { editedInitialFlexTimeTotal = it },
-        onSaveRequested = {
-            if (isSaveEnabled) {
-                onSaveWorkStats(editedWorkTimeTodayEstimate, editedInitialFlexTimeTotal)
-                lastSavedWorkTimeTodayEstimateState.value = editedWorkTimeTodayEstimate
-                lastSavedInitialFlexTimeTotalState.value = editedInitialFlexTimeTotal
-                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+        workTimeByDateEstimate = editedWorkTimeByDateEstimate,
+        isWorkTimeByDateEstimateValid = isWorkTimeByDateEstimateValid,
+        onWorkTimeByDateEstimateChange = { value ->
+            editedWorkTimeByDateEstimate = value
+            if (value != initialWorkTimeByDateEstimate && value.matches(WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX)) {
+                pendingWorkTimeByDateEstimateState.value = value
+                showSaveDialogState.value = true
+            }
+        }
+    )
+}
+
+@Composable
+private fun SaveWorkTimeEstimateDialog(
+    onDismiss: () -> Unit,
+    onSaveToday: () -> Unit,
+    onSaveGlobally: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(id = R.string.save_work_time_estimate)) },
+        text = {
+            Text(
+                text = stringResource(id = R.string.save_work_time_estimate_message),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onSaveGlobally) {
+                Text(text = stringResource(id = R.string.save_globally))
+            }
+        },
+        dismissButton = {
+            Button(onClick = onSaveToday) {
+                Text(text = stringResource(id = R.string.save_today))
             }
         }
     )
@@ -256,19 +267,14 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
 }
 
 private data class WorkdaySaveUi(
-    val workTimeTodayEstimate: String,
-    val initialFlexTimeTotal: String,
-    val isWorkTimeTodayEstimateValid: Boolean,
-    val isInitialFlexTimeTotalValid: Boolean,
-    val hasUnsavedChanges: Boolean,
-    val onWorkTimeTodayEstimateChange: (String) -> Unit,
-    val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onSaveRequested: () -> Unit
+    val workTimeByDateEstimate: String,
+    val isWorkTimeByDateEstimateValid: Boolean,
+    val onWorkTimeByDateEstimateChange: (String) -> Unit
 )
 
 private data class WorkdayDisplayState(
-    val displayedFlexTimeToday: String,
+    val displayedflexTimeByDate: String,
     val displayedCalculatedFlexTimeTotal: String,
-    val workStatsEditorState: WorkStatsEditorState,
+    val settingsEditorState: SettingsEditorState,
     val headerActions: WorkdayHeaderActions
 )

@@ -9,6 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 
 @Composable
 internal fun rememberBaselineData(
@@ -23,7 +25,7 @@ internal fun rememberBaselineData(
         val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
         if (isBaselineInitialized || !isInitialLoadComplete) return@LaunchedEffect
         val data = successState.data
-        if (data.date.isNotBlank() && data.matchesArgs(args)) {
+        if (data.date.isNotBlank() && data.matchesArgs(args = args, settings = successState.settings)) {
             initialData = data
             isBaselineInitialized = true
         }
@@ -32,8 +34,8 @@ internal fun rememberBaselineData(
     return initialData
 }
 
-internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs): Boolean {
-    val projectDetailsArg = args.projectDetails ?: return args.workStats == null || workStats == args.workStats
+internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs, settings: SettingsState): Boolean {
+    val projectDetailsArg = args.projectDetails ?: return args.settings == null || settings == args.settings
     val expectedProjectTime = ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
         startTime = projectDetailsArg.startTime.ifEmpty { ZERO_TIME },
         endTime = projectDetailsArg.endTime.ifEmpty { ZERO_TIME },
@@ -46,7 +48,7 @@ internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs): Boolean 
         breakStart == projectDetailsArg.breakStart &&
         breakEnd == projectDetailsArg.breakEnd &&
         projectTime == expectedProjectTime
-    return matchesDetails && (args.workStats == null || workStats == args.workStats)
+    return matchesDetails && (args.settings == null || settings == args.settings)
 }
 
 @Composable
@@ -55,14 +57,21 @@ internal fun UnsavedChangesSection(
     uiState: ProjectDetailsUiState,
     unsavedMessage: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, WorkStatsState) -> Unit,
+    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
 ) {
     if (!showState.value) return
     val successState = uiState as? ProjectDetailsUiState.Success
     UnsavedChangesDialog(
         onDismiss = { showState.value = false },
         onDiscard = onNavigateBack,
-        onSave = successState?.let { { onConfirm(it.data, it.data.workStats) } },
+        onSave = successState?.let {
+            {
+                onConfirm(
+                    it.data,
+                    it.settings.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
+                )
+            }
+        },
         dialogText = unsavedMessage
     )
 }

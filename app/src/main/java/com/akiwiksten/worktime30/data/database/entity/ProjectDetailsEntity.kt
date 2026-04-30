@@ -6,9 +6,9 @@ import com.akiwiksten.worktime30.core.BREAK_END
 import com.akiwiksten.worktime30.core.BREAK_START
 import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.END_TIME
-import com.akiwiksten.worktime30.core.FLEX_TIME_TODAY
 import com.akiwiksten.worktime30.core.LUNCH_END
 import com.akiwiksten.worktime30.core.LUNCH_START
+import com.akiwiksten.worktime30.core.LUNCH_TIME_ESTIMATE
 import com.akiwiksten.worktime30.core.PROJECT_DETAILS_TABLE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
 import com.akiwiksten.worktime30.core.PROJECT_TIME
@@ -30,5 +30,5 @@ data class ProjectDetailsEntity(
     @ColumnInfo(name = BREAK_START) val breakStart: String = "",
     @ColumnInfo(name = BREAK_END) val breakEnd: String = "",
     @ColumnInfo(name = PROJECT_TIME) val projectTime: String = "",
-    @ColumnInfo(name = FLEX_TIME_TODAY) val flexTimeToday: String = "",
+    @ColumnInfo(name = LUNCH_TIME_ESTIMATE) val lunchTimeEstimate: String = "",
 )

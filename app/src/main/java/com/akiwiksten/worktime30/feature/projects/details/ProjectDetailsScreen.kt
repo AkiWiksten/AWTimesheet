@@ -34,6 +34,9 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
 import com.akiwiksten.worktime30.feature.projects.details.components.FooterSection
 import com.akiwiksten.worktime30.feature.projects.details.components.NewDayFields
@@ -44,7 +47,7 @@ import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDeta
 fun ProjectDetailsScreen(
     args: ProjectDetailsArgs,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, WorkStatsState) -> Unit,
+    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -56,7 +59,7 @@ fun ProjectDetailsScreen(
         args.projectName?.let { viewModel.setProjectName(projectName = it) }
         viewModel.loadProjectDetails(
             projectDetailsArg = args.projectDetails,
-            workStatsArg = args.workStats
+            settingsArg = args.settings
         )
     }
 
@@ -91,7 +94,12 @@ fun ProjectDetailsScreen(
         val actions = remember(viewModel, onConfirm, uiState) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
-                onConfirm(successState.data, successState.data.workStats)
+                onConfirm(
+                    successState.data,
+                    successState.settings.copy(
+                        dailyLunchTimeEstimate = successState.data.lunchTimeEstimate
+                    )
+                )
             }
         }
 
@@ -255,5 +263,5 @@ private fun createProjectDetailsScreenActions(
 data class ProjectDetailsArgs(
     val projectName: String? = null,
     val projectDetails: ProjectDetailsState? = null,
-    val workStats: WorkStatsState? = null
+    val settings: SettingsState? = null
 )

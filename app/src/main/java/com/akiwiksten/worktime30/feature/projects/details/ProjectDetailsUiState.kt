@@ -1,46 +1,15 @@
 package com.akiwiksten.worktime30.feature.projects.details
 
-import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
 
 sealed class ProjectDetailsUiState {
     object Loading : ProjectDetailsUiState()
 
     data class Success(
-        val data: ProjectDetailsState
+        val data: ProjectDetailsState,
+        val settings: SettingsState = SettingsState()
     ) : ProjectDetailsUiState()
 
     data class Error(val message: String) : ProjectDetailsUiState()
-}
-
-data class WorkStatsState(
-    val dailyWorkTimeEstimate: String = ZERO_TIME,
-    val dailyLunchTimeEstimate: String = ZERO_TIME,
-    val initialFlexTimeTotal: String = ZERO_TIME
-)
-
-data class ProjectDetailsState(
-    val date: String = "",
-    val projectName: String = "",
-    val startTime: String = ZERO_TIME,
-    val endTime: String = ZERO_TIME,
-    val lunchStart: String = ZERO_TIME,
-    val lunchEnd: String = ZERO_TIME,
-    val breakStart: String = ZERO_TIME,
-    val breakEnd: String = ZERO_TIME,
-    val projectTime: String = ZERO_TIME,
-    val otherProjectsTotalTime: String = ZERO_TIME,
-    val flexTimeToday: String = ZERO_TIME,
-    val workStats: WorkStatsState = WorkStatsState()
-)
-
-internal fun ProjectDetailsState.isNewDayForProject(): Boolean {
-    fun isZero(time: String) = time == ZERO_TIME || time.isEmpty()
-
-    return isZero(startTime) &&
-        isZero(endTime) &&
-        isZero(projectTime) &&
-        isZero(lunchStart) &&
-        isZero(lunchEnd) &&
-        isZero(breakStart) &&
-        isZero(breakEnd)
 }

@@ -1,7 +1,7 @@
 package com.akiwiksten.worktime30.data.database.mapper
 
 import com.akiwiksten.worktime30.data.database.entity.ProjectDetailsEntity
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 
 fun ProjectDetailsEntity.toDomain(): ProjectDetailsState {
     return ProjectDetailsState(
@@ -14,7 +14,7 @@ fun ProjectDetailsEntity.toDomain(): ProjectDetailsState {
         breakStart = breakStart,
         breakEnd = breakEnd,
         projectTime = projectTime,
-        flexTimeToday = flexTimeToday,
+        lunchTimeEstimate = lunchTimeEstimate,
     )
 }
 
@@ -29,6 +29,6 @@ fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
         breakStart = breakStart,
         breakEnd = breakEnd,
         projectTime = projectTime,
-        flexTimeToday = flexTimeToday,
+        lunchTimeEstimate = lunchTimeEstimate,
     )
 }

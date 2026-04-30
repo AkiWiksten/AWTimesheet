@@ -2,50 +2,39 @@ package com.akiwiksten.worktime30.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.GetSettingsUseCase
-import com.akiwiksten.worktime30.domain.GetWorkdayByMonthUseCase
-import com.akiwiksten.worktime30.domain.SaveSettingsUseCase
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.usecase.GetProjectsByMonthUseCase
+import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
+import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 sealed class SettingsUiState {
     object Loading : SettingsUiState()
 
     data class Success(
-        val data: SettingsState
+        val data: SettingsState,
+        val selectedDate: String = "",
+        val endMonthDate: String = "",
+        val projectsByMonth: List<SingleProjectState> = emptyList()
     ) : SettingsUiState()
 
     data class Error(val message: String) : SettingsUiState()
 }
 
-data class SettingsState(
-    val name: String = "",
-    val employer: String = "",
-    val dailyWorkTimeEstimate: String = "",
-    val lunchTimeEstimate: String = ZERO_TIME,
-    val selectedDate: String = "",
-    val endMonthDate: String = "",
-    val workTypes: List<String> = emptyList(),
-    val projectsByMonth: List<SingleProjectState> = emptyList()
-)
-
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val saveSettingsUseCase: SaveSettingsUseCase,
-    private val getWorkdayByMonthUseCase: GetWorkdayByMonthUseCase,
+    private val getProjectsByMonthUseCase: GetProjectsByMonthUseCase,
     private val settingsRepository: SettingsRepository,
-    private val projectDetailsRepository: ProjectDetailsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -63,7 +52,7 @@ class SettingsViewModel @Inject constructor(
                     val currentState = _uiState.value
                     if (currentState is SettingsUiState.Success) {
                         _uiState.value = currentState.copy(
-                            data = currentState.data.copy(selectedDate = date)
+                            selectedDate = date
                         )
                     }
                     loadProjectsByMonth(date)
@@ -103,7 +92,16 @@ class SettingsViewModel @Inject constructor(
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {
             _uiState.value = currentState.copy(
-                data = currentState.data.copy(lunchTimeEstimate = lunchTimeEstimate)
+                data = currentState.data.copy(dailyLunchTimeEstimate = lunchTimeEstimate)
+            )
+        }
+    }
+
+    fun setInitialFlexTimeTotal(initialFlexTimeTotal: String) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(initialFlexTimeTotal = initialFlexTimeTotal)
             )
         }
     }
@@ -140,18 +138,12 @@ class SettingsViewModel @Inject constructor(
     fun loadProjectsByMonth(date: String) {
         viewModelScope.launch {
             try {
-                val parsedDate = LocalDate.parse(date)
-                val endOfMonth = parsedDate
-                    .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
-                    .toString()
-                val projects = getWorkdayByMonthUseCase(date)
+                val monthlyResult = getProjectsByMonthUseCase(date)
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     _uiState.value = currentState.copy(
-                        data = currentState.data.copy(
-                            endMonthDate = endOfMonth,
-                            projectsByMonth = projects
-                        )
+                        endMonthDate = monthlyResult.endOfMonth,
+                        projectsByMonth = monthlyResult.projects
                     )
                 }
             } catch (e: IllegalArgumentException) {
@@ -166,26 +158,15 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = SettingsUiState.Loading
             try {
-                val loadedData = getSettingsUseCase()
                 val currentDate = dateRepository.selectedDate.value
-                val workStats = projectDetailsRepository.getWorkStatsByDate(currentDate)
-                val parsedDate = LocalDate.parse(currentDate)
-                val endOfMonth = parsedDate
-                    .withDayOfMonth(parsedDate.month.length(parsedDate.isLeapYear))
-                    .toString()
-                val projects = getWorkdayByMonthUseCase(currentDate)
+                val loadedData = getSettingsUseCase()
+                val monthlyResult = getProjectsByMonthUseCase(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
-                    data = SettingsState(
-                        name = loadedData.name,
-                        employer = loadedData.employer,
-                        dailyWorkTimeEstimate = workStats?.dailyWorkTimeEstimate ?: "",
-                        lunchTimeEstimate = workStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
-                        selectedDate = currentDate,
-                        endMonthDate = endOfMonth,
-                        workTypes = loadedData.workTypes,
-                        projectsByMonth = projects
-                    )
+                    data = loadedData,
+                    selectedDate = currentDate,
+                    endMonthDate = monthlyResult.endOfMonth,
+                    projectsByMonth = monthlyResult.projects
                 )
             } catch (e: IllegalArgumentException) {
                 handleException(e, "Failed to load settings")
@@ -201,11 +182,7 @@ class SettingsViewModel @Inject constructor(
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
                     saveSettingsUseCase(
-                        name = currentState.data.name,
-                        employer = currentState.data.employer,
-                        workTypes = currentState.data.workTypes,
-                        dailyWorkTimeEstimate = currentState.data.dailyWorkTimeEstimate,
-                        lunchTimeEstimate = currentState.data.lunchTimeEstimate
+                        settings = currentState.data
                     )
                 }
             } catch (e: IllegalArgumentException) {

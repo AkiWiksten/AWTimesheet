@@ -46,17 +46,18 @@ import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
-    onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState) -> Unit,
-    initialSingleProjectState: SingleProjectState,
+    args: SingleProjectScreenArgs,
+    navigationActions: SingleProjectNavigationActions,
     viewModel: WorkdayViewModel = hiltViewModel(
         viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
     )
@@ -65,60 +66,101 @@ fun SingleProjectScreen(
     val savedText = stringResource(id = R.string.saved)
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentProjectsState = projectsUiState
-    val date = (currentProjectsState as? WorkdayUiState.Success)?.date ?: ""
+
+    SingleProjectScreenStateful(
+        args = args,
+        config = SingleProjectScreenStatefulConfig(
+            projectsUiState = projectsUiState,
+            noAllowanceText = noAllowanceText,
+            onNavigateBack = navigationActions.onNavigateBack,
+            onOpenProjectDetails = navigationActions.onOpenProjectDetails,
+            onSave = { state ->
+                viewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
+                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+            }
+        )
+    )
+}
+
+@Composable
+private fun SingleProjectScreenStateful(
+    args: SingleProjectScreenArgs,
+    config: SingleProjectScreenStatefulConfig
+) {
+    val projectsUiState = config.projectsUiState
+    val date = (projectsUiState as? WorkdayUiState.Success)?.date ?: ""
 
     val initialUiState = remember(
-        initialSingleProjectState.index,
-        currentProjectsState,
-        initialSingleProjectState.projectTime,
-        initialSingleProjectState.projectName,
-        initialSingleProjectState.projectDetails,
-        initialSingleProjectState.workStats,
-        noAllowanceText
+        args.initialSingleProjectState.index,
+        projectsUiState,
+        args.initialSingleProjectState.projectTime,
+        args.initialSingleProjectState.projectName,
+        args.initialProjectDetails,
+        args.initialSettings,
+        config.noAllowanceText
     ) {
         resolveInitialSingleProjectState(
-            initialSingleProjectState = initialSingleProjectState,
-            projectsUiState = currentProjectsState
-        ).withDefaultAllowance(defaultAllowance = noAllowanceText)
+            initialSingleProjectState = args.initialSingleProjectState,
+            initialProjectDetails = args.initialProjectDetails,
+            initialSettings = args.initialSettings,
+            projectsUiState = projectsUiState
+        ).withDefaultAllowance(defaultAllowance = config.noAllowanceText)
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
 
     // Update state when the ViewModel data changes (e.g., returning from ProjectDetailsScreen)
-    LaunchedEffect(initialUiState) {
-        state = initialUiState
-    }
+    LaunchedEffect(initialUiState) { state = initialUiState }
 
-    val isConfirmEnabled by remember(state, initialUiState, initialSingleProjectState.index) {
+    val isConfirmEnabled by remember(state, initialUiState, args.initialSingleProjectState.index) {
         derivedStateOf {
             isSingleProjectConfirmEnabled(
                 state = state,
                 initialUiState = initialUiState,
-                isAddMode = initialSingleProjectState.index == -1
+                isAddMode = args.initialSingleProjectState.index == -1
             )
         }
     }
 
     SingleProjectScreenContent(
         params = SingleProjectScreenContentParams(
-            index = initialSingleProjectState.index,
+            index = args.initialSingleProjectState.index,
             date = date,
             state = state,
-            isAddMode = initialSingleProjectState.index == -1,
-            projectsUiState = currentProjectsState,
+            isAddMode = args.initialSingleProjectState.index == -1,
+            projectsUiState = projectsUiState,
             isConfirmEnabled = isConfirmEnabled,
             onStateChange = { state = it },
-            onNavigateBack = onNavigateBack,
-            onOpenProjectDetails = { onOpenProjectDetails(state) },
+            onNavigateBack = config.onNavigateBack,
+            onOpenProjectDetails = {
+                config.onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
+            },
             onConfirm = {
-                viewModel.saveProject(state = state)
-                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
-                onNavigateBack()
+                config.onSave(state)
+                config.onNavigateBack()
             }
         )
     )
 }
+
+private data class SingleProjectScreenStatefulConfig(
+    val projectsUiState: WorkdayUiState,
+    val noAllowanceText: String,
+    val onNavigateBack: () -> Unit,
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
+    val onSave: (SingleProjectState) -> Unit
+)
+
+data class SingleProjectScreenArgs(
+    val initialSingleProjectState: SingleProjectState,
+    val initialProjectDetails: ProjectDetailsState? = null,
+    val initialSettings: SettingsState? = null
+)
+
+data class SingleProjectNavigationActions(
+    val onNavigateBack: () -> Unit,
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit
+)
 
 internal fun isSingleProjectConfirmEnabled(
     state: SingleProjectState,
@@ -261,17 +303,17 @@ private fun SingleProjectSuccessContent(
         ?.projectTime
         ?: ZERO_TIME
     val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
-        initialTime = successState?.workTimeToday ?: ZERO_TIME,
+        initialTime = successState?.workTimeByDate ?: ZERO_TIME,
         addedTime = "-$originalProjectTime"
     )
-    val workTimeToday = WorkTimeCalculator.calculateFlexTime(
+    val workTimeByDate = WorkTimeCalculator.calculateFlexTime(
         initialTime = baseWithoutCurrent,
         addedTime = params.state.projectTime
     )
 
     SingleProjectContent(
         padding = padding,
-        workTimeToday = workTimeToday,
+        workTimeByDate = workTimeByDate,
         screenState = SingleProjectScreenState(
             date = params.date,
             editedProjectIndex = params.index,
@@ -333,7 +375,7 @@ private fun SingleProjectTopSection(
 @Composable
 private fun SingleProjectContent(
     padding: PaddingValues,
-    workTimeToday: String,
+    workTimeByDate: String,
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions
 ) {
@@ -348,7 +390,7 @@ private fun SingleProjectContent(
     ) {
         HeaderSection(
             date = screenState.date,
-            workTimeToday = workTimeToday
+            workTimeByDate = workTimeByDate
         )
 
         ElevatedCard(

@@ -15,9 +15,9 @@
 <string name="daily_lunch_time_estimate">Daily lunch time estimate</string>
 <string name="break_start">Break start</string>
 <string name="break_end">Break end</string>
-<string name="work_time_today">Work time today</string>
- <string name="work_time_today_estimate">Work time today estimate</string>
-<string name="flex_time_today">Flex time today</string>
+<string name="work_time_by_date">Work time by date</string>
+ <string name="work_time_by_date_estimate">Work time by date estimate</string>
+<string name="flex_time_by_date">Flex time by date</string>
 <string name="initial_flex_time_total">Initial flex time total</string>
 <string name="flex_time_total_initial_calculated">Flex time total (Initial+calculated)</string>
 <string name="projects">Workdays</string>
@@ -71,4 +71,11 @@
     <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
     <string name="discard">Discard</string>
     <string name="stay">Stay</string>
+    <string name="save_work_time_estimate">Save work time estimate</string>
+    <string name="save_work_time_estimate_message">Do you want to save this as the global daily work time estimate also, or just for today?</string>
+    <string name="save_today">Save today</string>
+    <string name="save_globally">Save globally</string>
+    <string name="saved_globally">Saved globally!</string>
+    <string name="saved_today">Saved for this day only!</string>
+    <string name="global_defaults">Global defaults</string>
 </resources>

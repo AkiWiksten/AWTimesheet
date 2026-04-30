@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.data.repository
 
+import com.akiwiksten.worktime30.domain.repository.DateRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test

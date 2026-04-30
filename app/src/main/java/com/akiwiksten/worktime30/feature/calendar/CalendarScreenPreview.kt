@@ -4,6 +4,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.android.tools.screenshot.PreviewTest
 
 private const val PREVIEW_MONTH_TIME = "170:00 h"
 private const val PREVIEW_WEEK_TIME = "42:30 h"
@@ -11,6 +12,7 @@ private const val PREVIEW_DAY_TIME = "8:30 h"
 private const val PREVIEW_DATE = "2026-04-10"
 
 @OptIn(ExperimentalMaterial3Api::class)
+@PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalendarContentLoading() {
@@ -21,6 +23,7 @@ fun PreviewCalendarContentLoading() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalendarContentSuccess() {
@@ -37,6 +40,7 @@ fun PreviewCalendarContentSuccess() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalendarContentError() {
@@ -47,6 +51,7 @@ fun PreviewCalendarContentError() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewDatePickerSection() {
@@ -56,6 +61,7 @@ fun PreviewDatePickerSection() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewWorkTimeSummarySection() {
@@ -69,6 +75,7 @@ fun PreviewWorkTimeSummarySection() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true)
 @Composable
 fun PreviewSummaryItem() {
@@ -78,6 +85,7 @@ fun PreviewSummaryItem() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Summary Item - Week")
 @Composable
 fun PreviewSummaryItemWeek() {
@@ -87,6 +95,7 @@ fun PreviewSummaryItemWeek() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Summary Item - Month")
 @Composable
 fun PreviewSummaryItemMonth() {

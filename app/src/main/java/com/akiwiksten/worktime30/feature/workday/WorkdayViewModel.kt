@@ -5,13 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
-import com.akiwiksten.worktime30.domain.DeleteWorkdayUseCase
-import com.akiwiksten.worktime30.domain.GetWorkdayScreenDataUseCase
-import com.akiwiksten.worktime30.domain.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsState
-import com.akiwiksten.worktime30.feature.projects.details.WorkStatsState
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.usecase.DeleteProjectUseCase
+import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
+import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsParams
+import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,37 +25,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
-
-data class SingleProjectState(
-    val index: Int = -1,
-    val projectName: String = "",
-    val projectTime: String = ZERO_TIME,
-    val kilometres: String = "0",
-    val allowance: String = "",
-    val workType: String = "",
-    val projectDetails: ProjectDetailsState? = null,
-    val workStats: WorkStatsState? = null,
-    val date: String = ""
-)
-
-internal fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {
-    return date.isBlank() &&
-        projectTime == ZERO_TIME &&
-        kilometres == "0" &&
-        allowance.isBlank() &&
-        workType.isBlank()
-}
 
 sealed class WorkdayUiState {
     object Loading : WorkdayUiState()
 
     data class Success(
         val date: String = "",
-        val workTimeToday: String = ZERO_TIME,
-        val workTimeTodayEstimate: String = ZERO_TIME,
-        val flexTimeToday: String = ZERO_TIME,
+        val workTimeByDate: String = ZERO_TIME,
+        val workTimeByDateEstimate: String = ZERO_TIME,
+        val flexTimeByDate: String = ZERO_TIME,
         val initialFlexTimeTotal: String = ZERO_TIME,
         val calculatedFlexTimeTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),
@@ -67,8 +49,9 @@ sealed class WorkdayUiState {
 class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
-    private val deleteWorkdayUseCase: DeleteWorkdayUseCase,
-    private val projectDetailsRepository: ProjectDetailsRepository,
+    private val deleteProjectUseCase: DeleteProjectUseCase,
+    private val updateSettingsUseCase: UpdateSettingsUseCase,
+    private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -90,18 +73,20 @@ class WorkdayViewModel @Inject constructor(
                 .sortedBy { it.projectName }
                 .mapIndexed { index, project -> project.copy(index = index) }
 
+            val workTypes = settingsRepository.getWorkTypes()
+
             WorkdayUiState.Success(
                 date = date,
-                workTimeToday = data.projectTime,
-                workTimeTodayEstimate = data.workTimeTodayEstimate,
-                flexTimeToday = WorkTimeCalculator.calculateFlexTime(
-                    initialTime = data.projectTime,
-                    addedTime = "-${data.workTimeTodayEstimate}"
+                workTimeByDate = data.workTimeByDate,
+                workTimeByDateEstimate = data.workTimeByDateEstimate,
+                flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
+                    initialTime = data.workTimeByDate,
+                    addedTime = "-${data.workTimeByDateEstimate}"
                 ),
                 initialFlexTimeTotal = data.initialFlexTimeTotal,
                 calculatedFlexTimeTotal = data.calculatedFlexTimeTotal,
                 projects = allProjects,
-                workTypes = data.workTypes
+                workTypes = workTypes
             ) as WorkdayUiState
         }
         .onStart { emit(value = WorkdayUiState.Loading) }
@@ -119,7 +104,11 @@ class WorkdayViewModel @Inject constructor(
         refreshTrigger.value += 1
     }
 
-    fun saveProject(state: SingleProjectState) {
+    fun saveProject(
+        state: SingleProjectState,
+        projectDetails: ProjectDetailsState? = null,
+        settings: SettingsState? = null
+    ) {
         viewModelScope.launch {
             try {
                 val currentState = uiState.value
@@ -127,15 +116,14 @@ class WorkdayViewModel @Inject constructor(
 
                 val projectToSave = state.copy(date = date)
 
-                val projectDetailsToSave = state.projectDetails?.copy(
+                val projectDetailsToSave = projectDetails?.copy(
                     date = date,
                     projectName = state.projectName,
                     projectTime = state.projectTime
                 ) ?: ProjectDetailsState(
                     date = date,
                     projectName = state.projectName,
-                    projectTime = state.projectTime,
-                    flexTimeToday = ZERO_TIME
+                    projectTime = state.projectTime
                 )
 
                 saveWorkdayUseCase(
@@ -143,7 +131,7 @@ class WorkdayViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
-                state.workStats?.let { projectDetailsRepository.insertWorkStats(it) }
+                settings?.let { settingsRepository.insertSettings(it) }
 
                 requestReload()
             } catch (e: IllegalArgumentException) {
@@ -160,7 +148,7 @@ class WorkdayViewModel @Inject constructor(
                 val currentState = uiState.value
                 val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
 
-                deleteWorkdayUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
+                deleteProjectUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
                 requestReload()
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "deleteProject: ", e)
@@ -170,51 +158,34 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    fun updateWorkStats(workTimeTodayEstimate: String, initialFlexTimeTotal: String) {
-        if (
-            !isValidWorkTimeTodayEstimateInput(workTimeTodayEstimate) ||
-            !isValidInitialFlexTimeTotalInput(initialFlexTimeTotal)
-        ) {
+    fun updateSettings(workTimeByDateEstimate: String, updateGlobalSettings: Boolean = false) {
+        if (!isValidWorkTimeByDateEstimateInput(workTimeByDateEstimate)) {
             return
         }
 
         viewModelScope.launch {
             try {
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
-                val isCurrentDay = currentUiState.date == LocalDate.now().toString()
-                val canUpdateWorkTimeTodayEstimate = isCurrentDay && currentUiState.workTimeToday == ZERO_TIME
-                val currentWorkStats = projectDetailsRepository.getWorkStatsByDate(currentUiState.date)
-                val existingWorkTimeTodayEstimate = currentWorkStats?.dailyWorkTimeEstimate
-                    ?.ifEmpty { currentUiState.workTimeTodayEstimate }
-                    ?: currentUiState.workTimeTodayEstimate
-
-                projectDetailsRepository.upsertWorkdayStats(
-                    date = currentUiState.date,
-                    workTimeToday = currentUiState.workTimeToday,
-                    workStats = WorkStatsState(
-                        dailyWorkTimeEstimate = if (canUpdateWorkTimeTodayEstimate) {
-                            workTimeTodayEstimate
-                        } else {
-                            existingWorkTimeTodayEstimate
-                        },
-                        dailyLunchTimeEstimate = currentWorkStats?.dailyLunchTimeEstimate ?: ZERO_TIME,
-                        initialFlexTimeTotal = initialFlexTimeTotal
+                updateSettingsUseCase(
+                    UpdateSettingsParams(
+                        date = currentUiState.date,
+                        workTimeByDate = currentUiState.workTimeByDate,
+                        currentWorkTimeByDateEstimate = currentUiState.workTimeByDateEstimate,
+                        newWorkTimeByDateEstimate = workTimeByDateEstimate,
+                        newInitialFlexTimeTotal = currentUiState.initialFlexTimeTotal,
+                        updateGlobalSettings = updateGlobalSettings
                     )
                 )
                 requestReload()
             } catch (e: IllegalArgumentException) {
-                Log.e("WorkdayViewModel", "updateWorkStats: ", e)
+                Log.e("WorkdayViewModel", "updateSettings: ", e)
             } catch (e: IllegalStateException) {
-                Log.e("WorkdayViewModel", "updateWorkStats: ", e)
+                Log.e("WorkdayViewModel", "updateSettings: ", e)
             }
         }
     }
 }
 
-private fun isValidWorkTimeTodayEstimateInput(value: String): Boolean {
+private fun isValidWorkTimeByDateEstimateInput(value: String): Boolean {
     return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
-}
-
-private fun isValidInitialFlexTimeTotalInput(value: String): Boolean {
-    return value.matches(regex = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
 }

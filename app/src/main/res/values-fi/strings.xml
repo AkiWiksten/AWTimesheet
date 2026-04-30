@@ -16,9 +16,9 @@
     <string name="daily_lunch_time_estimate">Päivittäinen lounaan aiottu pituus</string>
     <string name="break_start">Tauon alku</string>
     <string name="break_end">Tauon loppu</string>
-    <string name="work_time_today">Päivän työaika</string>
-    <string name="work_time_today_estimate">Päivän työajan arvio</string>
-    <string name="flex_time_today">Päivän liukuma</string>
+    <string name="work_time_by_date">Päivän työaika</string>
+    <string name="work_time_by_date_estimate">Päivän työajan arvio</string>
+    <string name="flex_time_by_date">Liukuma päivämäärän mukaan</string>
     <string name="initial_flex_time_total">Kokonaisliukuma</string>
     <string name="flex_time_total_initial_calculated">Kokonaisliukuma (alkuarvo+laskettu)</string>
     <string name="projects">Projektit</string>
@@ -72,4 +72,11 @@
     <string name="unsaved_data_message">Sinulla on tallentamattomia muutoksia. Tallennetaanko ennen poistumista?</string>
     <string name="discard">Hylkää</string>
     <string name="stay">Jää</string>
+    <string name="save_work_time_estimate">Tallenna päivän työajan arvio</string>
+    <string name="save_work_time_estimate_message">Haluatko tallentaa tämän globaaliksi päivittäiseksi työajan arvioksi myöskin vai vain tänään?</string>
+    <string name="save_today">Tallenna tänään</string>
+    <string name="save_globally">Tallenna globaalisti</string>
+    <string name="saved_globally">Tallennettu globaaleihin asetuksiin!</string>
+    <string name="saved_today">Tallennettu vain tälle päivälle!</string>
+    <string name="global_defaults">Globaalit oletukset</string>
 </resources>

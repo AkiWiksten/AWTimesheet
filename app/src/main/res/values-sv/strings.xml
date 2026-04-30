@@ -16,9 +16,9 @@
     <string name="daily_lunch_time_estimate">Daglig uppskattad lunchtid</string>
     <string name="break_start">Pausstart</string>
     <string name="break_end">Pausslut</string>
-    <string name="work_time_today">Arbetstid idag</string>
-    <string name="work_time_today_estimate">Uppskattad arbetstid idag</string>
-    <string name="flex_time_today">Flex idag</string>
+    <string name="work_time_by_date">Arbetstid per datum</string>
+    <string name="work_time_by_date_estimate">Uppskattad arbetstid per datum</string>
+    <string name="flex_time_by_date">Flex per datum</string>
     <string name="initial_flex_time_total">Initial total flex</string>
     <string name="flex_time_total_initial_calculated">Total flex (initial+beräknad)</string>
     <string name="projects">Arbetsdagar</string>
@@ -72,5 +72,12 @@
     <string name="unsaved_data_message">Du har osparade ändringar. Spara innan du lämnar?</string>
     <string name="discard">Förkasta</string>
     <string name="stay">Stanna</string>
+    <string name="save_work_time_estimate">Spara uppskattad arbetstid</string>
+    <string name="save_work_time_estimate_message">Vill du spara detta som den globala beräknade dagliga arbetstiden också eller bara för idag?</string>
+    <string name="save_today">Spara för idag</string>
+    <string name="save_globally">Spara globalt</string>
+    <string name="saved_globally">Sparat globalt!</string>
+    <string name="saved_today">Sparat för denna dag!</string>
+    <string name="global_defaults">Globala standardvärden</string>
 </resources>
 

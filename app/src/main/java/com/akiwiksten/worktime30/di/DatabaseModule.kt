@@ -1,5 +1,3 @@
-@file:Suppress("ImportOrdering")
-
 package com.akiwiksten.worktime30.di
 
 import android.content.Context
@@ -9,20 +7,21 @@ import com.akiwiksten.worktime30.data.database.dao.ProjectDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.worktime30.data.database.dao.ProjectNameDao
 import com.akiwiksten.worktime30.data.database.dao.SettingsDao
-import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
-import com.akiwiksten.worktime30.data.database.dao.WorkStatsDao
 import com.akiwiksten.worktime30.data.database.dao.WorkTypeDao
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.data.database.dao.WorkdayDao
 import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
 import com.akiwiksten.worktime30.data.repository.ProjectRepositoryImpl
-import com.akiwiksten.worktime30.data.repository.SettingsRepository
 import com.akiwiksten.worktime30.data.repository.SettingsRepositoryImpl
+import com.akiwiksten.worktime30.data.repository.WorkdayRepositoryImpl
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
+import com.akiwiksten.worktime30.domain.repository.WorkdayRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -43,6 +42,10 @@ abstract class DatabaseModule {
     @Singleton
     abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
+
     companion object {
         @Provides
         @Singleton
@@ -58,9 +61,6 @@ abstract class DatabaseModule {
 
         @Provides
         fun provideProjectDetailsDao(database: AppDatabase): ProjectDetailsDao = database.projectDetailsDao()
-
-        @Provides
-        fun provideWorkStatsDao(database: AppDatabase): WorkStatsDao = database.workStatsDao()
 
         @Provides
         fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()

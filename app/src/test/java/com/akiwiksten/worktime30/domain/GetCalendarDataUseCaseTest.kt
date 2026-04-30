@@ -1,7 +1,9 @@
 package com.akiwiksten.worktime30.domain
 
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.usecase.GetCalendarDataUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -49,6 +51,8 @@ class GetCalendarDataUseCaseTest {
         val projectsByRange = mutableMapOf<String, List<SingleProjectState>>()
         val requestedRanges = mutableListOf<String>()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             val key = "$start|$end"
             requestedRanges += key
@@ -66,5 +70,7 @@ class GetCalendarDataUseCaseTest {
         override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
+
+        override suspend fun getWorkTimeByDate(date: String): String = ZERO_TIME
     }
 }

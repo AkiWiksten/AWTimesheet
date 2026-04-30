@@ -3,11 +3,13 @@ package com.akiwiksten.worktime30.feature.projects.single
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
+import com.android.tools.screenshot.PreviewTest
 
 private const val PREVIEW_DATE = "2026-04-10"
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Loading")
 @Composable
 fun PreviewSingleProjectLoading() {
@@ -26,6 +28,7 @@ fun PreviewSingleProjectLoading() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Success Add")
 @Composable
 fun PreviewSingleProjectSuccessAdd() {
@@ -41,7 +44,7 @@ fun PreviewSingleProjectSuccessAdd() {
             isAddMode = true,
             projectsUiState = WorkdayUiState.Success(
                 date = PREVIEW_DATE,
-                workTimeToday = "07:45",
+                workTimeByDate = "07:45",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
             isConfirmEnabled = false,
@@ -53,6 +56,7 @@ fun PreviewSingleProjectSuccessAdd() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Success Edit")
 @Composable
 fun PreviewSingleProjectSuccessEdit() {
@@ -70,7 +74,7 @@ fun PreviewSingleProjectSuccessEdit() {
             isAddMode = false,
             projectsUiState = WorkdayUiState.Success(
                 date = PREVIEW_DATE,
-                workTimeToday = "07:45",
+                workTimeByDate = "07:45",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
             isConfirmEnabled = true,
@@ -82,6 +86,7 @@ fun PreviewSingleProjectSuccessEdit() {
     )
 }
 
+@PreviewTest
 @Preview(showBackground = true, name = "Single Project - Error")
 @Composable
 fun PreviewSingleProjectError() {

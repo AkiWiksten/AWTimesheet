@@ -43,11 +43,13 @@ A clean, scalable example of this is:
 This is called feature-based packaging.
 
 ## Code analysis and testing
-+ ./gradlew detekt
-+ ./gradlew lint
-+ Run SonarCube
-+ Run androidTest (Screenshot tests, DAO tests)
-+ Run test (Unit tests)
+1. Run unit tests
+2. Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
+3. (If needed, run official Compose screenshot baseline update: ./gradlew updateScreenshotTest)
+4. (If needed, run androidTest (DAO tests))
+5. ./gradlew detekt
+6. ./gradlew lint
+7. Run SonarCube
 
 ## Features to be implemented still
 + General
@@ -56,9 +58,6 @@ This is called feature-based packaging.
   + Better orientation support
   + Dark theme
   + FormChangeRules outside ui package
-  + data classes to map with entities should be in domain.model package
-  + repository interfaces should be in domain.repository package
-  + Simplify SaveSettingsUseCase
   + Check test coverage and add tests
 + Constants
   + Regroup
@@ -70,18 +69,13 @@ This is called feature-based packaging.
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
   + Own ViewModel. Decouple from WorkdayViewModel.
-  + SingleProject->SingleProjectState
-  + ProjectDetails->ProjectDetailsState
 + WorkdayScreen 
-  + Calculate FlexTimeTotal from WorkdayEntity? Done already?
-  + Ask to save when leaving without saving
+  + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects
-  + 
 + ProjectDetailsScreen
   + "Clear day" → "Clear details"
   + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
-  + ProjectDetailsRepository → Extract WorkStats and Workday stuff into own repositories?
   + First "Estimated end time" then "End time"
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
@@ -96,21 +90,13 @@ This is called feature-based packaging.
   + show the pdf instantly on screen
   + make pdf dynamic?
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
-+ Screenshot tests
-  + Add comparison, now just saves image
 
 ## What to test constantly
 + Thorough testing of all features in all screens
     + Intro,
-      + Overall functionality
     + Calendar,
-      + UI features
     + Projects,
-      + UI features
     + Single project,
-      + UI features
     + Project Details,
-      + UI features
     + Settings
-      + UI features
       + PDF creation

@@ -7,7 +7,7 @@ import com.akiwiksten.worktime30.data.database.entity.ProjectNameEntity
 import com.akiwiksten.worktime30.data.database.mapper.toDomain
 import com.akiwiksten.worktime30.data.database.mapper.toEntity
 import com.akiwiksten.worktime30.data.database.mapper.toProjectNameEntity
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -121,6 +121,8 @@ class ProjectRepositoryImplTest {
         }
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = projectNameUsed
+
+        override suspend fun getProjectTimesByDate(date: String): List<String> = emptyList()
     }
 
     private class FakeProjectNameDao : ProjectNameDao {

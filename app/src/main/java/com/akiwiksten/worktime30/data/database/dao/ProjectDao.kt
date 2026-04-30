@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.akiwiksten.worktime30.core.DATE
 import com.akiwiksten.worktime30.core.PROJECT_NAME
+import com.akiwiksten.worktime30.core.PROJECT_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
 
 @Dao
@@ -34,4 +35,7 @@ interface ProjectDao {
     @Query("SELECT COUNT(*) > 0 FROM project WHERE $PROJECT_NAME = :projectName")
     @Suppress("unused")
     suspend fun isProjectNameUsed(projectName: String): Boolean
+
+    @Query("SELECT $PROJECT_TIME FROM project WHERE $DATE = :date")
+    suspend fun getProjectTimesByDate(date: String): List<String>
 }

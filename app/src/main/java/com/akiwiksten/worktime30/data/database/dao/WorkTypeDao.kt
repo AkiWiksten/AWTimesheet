@@ -23,5 +23,5 @@ interface WorkTypeDao {
     suspend fun delete(workType: WorkTypeEntity)
 
     @Query("DELETE FROM $WORK_TYPE_TABLE")
-    suspend fun deleteAll()
+    suspend fun deleteAllWorkTypes()
 }

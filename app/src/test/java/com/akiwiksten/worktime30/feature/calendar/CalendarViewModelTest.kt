@@ -1,10 +1,11 @@
 package com.akiwiksten.worktime30.feature.calendar
 
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.data.database.entity.ProjectEntity
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectRepository
-import com.akiwiksten.worktime30.domain.GetCalendarDataUseCase
-import com.akiwiksten.worktime30.feature.workday.SingleProjectState
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectRepository
+import com.akiwiksten.worktime30.domain.usecase.GetCalendarDataUseCase
 import com.akiwiksten.worktime30.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -79,6 +80,8 @@ class CalendarViewModelTest {
     private open class FakeProjectRepository : ProjectRepository {
         val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
 
+        override suspend fun anyRecords(): Boolean = false
+
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             return (dataByRange["$start|$end"] ?: emptyList()).map { entity ->
                 SingleProjectState(
@@ -103,5 +106,7 @@ class CalendarViewModelTest {
         override suspend fun deleteProjectName(projectName: String) = Unit
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
+
+        override suspend fun getWorkTimeByDate(date: String): String = ZERO_TIME
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.worktime30.feature.projects.details
+package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,8 +8,12 @@ import com.akiwiksten.worktime30.core.calculator.ProjectDetailsTimeUpdateCalcula
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
-import com.akiwiksten.worktime30.data.repository.DateRepository
-import com.akiwiksten.worktime30.data.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.isNewDayForProject
+import com.akiwiksten.worktime30.domain.repository.DateRepository
+import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProjectDetailsViewModel @Inject constructor(
     private val projectDetailsRepository: ProjectDetailsRepository,
+    private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
@@ -136,10 +141,10 @@ class ProjectDetailsViewModel @Inject constructor(
                 StartTimeUpdateParams(
                     start = WorkTimeCalculator.stringToLocalTime(startTime),
                     dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.data.workStats.dailyWorkTimeEstimate
+                        successState.settings.dailyWorkTimeEstimate
                     ),
                     dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.data.workStats.dailyLunchTimeEstimate
+                        successState.data.lunchTimeEstimate
                     ),
                     projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                     oldStartTime = oldStart,
@@ -190,7 +195,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
                 dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.data.workStats.dailyLunchTimeEstimate
+                    successState.data.lunchTimeEstimate
                 ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(successState.data.projectTime),
                 oldLunchStart = oldLunchStart,
@@ -226,7 +231,7 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                successState.data.workStats.dailyLunchTimeEstimate
+                successState.data.lunchTimeEstimate
             )
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
@@ -238,7 +243,7 @@ class ProjectDetailsViewModel @Inject constructor(
             applyUpdateToState(
                 successState.copy(
                     data = successState.data.copy(
-                        workStats = successState.data.workStats.copy(dailyLunchTimeEstimate = dailyLunchTimeEstimate)
+                        lunchTimeEstimate = dailyLunchTimeEstimate
                     )
                 ),
                 update
@@ -254,12 +259,10 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
             val updatedState = successState.copy(
-                data = successState.data.copy(
-                    workStats = successState.data.workStats.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
-                )
+                settings = successState.settings.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
             )
-            // Recalculate flex time today with new daily work time
-            updateFlexTimeTodayIfNeeded(updatedState)
+            // flexTimeByDate is now calculated on-the-fly in the UI, not stored in state
+            updatedState
         }
     }
 
@@ -316,52 +319,19 @@ class ProjectDetailsViewModel @Inject constructor(
 
         result.projectTime?.let {
             nextState = nextState.copy(data = nextState.data.copy(projectTime = it))
-            nextState = calculateFlexTimeUpdatesInState(
-                nextState,
-                result.shouldRecalculateFlexTime
-            )
         }
         return nextState
-    }
-
-    private fun calculateFlexTimeUpdatesInState(
-        state: ProjectDetailsUiState.Success,
-        calculateToday: Boolean
-    ): ProjectDetailsUiState.Success {
-        var nextState = state
-        if (calculateToday) {
-            nextState = updateFlexTimeTodayIfNeeded(nextState)
-        }
-
-        return nextState
-    }
-
-    private fun updateFlexTimeTodayIfNeeded(
-        state: ProjectDetailsUiState.Success
-    ): ProjectDetailsUiState.Success {
-        val totalProjectTimeForDay = WorkTimeCalculator.calculateFlexTime(
-            state.data.otherProjectsTotalTime,
-            state.data.projectTime
-        )
-        return state.copy(
-            data = state.data.copy(
-                flexTimeToday = WorkTimeCalculator.calculateFlexTime(
-                    initialTime = totalProjectTimeForDay,
-                    addedTime = "-" + state.data.workStats.dailyWorkTimeEstimate
-                )
-            )
-        )
     }
 
     val getProjectDetailsState: () -> ProjectDetailsState = {
         (uiState.value as ProjectDetailsUiState.Success).data
     }
 
-    val getWorkStatsState: () -> WorkStatsState = {
-        (uiState.value as ProjectDetailsUiState.Success).data.workStats
+    val getSettingsEstimatesState: () -> SettingsState = {
+        (uiState.value as ProjectDetailsUiState.Success).settings
     }
 
-    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, workStatsArg: WorkStatsState? = null) {
+    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, settingsArg: SettingsState? = null) {
         _isInitialLoadComplete.value = false
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
@@ -371,7 +341,7 @@ class ProjectDetailsViewModel @Inject constructor(
             loadProjectDetailsInternal(
                 baseState = baseState,
                 projectDetailsArg = projectDetailsArg,
-                workStatsArg = workStatsArg,
+                settingsArg = settingsArg,
                 showLoading = showLoading
             )
         }
@@ -380,7 +350,7 @@ class ProjectDetailsViewModel @Inject constructor(
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
         projectDetailsArg: ProjectDetailsState? = null,
-        workStatsArg: WorkStatsState? = null,
+        settingsArg: SettingsState? = null,
         showLoading: Boolean
     ) {
         if (showLoading && _uiState.value !is ProjectDetailsUiState.Success) {
@@ -396,17 +366,10 @@ class ProjectDetailsViewModel @Inject constructor(
             if (date.isEmpty()) return
 
             val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
-            val workStats = when {
-                workStatsArg != null -> workStatsArg
-                projectDetails == null -> projectDetailsRepository.getWorkStatsByDate(date)
-                else -> projectDetailsRepository.getWorkStats()
-            }
-
-            // Fetch other projects for this date to calculate daily flex time correctly.
-            val allProjectsForDay = projectDetailsRepository.getProjectDetailsByDateRange(date, date)
-            val otherProjects = allProjectsForDay.filter { it.projectName != projectName }
-            val otherProjectsTotal = otherProjects.fold(ZERO_TIME) { acc, p ->
-                WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
+            val settings = when {
+                settingsArg != null -> settingsArg
+                projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
+                else -> settingsRepository.getSettings()
             }
 
             val nextState = ProjectDetailsUiMapper.applyEntitiesToState(
@@ -414,11 +377,10 @@ class ProjectDetailsViewModel @Inject constructor(
                     data = baseState.data.copy(
                         date = date,
                         projectName = projectName,
-                        otherProjectsTotalTime = otherProjectsTotal
                     )
                 ),
                 projectDetails,
-                workStats
+                settings
             )
             _uiState.value = nextState
         } catch (e: IllegalArgumentException) {
@@ -442,8 +404,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     lunchEnd = ZERO_TIME,
                     breakStart = ZERO_TIME,
                     breakEnd = ZERO_TIME,
-                    projectTime = ZERO_TIME,
-                    flexTimeToday = ZERO_TIME
+                    projectTime = ZERO_TIME
                 )
             )
         }
@@ -456,7 +417,7 @@ class ProjectDetailsViewModel @Inject constructor(
             val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.data.endTime),
                 dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.data.workStats.dailyWorkTimeEstimate
+                    successState.settings.dailyWorkTimeEstimate
                 ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldProjectTime = oldProjectTime

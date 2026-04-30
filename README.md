@@ -45,7 +45,7 @@ This is called feature-based packaging.
 ## Code analysis and testing
 1. Run unit tests
 2. Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
-3. (If needed, run official Compose screenshot baseline update: ./gradlew updateScreenshotTest)
+3. (If needed, run official Compose screenshot baseline update: ./gradlew updateScreenshotTest) "Compose Preview Screenshot Testing"
 4. (If needed, run androidTest (DAO tests))
 5. ./gradlew detekt
 6. ./gradlew lint

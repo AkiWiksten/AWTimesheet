@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
@@ -34,12 +36,27 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import java.time.LocalDate
 import java.time.YearMonth
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                calendarViewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     CalendarContent(
         uiState = uiState,
@@ -78,7 +95,8 @@ internal fun CalendarContent(
                         datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
                         modifier = Modifier.padding(all = 8.dp),
-                        onVisibleMonthChanged = onVisibleMonthChanged
+                        onVisibleMonthChanged = onVisibleMonthChanged,
+                        visibleMonth = uiState.visibleMonth
                     )
                 }
                 WorkTimeSummarySection(uiState = uiState)

@@ -28,7 +28,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -72,13 +74,25 @@ fun CustomCalendar(
     datesWithWork: Set<String>,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    onVisibleMonthChanged: (YearMonth) -> Unit = {}
+    onVisibleMonthChanged: (YearMonth) -> Unit = {},
+    visibleMonth: YearMonth = YearMonth.of(selectedDate.year, selectedDate.month)
 ) {
     var displayedMonth by remember(selectedDate) {
         mutableStateOf(YearMonth.of(selectedDate.year, selectedDate.month))
     }
     val isYearPickerOpenState = remember { mutableStateOf(false) }
+    val monthMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
     val today = LocalDate.now()
+
+    LaunchedEffect(visibleMonth, datesWithWork) {
+        monthMarkers[visibleMonth] = datesWithWork.toSet()
+    }
+
+    val displayedMonthMarkers = if (displayedMonth == visibleMonth) {
+        datesWithWork
+    } else {
+        monthMarkers[displayedMonth].orEmpty()
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
         MonthHeader(
@@ -100,7 +114,7 @@ fun CustomCalendar(
             displayedMonth = displayedMonth,
             selectedDate = selectedDate,
             today = today,
-            datesWithWork = datesWithWork,
+            datesWithWork = displayedMonthMarkers,
             onDateSelected = onDateSelected
         )
     }
@@ -237,7 +251,7 @@ private fun CalendarGrid(
         Row(modifier = Modifier.fillMaxWidth()) {
             for (col in 0 until DAYS_IN_WEEK) {
                 val dayNumber = row * DAYS_IN_WEEK + col - startOffset + 1
-                if (dayNumber < 1 || dayNumber > daysInMonth) {
+                if (dayNumber !in 1..daysInMonth) {
                     Box(modifier = Modifier.weight(1f).aspectRatio(1f))
                 } else {
                     val date = displayedMonth.atDay(dayNumber)
@@ -267,7 +281,12 @@ private fun DayCell(
 ) {
     val backgroundColor = resolveDayCellBackground(isSelected, isToday)
     val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork)
-    val workBorderColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else workDayRed
+    val workBorderColor = workDayRed
+    val todayBorderColor = if (isSelected) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
 
     Box(
         modifier = modifier
@@ -276,6 +295,14 @@ private fun DayCell(
             .then(
                 if (hasWork) {
                     Modifier.border(BorderStroke(1.5.dp, workBorderColor), CircleShape)
+                } else {
+                    Modifier
+                }
+            )
+            .padding(if (hasWork) 1.dp else 0.dp)
+            .then(
+                if (isToday) {
+                    Modifier.border(BorderStroke(1.5.dp, todayBorderColor), CircleShape)
                 } else {
                     Modifier
                 }

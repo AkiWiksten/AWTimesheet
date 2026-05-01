@@ -34,7 +34,6 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import java.time.LocalDate
 
-@Suppress("FunctionNaming")
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -47,7 +46,6 @@ fun CalendarScreen(
     )
 }
 
-@Suppress("FunctionNaming")
 @Composable
 internal fun CalendarContent(
     uiState: CalendarUiState,
@@ -86,7 +84,6 @@ internal fun CalendarContent(
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun LoadingContent() {
     Box(
@@ -97,7 +94,6 @@ private fun LoadingContent() {
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun ErrorContent(message: String) {
     Box(
@@ -112,7 +108,6 @@ private fun ErrorContent(message: String) {
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun CalendarHeaderSection(selectedDate: String) {
     ElevatedCard(
@@ -152,7 +147,6 @@ private fun CalendarHeaderSection(selectedDate: String) {
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     ElevatedCard(
@@ -184,7 +178,6 @@ internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 internal fun SummaryItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

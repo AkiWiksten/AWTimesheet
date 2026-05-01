@@ -9,21 +9,24 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,9 +41,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -56,11 +56,16 @@ private const val YEAR_PICKER_RANGE = 25
 private const val YEAR_PICKER_CENTER_OFFSET = 3
 
 private val orderedDaysOfWeek = listOf(
-    DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-    DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY
+    DayOfWeek.MONDAY,
+    DayOfWeek.TUESDAY,
+    DayOfWeek.WEDNESDAY,
+    DayOfWeek.THURSDAY,
+    DayOfWeek.FRIDAY,
+    DayOfWeek.SATURDAY,
+    DayOfWeek.SUNDAY
 )
 
-@Suppress("FunctionNaming", "kotlin:S1854", "UNUSED_VALUE")
+@Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
 fun CustomCalendar(
     selectedDate: LocalDate,
@@ -106,7 +111,6 @@ fun CustomCalendar(
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun MonthHeader(
     displayedMonth: YearMonth,
@@ -144,7 +148,6 @@ private fun MonthHeader(
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun YearPickerDialog(
     selectedYear: Int,
@@ -186,7 +189,6 @@ private fun YearPickerDialog(
     )
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun DayOfWeekHeader() {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -197,16 +199,16 @@ private fun DayOfWeekHeader() {
                 textAlign = TextAlign.Center,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY)
+                color = if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) {
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
-                else
+                } else {
                     MaterialTheme.colorScheme.onSurface
+                }
             )
         }
     }
 }
 
-@Suppress("FunctionNaming")
 @Composable
 private fun CalendarGrid(
     displayedMonth: YearMonth,
@@ -242,7 +244,7 @@ private fun CalendarGrid(
     }
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("LongParameterList")
 @Composable
 private fun DayCell(
     day: Int,
@@ -261,10 +263,11 @@ private fun DayCell(
             .aspectRatio(1f)
             .padding(2.dp)
             .then(
-                if (hasWork)
+                if (hasWork) {
                     Modifier.border(BorderStroke(1.5.dp, workBorderColor), CircleShape)
-                else
+                } else {
                     Modifier
+                }
             )
             .clip(CircleShape)
             .background(backgroundColor)

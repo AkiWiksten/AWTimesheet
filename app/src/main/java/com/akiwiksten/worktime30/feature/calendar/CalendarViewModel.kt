@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -51,6 +52,28 @@ class CalendarViewModel @Inject constructor(
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
             .format(dateFormatter)
+    }
+
+    /**
+     * Updates marker days for the currently visible calendar month without changing selected date.
+     */
+    fun onVisibleMonthChanged(month: YearMonth) {
+        val currentState = _uiState.value as? CalendarUiState.Success ?: return
+
+        viewModelScope.launch {
+            try {
+                val monthDate = month.atDay(1).toString()
+                val monthData = getCalendarDataUseCase(monthDate)
+
+                _uiState.value = currentState.copy(
+                    datesWithWork = monthData.datesWithWork
+                )
+            } catch (_: IllegalArgumentException) {
+                // Keep current UI state if month marker refresh fails.
+            } catch (_: IllegalStateException) {
+                // Keep current UI state if month marker refresh fails.
+            }
+        }
     }
 
     /**

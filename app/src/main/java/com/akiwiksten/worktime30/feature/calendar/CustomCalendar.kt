@@ -71,7 +71,8 @@ fun CustomCalendar(
     selectedDate: LocalDate,
     datesWithWork: Set<String>,
     onDateSelected: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onVisibleMonthChanged: (YearMonth) -> Unit = {}
 ) {
     var displayedMonth by remember(selectedDate) {
         mutableStateOf(YearMonth.of(selectedDate.year, selectedDate.month))
@@ -82,8 +83,16 @@ fun CustomCalendar(
     Column(modifier = modifier.fillMaxWidth()) {
         MonthHeader(
             displayedMonth = displayedMonth,
-            onPrevious = { displayedMonth = displayedMonth.minusMonths(1) },
-            onNext = { displayedMonth = displayedMonth.plusMonths(1) },
+            onPrevious = {
+                val nextMonth = displayedMonth.minusMonths(1)
+                displayedMonth = nextMonth
+                onVisibleMonthChanged(nextMonth)
+            },
+            onNext = {
+                val nextMonth = displayedMonth.plusMonths(1)
+                displayedMonth = nextMonth
+                onVisibleMonthChanged(nextMonth)
+            },
             onMonthYearClick = { isYearPickerOpenState.value = true }
         )
         DayOfWeekHeader()
@@ -104,7 +113,9 @@ fun CustomCalendar(
             years = years,
             onDismiss = { isYearPickerOpenState.value = false },
             onYearSelected = { pickedYear ->
-                displayedMonth = YearMonth.of(pickedYear, displayedMonth.month)
+                val nextMonth = YearMonth.of(pickedYear, displayedMonth.month)
+                displayedMonth = nextMonth
+                onVisibleMonthChanged(nextMonth)
                 isYearPickerOpenState.value = false
             }
         )

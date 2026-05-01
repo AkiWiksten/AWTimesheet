@@ -33,6 +33,7 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import java.time.LocalDate
+import java.time.YearMonth
 
 @Composable
 fun CalendarScreen(
@@ -42,14 +43,16 @@ fun CalendarScreen(
 
     CalendarContent(
         uiState = uiState,
-        onDateSelected = { calendarViewModel.onDateSelected(it) }
+        onDateSelected = { calendarViewModel.onDateSelected(it) },
+        onVisibleMonthChanged = { calendarViewModel.onVisibleMonthChanged(it) }
     )
 }
 
 @Composable
 internal fun CalendarContent(
     uiState: CalendarUiState,
-    onDateSelected: (String) -> Unit
+    onDateSelected: (String) -> Unit,
+    onVisibleMonthChanged: (YearMonth) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -74,7 +77,8 @@ internal fun CalendarContent(
                         selectedDate = LocalDate.parse(uiState.date),
                         datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
-                        modifier = Modifier.padding(all = 8.dp)
+                        modifier = Modifier.padding(all = 8.dp),
+                        onVisibleMonthChanged = onVisibleMonthChanged
                     )
                 }
                 WorkTimeSummarySection(uiState = uiState)

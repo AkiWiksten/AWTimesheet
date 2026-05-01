@@ -79,4 +79,5 @@
     <string name="saved_globally">Tallennettu globaaleihin asetuksiin!</string>
     <string name="saved_today">Tallennettu vain tälle päivälle!</string>
     <string name="global_defaults">Globaalit oletukset</string>
+    <string name="default_work_type_cannot_be_deleted">Oletustyöntyyppiä ei voi poistaa.</string>
 </resources>

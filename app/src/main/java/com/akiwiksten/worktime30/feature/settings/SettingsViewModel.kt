@@ -113,6 +113,23 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun ensureDefaultWorkType(defaultWorkType: String) {
+        if (defaultWorkType.isBlank()) return
+
+        val currentState = _uiState.value
+        if (currentState !is SettingsUiState.Success) return
+        if (defaultWorkType in currentState.data.workTypes) return
+
+        val updatedWorkTypes = (currentState.data.workTypes + defaultWorkType).sorted()
+        _uiState.value = currentState.copy(
+            data = currentState.data.copy(workTypes = updatedWorkTypes)
+        )
+
+        viewModelScope.launch {
+            settingsRepository.insertWorkType(defaultWorkType)
+        }
+    }
+
     fun removeWorkType(workType: String) {
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {

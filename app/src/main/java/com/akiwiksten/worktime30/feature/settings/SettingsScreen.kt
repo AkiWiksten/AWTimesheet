@@ -71,13 +71,21 @@ fun SettingsScreen(
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val ctx = LocalContext.current
+    val defaultWorkType = stringResource(id = R.string.other)
 
     LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
     }
 
+    LaunchedEffect(uiState, defaultWorkType) {
+        if (uiState is SettingsUiState.Success) {
+            settingsViewModel.ensureDefaultWorkType(defaultWorkType)
+        }
+    }
+
     SettingsStateContent(
         uiState = uiState,
+        defaultWorkType = defaultWorkType,
         createActions = { successState ->
             createSettingsActions(
                 settingsViewModel = settingsViewModel,
@@ -91,6 +99,7 @@ fun SettingsScreen(
 @Composable
 internal fun SettingsStateContent(
     uiState: SettingsUiState,
+    defaultWorkType: String,
     createActions: (SettingsUiState.Success) -> SettingsActions
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -120,7 +129,11 @@ internal fun SettingsStateContent(
                 val cachedState = lastSuccessState
                 if (cachedState != null) {
                     val actions = remember(cachedState) { createActions(cachedState) }
-                    SettingsContent(uiState = cachedState, actions = actions)
+                    SettingsContent(
+                        uiState = cachedState,
+                        actions = actions,
+                        defaultWorkType = defaultWorkType
+                    )
                 } else {
                     Box(modifier = Modifier.fillMaxSize())
                 }
@@ -128,7 +141,11 @@ internal fun SettingsStateContent(
         }
         is SettingsUiState.Success -> {
             val actions = remember(uiState) { createActions(uiState) }
-            SettingsContent(uiState = uiState, actions = actions)
+            SettingsContent(
+                uiState = uiState,
+                actions = actions,
+                defaultWorkType = defaultWorkType
+            )
         }
         is SettingsUiState.Error -> {
             Column(
@@ -211,15 +228,19 @@ private data class SettingsContentBodyState(
     val timePickerState: TimePickerState,
     val addWorkTypeDialogState: AddWorkTypeDialogState,
     val scrollState: androidx.compose.foundation.ScrollState,
-    val saveUi: SettingsSaveUi
+    val saveUi: SettingsSaveUi,
+    val defaultWorkType: String
 )
 
 @Suppress("LongMethod")
 @Composable
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
-    actions: SettingsActions
+    actions: SettingsActions,
+    defaultWorkType: String
 ) {
+    val context = LocalContext.current
+    val protectedWorkTypeMessage = stringResource(id = R.string.default_work_type_cannot_be_deleted)
     val showAddWorkTypeDialogState = remember { mutableStateOf(value = false) }
     val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
     val showDailyLunchTimeEstimatePickerDialogState = remember { mutableStateOf(value = false) }
@@ -260,7 +281,11 @@ internal fun SettingsContent(
                 onWorkTypeSelected = { selectedWorkTypeState.value = it },
                 onAddClick = { showAddWorkTypeDialogState.value = true },
                 onDeleteClick = {
-                    actions.onWorkTypeRemoved(selectedWorkTypeState.value)
+                    if (selectedWorkTypeState.value != defaultWorkType) {
+                        actions.onWorkTypeRemoved(selectedWorkTypeState.value)
+                    } else {
+                        Toast.makeText(context, protectedWorkTypeMessage, Toast.LENGTH_SHORT).show()
+                    }
                     // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
                 }
             ),
@@ -279,9 +304,10 @@ internal fun SettingsContent(
                 }
             ),
             scrollState = scrollState,
-            saveUi = saveUi
-        )
-    )
+            saveUi = saveUi,
+            defaultWorkType = defaultWorkType
+         )
+     )
 }
 
 @Composable
@@ -316,7 +342,8 @@ private fun SettingsContentBody(
                 selectedWorkType = state.workTypeState.selectedWorkType,
                 onWorkTypeSelected = state.workTypeState.onWorkTypeSelected,
                 onAddClick = state.workTypeState.onAddClick,
-                onDeleteClick = state.workTypeState.onDeleteClick
+                onDeleteClick = state.workTypeState.onDeleteClick,
+                protectedWorkType = state.defaultWorkType
             )
         }
 
@@ -644,7 +671,8 @@ private fun WorkTypeSection(
     selectedWorkType: String,
     onWorkTypeSelected: (String) -> Unit,
     onAddClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    protectedWorkType: String
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -667,7 +695,7 @@ private fun WorkTypeSection(
             }
             Button(
                 onClick = onDeleteClick,
-                enabled = selectedWorkType.isNotEmpty(),
+                enabled = selectedWorkType.isNotEmpty() && selectedWorkType != protectedWorkType,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)

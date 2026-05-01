@@ -79,5 +79,5 @@
     <string name="saved_globally">Sparat globalt!</string>
     <string name="saved_today">Sparat för denna dag!</string>
     <string name="global_defaults">Globala standardvärden</string>
+    <string name="default_work_type_cannot_be_deleted">Standardarbetstypen kan inte tas bort.</string>
 </resources>
-

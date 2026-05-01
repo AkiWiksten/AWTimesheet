@@ -65,6 +65,7 @@ fun SingleProjectScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     val noAllowanceText = stringResource(id = R.string.no_allowance)
+    val defaultWorkTypeText = stringResource(id = R.string.other)
     val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     SingleProjectScreenStateful(
@@ -72,6 +73,7 @@ fun SingleProjectScreen(
         config = SingleProjectScreenStatefulConfig(
             projectsUiState = projectsUiState,
             noAllowanceText = noAllowanceText,
+            defaultWorkTypeText = defaultWorkTypeText,
             onNavigateBack = navigationActions.onNavigateBack,
             onOpenProjectDetails = navigationActions.onOpenProjectDetails,
             onSave = { state ->
@@ -97,14 +99,17 @@ private fun SingleProjectScreenStateful(
         args.initialSingleProjectState.projectName,
         args.initialProjectDetails,
         args.initialSettings,
-        config.noAllowanceText
+        config.noAllowanceText,
+        config.defaultWorkTypeText
     ) {
         resolveInitialSingleProjectState(
             initialSingleProjectState = args.initialSingleProjectState,
             initialProjectDetails = args.initialProjectDetails,
             initialSettings = args.initialSettings,
             projectsUiState = projectsUiState
-        ).withDefaultAllowance(defaultAllowance = config.noAllowanceText)
+        )
+            .withDefaultAllowance(defaultAllowance = config.noAllowanceText)
+            .withDefaultWorkType(defaultWorkType = config.defaultWorkTypeText)
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
@@ -146,6 +151,7 @@ private fun SingleProjectScreenStateful(
 private data class SingleProjectScreenStatefulConfig(
     val projectsUiState: WorkdayUiState,
     val noAllowanceText: String,
+    val defaultWorkTypeText: String,
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
     val onSave: (SingleProjectState) -> Unit
@@ -380,6 +386,11 @@ private fun SingleProjectContent(
     actions: SingleProjectActions
 ) {
     val scrollState = rememberScrollState()
+    val defaultWorkTypeText = stringResource(id = R.string.other)
+    val workTypes = (((screenState.uiState as? WorkdayUiState.Success)?.workTypes ?: emptyList()) +
+        defaultWorkTypeText)
+        .distinct()
+        .sorted()
 
     Column(
         modifier = Modifier
@@ -422,8 +433,7 @@ private fun SingleProjectContent(
 
                 DialogDropdownFields(
                     state = screenState.state,
-                    workTypeDropDownList = (screenState.uiState as? WorkdayUiState.Success)?.workTypes
-                        ?: emptyList(),
+                    workTypeDropDownList = workTypes,
                     onStateChange = actions.onStateChange
                 )
 

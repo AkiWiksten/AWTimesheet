@@ -10,6 +10,10 @@ internal fun SingleProjectState.withDefaultAllowance(defaultAllowance: String): 
     return if (allowance.isBlank()) copy(allowance = defaultAllowance) else this
 }
 
+internal fun SingleProjectState.withDefaultWorkType(defaultWorkType: String): SingleProjectState {
+    return if (workType.isBlank()) copy(workType = defaultWorkType) else this
+}
+
 internal fun resolveInitialSingleProjectState(
     initialSingleProjectState: SingleProjectState,
     initialProjectDetails: ProjectDetailsState?,

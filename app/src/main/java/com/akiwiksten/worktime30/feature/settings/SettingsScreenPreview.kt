@@ -55,6 +55,7 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
     WorkTime30Theme(dynamicColor = false) {
         SettingsStateContent(
             uiState = uiState,
+            defaultWorkType = "Other",
             createActions = {
                 SettingsActions(
                     onNameChange = {},

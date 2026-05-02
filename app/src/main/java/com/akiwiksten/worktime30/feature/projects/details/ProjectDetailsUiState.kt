@@ -7,7 +7,7 @@ sealed class ProjectDetailsUiState {
     object Loading : ProjectDetailsUiState()
 
     data class Success(
-        val data: ProjectDetailsState,
+        val details: ProjectDetailsState,
         val settings: SettingsState = SettingsState()
     ) : ProjectDetailsUiState()
 

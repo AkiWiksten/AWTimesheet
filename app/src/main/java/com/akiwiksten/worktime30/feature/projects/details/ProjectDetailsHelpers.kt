@@ -24,7 +24,7 @@ internal fun rememberBaselineData(
     LaunchedEffect(uiState, isInitialLoadComplete) {
         val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
         if (isBaselineInitialized || !isInitialLoadComplete) return@LaunchedEffect
-        val data = successState.data
+        val data = successState.details
         if (data.date.isNotBlank() && data.matchesArgs(args = args, settings = successState.settings)) {
             initialData = data
             isBaselineInitialized = true
@@ -67,8 +67,8 @@ internal fun UnsavedChangesSection(
         onSave = successState?.let {
             {
                 onConfirm(
-                    it.data,
-                    it.settings.copy(dailyLunchTimeEstimate = it.data.lunchTimeEstimate)
+                    it.details,
+                    it.settings.copy(dailyLunchTimeEstimate = it.details.lunchTimeEstimate)
                 )
             }
         },

@@ -13,13 +13,13 @@ object ProjectDetailsUiMapper {
     ): ProjectDetailsUiState.Success {
         val normalizedSettings = normalizedSettings(settings = settings)
         val mappedData = projectDetails?.let {
-            applyProjectDetails(state = baseState.data, projectDetails = it)
+            applyProjectDetails(state = baseState.details, projectDetails = it)
         } ?: applyEmptyDayDefaults(
-            state = baseState.data,
+            state = baseState.details,
             lunchTimeEstimate = normalizedSettings.dailyLunchTimeEstimate
         )
 
-        return baseState.copy(data = mappedData, settings = normalizedSettings)
+        return baseState.copy(details = mappedData, settings = normalizedSettings)
     }
 
     private fun normalizedSettings(settings: SettingsState?): SettingsState {

@@ -70,7 +70,7 @@ fun ProjectDetailsScreen(
     )
 
     val hasUnsavedChanges = baselineData != null &&
-        (uiState as? ProjectDetailsUiState.Success)?.data?.let { current ->
+        (uiState as? ProjectDetailsUiState.Success)?.details?.let { current ->
             hasChanges(current = current, baseline = baselineData)
         } == true
 
@@ -95,9 +95,9 @@ fun ProjectDetailsScreen(
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
                 onConfirm(
-                    successState.data,
+                    successState.details,
                     successState.settings.copy(
-                        dailyLunchTimeEstimate = successState.data.lunchTimeEstimate
+                        dailyLunchTimeEstimate = successState.details.lunchTimeEstimate
                     )
                 )
             }
@@ -158,12 +158,12 @@ internal fun ProjectDetailsContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ProjectDetailsHeaderGroup(
-            date = uiState.data.date,
+            date = uiState.details.date,
             projectName = projectName,
             onClearDay = actions.onClearDay
         )
 
-        if (uiState.data.isNewDayForProject()) {
+        if (uiState.details.isNewDayForProject()) {
             NewDayFields(uiState = uiState, actions = actions.fieldActions)
         } else {
             ExistingDayFields(uiState = uiState, actions = actions.fieldActions)

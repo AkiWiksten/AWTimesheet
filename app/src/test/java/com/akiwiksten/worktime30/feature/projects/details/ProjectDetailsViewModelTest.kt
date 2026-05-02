@@ -49,9 +49,9 @@ class ProjectDetailsViewModelTest {
         val state = viewModel.uiState.value
         Assert.assertTrue(state is ProjectDetailsUiState.Success)
         state as ProjectDetailsUiState.Success
-        Assert.assertEquals("2026-04-10", state.data.date)
-        Assert.assertEquals("Alpha", state.data.projectName)
-        Assert.assertEquals("08:00", state.data.startTime)
+        Assert.assertEquals("2026-04-10", state.details.date)
+        Assert.assertEquals("Alpha", state.details.projectName)
+        Assert.assertEquals("08:00", state.details.startTime)
         Assert.assertEquals("01:00", state.settings.initialFlexTimeTotal)
     }
 
@@ -89,9 +89,9 @@ class ProjectDetailsViewModelTest {
         viewModel.clearDay()
 
         val cleared = viewModel.uiState.value as ProjectDetailsUiState.Success
-        Assert.assertEquals(ZERO_TIME, cleared.data.startTime)
-        Assert.assertEquals(ZERO_TIME, cleared.data.endTime)
-        Assert.assertEquals(ZERO_TIME, cleared.data.projectTime)
+        Assert.assertEquals(ZERO_TIME, cleared.details.startTime)
+        Assert.assertEquals(ZERO_TIME, cleared.details.endTime)
+        Assert.assertEquals(ZERO_TIME, cleared.details.projectTime)
         Assert.assertEquals("02:00", cleared.settings.initialFlexTimeTotal)
     }
 
@@ -153,8 +153,8 @@ class ProjectDetailsViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as ProjectDetailsUiState.Success
-        Assert.assertTrue(state.data.isNewDayForProject())
-        Assert.assertEquals("00:30", state.data.lunchTimeEstimate)
+        Assert.assertTrue(state.details.isNewDayForProject())
+        Assert.assertEquals("00:30", state.details.lunchTimeEstimate)
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {

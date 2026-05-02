@@ -121,15 +121,15 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
-            onOpenProjectDetails = { state, projectDetails, settings ->
+            onOpenProjectDetails = { singleProject, projectDetails, settings ->
                 backStack.updateSingleProjectState(
-                    state = state,
+                    singleProject = singleProject,
                     projectDetails = projectDetails,
                     settings = settings
                 )
                 backStack.add(
                     element = Screen.ProjectDetails(
-                        projectName = state.projectName,
+                        projectName = singleProject.projectName,
                         projectDetails = projectDetails,
                         settingsEstimates = settings
                     )
@@ -161,7 +161,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectState(
-    state: SingleProjectState,
+    singleProject: SingleProjectState,
     projectDetails: ProjectDetailsState?,
     settings: SettingsState?
 ) {
@@ -169,11 +169,11 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
     val current = getOrNull(index = index)
     if (current is Screen.SingleProject) {
         this[index] = current.copy(
-            projectName = state.projectName,
-            projectTime = state.projectTime,
-            kilometres = state.kilometres,
-            allowance = state.allowance,
-            workType = state.workType,
+            projectName = singleProject.projectName,
+            projectTime = singleProject.projectTime,
+            kilometres = singleProject.kilometres,
+            allowance = singleProject.allowance,
+            workType = singleProject.workType,
             projectDetails = projectDetails,
             settingsEstimates = settings
         )

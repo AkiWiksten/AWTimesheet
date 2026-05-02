@@ -22,7 +22,7 @@ fun previewProjectDetailsLoading() {
 fun previewProjectDetailsSuccessNewDay() {
     projectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
-            data = ProjectDetailsState(
+            details = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha Site"
             ),
@@ -42,7 +42,7 @@ fun previewProjectDetailsSuccessNewDay() {
 fun previewProjectDetailsSuccessExistingDay() {
     projectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
-            data = ProjectDetailsState(
+            details = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Beta Support",
                 startTime = "08:00",

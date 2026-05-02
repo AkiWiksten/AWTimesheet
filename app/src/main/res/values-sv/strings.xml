@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AWTimesheet3.0</string>
+    <string name="app_name">AWTimesheet</string>
     <string name="selected_date">Valt datum</string>
     <string name="select_date">Välj datum</string>
     <string name="start_time">Starttid</string>

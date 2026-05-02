@@ -55,9 +55,9 @@ import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 
 private const val ANIMATION_DURATION = 3000
-private const val SCREEN_FILL_RATIO = 0.9f
-private const val BUTTON_SCALE_DIVIDER = 2.4f
-private const val DEFAULT_FALLBACK_SCALE = 3.1f
+private const val SCREEN_FILL_RATIO = 0.6f
+private const val BUTTON_SCALE_DIVIDER = 2.6f
+private const val DEFAULT_FALLBACK_SCALE = 2.4f
 private const val MIN_INITIAL_SCALE = 0.01f
 
 @Composable

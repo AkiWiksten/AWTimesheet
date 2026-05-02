@@ -38,7 +38,7 @@ A clean, scalable example of this is:
         + NavGraph.kt
 + Unit tests
 + Instrumented Integration Tests (DAO tests, AndroidJUnit4)
-+ Screenshot tests (AndroidJUnit4)
++ Screenshot tests
 
 This is called feature-based packaging.
 
@@ -82,7 +82,6 @@ This is called feature-based packaging.
 + SettingsScreen
   + Translate fed "Work type"
   + App localization selection
-  + Use "Design" and "Other" as Default work types when list is empty
   + Ask to save does not work
   + SettingsViewModel.refreshProjectsByMonth maybe be called when pushing pdf button, not on VM init
 + PDF

@@ -377,6 +377,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     details = baseState.details.copy(
                         date = date,
                         projectName = projectName,
+                        projectTime = projectDetails?.projectTime ?: baseState.details.projectTime
                     )
                 ),
                 projectDetails,

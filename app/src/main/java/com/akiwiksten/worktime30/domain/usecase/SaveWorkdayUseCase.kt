@@ -24,11 +24,18 @@ class SaveWorkdayUseCase @Inject constructor(
         projectsToSave.forEach { project ->
             projectRepository.insertProjectName(project.projectName)
             projectRepository.insertProject(project)
+            if(projectDetailsToSave == null) {
+                projectDetailsRepository
+                    .insertProjectDetails(ProjectDetailsState()
+                        .copy(projectTime = project.projectTime))
+            }
         }
 
         projectDetailsToSave?.let {
             projectDetailsRepository.insertProjectDetails(it)
         }
+
+
 
         // Ensure each affected date has an estimate row for flex-time aggregation.
         val affectedDates = projectsToSave.map { it.date }.filter { it.isNotEmpty() }.distinct()

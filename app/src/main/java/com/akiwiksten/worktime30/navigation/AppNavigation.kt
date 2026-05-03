@@ -129,7 +129,11 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                 backStack.add(
                     element = Screen.ProjectDetails(
                         projectName = singleProject.projectName,
-                        projectDetails = projectDetails,
+                        projectDetails = projectDetails ?: ProjectDetailsState()
+                            .copy(
+                                projectName = singleProject.projectName,
+                                projectTime = singleProject.projectTime
+                            ),
                         settingsEstimates = settings
                     )
                 )

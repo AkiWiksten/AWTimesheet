@@ -37,11 +37,6 @@ object ProjectDetailsUiMapper {
     ): ProjectDetailsState {
         val normalizedStartTime = projectDetails.startTime.ifEmpty { ZERO_TIME }
         val normalizedEndTime = projectDetails.endTime.ifEmpty { ZERO_TIME }
-        val normalizedProjectTime = normalizeProjectTimeOnOpen(
-            startTime = normalizedStartTime,
-            endTime = normalizedEndTime,
-            projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME }
-        )
 
         return state.copy(
             date = projectDetails.date,
@@ -52,7 +47,7 @@ object ProjectDetailsUiMapper {
             lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
             breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
-            projectTime = normalizedProjectTime,
+            projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME },
             lunchTimeEstimate = projectDetails.lunchTimeEstimate.ifEmpty { ZERO_TIME }
         )
     }

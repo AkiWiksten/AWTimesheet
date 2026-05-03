@@ -5,6 +5,7 @@
 .kotlin/
 /build/
 **/build/
+/app/release/
 
 # Local machine and IDE files
 .idea/

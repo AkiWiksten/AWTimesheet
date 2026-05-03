@@ -151,7 +151,7 @@ internal fun ProjectDetailsContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
-            .padding(all = 16.dp)
+            .padding(16.dp, 16.dp, 16.dp, 0.dp)
             .verticalScrollbar(scrollState = scrollState)
             .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
@@ -181,6 +181,7 @@ internal fun ProjectDetailsStateContent(
     actions: ProjectDetailsScreenActions,
     isConfirmEnabled: Boolean
 ) {
+    val contentPadding = PaddingValues(top = padding.calculateTopPadding())
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = uiState is ProjectDetailsUiState.Loading
     )
@@ -195,11 +196,11 @@ internal fun ProjectDetailsStateContent(
     when (uiState) {
         is ProjectDetailsUiState.Loading -> {
             if (showLoadingIndicator) {
-                ProjectDetailsLoadingState(padding = padding)
+                ProjectDetailsLoadingState(padding = contentPadding)
             } else {
                 lastSuccessState?.let { cachedState ->
                     ProjectDetailsContent(
-                        padding = padding,
+                        padding = contentPadding,
                         uiState = cachedState,
                         projectName = projectName,
                         actions = actions,
@@ -208,19 +209,19 @@ internal fun ProjectDetailsStateContent(
                 } ?: Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding)
+                        .padding(contentPadding)
                 )
             }
         }
         is ProjectDetailsUiState.Success -> ProjectDetailsContent(
-            padding = padding,
+            padding = contentPadding,
             uiState = uiState,
             projectName = projectName,
             actions = actions,
             isConfirmEnabled = isConfirmEnabled
         )
         is ProjectDetailsUiState.Error -> ProjectDetailsErrorState(
-            padding = padding,
+            padding = contentPadding,
             errorMessage = uiState.message
         )
     }

@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.CardDefaults
@@ -33,6 +35,7 @@ import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
 import com.akiwiksten.worktime30.feature.workday.WorkdayHeaderActions
 
@@ -106,10 +109,13 @@ internal fun WorkdayStatsCard(
 private fun WorkdayStatsCardContent(
     params: WorkdayStatsCardContentParams
 ) {
+    val scrollState = rememberScrollState()
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = STATS_CARD_MAX_HEIGHT),
+            .heightIn(max = STATS_CARD_MAX_HEIGHT)
+            .verticalScrollbar(scrollState = scrollState)
+            .verticalScroll(state = scrollState),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(

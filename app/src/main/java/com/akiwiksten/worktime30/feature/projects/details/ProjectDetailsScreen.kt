@@ -56,7 +56,7 @@ fun ProjectDetailsScreen(
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(Unit) {
-        args.projectName?.let { viewModel.setProjectName(projectName = it) }
+        args.projectDetails?.let { viewModel.setProjectName(projectName = it.projectName) }
         viewModel.loadProjectDetails(
             projectDetailsArg = args.projectDetails,
             settingsArg = args.settings

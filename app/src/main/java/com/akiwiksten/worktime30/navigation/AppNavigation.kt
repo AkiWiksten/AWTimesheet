@@ -90,8 +90,7 @@ internal fun WorkTimeNavDisplay(
 private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
         args = ProjectDetailsArgs(
-            projectName = screen.projectName,
-            projectDetails = screen.projectDetails,
+            projectDetails = screen.projectDetails ?: ProjectDetailsState().copy(projectName = screen.projectName ?: ""),
             settings = screen.settingsEstimates
         ),
         onNavigateBack = { backStack.pop() },

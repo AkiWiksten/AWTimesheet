@@ -26,3 +26,15 @@ fun ProjectDetailsState.isNewDayForProject(): Boolean {
         isZero(breakStart) &&
         isZero(breakEnd)
 }
+
+fun ProjectDetailsState.hasOnlyProjectTime(): Boolean {
+    fun isZero(time: String) = time == ZERO_TIME || time.isEmpty()
+
+    return isZero(startTime) &&
+            isZero(endTime) &&
+            !isZero(projectTime) &&
+            isZero(lunchStart) &&
+            isZero(lunchEnd) &&
+            isZero(breakStart) &&
+            isZero(breakEnd)
+}

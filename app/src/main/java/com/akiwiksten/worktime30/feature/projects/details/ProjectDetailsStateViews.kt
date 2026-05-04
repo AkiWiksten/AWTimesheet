@@ -68,7 +68,7 @@ internal fun ProjectDetailsHeaderGroup(
             verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
         ) {
             HeaderSection(date = date, onClearDay = onClearDay)
-            projectName?.let { ProjectNameField(name = it) }
+            ProjectNameField(name = projectName.orEmpty())
 
             Text(
                 text = stringResource(id = R.string.add_new_project_details),

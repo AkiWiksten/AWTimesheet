@@ -22,7 +22,7 @@ class ProjectDetailsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun setDate_andProjectName_loadsProjectDetailsData() = runTest {
+    fun setDate_andProjectName_thenLoadProjectDetails_loadsProjectDetailsData() = runTest {
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             projectDetails = ProjectDetailsState(
                 date = "2026-04-10",
@@ -44,6 +44,7 @@ class ProjectDetailsViewModelTest {
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
+        viewModel.loadProjectDetails()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value

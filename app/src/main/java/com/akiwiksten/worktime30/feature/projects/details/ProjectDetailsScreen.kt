@@ -56,13 +56,20 @@ fun ProjectDetailsScreen(
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(Unit) {
-        args.projectDetails?.let { viewModel.setProjectName(projectName = it.projectName) }
-        viewModel.loadProjectDetails(
-            projectDetailsArg = args.projectDetails,
-            settingsArg = args.settings
-        )
+        /*args.projectDetails?.let {
+            if (it.date.isNotBlank()) {
+                viewModel.setDate(date = it.date)
+            }
+            if (it.projectName.isNotBlank()) {
+                viewModel.setProjectName(projectName = it.projectName)
+            }
+        }*/
+        viewModel.observeDateRepository(args)
     }
+    val date = (uiState as? ProjectDetailsUiState.Success)?.details?.date
+    LaunchedEffect(date) {
 
+    }
     val baselineData = rememberBaselineData(
         uiState = uiState,
         isInitialLoadComplete = isInitialLoadComplete,
@@ -106,7 +113,6 @@ fun ProjectDetailsScreen(
         ProjectDetailsStateContent(
             padding = padding,
             uiState = uiState,
-            projectName = args.projectName,
             actions = actions,
             isConfirmEnabled = hasUnsavedChanges
         )
@@ -141,7 +147,6 @@ internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
 internal fun ProjectDetailsContent(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState.Success,
-    projectName: String?,
     actions: ProjectDetailsScreenActions,
     isConfirmEnabled: Boolean
 ) {
@@ -159,7 +164,7 @@ internal fun ProjectDetailsContent(
     ) {
         ProjectDetailsHeaderGroup(
             date = uiState.details.date,
-            projectName = projectName,
+            projectName = uiState.details.projectName,
             onClearDay = actions.onClearDay
         )
 
@@ -177,7 +182,6 @@ internal fun ProjectDetailsContent(
 internal fun ProjectDetailsStateContent(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState,
-    projectName: String?,
     actions: ProjectDetailsScreenActions,
     isConfirmEnabled: Boolean
 ) {
@@ -202,7 +206,6 @@ internal fun ProjectDetailsStateContent(
                     ProjectDetailsContent(
                         padding = contentPadding,
                         uiState = cachedState,
-                        projectName = projectName,
                         actions = actions,
                         isConfirmEnabled = isConfirmEnabled
                     )
@@ -216,7 +219,6 @@ internal fun ProjectDetailsStateContent(
         is ProjectDetailsUiState.Success -> ProjectDetailsContent(
             padding = contentPadding,
             uiState = uiState,
-            projectName = projectName,
             actions = actions,
             isConfirmEnabled = isConfirmEnabled
         )

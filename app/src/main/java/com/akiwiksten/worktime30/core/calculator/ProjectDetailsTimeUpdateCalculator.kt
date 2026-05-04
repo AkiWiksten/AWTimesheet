@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.core.calculator
 
 import com.akiwiksten.worktime30.core.MINUTES_IN_HOUR
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import java.time.LocalTime
 
 /**
@@ -154,6 +155,15 @@ object ProjectDetailsTimeUpdateCalculator {
         } else {
             end.subtract(oldProjectTime).add(projectTime)
         }
+        return WorkTimeCalculator.TimeUpdateResult(end = newEnd.toString())
+    }
+
+    fun calculateProjectTimeUpdate(
+        projectTime: LocalTime,
+        dailyLunchTimeEstimate: LocalTime
+    ): WorkTimeCalculator.TimeUpdateResult {
+        val end = LocalTime.MIDNIGHT
+        val newEnd = end.add(projectTime).add(dailyLunchTimeEstimate)
         return WorkTimeCalculator.TimeUpdateResult(end = newEnd.toString())
     }
 }

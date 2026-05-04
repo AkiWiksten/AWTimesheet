@@ -59,6 +59,7 @@ This is called feature-based packaging.
   + Dark theme
   + FormChangeRules outside ui package
   + Check test coverage and add tests
+  + Warnings on build
 + Constants
   + Regroup
 + SingleProjectScreen

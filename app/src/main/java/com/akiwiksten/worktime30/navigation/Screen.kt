@@ -16,7 +16,6 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Workday : Screen(PROJECTS_SCREEN, R.string.workday)
     object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
     data class ProjectDetails(
-        val projectName: String? = null,
         val projectDetails: ProjectDetailsState? = null,
         val settingsEstimates: SettingsState? = null
     ) : Screen(PROJECT_DETAILS_SCREEN, R.string.project_details)

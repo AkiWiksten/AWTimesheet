@@ -31,8 +31,7 @@ fun previewProjectDetailsSuccessNewDay() {
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+03:10"
             )
-        ),
-        projectName = "Alpha Site"
+        )
     )
 }
 
@@ -58,8 +57,7 @@ fun previewProjectDetailsSuccessExistingDay() {
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+04:10"
             )
-        ),
-        projectName = "Beta Support"
+        )
     )
 }
 
@@ -74,14 +72,12 @@ fun previewProjectDetailsError() {
 
 @Composable
 private fun projectDetailsPreviewContent(
-    uiState: ProjectDetailsUiState,
-    projectName: String? = null
+    uiState: ProjectDetailsUiState
 ) {
     WorkTime30Theme(dynamicColor = false) {
         ProjectDetailsStateContent(
             padding = PaddingValues(0.dp),
             uiState = uiState,
-            projectName = projectName,
             actions = ProjectDetailsScreenActions(),
             isConfirmEnabled = uiState is ProjectDetailsUiState.Success
         )

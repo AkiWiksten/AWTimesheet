@@ -88,9 +88,11 @@ internal fun WorkTimeNavDisplay(
 
 @Composable
 private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
+    val projectName = screen.projectDetails?.projectName ?: ""
     ProjectDetailsScreen(
         args = ProjectDetailsArgs(
-            projectDetails = screen.projectDetails ?: ProjectDetailsState().copy(projectName = screen.projectName ?: ""),
+            projectDetails = screen.projectDetails ?: ProjectDetailsState()
+                .copy(projectName = projectName),
             settings = screen.settingsEstimates
         ),
         onNavigateBack = { backStack.pop() },
@@ -128,9 +130,9 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                 )
                 backStack.add(
                     element = Screen.ProjectDetails(
-                        projectName = singleProject.projectName,
                         projectDetails = projectDetails ?: ProjectDetailsState()
                             .copy(
+                                date = singleProject.date,
                                 projectName = singleProject.projectName,
                                 projectTime = singleProject.projectTime
                             ),

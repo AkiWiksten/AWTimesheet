@@ -10,6 +10,7 @@ import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.EndTimeUpdat
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.hasOnlyProjectTime
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
@@ -46,14 +47,18 @@ class ProjectDetailsViewModel @Inject constructor(
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
     init {
-        observeSelectionChanges()
-        observeDateRepository()
+        //observeSelectionChanges()
+        //observeDateRepository()
     }
 
-    private fun observeDateRepository() {
+    fun observeDateRepository(args: ProjectDetailsArgs) {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 setDate(date = date)
+                loadProjectDetails(
+                    projectDetailsArg = args.projectDetails?.copy(date = date),
+                    settingsArg = args.settings
+                )
             }
         }
     }
@@ -365,11 +370,26 @@ class ProjectDetailsViewModel @Inject constructor(
 
             if (date.isEmpty()) return
 
-            val projectDetails = projectDetailsArg ?: projectDetailsRepository.getProjectDetails(date, projectName)
+            var projectDetails = projectDetailsRepository.getProjectDetails(date, projectName) ?: projectDetailsArg
             val settings = when {
                 settingsArg != null -> settingsArg
                 projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
                 else -> settingsRepository.getSettings()
+            }
+
+            if (projectDetails != null && projectDetails.hasOnlyProjectTime()) {
+                val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
+                    projectTime = WorkTimeCalculator.stringToLocalTime(projectDetails.projectTime),
+                    dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(settings?.dailyLunchTimeEstimate ?: ZERO_TIME)
+                )
+                projectDetails = projectDetails.copy(
+                    startTime = ZERO_TIME,
+                    endTime = update.end?.format(timeFormatter) ?: ZERO_TIME,
+                    lunchStart = update.lunchStart?.format(timeFormatter) ?: ZERO_TIME,
+                    lunchEnd = update.lunchEnd?.format(timeFormatter) ?: ZERO_TIME,
+                    breakStart = update.breakStart?.format(timeFormatter) ?: ZERO_TIME,
+                    breakEnd = update.breakEnd?.format(timeFormatter) ?: ZERO_TIME
+                )
             }
 
             val nextState = ProjectDetailsUiMapper.applyEntitiesToState(
@@ -377,13 +397,20 @@ class ProjectDetailsViewModel @Inject constructor(
                     details = baseState.details.copy(
                         date = date,
                         projectName = projectName,
-                        projectTime = projectDetails?.projectTime ?: baseState.details.projectTime
                     )
                 ),
                 projectDetails,
                 settings
             )
             _uiState.value = nextState
+            projectDetails?.let {
+                if (it.date.isNotBlank()) {
+                    setDate(date = it.date)
+                }
+                if (it.projectName.isNotBlank()) {
+                    setProjectName(projectName = it.projectName)
+                }
+            }
         } catch (e: IllegalArgumentException) {
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {

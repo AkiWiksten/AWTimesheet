@@ -4,6 +4,7 @@ import com.akiwiksten.worktime30.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 
 object ProjectDetailsUiMapper {
     fun applyEntitiesToState(
@@ -13,7 +14,11 @@ object ProjectDetailsUiMapper {
     ): ProjectDetailsUiState.Success {
         val normalizedSettings = normalizedSettings(settings = settings)
         val mappedData = projectDetails?.let {
-            applyProjectDetails(state = baseState.details, projectDetails = it)
+            applyProjectDetails(
+                state = baseState.details,
+                projectDetails = it,
+                defaultLunchTimeEstimate = normalizedSettings.dailyLunchTimeEstimate
+            )
         } ?: applyEmptyDayDefaults(
             state = baseState.details,
             lunchTimeEstimate = normalizedSettings.dailyLunchTimeEstimate
@@ -33,10 +38,16 @@ object ProjectDetailsUiMapper {
 
     private fun applyProjectDetails(
         state: ProjectDetailsState,
-        projectDetails: ProjectDetailsState
+        projectDetails: ProjectDetailsState,
+        defaultLunchTimeEstimate: String
     ): ProjectDetailsState {
         val normalizedStartTime = projectDetails.startTime.ifEmpty { ZERO_TIME }
         val normalizedEndTime = projectDetails.endTime.ifEmpty { ZERO_TIME }
+        val resolvedLunchTimeEstimate = if (projectDetails.isNewDayForProject()) {
+            defaultLunchTimeEstimate
+        } else {
+            projectDetails.lunchTimeEstimate.ifEmpty { ZERO_TIME }
+        }
 
         return state.copy(
             date = projectDetails.date,
@@ -48,7 +59,7 @@ object ProjectDetailsUiMapper {
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
             breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
             projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME },
-            lunchTimeEstimate = projectDetails.lunchTimeEstimate.ifEmpty { ZERO_TIME }
+            lunchTimeEstimate = resolvedLunchTimeEstimate
         )
     }
 

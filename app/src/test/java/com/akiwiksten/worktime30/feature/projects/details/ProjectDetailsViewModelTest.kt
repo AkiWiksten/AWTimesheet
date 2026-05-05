@@ -93,6 +93,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals(ZERO_TIME, cleared.details.startTime)
         Assert.assertEquals(ZERO_TIME, cleared.details.endTime)
         Assert.assertEquals(ZERO_TIME, cleared.details.projectTime)
+        Assert.assertEquals("00:30", cleared.details.lunchTimeEstimate)
         Assert.assertEquals("02:00", cleared.settings.initialFlexTimeTotal)
     }
 
@@ -156,6 +157,67 @@ class ProjectDetailsViewModelTest {
         val state = viewModel.uiState.value as ProjectDetailsUiState.Success
         Assert.assertTrue(state.details.isNewDayForProject())
         Assert.assertEquals("00:30", state.details.lunchTimeEstimate)
+    }
+
+    @Test
+    fun loadProjectDetails_withNewDayArgs_usesSettingsLunchTimeEstimate() = runTest {
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeSettingsRepository(),
+            DateRepository()
+        )
+
+        viewModel.setDate("2026-04-10")
+        viewModel.setProjectName("Alpha")
+        viewModel.loadProjectDetails(
+            projectDetailsArg = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                lunchTimeEstimate = ZERO_TIME
+            ),
+            settingsArg = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:45",
+                initialFlexTimeTotal = "02:00"
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertTrue(state.details.isNewDayForProject())
+        Assert.assertEquals("00:45", state.details.lunchTimeEstimate)
+    }
+
+    @Test
+    fun loadProjectDetails_withExistingDayArgs_preservesProjectLunchTimeEstimate() = runTest {
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeSettingsRepository(),
+            DateRepository()
+        )
+
+        viewModel.setDate("2026-04-10")
+        viewModel.setProjectName("Alpha")
+        viewModel.loadProjectDetails(
+            projectDetailsArg = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00",
+                lunchTimeEstimate = "00:15"
+            ),
+            settingsArg = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:45",
+                initialFlexTimeTotal = "02:00"
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertFalse(state.details.isNewDayForProject())
+        Assert.assertEquals("00:15", state.details.lunchTimeEstimate)
     }
 
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {

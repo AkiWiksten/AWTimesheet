@@ -70,13 +70,10 @@ This is called feature-based packaging.
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
   + Own ViewModel. Decouple from WorkdayViewModel.
-  + Scroll bars more to right
 + WorkdayScreen 
   + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects
 + ProjectDetailsScreen
-  + "Clear day" → "Clear details"
-  + Remove ProjectDetailsState.flexTimeToday ProjectDetailsEntity.flexTimeToday
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
   + First "Estimated end time" then "End time"
 + CalendarScreen

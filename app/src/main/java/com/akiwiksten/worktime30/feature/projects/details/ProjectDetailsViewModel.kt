@@ -474,7 +474,8 @@ class ProjectDetailsViewModel @Inject constructor(
                     lunchEnd = ZERO_TIME,
                     breakStart = ZERO_TIME,
                     breakEnd = ZERO_TIME,
-                    projectTime = ZERO_TIME
+                    projectTime = ZERO_TIME,
+                    lunchTimeEstimate = successState.settings.dailyLunchTimeEstimate
                 )
             )
         }

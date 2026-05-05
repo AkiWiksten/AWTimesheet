@@ -46,11 +46,6 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
-    init {
-        //observeSelectionChanges()
-        //observeDateRepository()
-    }
-
     fun observeDateRepository(args: ProjectDetailsArgs) {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
@@ -101,7 +96,7 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun observeSelectionChanges() {
+    fun observeSelectionChanges() {
         viewModelScope.launch {
             combine(selectedDate, selectedProjectName) { date, projectName -> date to projectName }
                 .distinctUntilChanged()
@@ -137,6 +132,11 @@ class ProjectDetailsViewModel @Inject constructor(
             )
         )
     }
+
+    private data class ProjectDetailsSelection(
+        val date: String,
+        val projectName: String
+    )
 
     val setStartTime: (String) -> Unit = { startTime ->
         _uiState.update { currentState ->
@@ -363,54 +363,23 @@ class ProjectDetailsViewModel @Inject constructor(
         }
 
         try {
-            val date = baseState.details.date.ifEmpty { projectDetailsArg?.date ?: selectedDate.value }
-            val projectName = baseState.details.projectName.ifEmpty {
-                projectDetailsArg?.projectName ?: selectedProjectName.value
-            }
+            val selection = resolveSelection(baseState, projectDetailsArg)
+            if (selection.date.isEmpty()) return
 
-            if (date.isEmpty()) return
+            val loadedProjectDetails = projectDetailsRepository.getProjectDetails(
+                selection.date,
+                selection.projectName
+            ) ?: projectDetailsArg
+            val settings = resolveSettings(settingsArg, loadedProjectDetails, selection.date)
+            val normalizedProjectDetails = normalizeProjectDetails(loadedProjectDetails, settings)
 
-            var projectDetails = projectDetailsRepository.getProjectDetails(date, projectName) ?: projectDetailsArg
-            val settings = when {
-                settingsArg != null -> settingsArg
-                projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
-                else -> settingsRepository.getSettings()
-            }
-
-            if (projectDetails != null && projectDetails.hasOnlyProjectTime()) {
-                val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
-                    projectTime = WorkTimeCalculator.stringToLocalTime(projectDetails.projectTime),
-                    dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(settings?.dailyLunchTimeEstimate ?: ZERO_TIME)
-                )
-                projectDetails = projectDetails.copy(
-                    startTime = ZERO_TIME,
-                    endTime = update.end?.format(timeFormatter) ?: ZERO_TIME,
-                    lunchStart = update.lunchStart?.format(timeFormatter) ?: ZERO_TIME,
-                    lunchEnd = update.lunchEnd?.format(timeFormatter) ?: ZERO_TIME,
-                    breakStart = update.breakStart?.format(timeFormatter) ?: ZERO_TIME,
-                    breakEnd = update.breakEnd?.format(timeFormatter) ?: ZERO_TIME
-                )
-            }
-
-            val nextState = ProjectDetailsUiMapper.applyEntitiesToState(
-                baseState.copy(
-                    details = baseState.details.copy(
-                        date = date,
-                        projectName = projectName,
-                    )
-                ),
-                projectDetails,
-                settings
+            _uiState.value = createNextState(
+                baseState = baseState,
+                selection = selection,
+                projectDetails = normalizedProjectDetails,
+                settings = settings
             )
-            _uiState.value = nextState
-            projectDetails?.let {
-                if (it.date.isNotBlank()) {
-                    setDate(date = it.date)
-                }
-                if (it.projectName.isNotBlank()) {
-                    setProjectName(projectName = it.projectName)
-                }
-            }
+            syncSelectedValuesFromDetails(normalizedProjectDetails)
         } catch (e: IllegalArgumentException) {
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {
@@ -418,6 +387,79 @@ class ProjectDetailsViewModel @Inject constructor(
         } finally {
             _isInitialLoadComplete.value = true
         }
+    }
+
+    private fun resolveSelection(
+        baseState: ProjectDetailsUiState.Success,
+        projectDetailsArg: ProjectDetailsState?
+    ): ProjectDetailsSelection {
+        val date = baseState.details.date.ifEmpty { projectDetailsArg?.date ?: selectedDate.value }
+        val projectName = baseState.details.projectName.ifEmpty {
+            projectDetailsArg?.projectName ?: selectedProjectName.value
+        }
+        return ProjectDetailsSelection(date = date, projectName = projectName)
+    }
+
+    private suspend fun resolveSettings(
+        settingsArg: SettingsState?,
+        projectDetails: ProjectDetailsState?,
+        date: String
+    ): SettingsState? {
+        return when {
+            settingsArg != null -> settingsArg
+            projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
+            else -> settingsRepository.getSettings()
+        }
+    }
+
+    private fun normalizeProjectDetails(
+        projectDetails: ProjectDetailsState?,
+        settings: SettingsState?
+    ): ProjectDetailsState? {
+        if (projectDetails == null || !projectDetails.hasOnlyProjectTime()) {
+            return projectDetails
+        }
+
+        val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
+            projectTime = WorkTimeCalculator.stringToLocalTime(projectDetails.projectTime),
+            dailyLunchTimeEstimate = WorkTimeCalculator
+                .stringToLocalTime(settings?.dailyLunchTimeEstimate ?: ZERO_TIME)
+        )
+        return projectDetails.copy(
+            startTime = ZERO_TIME,
+            endTime = update.end?.format(timeFormatter) ?: ZERO_TIME,
+            lunchStart = update.lunchStart?.format(timeFormatter) ?: ZERO_TIME,
+            lunchEnd = update.lunchEnd?.format(timeFormatter) ?: ZERO_TIME,
+            breakStart = update.breakStart?.format(timeFormatter) ?: ZERO_TIME,
+            breakEnd = update.breakEnd?.format(timeFormatter) ?: ZERO_TIME
+        )
+    }
+
+    private fun createNextState(
+        baseState: ProjectDetailsUiState.Success,
+        selection: ProjectDetailsSelection,
+        projectDetails: ProjectDetailsState?,
+        settings: SettingsState?
+    ): ProjectDetailsUiState.Success {
+        return ProjectDetailsUiMapper.applyEntitiesToState(
+            baseState.copy(
+                details = baseState.details.copy(
+                    date = selection.date,
+                    projectName = selection.projectName,
+                )
+            ),
+            projectDetails,
+            settings
+        )
+    }
+
+    private fun syncSelectedValuesFromDetails(projectDetails: ProjectDetailsState?) {
+        projectDetails?.date
+            ?.takeIf { it.isNotBlank() }
+            ?.let { setDate(date = it) }
+        projectDetails?.projectName
+            ?.takeIf { it.isNotBlank() }
+            ?.let { setProjectName(projectName = it) }
     }
 
     val clearDay: () -> Unit = {
@@ -450,7 +492,15 @@ class ProjectDetailsViewModel @Inject constructor(
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldProjectTime = oldProjectTime
             )
-            applyUpdateToState(successState.copy(details = successState.details.copy(projectTime = projectTime)), update)
+            applyUpdateToState(
+                successState.copy(
+                    details = successState.details
+                        .copy(
+                            projectTime = projectTime
+                        )
+                ),
+                update
+            )
         }
     }
 

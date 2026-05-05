@@ -67,6 +67,11 @@ private val orderedDaysOfWeek = listOf(
     DayOfWeek.SUNDAY
 )
 
+data class CalendarVisibleMonthConfig(
+    val visibleMonth: YearMonth,
+    val onVisibleMonthChanged: (YearMonth) -> Unit = {}
+)
+
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
 fun CustomCalendar(
@@ -74,8 +79,9 @@ fun CustomCalendar(
     datesWithWork: Set<String>,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    onVisibleMonthChanged: (YearMonth) -> Unit = {},
-    visibleMonth: YearMonth = YearMonth.of(selectedDate.year, selectedDate.month)
+    monthConfig: CalendarVisibleMonthConfig = CalendarVisibleMonthConfig(
+        visibleMonth = YearMonth.of(selectedDate.year, selectedDate.month)
+    )
 ) {
     var displayedMonth by remember(selectedDate) {
         mutableStateOf(YearMonth.of(selectedDate.year, selectedDate.month))
@@ -84,11 +90,11 @@ fun CustomCalendar(
     val monthMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
     val today = LocalDate.now()
 
-    LaunchedEffect(visibleMonth, datesWithWork) {
-        monthMarkers[visibleMonth] = datesWithWork.toSet()
+    LaunchedEffect(monthConfig.visibleMonth, datesWithWork) {
+        monthMarkers[monthConfig.visibleMonth] = datesWithWork.toSet()
     }
 
-    val displayedMonthMarkers = if (displayedMonth == visibleMonth) {
+    val displayedMonthMarkers = if (displayedMonth == monthConfig.visibleMonth) {
         datesWithWork
     } else {
         monthMarkers[displayedMonth].orEmpty()
@@ -100,12 +106,12 @@ fun CustomCalendar(
             onPrevious = {
                 val nextMonth = displayedMonth.minusMonths(1)
                 displayedMonth = nextMonth
-                onVisibleMonthChanged(nextMonth)
+                monthConfig.onVisibleMonthChanged(nextMonth)
             },
             onNext = {
                 val nextMonth = displayedMonth.plusMonths(1)
                 displayedMonth = nextMonth
-                onVisibleMonthChanged(nextMonth)
+                monthConfig.onVisibleMonthChanged(nextMonth)
             },
             onMonthYearClick = { isYearPickerOpenState.value = true }
         )
@@ -129,7 +135,7 @@ fun CustomCalendar(
             onYearSelected = { pickedYear ->
                 val nextMonth = YearMonth.of(pickedYear, displayedMonth.month)
                 displayedMonth = nextMonth
-                onVisibleMonthChanged(nextMonth)
+                monthConfig.onVisibleMonthChanged(nextMonth)
                 isYearPickerOpenState.value = false
             }
         )
@@ -257,9 +263,11 @@ private fun CalendarGrid(
                     val date = displayedMonth.atDay(dayNumber)
                     DayCell(
                         day = dayNumber,
-                        isSelected = date == selectedDate,
-                        isToday = date == today,
-                        hasWork = date.toString() in datesWithWork,
+                        cellState = DayCellState(
+                            isSelected = date == selectedDate,
+                            isToday = date == today,
+                            hasWork = date.toString() in datesWithWork
+                        ),
                         onClick = { onDateSelected(date) },
                         modifier = Modifier.weight(1f)
                     )
@@ -269,16 +277,22 @@ private fun CalendarGrid(
     }
 }
 
-@Suppress("LongParameterList")
+private data class DayCellState(
+    val isSelected: Boolean,
+    val isToday: Boolean,
+    val hasWork: Boolean
+)
+
 @Composable
 private fun DayCell(
     day: Int,
-    isSelected: Boolean,
-    isToday: Boolean,
-    hasWork: Boolean,
+    cellState: DayCellState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isSelected = cellState.isSelected
+    val isToday = cellState.isToday
+    val hasWork = cellState.hasWork
     val backgroundColor = resolveDayCellBackground(isSelected, isToday)
     val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork)
     val workBorderColor = workDayRed

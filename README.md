@@ -60,6 +60,7 @@ This is called feature-based packaging.
   + FormChangeRules outside ui package
   + Check test coverage and add tests
   + Warnings on build
+  + ZERO_TIME -> LocalTime.MIDNIGHT
 + Constants
   + Regroup
 + SingleProjectScreen
@@ -70,6 +71,7 @@ This is called feature-based packaging.
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
   + Own ViewModel. Decouple from WorkdayViewModel.
+  + Scroll bars more to right
 + WorkdayScreen 
   + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects

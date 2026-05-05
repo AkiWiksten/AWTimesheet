@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
@@ -36,8 +38,6 @@ import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import java.time.LocalDate
 import java.time.YearMonth
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 
 @Composable
 fun CalendarScreen(
@@ -95,8 +95,10 @@ internal fun CalendarContent(
                         datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
                         modifier = Modifier.padding(all = 8.dp),
-                        onVisibleMonthChanged = onVisibleMonthChanged,
-                        visibleMonth = uiState.visibleMonth
+                        monthConfig = CalendarVisibleMonthConfig(
+                            visibleMonth = uiState.visibleMonth,
+                            onVisibleMonthChanged = onVisibleMonthChanged
+                        )
                     )
                 }
                 WorkTimeSummarySection(uiState = uiState)

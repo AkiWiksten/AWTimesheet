@@ -260,10 +260,17 @@ private fun SingleProjectContentByUiState(
             uiState = params.projectsUiState
         )
 
-        is WorkdayUiState.Error -> SingleProjectErrorContent(
-            padding = padding,
-            message = params.projectsUiState.message
-        )
+        is WorkdayUiState.Error -> Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = padding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Error: ${params.projectsUiState.message}",
+                color = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }
 
@@ -332,21 +339,6 @@ private fun SingleProjectSuccessContent(
     )
 }
 
-@Composable
-private fun SingleProjectErrorContent(padding: PaddingValues, message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues = padding),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Error: $message",
-            color = MaterialTheme.colorScheme.error
-        )
-    }
-}
-
 data class SingleProjectScreenState(
     val date: String,
     val editedProjectIndex: Int,
@@ -387,8 +379,7 @@ private fun SingleProjectContent(
 ) {
     val scrollState = rememberScrollState()
     val defaultWorkTypeText = stringResource(id = R.string.other)
-    val workTypes = (((screenState.uiState as? WorkdayUiState.Success)?.workTypes ?: emptyList()) +
-        defaultWorkTypeText)
+    val workTypes = (((screenState.uiState as? WorkdayUiState.Success)?.workTypes ?: emptyList()) + defaultWorkTypeText)
         .distinct()
         .sorted()
 
@@ -410,45 +401,60 @@ private fun SingleProjectContent(
                 .fillMaxWidth()
                 .weight(weight = 1f)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScrollbar(scrollState = scrollState)
-                    .padding(all = 16.dp)
-                    .verticalScroll(state = scrollState),
-                verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                DialogMainFields(
-                    state = screenState.state,
-                    isAddMode = screenState.isAddMode,
-                    onStateChange = actions.onStateChange
-                )
+            SingleProjectFormFields(
+                scrollState = scrollState,
+                screenState = screenState,
+                workTypes = workTypes,
+                actions = actions
+            )
+        }
+    }
+}
 
-                TimeSelectionSection(
-                    state = screenState.state,
-                    onOpenProjectDetails = actions.onOpenProjectDetails,
-                    onStateChange = actions.onStateChange
-                )
+@Composable
+private fun SingleProjectFormFields(
+    scrollState: androidx.compose.foundation.ScrollState,
+    screenState: SingleProjectScreenState,
+    workTypes: List<String>,
+    actions: SingleProjectActions
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScrollbar(scrollState = scrollState)
+            .padding(all = 16.dp)
+            .verticalScroll(state = scrollState),
+        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        DialogMainFields(
+            state = screenState.state,
+            isAddMode = screenState.isAddMode,
+            onStateChange = actions.onStateChange
+        )
 
-                DialogDropdownFields(
-                    state = screenState.state,
-                    workTypeDropDownList = workTypes,
-                    onStateChange = actions.onStateChange
-                )
+        TimeSelectionSection(
+            state = screenState.state,
+            onOpenProjectDetails = actions.onOpenProjectDetails,
+            onStateChange = actions.onStateChange
+        )
 
-                Spacer(modifier = Modifier.weight(weight = 1f))
+        DialogDropdownFields(
+            state = screenState.state,
+            workTypeDropDownList = workTypes,
+            onStateChange = actions.onStateChange
+        )
 
-                Button(
-                    onClick = actions.onConfirm,
-                    enabled = screenState.isConfirmEnabled,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                ) {
-                    Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
-                }
-            }
+        Spacer(modifier = Modifier.weight(weight = 1f))
+
+        Button(
+            onClick = actions.onConfirm,
+            enabled = screenState.isConfirmEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
         }
     }
 }

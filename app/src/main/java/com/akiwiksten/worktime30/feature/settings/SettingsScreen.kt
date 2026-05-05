@@ -114,31 +114,12 @@ internal fun SettingsStateContent(
     }
 
     when (uiState) {
-        is SettingsUiState.Loading -> {
-            if (showLoadingIndicator) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = FORM_SECTION_SPACING),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                val cachedState = lastSuccessState
-                if (cachedState != null) {
-                    val actions = remember(cachedState) { createActions(cachedState) }
-                    SettingsContent(
-                        uiState = cachedState,
-                        actions = actions,
-                        defaultWorkType = defaultWorkType
-                    )
-                } else {
-                    Box(modifier = Modifier.fillMaxSize())
-                }
-            }
-        }
+        is SettingsUiState.Loading -> SettingsLoadingContent(
+            showLoadingIndicator = showLoadingIndicator,
+            lastSuccessState = lastSuccessState,
+            defaultWorkType = defaultWorkType,
+            createActions = createActions
+        )
         is SettingsUiState.Success -> {
             val actions = remember(uiState) { createActions(uiState) }
             SettingsContent(
@@ -162,6 +143,31 @@ internal fun SettingsStateContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun SettingsLoadingContent(
+    showLoadingIndicator: Boolean,
+    lastSuccessState: SettingsUiState.Success?,
+    defaultWorkType: String,
+    createActions: (SettingsUiState.Success) -> SettingsActions
+) {
+    if (showLoadingIndicator) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = FORM_SECTION_SPACING),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else if (lastSuccessState != null) {
+        val actions = remember(lastSuccessState) { createActions(lastSuccessState) }
+        SettingsContent(uiState = lastSuccessState, actions = actions, defaultWorkType = defaultWorkType)
+    } else {
+        Box(modifier = Modifier.fillMaxSize())
     }
 }
 
@@ -210,6 +216,15 @@ private data class WorkTypeDialogState(
     val onDeleteClick: () -> Unit
 )
 
+private data class WorkTypeSectionState(
+    val workTypes: List<String>,
+    val selectedWorkType: String,
+    val onWorkTypeSelected: (String) -> Unit,
+    val onAddClick: () -> Unit,
+    val onDeleteClick: () -> Unit,
+    val protectedWorkType: String
+)
+
 private data class AddWorkTypeDialogState(
     val isVisible: Boolean,
     val onDismiss: () -> Unit,
@@ -232,82 +247,100 @@ private data class SettingsContentBodyState(
     val defaultWorkType: String
 )
 
-@Suppress("LongMethod")
 @Composable
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
     actions: SettingsActions,
     defaultWorkType: String
 ) {
-    val context = LocalContext.current
-    val protectedWorkTypeMessage = stringResource(id = R.string.default_work_type_cannot_be_deleted)
-    val showAddWorkTypeDialogState = remember { mutableStateOf(value = false) }
     val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
     val showDailyLunchTimeEstimatePickerDialogState = remember { mutableStateOf(value = false) }
-    val selectedWorkTypeState = remember { mutableStateOf(value = "") }
+    val workTypeUiState = rememberWorkTypeUiState(
+        defaultWorkType = defaultWorkType,
+        onWorkTypeRemoved = actions.onWorkTypeRemoved,
+        onWorkTypeAdded = actions.onWorkTypeAdded
+    )
     val saveUi = rememberSettingsSaveUi(
         data = uiState.data,
         selectedDate = uiState.selectedDate,
         onSave = actions.onSave
     )
-    val scrollState = rememberScrollState()
 
-    DailyWorkTimePickerDialogSection(
-        isVisible = showDailyWorkTimePickerDialogState.value,
-        currentDailyWorkTime = uiState.data.dailyWorkTimeEstimate,
-        onDismiss = { showDailyWorkTimePickerDialogState.value = false },
-        onConfirmed = { selectedTime ->
-            actions.onDailyWorkTimeEstimateChange(selectedTime)
-            showDailyWorkTimePickerDialogState.value = false
-        }
-    )
-
-    DailyLunchTimeEstimatePickerDialogSection(
-        isVisible = showDailyLunchTimeEstimatePickerDialogState.value,
-        currentDailyLunchTimeEstimate = uiState.data.dailyLunchTimeEstimate,
-        onDismiss = { showDailyLunchTimeEstimatePickerDialogState.value = false },
-        onConfirmed = { selectedTime ->
-            actions.onDailyLunchTimeEstimateChange(selectedTime)
-            showDailyLunchTimeEstimatePickerDialogState.value = false
-        }
+    TimePickerDialogsSection(
+        workTimePicker = TimePickerDialogConfig(
+            time = uiState.data.dailyWorkTimeEstimate,
+            isVisible = showDailyWorkTimePickerDialogState.value,
+            onDismiss = { showDailyWorkTimePickerDialogState.value = false },
+            onConfirm = {
+                actions.onDailyWorkTimeEstimateChange(it)
+                showDailyWorkTimePickerDialogState.value = false
+            }
+        ),
+        lunchTimePicker = TimePickerDialogConfig(
+            time = uiState.data.dailyLunchTimeEstimate,
+            isVisible = showDailyLunchTimeEstimatePickerDialogState.value,
+            onDismiss = { showDailyLunchTimeEstimatePickerDialogState.value = false },
+            onConfirm = {
+                actions.onDailyLunchTimeEstimateChange(it)
+                showDailyLunchTimeEstimatePickerDialogState.value = false
+            }
+        )
     )
 
     SettingsContentBody(
         state = SettingsContentBodyState(
             uiState = uiState,
             actions = actions,
-            workTypeState = WorkTypeDialogState(
-                selectedWorkType = selectedWorkTypeState.value,
-                onWorkTypeSelected = { selectedWorkTypeState.value = it },
-                onAddClick = { showAddWorkTypeDialogState.value = true },
-                onDeleteClick = {
-                    if (selectedWorkTypeState.value != defaultWorkType) {
-                        actions.onWorkTypeRemoved(selectedWorkTypeState.value)
-                    } else {
-                        Toast.makeText(context, protectedWorkTypeMessage, Toast.LENGTH_SHORT).show()
-                    }
-                    // Reset selection will be handled by LaunchedEffect(uiState.data.workTypes)
-                }
-            ),
+            workTypeState = workTypeUiState.dialogState,
             timePickerState = TimePickerState(
                 onDailyWorkTimePickerClick = { showDailyWorkTimePickerDialogState.value = true },
-                onDailyLunchTimeEstimatePickerClick = {
-                    showDailyLunchTimeEstimatePickerDialogState.value = true
-                }
+                onDailyLunchTimeEstimatePickerClick = { showDailyLunchTimeEstimatePickerDialogState.value = true }
             ),
-            addWorkTypeDialogState = AddWorkTypeDialogState(
-                isVisible = showAddWorkTypeDialogState.value,
-                onDismiss = { showAddWorkTypeDialogState.value = false },
-                onConfirm = {
-                    actions.onWorkTypeAdded(it)
-                    showAddWorkTypeDialogState.value = false
-                }
-            ),
-            scrollState = scrollState,
+            addWorkTypeDialogState = workTypeUiState.addDialogState,
+            scrollState = rememberScrollState(),
             saveUi = saveUi,
             defaultWorkType = defaultWorkType
-         )
-     )
+        )
+    )
+}
+
+private data class WorkTypeUiState(
+    val dialogState: WorkTypeDialogState,
+    val addDialogState: AddWorkTypeDialogState
+)
+
+@Composable
+private fun rememberWorkTypeUiState(
+    defaultWorkType: String,
+    onWorkTypeRemoved: (String) -> Unit,
+    onWorkTypeAdded: (String) -> Unit
+): WorkTypeUiState {
+    val context = LocalContext.current
+    val protectedMessage = stringResource(id = R.string.default_work_type_cannot_be_deleted)
+    val showAddDialogState = remember { mutableStateOf(value = false) }
+    val selectedState = remember { mutableStateOf(value = "") }
+    return WorkTypeUiState(
+        dialogState = WorkTypeDialogState(
+            selectedWorkType = selectedState.value,
+            onWorkTypeSelected = { selectedState.value = it },
+            onAddClick = { showAddDialogState.value = true },
+            onDeleteClick = {
+                if (selectedState.value != defaultWorkType) {
+                    onWorkTypeRemoved(selectedState.value)
+                } else {
+                    Toast.makeText(context, protectedMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+        ),
+        addDialogState = AddWorkTypeDialogState(
+            isVisible = showAddDialogState.value,
+            onDismiss = { showAddDialogState.value = false },
+            onConfirm = {
+                onWorkTypeAdded(it)
+                showAddDialogState.value = false
+            }
+        )
+    )
 }
 
 @Composable
@@ -338,12 +371,14 @@ private fun SettingsContentBody(
 
         SettingsCard {
             WorkTypeSection(
-                workTypes = state.uiState.data.workTypes,
-                selectedWorkType = state.workTypeState.selectedWorkType,
-                onWorkTypeSelected = state.workTypeState.onWorkTypeSelected,
-                onAddClick = state.workTypeState.onAddClick,
-                onDeleteClick = state.workTypeState.onDeleteClick,
-                protectedWorkType = state.defaultWorkType
+                state = WorkTypeSectionState(
+                    workTypes = state.uiState.data.workTypes,
+                    selectedWorkType = state.workTypeState.selectedWorkType,
+                    onWorkTypeSelected = state.workTypeState.onWorkTypeSelected,
+                    onAddClick = state.workTypeState.onAddClick,
+                    onDeleteClick = state.workTypeState.onDeleteClick,
+                    protectedWorkType = state.defaultWorkType
+                )
             )
         }
 
@@ -389,6 +424,32 @@ private fun GlobalDefaultsCard(state: SettingsContentBodyState) {
             isError = state.saveUi.isInitialFlexTimeTotalError
         )
     }
+}
+
+private data class TimePickerDialogConfig(
+    val time: String,
+    val isVisible: Boolean,
+    val onDismiss: () -> Unit,
+    val onConfirm: (String) -> Unit
+)
+
+@Composable
+private fun TimePickerDialogsSection(
+    workTimePicker: TimePickerDialogConfig,
+    lunchTimePicker: TimePickerDialogConfig
+) {
+    DailyWorkTimePickerDialogSection(
+        isVisible = workTimePicker.isVisible,
+        currentDailyWorkTime = workTimePicker.time,
+        onDismiss = workTimePicker.onDismiss,
+        onConfirmed = workTimePicker.onConfirm
+    )
+    DailyLunchTimeEstimatePickerDialogSection(
+        isVisible = lunchTimePicker.isVisible,
+        currentDailyLunchTimeEstimate = lunchTimePicker.time,
+        onDismiss = lunchTimePicker.onDismiss,
+        onConfirmed = lunchTimePicker.onConfirm
+    )
 }
 
 @Composable
@@ -666,36 +727,29 @@ private fun SettingsTextField(
 }
 
 @Composable
-private fun WorkTypeSection(
-    workTypes: List<String>,
-    selectedWorkType: String,
-    onWorkTypeSelected: (String) -> Unit,
-    onAddClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    protectedWorkType: String
-) {
+private fun WorkTypeSection(state: WorkTypeSectionState) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
     ) {
         DropdownMenuBox(
-            items = workTypes,
-            onItemSelected = onWorkTypeSelected,
-            selectedText = selectedWorkType,
+            items = state.workTypes,
+            onItemSelected = state.onWorkTypeSelected,
+            selectedText = state.selectedWorkType,
             labelId = R.string.work_type,
             modifier = Modifier.fillMaxWidth()
         )
         Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
             Button(
-                onClick = onAddClick,
+                onClick = state.onAddClick,
                 modifier = Modifier.weight(weight = 1f),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
                 Text(text = stringResource(id = R.string.add))
             }
             Button(
-                onClick = onDeleteClick,
-                enabled = selectedWorkType.isNotEmpty() && selectedWorkType != protectedWorkType,
+                onClick = state.onDeleteClick,
+                enabled = state.selectedWorkType.isNotEmpty() && state.selectedWorkType != state.protectedWorkType,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)

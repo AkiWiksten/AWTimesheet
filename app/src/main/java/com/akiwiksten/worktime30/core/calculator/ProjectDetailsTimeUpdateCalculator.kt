@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.core.calculator
 
 import com.akiwiksten.worktime30.core.MINUTES_IN_HOUR
-import com.akiwiksten.worktime30.core.ZERO_TIME
 import java.time.LocalTime
 
 /**

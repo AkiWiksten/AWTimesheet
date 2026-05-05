@@ -60,7 +60,6 @@ This is called feature-based packaging.
   + FormChangeRules outside ui package
   + Check test coverage and add tests
   + Warnings on build
-  + LocalTime.MIDNIGHT -> LocalTime.MIDNIGHT
   + isNewDay -> isNewDayOrProject
 + Constants
   + Regroup
@@ -76,7 +75,6 @@ This is called feature-based packaging.
   + Don't show project_names projects, when there are already recorded projects
 + ProjectDetailsScreen
   + "Lunch time estimate" → Ask to save globally to "Daily lunch time estimate" in SettingsScreen
-  + First "Estimated end time" then "End time"
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
 + SettingsScreen

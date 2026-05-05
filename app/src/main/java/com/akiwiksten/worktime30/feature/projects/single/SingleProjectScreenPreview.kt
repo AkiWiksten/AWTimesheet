@@ -20,6 +20,7 @@ fun PreviewSingleProjectLoading() {
             isAddMode = true,
             projectsUiState = WorkdayUiState.Loading,
             isConfirmEnabled = false,
+            hasUnsavedChanges = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
@@ -48,6 +49,7 @@ fun PreviewSingleProjectSuccessAdd() {
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
             isConfirmEnabled = false,
+            hasUnsavedChanges = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
@@ -78,6 +80,7 @@ fun PreviewSingleProjectSuccessEdit() {
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
             isConfirmEnabled = true,
+            hasUnsavedChanges = true,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
@@ -97,6 +100,7 @@ fun PreviewSingleProjectError() {
             isAddMode = true,
             projectsUiState = WorkdayUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,
+            hasUnsavedChanges = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},

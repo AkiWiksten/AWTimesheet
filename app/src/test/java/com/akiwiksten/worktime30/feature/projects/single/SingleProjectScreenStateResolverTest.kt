@@ -16,7 +16,7 @@ class SingleProjectScreenStateResolverTest {
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = editedState,
-            initialUiState = initialState,
+            hasUnsavedChanges = true,
             isAddMode = true
         )
 
@@ -24,16 +24,16 @@ class SingleProjectScreenStateResolverTest {
     }
 
     @Test
-    fun editMode_withoutChanges_disablesConfirm() {
-        val initialState = SingleProjectState(index = 0, projectName = "Alpha", kilometres = "12")
+    fun editMode_withProjectNameAndTime_withoutChanges_enablesConfirm() {
+        val initialState = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "01:00", kilometres = "12")
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = initialState,
-            initialUiState = initialState,
+            hasUnsavedChanges = false,
             isAddMode = false
         )
 
-        assertEquals(false, isEnabled)
+        assertEquals(true, isEnabled)
     }
 
     @Test
@@ -43,7 +43,7 @@ class SingleProjectScreenStateResolverTest {
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = editedState,
-            initialUiState = initialState,
+            hasUnsavedChanges = true,
             isAddMode = false
         )
 

@@ -117,11 +117,15 @@ private fun SingleProjectScreenStateful(
     // Update state when the ViewModel data changes (e.g., returning from ProjectDetailsScreen)
     LaunchedEffect(initialUiState) { state = initialUiState }
 
-    val isConfirmEnabled by remember(state, initialUiState, args.initialSingleProjectState.index) {
+    val hasUnsavedChanges by remember(state, initialUiState) {
+        derivedStateOf { hasChanges(current = state, baseline = initialUiState) }
+    }
+
+    val isConfirmEnabled by remember(state, hasUnsavedChanges, args.initialSingleProjectState.index) {
         derivedStateOf {
             isSingleProjectConfirmEnabled(
                 state = state,
-                initialUiState = initialUiState,
+                hasUnsavedChanges = hasUnsavedChanges,
                 isAddMode = args.initialSingleProjectState.index == -1
             )
         }
@@ -135,6 +139,7 @@ private fun SingleProjectScreenStateful(
             isAddMode = args.initialSingleProjectState.index == -1,
             projectsUiState = projectsUiState,
             isConfirmEnabled = isConfirmEnabled,
+            hasUnsavedChanges = hasUnsavedChanges,
             onStateChange = { state = it },
             onNavigateBack = config.onNavigateBack,
             onOpenProjectDetails = {
@@ -170,16 +175,16 @@ data class SingleProjectNavigationActions(
 
 internal fun isSingleProjectConfirmEnabled(
     state: SingleProjectState,
-    initialUiState: SingleProjectState,
+    hasUnsavedChanges: Boolean,
     isAddMode: Boolean
 ): Boolean {
-    val hasRequiredFields = state.projectName.isNotBlank() &&
+    val hasProjectNameAndTime = state.projectName.isNotBlank() && state.projectTime.isNotBlank()
+    val hasRequiredFields = hasProjectNameAndTime &&
         (state.kilometres.isBlank() || state.kilometres.all(Char::isDigit))
-    val hasUnsavedChanges = hasChanges(current = state, baseline = initialUiState)
     return isActionEnabled(
         hasRequiredFields = hasRequiredFields,
         hasUnsavedChanges = hasUnsavedChanges,
-        allowWithoutChanges = isAddMode
+        allowWithoutChanges = isAddMode || hasProjectNameAndTime
     )
 }
 
@@ -199,7 +204,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     }
 
     val guardedNavigateBack = {
-        if (params.isConfirmEnabled) {
+        if (params.hasUnsavedChanges) {
             showUnsavedDialogState.value = true
         } else {
             params.onNavigateBack()
@@ -466,6 +471,7 @@ data class SingleProjectScreenContentParams(
     val isAddMode: Boolean,
     val projectsUiState: WorkdayUiState,
     val isConfirmEnabled: Boolean,
+    val hasUnsavedChanges: Boolean,
     val onStateChange: (SingleProjectState) -> Unit,
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: () -> Unit,

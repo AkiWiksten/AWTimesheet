@@ -57,7 +57,8 @@ internal fun ProjectDetailsErrorState(padding: PaddingValues, errorMessage: Stri
 internal fun ProjectDetailsHeaderGroup(
     date: String,
     projectName: String?,
-    onClearDay: () -> Unit
+    isNewDayForProject: Boolean,
+    onClearDetails: () -> Unit
 ) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
@@ -67,15 +68,17 @@ internal fun ProjectDetailsHeaderGroup(
             modifier = Modifier.padding(all = 10.dp),
             verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
         ) {
-            HeaderSection(date = date, onClearDay = onClearDay)
+            HeaderSection(date = date, onClearDetails = onClearDetails)
             ProjectNameField(name = projectName.orEmpty())
 
-            Text(
-                text = stringResource(id = R.string.add_new_project_details),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
+            if (isNewDayForProject) {
+                Text(
+                    text = stringResource(id = R.string.add_new_project_details),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
         }
     }
 }

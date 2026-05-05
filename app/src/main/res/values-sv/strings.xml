@@ -35,7 +35,7 @@
     <string name="unsaved_data_title">Osparad data!</string>
     <string name="delete">Ta bort</string>
     <string name="saved">Sparat!</string>
-    <string name="clear_day">Rensa dag</string>
+    <string name="clear_details">Rensa detaljer</string>
     <string name="add_new_project_details">Dagens nya projekt! Ange först starttiden för dagens projekt! Då öppnas andra alternativ. Du kan först också ange uppskattad lunchtid. När du avslutar arbetsdagen väljer du "Sluttid". Då beräknas "Projekttid".</string>
     <string name="calendar">Kalender</string>
     <string name="monthly_report">Månadsrapport</string>

@@ -67,7 +67,6 @@ This is called feature-based packaging.
   + Project name edit and validation
   + Kilometres validation. 0050 not valid.
   + Show work_type_help string
-  + Handle duplicate project name, when pressing "Details" or saving
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
   + Own ViewModel. Decouple from WorkdayViewModel.

@@ -462,7 +462,7 @@ class ProjectDetailsViewModel @Inject constructor(
             ?.let { setProjectName(projectName = it) }
     }
 
-    val clearDay: () -> Unit = {
+    val clearDetails: () -> Unit = {
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
 

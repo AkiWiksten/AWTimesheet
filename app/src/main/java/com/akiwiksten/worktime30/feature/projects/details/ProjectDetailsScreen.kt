@@ -161,7 +161,8 @@ internal fun ProjectDetailsContent(
         ProjectDetailsHeaderGroup(
             date = uiState.details.date,
             projectName = uiState.details.projectName,
-            onClearDay = actions.onClearDay
+            isNewDayForProject = uiState.details.isNewDayForProject(),
+            onClearDetails = actions.onClearDetails
         )
 
         if (uiState.details.isNewDayForProject()) {
@@ -226,7 +227,7 @@ internal fun ProjectDetailsStateContent(
 }
 
 internal data class ProjectDetailsScreenActions(
-    val onClearDay: () -> Unit = {},
+    val onClearDetails: () -> Unit = {},
     val onConfirm: () -> Unit = {},
     val fieldActions: ProjectDetailsFieldActions = ProjectDetailsFieldActions()
 )
@@ -236,7 +237,7 @@ private fun createProjectDetailsScreenActions(
     onConfirm: () -> Unit
 ): ProjectDetailsScreenActions {
     return ProjectDetailsScreenActions(
-        onClearDay = viewModel.clearDay,
+        onClearDetails = viewModel.clearDetails,
         onConfirm = onConfirm,
         fieldActions = ProjectDetailsFieldActions(
             onCurrentStartTime = viewModel.currentStartTime,

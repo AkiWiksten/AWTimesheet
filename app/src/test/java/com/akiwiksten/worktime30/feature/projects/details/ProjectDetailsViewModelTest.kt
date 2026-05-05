@@ -57,7 +57,7 @@ class ProjectDetailsViewModelTest {
     }
 
     @Test
-    fun loadProjectDetails_withArgs_mapsEntities_andClearDayResetsDailyFields() = runTest {
+    fun loadProjectDetails_withArgs_mapsEntities_andClearDetailsResetsDailyFields() = runTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
             FakeSettingsRepository(),
@@ -87,7 +87,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals("Alpha", persistedProjectDetails.projectName)
         Assert.assertEquals("02:00", settings.initialFlexTimeTotal)
 
-        viewModel.clearDay()
+        viewModel.clearDetails()
 
         val cleared = viewModel.uiState.value as ProjectDetailsUiState.Success
         Assert.assertEquals(ZERO_TIME, cleared.details.startTime)

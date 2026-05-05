@@ -11,7 +11,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -48,17 +47,12 @@ fun ProjectNameField(name: String) {
         readOnly = true,
         enabled = false,
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-        )
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
     )
 }
 
 @Composable
-fun HeaderSection(date: String, onClearDay: () -> Unit) {
+fun HeaderSection(date: String, onClearDetails: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,14 +73,14 @@ fun HeaderSection(date: String, onClearDay: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
         Button(
-            onClick = onClearDay,
+            onClick = onClearDetails,
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
             )
         ) {
-            Text(text = stringResource(id = R.string.clear_day))
+            Text(text = stringResource(id = R.string.clear_details))
         }
     }
 }

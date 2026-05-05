@@ -256,6 +256,7 @@ internal fun SettingsContent(
     val showDailyWorkTimePickerDialogState = remember { mutableStateOf(value = false) }
     val showDailyLunchTimeEstimatePickerDialogState = remember { mutableStateOf(value = false) }
     val workTypeUiState = rememberWorkTypeUiState(
+        workTypes = uiState.data.workTypes,
         defaultWorkType = defaultWorkType,
         onWorkTypeRemoved = actions.onWorkTypeRemoved,
         onWorkTypeAdded = actions.onWorkTypeAdded
@@ -311,6 +312,7 @@ private data class WorkTypeUiState(
 
 @Composable
 private fun rememberWorkTypeUiState(
+    workTypes: List<String>,
     defaultWorkType: String,
     onWorkTypeRemoved: (String) -> Unit,
     onWorkTypeAdded: (String) -> Unit
@@ -318,7 +320,14 @@ private fun rememberWorkTypeUiState(
     val context = LocalContext.current
     val protectedMessage = stringResource(id = R.string.default_work_type_cannot_be_deleted)
     val showAddDialogState = remember { mutableStateOf(value = false) }
-    val selectedState = remember { mutableStateOf(value = "") }
+    val selectedState = remember(defaultWorkType) { mutableStateOf(value = defaultWorkType) }
+
+    LaunchedEffect(workTypes, defaultWorkType, selectedState.value) {
+        if (selectedState.value.isBlank() || selectedState.value !in workTypes) {
+            selectedState.value = defaultWorkType
+        }
+    }
+
     return WorkTypeUiState(
         dialogState = WorkTypeDialogState(
             selectedWorkType = selectedState.value,
@@ -327,6 +336,7 @@ private fun rememberWorkTypeUiState(
             onDeleteClick = {
                 if (selectedState.value != defaultWorkType) {
                     onWorkTypeRemoved(selectedState.value)
+                    selectedState.value = defaultWorkType
                 } else {
                     Toast.makeText(context, protectedMessage, Toast.LENGTH_SHORT).show()
                 }
@@ -337,6 +347,7 @@ private fun rememberWorkTypeUiState(
             onDismiss = { showAddDialogState.value = false },
             onConfirm = {
                 onWorkTypeAdded(it)
+                selectedState.value = it
                 showAddDialogState.value = false
             }
         )

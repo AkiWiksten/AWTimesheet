@@ -80,4 +80,5 @@
     <string name="saved_today">Tallennettu vain tälle päivälle!</string>
     <string name="global_defaults">Globaalit oletukset</string>
     <string name="default_work_type_cannot_be_deleted">Oletustyöntyyppiä ei voi poistaa.</string>
+    <string name="project_name_duplicate_error">Nimi on jo käytössä tänään</string>
 </resources>

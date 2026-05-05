@@ -79,4 +79,5 @@
     <string name="saved_today">Saved for this day only!</string>
     <string name="global_defaults">Global defaults</string>
     <string name="default_work_type_cannot_be_deleted">Default work type cannot be deleted.</string>
+    <string name="project_name_duplicate_error">Name already used today</string>
 </resources>

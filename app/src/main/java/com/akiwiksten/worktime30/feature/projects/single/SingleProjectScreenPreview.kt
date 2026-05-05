@@ -21,6 +21,7 @@ fun PreviewSingleProjectLoading() {
             projectsUiState = WorkdayUiState.Loading,
             isConfirmEnabled = false,
             hasUnsavedChanges = false,
+            isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
@@ -50,6 +51,7 @@ fun PreviewSingleProjectSuccessAdd() {
             ),
             isConfirmEnabled = false,
             hasUnsavedChanges = false,
+            isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
@@ -81,6 +83,35 @@ fun PreviewSingleProjectSuccessEdit() {
             ),
             isConfirmEnabled = true,
             hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
+            onStateChange = {},
+            onNavigateBack = {},
+            onOpenProjectDetails = {},
+            onConfirm = {}
+        )
+    )
+}
+
+@PreviewTest
+@Preview(showBackground = true, name = "Single Project - Duplicate Name")
+@Composable
+fun PreviewSingleProjectDuplicateName() {
+    SingleProjectPreviewContent(
+        params = SingleProjectScreenContentParams(
+            date = PREVIEW_DATE,
+            state = SingleProjectState(
+                index = -1,
+                projectName = "Alpha Site",
+                projectTime = "01:00",
+            ),
+            isAddMode = true,
+            projectsUiState = WorkdayUiState.Success(
+                date = PREVIEW_DATE,
+                workTimeByDate = "07:45",
+            ),
+            isConfirmEnabled = false,
+            hasUnsavedChanges = true,
+            isDuplicateProjectName = true,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
@@ -101,6 +132,7 @@ fun PreviewSingleProjectError() {
             projectsUiState = WorkdayUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,
             hasUnsavedChanges = false,
+            isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},

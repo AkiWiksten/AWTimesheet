@@ -43,7 +43,6 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.core.ui.hasChanges
-import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
@@ -117,19 +116,12 @@ private fun SingleProjectScreenStateful(
     // Update state when the ViewModel data changes (e.g., returning from ProjectDetailsScreen)
     LaunchedEffect(initialUiState) { state = initialUiState }
 
-    val hasUnsavedChanges by remember(state, initialUiState) {
-        derivedStateOf { hasChanges(current = state, baseline = initialUiState) }
-    }
-
-    val isConfirmEnabled by remember(state, hasUnsavedChanges, args.initialSingleProjectState.index) {
-        derivedStateOf {
-            isSingleProjectConfirmEnabled(
-                state = state,
-                hasUnsavedChanges = hasUnsavedChanges,
-                isAddMode = args.initialSingleProjectState.index == -1
-            )
-        }
-    }
+    val derived = rememberSingleProjectDerivedState(
+        state = state,
+        initialUiState = initialUiState,
+        projectsUiState = projectsUiState,
+        currentIndex = args.initialSingleProjectState.index
+    )
 
     SingleProjectScreenContent(
         params = SingleProjectScreenContentParams(
@@ -138,8 +130,9 @@ private fun SingleProjectScreenStateful(
             state = state,
             isAddMode = args.initialSingleProjectState.index == -1,
             projectsUiState = projectsUiState,
-            isConfirmEnabled = isConfirmEnabled,
-            hasUnsavedChanges = hasUnsavedChanges,
+            isConfirmEnabled = derived.isConfirmEnabled,
+            hasUnsavedChanges = derived.hasUnsavedChanges,
+            isDuplicateProjectName = derived.isDuplicate,
             onStateChange = { state = it },
             onNavigateBack = config.onNavigateBack,
             onOpenProjectDetails = {
@@ -173,18 +166,45 @@ data class SingleProjectNavigationActions(
     val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit
 )
 
-internal fun isSingleProjectConfirmEnabled(
+internal data class SingleProjectDerivedState(
+    val hasUnsavedChanges: Boolean,
+    val isDuplicate: Boolean,
+    val isConfirmEnabled: Boolean
+)
+
+@Composable
+private fun rememberSingleProjectDerivedState(
     state: SingleProjectState,
-    hasUnsavedChanges: Boolean,
-    isAddMode: Boolean
-): Boolean {
-    val hasProjectNameAndTime = state.projectName.isNotBlank() && state.projectTime.isNotBlank()
-    val hasRequiredFields = hasProjectNameAndTime &&
-        (state.kilometres.isBlank() || state.kilometres.all(Char::isDigit))
-    return isActionEnabled(
-        hasRequiredFields = hasRequiredFields,
+    initialUiState: SingleProjectState,
+    projectsUiState: WorkdayUiState,
+    currentIndex: Int
+): SingleProjectDerivedState {
+    val hasUnsavedChanges by remember(state, initialUiState) {
+        derivedStateOf { hasChanges(current = state, baseline = initialUiState) }
+    }
+    val isDuplicate by remember(state.projectName, projectsUiState, currentIndex) {
+        derivedStateOf {
+            isDuplicateProjectName(
+                projectName = state.projectName,
+                currentIndex = currentIndex,
+                projects = (projectsUiState as? WorkdayUiState.Success)?.projects ?: emptyList()
+            )
+        }
+    }
+    val isConfirmEnabled by remember(state, hasUnsavedChanges, isDuplicate, currentIndex) {
+        derivedStateOf {
+            isSingleProjectConfirmEnabled(
+                state = state,
+                hasUnsavedChanges = hasUnsavedChanges,
+                isDuplicateProjectName = isDuplicate,
+                isAddMode = currentIndex == -1
+            )
+        }
+    }
+    return SingleProjectDerivedState(
         hasUnsavedChanges = hasUnsavedChanges,
-        allowWithoutChanges = isAddMode || hasProjectNameAndTime
+        isDuplicate = isDuplicate,
+        isConfirmEnabled = isConfirmEnabled
     )
 }
 
@@ -338,7 +358,8 @@ private fun SingleProjectSuccessContent(
             state = params.state,
             isAddMode = params.isAddMode,
             uiState = uiState,
-            isConfirmEnabled = params.isConfirmEnabled
+            isConfirmEnabled = params.isConfirmEnabled,
+            isDuplicateProjectName = params.isDuplicateProjectName
         ),
         actions = actions
     )
@@ -350,7 +371,8 @@ data class SingleProjectScreenState(
     val state: SingleProjectState,
     val isAddMode: Boolean,
     val uiState: WorkdayUiState,
-    val isConfirmEnabled: Boolean
+    val isConfirmEnabled: Boolean,
+    val isDuplicateProjectName: Boolean
 )
 
 data class SingleProjectActions(
@@ -435,6 +457,7 @@ private fun SingleProjectFormFields(
         DialogMainFields(
             state = screenState.state,
             isAddMode = screenState.isAddMode,
+            isDuplicateProjectName = screenState.isDuplicateProjectName,
             onStateChange = actions.onStateChange
         )
 
@@ -472,6 +495,7 @@ data class SingleProjectScreenContentParams(
     val projectsUiState: WorkdayUiState,
     val isConfirmEnabled: Boolean,
     val hasUnsavedChanges: Boolean,
+    val isDuplicateProjectName: Boolean,
     val onStateChange: (SingleProjectState) -> Unit,
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: () -> Unit,

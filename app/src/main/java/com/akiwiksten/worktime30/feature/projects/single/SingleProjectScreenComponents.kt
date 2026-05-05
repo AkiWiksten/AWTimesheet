@@ -133,6 +133,7 @@ fun ProjectTimePickerDialog(
 internal fun DialogMainFields(
     state: SingleProjectState,
     isAddMode: Boolean,
+    isDuplicateProjectName: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
@@ -151,6 +152,12 @@ internal fun DialogMainFields(
             modifier = Modifier.fillMaxWidth(),
             enabled = isAddMode,
             singleLine = true,
+            isError = isDuplicateProjectName,
+            supportingText = if (isDuplicateProjectName) {
+                { Text(text = stringResource(id = R.string.project_name_duplicate_error)) }
+            } else {
+                null
+            },
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
         )
 

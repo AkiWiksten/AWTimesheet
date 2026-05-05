@@ -17,6 +17,7 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = editedState,
             hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
             isAddMode = true
         )
 
@@ -25,11 +26,17 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withProjectNameAndTime_withoutChanges_enablesConfirm() {
-        val initialState = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "01:00", kilometres = "12")
+        val initialState = SingleProjectState(
+            index = 0,
+            projectName = "Alpha",
+            projectTime = "01:00",
+            kilometres = "12"
+        )
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = initialState,
             hasUnsavedChanges = false,
+            isDuplicateProjectName = false,
             isAddMode = false
         )
 
@@ -44,10 +51,50 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = editedState,
             hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
             isAddMode = false
         )
 
         assertEquals(true, isEnabled)
+    }
+
+    @Test
+    fun addMode_withDuplicateProjectName_disablesConfirm() {
+        val state = SingleProjectState(index = -1, projectName = "Alpha", projectTime = "01:00")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = state,
+            hasUnsavedChanges = true,
+            isDuplicateProjectName = true,
+            isAddMode = true
+        )
+
+        assertEquals(false, isEnabled)
+    }
+
+    @Test
+    fun isDuplicate_matchesCaseInsensitive() {
+        val projects = listOf(
+            SingleProjectState(index = 0, projectName = "Alpha"),
+            SingleProjectState(index = 1, projectName = "Beta")
+        )
+
+        assertEquals(true, isDuplicateProjectName("alpha", currentIndex = -1, projects = projects))
+        assertEquals(true, isDuplicateProjectName("BETA", currentIndex = -1, projects = projects))
+        assertEquals(false, isDuplicateProjectName("Gamma", currentIndex = -1, projects = projects))
+    }
+
+    @Test
+    fun isDuplicate_editMode_ignoresOwnIndex() {
+        val projects = listOf(
+            SingleProjectState(index = 0, projectName = "Alpha"),
+            SingleProjectState(index = 1, projectName = "Beta")
+        )
+
+        // Editing index 0 with its own name → not a duplicate
+        assertEquals(false, isDuplicateProjectName("Alpha", currentIndex = 0, projects = projects))
+        // Editing index 0 but using index 1's name → duplicate
+        assertEquals(true, isDuplicateProjectName("Beta", currentIndex = 0, projects = projects))
     }
 
     @Test

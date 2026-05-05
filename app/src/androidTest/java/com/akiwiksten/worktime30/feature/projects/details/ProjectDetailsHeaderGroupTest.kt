@@ -19,14 +19,14 @@ class ProjectDetailsHeaderGroupTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun helperText_isShown_whenNewDayForProjectIsTrue() {
+    fun helperText_showsAddNewProjectDetails_whenRequested() {
         val helperText = composeRule.activity.getString(R.string.add_new_project_details)
 
         composeRule.setContent {
             ProjectDetailsHeaderGroup(
                 date = "2026-05-05",
                 projectName = "Alpha",
-                isNewDayForProject = true,
+                helperTextResId = R.string.add_new_project_details,
                 onClearDetails = {}
             )
         }
@@ -35,18 +35,36 @@ class ProjectDetailsHeaderGroupTest {
     }
 
     @Test
-    fun helperText_isHidden_whenNewDayForProjectIsFalse() {
-        val helperText = composeRule.activity.getString(R.string.add_new_project_details)
+    fun helperText_showsSelectEndTime_whenRequested() {
+        val helperText = composeRule.activity.getString(R.string.select_end_time)
 
         composeRule.setContent {
             ProjectDetailsHeaderGroup(
                 date = "2026-05-05",
                 projectName = "Alpha",
-                isNewDayForProject = false,
+                helperTextResId = R.string.select_end_time,
                 onClearDetails = {}
             )
         }
 
-        composeRule.onAllNodesWithText(helperText).assertCountEquals(0)
+        composeRule.onNodeWithText(helperText).assertIsDisplayed()
+    }
+
+    @Test
+    fun helperText_isHidden_whenNotRequested() {
+        val addNewProjectText = composeRule.activity.getString(R.string.add_new_project_details)
+        val selectEndTimeText = composeRule.activity.getString(R.string.select_end_time)
+
+        composeRule.setContent {
+            ProjectDetailsHeaderGroup(
+                date = "2026-05-05",
+                projectName = "Alpha",
+                helperTextResId = null,
+                onClearDetails = {}
+            )
+        }
+
+        composeRule.onAllNodesWithText(addNewProjectText).assertCountEquals(0)
+        composeRule.onAllNodesWithText(selectEndTimeText).assertCountEquals(0)
     }
 }

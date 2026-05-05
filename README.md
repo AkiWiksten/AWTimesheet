@@ -60,7 +60,8 @@ This is called feature-based packaging.
   + FormChangeRules outside ui package
   + Check test coverage and add tests
   + Warnings on build
-  + ZERO_TIME -> LocalTime.MIDNIGHT
+  + LocalTime.MIDNIGHT -> LocalTime.MIDNIGHT
+  + isNewDay -> isNewDayOrProject
 + Constants
   + Regroup
 + SingleProjectScreen

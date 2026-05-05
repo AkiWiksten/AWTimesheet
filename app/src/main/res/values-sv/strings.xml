@@ -8,6 +8,7 @@
     <string name="selected_work_week">Vald arbetsvecka</string>
     <string name="selected_work_month">Vald arbetsmånad</string>
     <string name="end_time">Sluttid</string>
+    <string name="estimated_end_time">BERÄKNAD sluttid</string>
     <string name="save">Spara</string>
     <string name="daily_work_time">Beräknad daglig arbetstid</string>
     <string name="lunch_start">Lunchstart</string>
@@ -36,7 +37,7 @@
     <string name="delete">Ta bort</string>
     <string name="saved">Sparat!</string>
     <string name="clear_details">Rensa detaljer</string>
-    <string name="add_new_project_details">Dagens nya projekt! Ange först starttiden för dagens projekt! Då öppnas andra alternativ. Du kan först också ange uppskattad lunchtid. När du avslutar arbetsdagen väljer du "Sluttid". Då beräknas "Projekttid".</string>
+    <string name="add_new_project_details">Dagens nya projekt! Jag rekommenderar att ange först starttiden för projekten! Då öppnas andra alternativ.</string>
     <string name="calendar">Kalender</string>
     <string name="monthly_report">Månadsrapport</string>
     <string name="name">Namn</string>
@@ -81,4 +82,6 @@
     <string name="global_defaults">Globala standardvärden</string>
     <string name="default_work_type_cannot_be_deleted">Standardarbetstypen kan inte tas bort.</string>
     <string name="project_name_duplicate_error">Namnet används redan idag</string>
+    <string name="select_end_time">När du avslutar arbetsdagen väljer du sluttid. Då beräknas projekttid för dagen.</string>
+    <string name="done_project">Nu är du redo med detta projekt för dagen.</string>
 </resources>

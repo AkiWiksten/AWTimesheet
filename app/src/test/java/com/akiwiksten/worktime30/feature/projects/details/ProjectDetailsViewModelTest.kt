@@ -220,6 +220,41 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals("00:15", state.details.lunchTimeEstimate)
     }
 
+    @Test
+    fun setProjectTime_whenOnlyProjectTime_usesSameDerivedFieldsAsOpenNormalization() = runTest {
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeSettingsRepository(),
+            DateRepository()
+        )
+
+        viewModel.setDate("2026-04-10")
+        viewModel.setProjectName("Alpha")
+        viewModel.loadProjectDetails(
+            projectDetailsArg = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha"
+            ),
+            settingsArg = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "02:00"
+            )
+        )
+        advanceUntilIdle()
+
+        viewModel.setProjectTime("02:00")
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertEquals("02:00", state.details.projectTime)
+        Assert.assertEquals("02:30", state.details.endTime)
+        Assert.assertEquals(ZERO_TIME, state.details.startTime)
+        Assert.assertEquals(ZERO_TIME, state.details.lunchStart)
+        Assert.assertEquals(ZERO_TIME, state.details.lunchEnd)
+        Assert.assertEquals(ZERO_TIME, state.details.breakStart)
+        Assert.assertEquals(ZERO_TIME, state.details.breakEnd)
+    }
+
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var projectDetails: ProjectDetailsState? = null
         var projectDetailsByDateRangeResult: List<ProjectDetailsState> = emptyList()

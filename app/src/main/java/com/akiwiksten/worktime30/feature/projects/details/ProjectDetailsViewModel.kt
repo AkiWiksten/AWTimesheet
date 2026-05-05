@@ -484,6 +484,14 @@ class ProjectDetailsViewModel @Inject constructor(
     val setProjectTime: (String) -> Unit = { projectTime ->
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
+            val nextDetails = successState.details.copy(projectTime = projectTime)
+
+            if (nextDetails.hasOnlyProjectTime()) {
+                return@update successState.copy(
+                    details = normalizeProjectDetails(nextDetails, successState.settings) ?: nextDetails
+                )
+            }
+
             val oldProjectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime)
             val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
@@ -495,10 +503,7 @@ class ProjectDetailsViewModel @Inject constructor(
             )
             applyUpdateToState(
                 successState.copy(
-                    details = successState.details
-                        .copy(
-                            projectTime = projectTime
-                        )
+                    details = nextDetails
                 ),
                 update
             )

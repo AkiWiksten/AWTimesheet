@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.feature.projects.details.components.HeaderSection
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectNameField
@@ -57,7 +56,7 @@ internal fun ProjectDetailsErrorState(padding: PaddingValues, errorMessage: Stri
 internal fun ProjectDetailsHeaderGroup(
     date: String,
     projectName: String?,
-    isNewDayForProject: Boolean,
+    helperTextResId: Int?,
     onClearDetails: () -> Unit
 ) {
     ElevatedCard(
@@ -71,9 +70,9 @@ internal fun ProjectDetailsHeaderGroup(
             HeaderSection(date = date, onClearDetails = onClearDetails)
             ProjectNameField(name = projectName.orEmpty())
 
-            if (isNewDayForProject) {
+            helperTextResId?.let { textResId ->
                 Text(
-                    text = stringResource(id = R.string.add_new_project_details),
+                    text = stringResource(id = textResId),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 8.dp)

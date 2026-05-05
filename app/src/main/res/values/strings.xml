@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 <string name="app_name">AWTimesheet</string>
 <string name="selected_date">Selected date</string>
 <string name="select_date">Select date</string>
@@ -7,12 +7,13 @@
 <string name="selected_work_week">Selected work week</string>
 <string name="selected_work_month">Selected work month</string>
 <string name="end_time">End time</string>
+<string name="estimated_end_time">ESTIMATED end time</string>
 <string name="save">Save</string>
 <string name="daily_work_time">Daily work time estimate</string>
 <string name="lunch_start">Lunch start</string>
 <string name="lunch_end">Lunch end</string>
 <string name="lunch_time">Lunch time estimate</string>
-<string name="daily_lunch_time_estimate">Daily lunch time estimate</string>
+<string name="daily_lunch_time_estimate">Daily lunchtime estimate</string>
 <string name="break_start">Break start</string>
 <string name="break_end">Break end</string>
 <string name="work_time_by_date">Work time by date</string>
@@ -35,7 +36,7 @@
 <string name="delete">Delete</string>
 <string name="saved">Saved!</string>
 <string name="clear_details">Clear details</string>
-<string name="add_new_project_details">New project of the day! Set the start of today\'s project first! That opens other options. You can first set the estimated lunchtime also. When you end your work day, select \"End time\". That calculates \"Project time\".</string>
+<string name="add_new_project_details">New project of the day! I recommend setting the start of the project first! That opens other options.</string>
 <string name="calendar">Calendar</string>
 <string name="monthly_report">Monthly report</string>
 <string name="name">Name</string>
@@ -80,4 +81,6 @@
     <string name="global_defaults">Global defaults</string>
     <string name="default_work_type_cannot_be_deleted">Default work type cannot be deleted.</string>
     <string name="project_name_duplicate_error">Name already used today</string>
+    <string name="select_end_time">When you want to end your workday, select the end time. That calculates the project time for today.</string>
+    <string name="done_project">Now you are done with this project for today.</string>
 </resources>

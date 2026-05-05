@@ -24,17 +24,6 @@ class SaveWorkdayUseCase @Inject constructor(
         projectsToSave.forEach { project ->
             projectRepository.insertProjectName(project.projectName)
             projectRepository.insertProject(project)
-            if (projectDetailsToSave == null) {
-                projectDetailsRepository
-                    .insertProjectDetails(
-                        ProjectDetailsState()
-                            .copy(
-                                date = project.date,
-                                projectName = project.projectName,
-                                projectTime = project.projectTime
-                            )
-                    )
-            }
         }
 
         projectDetailsToSave?.let {

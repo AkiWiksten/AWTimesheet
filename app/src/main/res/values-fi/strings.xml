@@ -8,6 +8,7 @@
     <string name="selected_work_week">Valittu työviikko</string>
     <string name="selected_work_month">Valittu työkuukausi</string>
     <string name="end_time">Loppuaika</string>
+    <string name="estimated_end_time">ARVIOITU loppuaika</string>
     <string name="save">Tallenna</string>
     <string name="daily_work_time">Päivittäisen työn pituus</string>
     <string name="lunch_end">Lounaan loppu</string>
@@ -36,7 +37,7 @@
     <string name="delete">Poista</string>
     <string name="saved">Tallennettu!</string>
     <string name="clear_details">Tyhjennä tiedot</string>
-    <string name="add_new_project_details">Päivän uusi projekti! Aseta ensin tämän päivän projektin aloitusaika! Se avaa muita vaihtoehtoja. Voit ensin myös asettaa lounaan arvioidun keston. Kun lopetat työpäivän, valitse \"Loppuaika\". Se laskee \"Projektin aika\" -arvon.</string>
+    <string name="add_new_project_details">Päivän uusi projekti! Suosittelen että asetat ensin projektin aloitusajan! Se avaa muita vaihtoehtoja.</string>
     <string name="calendar">Kalenteri</string>
     <string name="monthly_report">Kuukausiraportti</string>
     <string name="name">Nimi</string>
@@ -81,4 +82,6 @@
     <string name="global_defaults">Globaalit oletukset</string>
     <string name="default_work_type_cannot_be_deleted">Oletustyöntyyppiä ei voi poistaa.</string>
     <string name="project_name_duplicate_error">Nimi on jo käytössä tänään</string>
+    <string name="select_end_time">Kun haluat lopettaa työpäivän, valitse projektin loppuaika. Se laskee projektin ajan päivälle.</string>
+    <string name="done_project">Tämä projekti on valmis tältä päivältä</string>
 </resources>

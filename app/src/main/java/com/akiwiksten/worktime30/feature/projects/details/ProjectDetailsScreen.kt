@@ -147,13 +147,18 @@ internal fun ProjectDetailsContent(
     isConfirmEnabled: Boolean
 ) {
     val scrollState = rememberScrollState()
+    val helperTextResId = when {
+        uiState.details.isNewDayForProject() -> R.string.add_new_project_details
+        uiState.details.startTime != ZERO_TIME && uiState.details.projectTime == ZERO_TIME -> R.string.select_end_time
+        else -> R.string.done_project
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
-            .padding(16.dp, 16.dp, 16.dp, 0.dp)
             .verticalScrollbar(scrollState = scrollState)
+            .padding(16.dp, 16.dp, 16.dp, 0.dp)
             .verticalScroll(state = scrollState),
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -161,7 +166,7 @@ internal fun ProjectDetailsContent(
         ProjectDetailsHeaderGroup(
             date = uiState.details.date,
             projectName = uiState.details.projectName,
-            isNewDayForProject = uiState.details.isNewDayForProject(),
+            helperTextResId = helperTextResId,
             onClearDetails = actions.onClearDetails
         )
 

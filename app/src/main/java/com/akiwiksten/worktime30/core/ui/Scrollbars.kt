@@ -73,7 +73,7 @@ private fun Modifier.drawScrollbar(
         val thumbSize = max(minThumbSizePx, rawThumb).coerceAtMost(trackSize)
         val scrollFraction = (progress.offset / progress.range).coerceIn(0f, 1f)
         val top = paddingPx + (trackSize - thumbSize) * scrollFraction
-        val left = size.width - thicknessPx - paddingPx
+        val left = size.width - thicknessPx
 
         drawRoundRect(
             color = color,

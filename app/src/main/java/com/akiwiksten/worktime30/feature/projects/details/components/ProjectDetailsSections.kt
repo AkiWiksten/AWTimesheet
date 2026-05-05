@@ -27,6 +27,7 @@ import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
 
 @Composable
@@ -133,6 +134,12 @@ fun ExistingDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDe
 
 @Composable
 private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+    val endTimeLabelId = if (uiState.details.projectTime == ZERO_TIME) {
+        R.string.estimated_end_time
+    } else {
+        R.string.end_time
+    }
+
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier.fillMaxWidth()
@@ -150,7 +157,7 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
             )
             AddTimeRow(
                 textFieldValue = uiState.details.endTime,
-                stringId = R.string.end_time,
+                stringId = endTimeLabelId,
                 currentTime = actions.onCurrentEndTime,
                 onConfirmation = actions.onSetEndTime
             )

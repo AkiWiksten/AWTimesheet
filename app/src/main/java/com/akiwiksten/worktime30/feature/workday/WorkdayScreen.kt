@@ -1,6 +1,5 @@
 package com.akiwiksten.worktime30.feature.workday
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
+import com.akiwiksten.worktime30.core.ui.sharedActivityViewModel
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayLoadingContent
@@ -28,9 +26,7 @@ import com.akiwiksten.worktime30.feature.workday.components.WorkdaySuccessConten
 @Composable
 fun WorkdayScreen(
     onNavigateToSingleProject: (Int) -> Unit,
-    workdayViewModel: WorkdayViewModel = hiltViewModel(
-        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
-    ),
+    workdayViewModel: WorkdayViewModel = sharedActivityViewModel(),
 ) {
     LaunchedEffect(Unit) {
         workdayViewModel.retryLoad()

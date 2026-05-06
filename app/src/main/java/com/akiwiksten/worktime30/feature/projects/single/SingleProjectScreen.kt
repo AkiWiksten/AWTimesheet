@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
 import android.widget.Toast
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,11 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
@@ -50,22 +47,19 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
 import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
-import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
     args: SingleProjectScreenArgs,
     navigationActions: SingleProjectNavigationActions,
-    viewModel: WorkdayViewModel = hiltViewModel(
-        viewModelStoreOwner = LocalActivity.current as ViewModelStoreOwner
-    )
+    projectsUiState: WorkdayUiState,
+    onSave: (state: SingleProjectState, projectDetails: ProjectDetailsState?, settings: SettingsState?) -> Unit
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
-    val projectsUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     SingleProjectScreenStateful(
         args = args,
@@ -76,7 +70,7 @@ fun SingleProjectScreen(
             onNavigateBack = navigationActions.onNavigateBack,
             onOpenProjectDetails = navigationActions.onOpenProjectDetails,
             onSave = { state ->
-                viewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
+                onSave(state, args.initialProjectDetails, args.initialSettings)
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
         )

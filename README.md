@@ -6,7 +6,7 @@
 ## Features
 + **Intro** for a fancy introduction animation
 + **Calendar** to select a date to manage
-+ **Projects** to manage projects for selected date
++ **Workday** to manage projects for selected date
   + **Single project** to manage a single project
     + **Project Details** to feed and calculate start, end, work time, FlexTime, breaks and lunch.
 + **Settings** to manage settings, like name, employer work type choices (Coding, Installation, Design etc.)

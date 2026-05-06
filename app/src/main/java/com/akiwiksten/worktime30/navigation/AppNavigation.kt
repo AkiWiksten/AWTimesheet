@@ -23,7 +23,7 @@ import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectNavigationActions
-import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectRoute
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenArgs
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
@@ -114,7 +114,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
     )
-    SingleProjectScreen(
+    SingleProjectRoute(
         args = SingleProjectScreenArgs(
             initialSingleProjectState = initialSingleProjectState,
             initialProjectDetails = screen.projectDetails,
@@ -140,7 +140,8 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                     )
                 )
             }
-        )
+        ),
+        onSavedAndNavigateBack = { backStack.pop() }
     )
 }
 

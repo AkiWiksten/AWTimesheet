@@ -6,10 +6,11 @@ import com.akiwiksten.worktime30.domain.model.SingleProjectState
 internal fun isDuplicateProjectName(
     projectName: String,
     currentIndex: Int,
-    projects: List<SingleProjectState>
+    singleProjectState: SingleProjectState?,
 ): Boolean {
     if (projectName.isBlank()) return false
-    return projects.any { it.index != currentIndex && it.projectName.equals(projectName, ignoreCase = true) }
+    return singleProjectState?.index != currentIndex &&
+            singleProjectState?.projectName.equals(projectName, ignoreCase = true)
 }
 
 internal fun isSingleProjectConfirmEnabled(

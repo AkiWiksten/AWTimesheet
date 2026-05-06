@@ -15,17 +15,17 @@ private const val PREVIEW_DATE = "2026-04-10"
 fun PreviewSingleProjectLoading() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
-            date = PREVIEW_DATE,
             state = SingleProjectState(),
             isAddMode = true,
-            projectsUiState = WorkdayUiState.Loading,
             isConfirmEnabled = false,
             hasUnsavedChanges = false,
             isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
-            onConfirm = {}
+            onConfirm = {},
+            index = 0,
+            singleProjectUiState = SingleProjectUiState.Loading
         )
     )
 }
@@ -36,7 +36,6 @@ fun PreviewSingleProjectLoading() {
 fun PreviewSingleProjectSuccessAdd() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
-            date = PREVIEW_DATE,
             state = SingleProjectState(
                 projectTime = "00:00",
                 kilometres = "",
@@ -44,18 +43,24 @@ fun PreviewSingleProjectSuccessAdd() {
                 workType = "Installation",
             ),
             isAddMode = true,
-            projectsUiState = WorkdayUiState.Success(
-                date = PREVIEW_DATE,
-                workTimeByDate = "07:45",
-                workTypes = listOf("Installation", "Maintenance", "Meeting")
-            ),
             isConfirmEnabled = false,
             hasUnsavedChanges = false,
             isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
-            onConfirm = {}
+            onConfirm = {},
+            index = 0,
+            singleProjectUiState = SingleProjectUiState.Success(
+                data = SingleProjectState(
+                    date = PREVIEW_DATE,
+                    projectTime = "00:00",
+                    kilometres = "",
+                    allowance = "No allowance",
+                    workType = "Installation",
+                ),
+                workTimeByDate = "07:45",
+            )
         )
     )
 }
@@ -66,7 +71,6 @@ fun PreviewSingleProjectSuccessAdd() {
 fun PreviewSingleProjectSuccessEdit() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
-            date = PREVIEW_DATE,
             state = SingleProjectState(
                 index = 0,
                 projectName = "Beta Support",
@@ -76,18 +80,24 @@ fun PreviewSingleProjectSuccessEdit() {
                 workType = "Maintenance",
             ),
             isAddMode = false,
-            projectsUiState = WorkdayUiState.Success(
-                date = PREVIEW_DATE,
-                workTimeByDate = "07:45",
-                workTypes = listOf("Installation", "Maintenance", "Meeting")
-            ),
             isConfirmEnabled = true,
             hasUnsavedChanges = true,
             isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
-            onConfirm = {}
+            onConfirm = {},
+            index = -1,
+            singleProjectUiState = SingleProjectUiState.Success(
+                data = SingleProjectState(
+                    date = PREVIEW_DATE,
+                    projectTime = "00:00",
+                    kilometres = "",
+                    allowance = "No allowance",
+                    workType = "Installation",
+                ),
+                workTimeByDate = "07:45",
+            )
         )
     )
 }
@@ -98,24 +108,30 @@ fun PreviewSingleProjectSuccessEdit() {
 fun PreviewSingleProjectDuplicateName() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
-            date = PREVIEW_DATE,
             state = SingleProjectState(
                 index = -1,
                 projectName = "Alpha Site",
                 projectTime = "01:00",
             ),
             isAddMode = true,
-            projectsUiState = WorkdayUiState.Success(
-                date = PREVIEW_DATE,
-                workTimeByDate = "07:45",
-            ),
             isConfirmEnabled = false,
             hasUnsavedChanges = true,
             isDuplicateProjectName = true,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
-            onConfirm = {}
+            onConfirm = {},
+            index = 0,
+            singleProjectUiState = SingleProjectUiState.Success(
+                data = SingleProjectState(
+                    date = PREVIEW_DATE,
+                    projectTime = "00:00",
+                    kilometres = "",
+                    allowance = "No allowance",
+                    workType = "Installation",
+                ),
+                workTimeByDate = "07:45",
+            )
         )
     )
 }
@@ -126,17 +142,15 @@ fun PreviewSingleProjectDuplicateName() {
 fun PreviewSingleProjectError() {
     SingleProjectPreviewContent(
         params = SingleProjectScreenContentParams(
-            date = PREVIEW_DATE,
             state = SingleProjectState(),
-            isAddMode = true,
-            projectsUiState = WorkdayUiState.Error(message = "Failed to load project"),
-            isConfirmEnabled = false,
+            isAddMode = true,isConfirmEnabled = false,
             hasUnsavedChanges = false,
             isDuplicateProjectName = false,
             onStateChange = {},
             onNavigateBack = {},
             onOpenProjectDetails = {},
-            onConfirm = {}
+            onConfirm = {},
+            singleProjectUiState = SingleProjectUiState.Error(message = "Failed to load project")
         )
     )
 }

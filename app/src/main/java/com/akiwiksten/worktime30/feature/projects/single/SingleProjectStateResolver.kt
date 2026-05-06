@@ -18,7 +18,8 @@ internal fun resolveInitialSingleProjectState(
     initialSingleProjectState: SingleProjectState,
     initialProjectDetails: ProjectDetailsState?,
     initialSettings: SettingsState?,
-    projectsUiState: WorkdayUiState
+    //projectsUiState: WorkdayUiState
+    singleProjectUiState: SingleProjectUiState
 ): SingleProjectState {
     val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
         initialSingleProjectState.projectTime != ZERO_TIME ||
@@ -27,9 +28,7 @@ internal fun resolveInitialSingleProjectState(
 
     return when {
         initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState
-        else -> (projectsUiState as? WorkdayUiState.Success)
-            ?.projects
-            ?.find { it.index == initialSingleProjectState.index }
-            ?: initialSingleProjectState
+        else -> (singleProjectUiState as? SingleProjectUiState.Success)
+            ?.data!!
     }
 }

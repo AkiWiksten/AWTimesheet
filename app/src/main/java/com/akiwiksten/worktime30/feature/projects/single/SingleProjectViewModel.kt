@@ -33,6 +33,7 @@ sealed class SingleProjectUiState {
     object Loading : SingleProjectUiState()
 
     data class Success(
+        val workTimeByDate: String = ZERO_TIME,
         val data: SingleProjectState
     ) : SingleProjectUiState()
 
@@ -48,41 +49,37 @@ class SingleProjectViewModel @Inject constructor(
 ) : ViewModel() {
     private val selectedProjectName = MutableStateFlow("")
     private val selectedDate = MutableStateFlow("")
+    private val workTimeByDate = MutableStateFlow("")
     private val _uiState = MutableStateFlow<SingleProjectUiState>(SingleProjectUiState.Loading)
     val uiState: StateFlow<SingleProjectUiState> = _uiState.asStateFlow()
 
-    fun setDate(date: String) {
-        selectedDate.value = date
-        _uiState.update { currentState ->
-            when (currentState) {
-                is SingleProjectUiState.Success -> {
-                    currentState.copy(
-                        data = currentState.data.copy(date = date)
-                    )
-                }
+    init {
 
-                else -> {
-                    SingleProjectUiState.Success(
-                        SingleProjectState(date = date)
-                    )
-                }
-            }
-        }
     }
-
-    fun setProjectName(projectName: String) {
+    fun setInitialValues(date: String, projectName: String, workTimeByDate: String) {
+        selectedDate.value = date
         selectedProjectName.value = projectName
+        this.workTimeByDate.value = workTimeByDate
+        _uiState.value = getBaseState(date, projectName)
         _uiState.update { currentState ->
             when (currentState) {
                 is SingleProjectUiState.Success -> {
                     currentState.copy(
-                        data = currentState.data.copy(projectName = projectName)
+                        data = currentState.data.copy(
+                            date = date,
+                            projectName = projectName,
+                        ),
+                        workTimeByDate = workTimeByDate
                     )
                 }
 
                 else -> {
                     SingleProjectUiState.Success(
-                        SingleProjectState(projectName = projectName)
+                        data = SingleProjectState(
+                            date = date,
+                            projectName = projectName,
+                        ),
+                        workTimeByDate = workTimeByDate
                     )
                 }
             }
@@ -109,13 +106,14 @@ class SingleProjectViewModel @Inject constructor(
                             allowance = project?.allowance ?: "",
                             workType = project?.workType ?: "",
                             date = project?.date ?: ""
-                        )
+                        ),
+                        workTimeByDate = currentState.workTimeByDate
                     )
                 }
 
                 else -> {
                     SingleProjectUiState.Success(
-                        SingleProjectState(
+                        data = SingleProjectState(
                             projectName = project?.projectName ?: "",
                             projectTime = project?.projectTime ?: "",
                             index = project?.index ?: -1,
@@ -123,7 +121,7 @@ class SingleProjectViewModel @Inject constructor(
                             allowance = project?.allowance ?: "",
                             workType = project?.workType ?: "",
                             date = project?.date ?: ""
-                        )
+                        ),
                     )
                 }
             }
@@ -163,4 +161,16 @@ class SingleProjectViewModel @Inject constructor(
             }
         }
     }
+
+    private fun getBaseState(date: String, projectName: String): SingleProjectUiState.Success {
+        val currentSuccess = _uiState.value as? SingleProjectUiState.Success
+        return SingleProjectUiState.Success(
+            workTimeByDate = currentSuccess?.workTimeByDate ?: ZERO_TIME,
+            data = (currentSuccess?.data ?: SingleProjectState()).copy(
+                date = date,
+                projectName = projectName
+            )
+        )
+    }
 }
+

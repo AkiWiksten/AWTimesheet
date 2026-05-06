@@ -1,22 +1,42 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.akiwiksten.worktime30.core.ui.sharedActivityViewModel
-import com.akiwiksten.worktime30.feature.workday.WorkdayViewModel
 
 @Composable
 fun SingleProjectRoute(
     args: SingleProjectScreenArgs,
     navigationActions: SingleProjectNavigationActions
 ) {
-    val workdayViewModel: WorkdayViewModel = sharedActivityViewModel()
-    val projectsUiState = workdayViewModel.uiState.collectAsStateWithLifecycle().value
+    val vm: SingleProjectViewModel = hiltViewModel()
+
+    LifecycleResumeEffect(
+        args.initialSingleProjectState.date,
+        args.initialSingleProjectState.projectName,
+        args.initialSingleProjectState.index
+    ) {
+        vm.setInitialValues(
+            date = args.initialSingleProjectState.date,
+            projectName = args.initialSingleProjectState.projectName,
+            workTimeByDate = args.initialSingleProjectState.projectTime // or real day total source
+        )
+        vm.initializeState()
+        onPauseOrDispose {
+            // Optional cleanup
+        }
+    }
+
+    val uiState by vm.uiState.collectAsStateWithLifecycle()
 
     SingleProjectScreen(
         args = args,
         navigationActions = navigationActions,
-        projectsUiState = projectsUiState,
+        uiState = uiState,
+        singleProjectViewModel = vm,
     )
 }
 

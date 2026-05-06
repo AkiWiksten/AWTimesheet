@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.ui.sharedActivityViewModel
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -28,8 +29,9 @@ fun WorkdayScreen(
     onNavigateToSingleProject: (Int) -> Unit,
     workdayViewModel: WorkdayViewModel = sharedActivityViewModel(),
 ) {
-    LaunchedEffect(Unit) {
+    LifecycleResumeEffect(Unit) {
         workdayViewModel.retryLoad()
+        onPauseOrDispose { }
     }
 
     val workdayUiState by workdayViewModel.uiState.collectAsState()

@@ -25,6 +25,10 @@ interface ProjectDao {
     @Suppress("unused")
     suspend fun loadProjectsByDate(date: String): List<ProjectEntity>
 
+    @Query("SELECT * FROM project WHERE $DATE = :date AND $PROJECT_NAME = :projectName")
+    @Suppress("unused")
+    suspend fun loadProject(date: String, projectName: String): ProjectEntity?
+
     @Delete
     suspend fun delete(project: ProjectEntity)
 

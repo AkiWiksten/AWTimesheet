@@ -17,9 +17,6 @@ fun SingleProjectRoute(
         args = args,
         navigationActions = navigationActions,
         projectsUiState = projectsUiState,
-        onSaved = {
-            //workdayViewModel.retryLoad()
-        }
     )
 }
 

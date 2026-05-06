@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,13 +56,19 @@ fun SingleProjectScreen(
     args: SingleProjectScreenArgs,
     navigationActions: SingleProjectNavigationActions,
     projectsUiState: WorkdayUiState,
-    onSaved: () -> Unit = {},
     singleProjectViewModel: SingleProjectViewModel = sharedActivityViewModel()
 ) {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
+    val uiState by singleProjectViewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        singleProjectViewModel.setDate(args.initialSingleProjectState.date)
+        singleProjectViewModel.setProjectName(args.initialSingleProjectState.projectName)
+        singleProjectViewModel.initializeState()
+    }
 
     SingleProjectScreenStateful(
         args = args,
@@ -71,9 +78,9 @@ fun SingleProjectScreen(
             defaultWorkTypeText = defaultWorkTypeText,
             onNavigateBack = navigationActions.onNavigateBack,
             onOpenProjectDetails = navigationActions.onOpenProjectDetails,
+            singleProjectUiState = uiState,
             onSave = { state ->
                 singleProjectViewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
-                onSaved()
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
         )
@@ -127,6 +134,7 @@ private fun SingleProjectScreenStateful(
             state = state,
             isAddMode = args.initialSingleProjectState.index == -1,
             projectsUiState = projectsUiState,
+
             isConfirmEnabled = derived.isConfirmEnabled,
             hasUnsavedChanges = derived.hasUnsavedChanges,
             isDuplicateProjectName = derived.isDuplicate,
@@ -147,6 +155,7 @@ private data class SingleProjectScreenStatefulConfig(
     val projectsUiState: WorkdayUiState,
     val noAllowanceText: String,
     val defaultWorkTypeText: String,
+    val singleProjectUiState: SingleProjectUiState,
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
     val onSave: (SingleProjectState) -> Unit

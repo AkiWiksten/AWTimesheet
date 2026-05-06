@@ -22,6 +22,9 @@ class ProjectRepositoryImpl @Inject constructor(
     override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> =
         projectDao.getProjectsByDateRange(start, end).map { it.toDomain() }
 
+    override suspend fun getProject(date: String, projectName: String): SingleProjectState? =
+        projectDao.loadProject(date, projectName)?.toDomain()
+
     override suspend fun insertProject(project: SingleProjectState) = projectDao.insertProject(project.toEntity())
 
     override suspend fun deleteProject(project: SingleProjectState) = projectDao.delete(project.toEntity())

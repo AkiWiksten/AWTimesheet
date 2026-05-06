@@ -5,14 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
-import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
-import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
-import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsParams
 import com.akiwiksten.worktime30.domain.usecase.UpdateSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,7 +45,6 @@ sealed class WorkdayUiState {
 @HiltViewModel
 class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
-    private val saveWorkdayUseCase: SaveWorkdayUseCase,
     private val deleteProjectUseCase: DeleteProjectUseCase,
     private val updateSettingsUseCase: UpdateSettingsUseCase,
     private val settingsRepository: SettingsRepository,
@@ -104,43 +100,6 @@ class WorkdayViewModel @Inject constructor(
         refreshTrigger.value += 1
     }
 
-    fun saveProject(
-        state: SingleProjectState,
-        projectDetails: ProjectDetailsState? = null,
-        settings: SettingsState? = null
-    ) {
-        viewModelScope.launch {
-            try {
-                val currentState = uiState.value
-                val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
-
-                val projectToSave = state.copy(date = date)
-
-                val projectDetailsToSave = projectDetails?.copy(
-                    date = date,
-                    projectName = state.projectName,
-                    projectTime = state.projectTime
-                ) ?: ProjectDetailsState(
-                    date = date,
-                    projectName = state.projectName,
-                    projectTime = state.projectTime
-                )
-
-                saveWorkdayUseCase(
-                    projectsToSave = listOf(projectToSave),
-                    projectDetailsToSave = projectDetailsToSave
-                )
-
-                settings?.let { settingsRepository.insertSettings(it) }
-
-                requestReload()
-            } catch (e: IllegalArgumentException) {
-                Log.e("WorkdayViewModel", "saveProject: ", e)
-            } catch (e: IllegalStateException) {
-                Log.e("WorkdayViewModel", "saveProject: ", e)
-            }
-        }
-    }
 
     fun deleteProject(state: SingleProjectState) {
         viewModelScope.launch {

@@ -140,8 +140,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                     )
                 )
             }
-        ),
-        onSavedAndNavigateBack = { backStack.pop() }
+        )
     )
 }
 

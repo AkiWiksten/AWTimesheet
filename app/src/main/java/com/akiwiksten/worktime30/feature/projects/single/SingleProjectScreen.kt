@@ -38,6 +38,7 @@ import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
+import com.akiwiksten.worktime30.core.ui.sharedActivityViewModel
 import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
@@ -54,7 +55,8 @@ fun SingleProjectScreen(
     args: SingleProjectScreenArgs,
     navigationActions: SingleProjectNavigationActions,
     projectsUiState: WorkdayUiState,
-    onSave: (state: SingleProjectState, projectDetails: ProjectDetailsState?, settings: SettingsState?) -> Unit
+    onSaved: () -> Unit = {},
+    singleProjectViewModel: SingleProjectViewModel = sharedActivityViewModel()
 ) {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
@@ -70,7 +72,8 @@ fun SingleProjectScreen(
             onNavigateBack = navigationActions.onNavigateBack,
             onOpenProjectDetails = navigationActions.onOpenProjectDetails,
             onSave = { state ->
-                onSave(state, args.initialProjectDetails, args.initialSettings)
+                singleProjectViewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
+                onSaved()
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
         )

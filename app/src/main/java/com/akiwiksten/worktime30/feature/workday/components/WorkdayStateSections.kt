@@ -60,19 +60,19 @@ internal fun ColumnScope.WorkdaySuccessContent(
     selectedItemIndex: Int,
     actions: WorkdayActions
 ) {
-    val saveUi = rememberWorkdaySaveUi(
+    val estimateUiState = rememberWorkdayEstimateUiState(
         initialWorkTimeByDateEstimate = state.workTimeByDateEstimate,
         onSaveSettings = actions.onSaveSettings
     )
 
-    val displayState = rememberWorkdayDisplayState(state = state, saveUi = saveUi)
+    val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
 
     WorkdayHeader(
         date = state.date
     )
     WorkdayStatsCard(
         workTime = state.workTimeByDate,
-        flexTimeByDate = displayState.displayedflexTimeByDate,
+        flexTimeByDate = displayState.displayedFlexTimeByDate,
         calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
         settingsEditorState = displayState.settingsEditorState,
         headerActions = displayState.headerActions
@@ -109,18 +109,18 @@ internal fun ColumnScope.WorkdaySuccessContent(
 @Composable
 private fun rememberWorkdayDisplayState(
     state: WorkdayUiState.Success,
-    saveUi: WorkdaySaveUi
+    estimateUiState: WorkdayEstimateUiState
 ): WorkdayDisplayState {
-    val displayedflexTimeByDate = remember(
+    val displayedFlexTimeByDate = remember(
         state.workTimeByDate,
         state.flexTimeByDate,
-        saveUi.workTimeByDateEstimate,
-        saveUi.isWorkTimeByDateEstimateValid
+        estimateUiState.workTimeByDateEstimate,
+        estimateUiState.isWorkTimeByDateEstimateValid
     ) {
-        if (saveUi.isWorkTimeByDateEstimateValid) {
+        if (estimateUiState.isWorkTimeByDateEstimateValid) {
             WorkTimeCalculator.calculateFlexTime(
                 initialTime = state.workTimeByDate,
-                addedTime = "-${saveUi.workTimeByDateEstimate}"
+                addedTime = "-${estimateUiState.workTimeByDateEstimate}"
             )
         } else {
             state.flexTimeByDate
@@ -131,25 +131,25 @@ private fun rememberWorkdayDisplayState(
         state.initialFlexTimeTotal,
         state.calculatedFlexTimeTotal,
         state.flexTimeByDate,
-        displayedflexTimeByDate
+        displayedFlexTimeByDate
     ) {
         calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
             persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-            persistedflexTimeByDate = state.flexTimeByDate,
-            editedflexTimeByDate = displayedflexTimeByDate
+            persistedFlexTimeByDate = state.flexTimeByDate,
+            editedFlexTimeByDate = displayedFlexTimeByDate
         )
     }
 
     return WorkdayDisplayState(
-        displayedflexTimeByDate = displayedflexTimeByDate,
+        displayedFlexTimeByDate = displayedFlexTimeByDate,
         displayedCalculatedFlexTimeTotal = displayedCalculatedFlexTimeTotal,
         settingsEditorState = SettingsEditorState(
-            workTimeByDateEstimate = saveUi.workTimeByDateEstimate,
-            isWorkTimeByDateEstimateError = !saveUi.isWorkTimeByDateEstimateValid
+            workTimeByDateEstimate = estimateUiState.workTimeByDateEstimate,
+            isWorkTimeByDateEstimateError = !estimateUiState.isWorkTimeByDateEstimateValid
         ),
         headerActions = WorkdayHeaderActions(
-            onWorkTimeByDateEstimateChange = saveUi.onWorkTimeByDateEstimateChange
+            onWorkTimeByDateEstimateChange = estimateUiState.onWorkTimeByDateEstimateChange
         )
     )
 }
@@ -157,8 +157,8 @@ private fun rememberWorkdayDisplayState(
 internal fun calculateDisplayedCalculatedFlexTimeTotal(
     persistedInitialFlexTimeTotal: String,
     persistedCalculatedFlexTimeTotal: String,
-    persistedflexTimeByDate: String,
-    editedflexTimeByDate: String
+    persistedFlexTimeByDate: String,
+    editedFlexTimeByDate: String
 ): String {
     val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
         initialTime = persistedCalculatedFlexTimeTotal,
@@ -166,8 +166,8 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
     )
 
     val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
-        initialTime = editedflexTimeByDate,
-        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedflexTimeByDate")
+        initialTime = editedFlexTimeByDate,
+        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedFlexTimeByDate")
     )
 
     val recalculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
@@ -183,10 +183,10 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
 
 @Suppress("kotlin:S6615", "UNUSED_VALUE")
 @Composable
-private fun rememberWorkdaySaveUi(
+private fun rememberWorkdayEstimateUiState(
     initialWorkTimeByDateEstimate: String,
     onSaveSettings: (String, Boolean) -> Unit
-): WorkdaySaveUi {
+): WorkdayEstimateUiState {
     val context = LocalContext.current
     val globalSavedText = stringResource(id = R.string.saved_globally)
     val todaySavedText = stringResource(id = R.string.saved_today)
@@ -216,7 +216,7 @@ private fun rememberWorkdaySaveUi(
         )
     }
 
-    return WorkdaySaveUi(
+    return WorkdayEstimateUiState(
         workTimeByDateEstimate = editedWorkTimeByDateEstimate,
         isWorkTimeByDateEstimateValid = isWorkTimeByDateEstimateValid,
         onWorkTimeByDateEstimateChange = { value ->
@@ -277,14 +277,14 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
     }
 }
 
-private data class WorkdaySaveUi(
+private data class WorkdayEstimateUiState(
     val workTimeByDateEstimate: String,
     val isWorkTimeByDateEstimateValid: Boolean,
     val onWorkTimeByDateEstimateChange: (String) -> Unit
 )
 
 private data class WorkdayDisplayState(
-    val displayedflexTimeByDate: String,
+    val displayedFlexTimeByDate: String,
     val displayedCalculatedFlexTimeTotal: String,
     val settingsEditorState: SettingsEditorState,
     val headerActions: WorkdayHeaderActions

@@ -4,27 +4,18 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
-import com.akiwiksten.worktime30.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.worktime30.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,82 +45,43 @@ class SingleProjectViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SingleProjectUiState>(SingleProjectUiState.Loading)
     val uiState: StateFlow<SingleProjectUiState> = _uiState.asStateFlow()
 
-    init {
-
-    }
     fun setInitialValues(date: String, projectName: String, workTimeByDate: String) {
-        selectedDate.value = date
+        val effectiveDate = date.ifBlank { dateRepository.selectedDate.value }
+        selectedDate.value = effectiveDate
         selectedProjectName.value = projectName
         this.workTimeByDate.value = workTimeByDate
-        _uiState.value = getBaseState(date, projectName)
-/*        _uiState.update { currentState ->
-            when (currentState) {
-                is SingleProjectUiState.Success -> {
-                    currentState.copy(
-                        data = currentState.data.copy(
-                            date = date,
-                            projectName = projectName,
-                        ),
-                        workTimeByDate = workTimeByDate
-                    )
-                }
-
-                else -> {
-                    SingleProjectUiState.Success(
-                        data = SingleProjectState(
-                            date = date,
-                            projectName = projectName,
-                        ),
-                        workTimeByDate = workTimeByDate
-                    )
-                }
-            }
-        }*/
+        _uiState.value = getBaseState(effectiveDate, projectName)
     }
 
     fun initializeState() {
-        var project: SingleProjectState? = null
-        var workTypes: List<String>? = null
         viewModelScope.launch {
-            project = projectRepository.getProject(
-                date = selectedDate.value,
+            val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
+            selectedDate.value = effectiveDate
+
+            val project = projectRepository.getProject(
+                date = effectiveDate,
                 projectName = selectedProjectName.value
             )
-            workTypes = settingsRepository.getWorkTypes()
-        }
-        _uiState.update { currentState ->
-            when (currentState) {
-                is SingleProjectUiState.Success -> {
-                    currentState.copy(
-                        data = currentState.data.copy(
-                            projectName = project?.projectName ?: "",
-                            projectTime = project?.projectTime ?: "",
-                            index = project?.index ?: -1,
-                            kilometres = project?.kilometres ?: "",
-                            allowance = project?.allowance ?: "",
-                            workType = project?.workType ?: "",
-                            date = project?.date ?: ""
-                        ),
-                        workTimeByDate = currentState.workTimeByDate,
-                        workTypes = workTypes ?: emptyList()
-                    )
-                }
+            val workTypes = settingsRepository.getWorkTypes()
 
-                else -> {
-                    SingleProjectUiState.Success(
-                        data = SingleProjectState(
-                            projectName = project?.projectName ?: "",
-                            projectTime = project?.projectTime ?: "",
-                            index = project?.index ?: -1,
-                            kilometres = project?.kilometres ?: "",
-                            allowance = project?.allowance ?: "",
-                            workType = project?.workType ?: "",
-                            date = project?.date ?: ""
-                        ),
-                        workTypes = workTypes ?: emptyList(),
-                        workTimeByDate = workTimeByDate.value
+            _uiState.update { currentState ->
+                val currentSuccess = currentState as? SingleProjectUiState.Success
+                val currentData = currentSuccess?.data ?: SingleProjectState()
+                val projectDate = project?.date?.ifBlank { effectiveDate } ?: effectiveDate
+
+                SingleProjectUiState.Success(
+                    workTimeByDate = currentSuccess?.workTimeByDate ?: workTimeByDate.value,
+                    workTypes = workTypes,
+                    data = currentData.copy(
+                        projectName = project?.projectName ?: selectedProjectName.value,
+                        projectTime = project?.projectTime ?: currentData.projectTime,
+                        index = project?.index ?: currentData.index,
+                        kilometres = project?.kilometres ?: currentData.kilometres,
+                        allowance = project?.allowance ?: currentData.allowance,
+                        workType = project?.workType ?: currentData.workType,
+                        date = projectDate
                     )
-                }
+                )
             }
         }
     }
@@ -172,6 +124,7 @@ class SingleProjectViewModel @Inject constructor(
         val currentSuccess = _uiState.value as? SingleProjectUiState.Success
         return SingleProjectUiState.Success(
             workTimeByDate = currentSuccess?.workTimeByDate ?: ZERO_TIME,
+            workTypes = currentSuccess?.workTypes ?: emptyList(),
             data = (currentSuccess?.data ?: SingleProjectState()).copy(
                 date = date,
                 projectName = projectName
@@ -179,4 +132,3 @@ class SingleProjectViewModel @Inject constructor(
         )
     }
 }
-

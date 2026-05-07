@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
@@ -14,12 +13,18 @@ fun SingleProjectRoute(
 ) {
     val vm: SingleProjectViewModel = hiltViewModel()
 
-    vm.setInitialValues(
-        date = args.initialSingleProjectState.date,
-        projectName = args.initialSingleProjectState.projectName,
-        workTimeByDate = args.initialSingleProjectState.projectTime // or real day total source
-    )
-    vm.initializeState()
+    /*LaunchedEffect(
+        args.initialSingleProjectState.date,
+        args.initialSingleProjectState.projectName,
+        args.initialSingleProjectState.index
+    ) {*/
+        vm.setInitialValues(
+            date = args.initialSingleProjectState.date,
+            projectName = args.initialSingleProjectState.projectName,
+            workTimeByDate = args.initialSingleProjectState.projectTime
+        )
+        vm.initializeState()
+    //}
 
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 
@@ -30,5 +35,3 @@ fun SingleProjectRoute(
         singleProjectViewModel = vm,
     )
 }
-
-

@@ -129,10 +129,7 @@ class MonthlyReportGeneratorTest {
             monthlyReportLabel = "Monthly Report",
             pdfDocument = android.graphics.pdf.PdfDocument(),
             title = android.graphics.Paint(),
-            pageNumber = 1,
-            startDate = 1,
-            endDate = 8,
-            showTotals = false,
+            pageInfo = PageInfo(number = 1, start = 1, end = 8, showTotals = false),
             projectTitles = listOf("Project", "Hours", "Type"),
             preprocessedProjects = emptyMap()
         )
@@ -142,10 +139,10 @@ class MonthlyReportGeneratorTest {
         assertEquals("2026-04-30", params.endOfMonthDate)
         assertEquals("Total", params.totalSumLabel)
         assertEquals("Monthly Report", params.monthlyReportLabel)
-        assertEquals(1, params.pageNumber)
-        assertEquals(1, params.startDate)
-        assertEquals(8, params.endDate)
-        assertEquals(false, params.showTotals)
+        assertEquals(1, params.pageInfo.number)
+        assertEquals(1, params.pageInfo.start)
+        assertEquals(8, params.pageInfo.end)
+        assertEquals(false, params.pageInfo.showTotals)
         assertEquals(3, params.projectTitles.size)
     }
 
@@ -232,12 +229,4 @@ class MonthlyReportGeneratorTest {
         assertTrue(weeks[2].start < weeks[3].start)
         assertTrue(weeks[3].showTotals)
     }
-
-    // Data class for testing purposes (mirrors the private class in MonthlyReportGenerator)
-    data class PageInfo(
-        val number: Int,
-        val start: Int,
-        val end: Int,
-        val showTotals: Boolean
-    )
 }

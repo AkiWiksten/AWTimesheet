@@ -34,11 +34,12 @@ object MonthlyReportGenerator {
     private const val TITLE_SIZE = 15f
 
     private fun createPage(pageParams: CreatePageParams) {
-        val myPageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageParams.pageNumber).create()
+        val info = pageParams.pageInfo
+        val myPageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, info.number).create()
         val myPage = pageParams.pdfDocument.startPage(myPageInfo)
         val canvas = myPage.canvas
 
-        if (pageParams.pageNumber == 1) {
+        if (info.number == 1) {
             pageParams.title.textAlign = Paint.Align.CENTER
             canvas.drawText(pageParams.monthlyReportLabel, PAGE_WIDTH / 2f, 50f, pageParams.title)
         }
@@ -52,8 +53,8 @@ object MonthlyReportGenerator {
         canvas.drawText(yearAndMonth, 50f, 120f, pageParams.title)
 
         val printParams = PrintWorkDaysParams(
-            pageParams.projectsByMonth, canvas, pageParams.showTotals,
-            pageParams.startDate, pageParams.endDate, pageParams.totalSumLabel,
+            pageParams.projectsByMonth, canvas, info.showTotals,
+            info.start, info.end, pageParams.totalSumLabel,
             pageParams.endOfMonthDate, pageParams.projectTitles,
             pageParams.preprocessedProjects
         )
@@ -123,13 +124,18 @@ object MonthlyReportGenerator {
         info: PageInfo,
         preprocessedProjects: Map<Int, List<String>>
     ) = CreatePageParams(
-        params.name,
-        params.employer, params.projectsByMonth, params.endOfMonthDate,
-        params.totalSumLabel, params.monthlyReportLabel, doc, paint, info.number,
-        info.start, info.end, info.showTotals, params.projectTitles, preprocessedProjects
+        name = params.name,
+        employer = params.employer,
+        projectsByMonth = params.projectsByMonth,
+        endOfMonthDate = params.endOfMonthDate,
+        totalSumLabel = params.totalSumLabel,
+        monthlyReportLabel = params.monthlyReportLabel,
+        pdfDocument = doc,
+        title = paint,
+        pageInfo = info,
+        projectTitles = params.projectTitles,
+        preprocessedProjects = preprocessedProjects
     )
-
-    private data class PageInfo(val number: Int, val start: Int, val end: Int, val showTotals: Boolean)
 }
 
 data class PrintWorkDaysParams(
@@ -154,7 +160,7 @@ data class DrawProjectDaysParams(
     val day: Int
 )
 
-data class CreatePageParams(
+internal data class CreatePageParams(
     val name: String,
     val employer: String,
     val projectsByMonth: List<SingleProjectState>,
@@ -163,10 +169,7 @@ data class CreatePageParams(
     val monthlyReportLabel: String,
     val pdfDocument: PdfDocument,
     val title: Paint,
-    val pageNumber: Int,
-    val startDate: Int,
-    val endDate: Int,
-    val showTotals: Boolean,
+    val pageInfo: PageInfo,
     val projectTitles: List<String>,
     val preprocessedProjects: Map<Int, List<String>>
 )
@@ -180,4 +183,11 @@ data class GeneratePdfParams(
     val name: String,
     val employer: String,
     val projectTitles: List<String>
+)
+
+internal data class PageInfo(
+    val number: Int,
+    val start: Int,
+    val end: Int,
+    val showTotals: Boolean
 )

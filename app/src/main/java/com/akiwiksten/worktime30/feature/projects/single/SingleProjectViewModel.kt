@@ -34,6 +34,7 @@ sealed class SingleProjectUiState {
 
     data class Success(
         val workTimeByDate: String = ZERO_TIME,
+        val workTypes: List<String> = emptyList(),
         val data: SingleProjectState
     ) : SingleProjectUiState()
 
@@ -61,7 +62,7 @@ class SingleProjectViewModel @Inject constructor(
         selectedProjectName.value = projectName
         this.workTimeByDate.value = workTimeByDate
         _uiState.value = getBaseState(date, projectName)
-        _uiState.update { currentState ->
+/*        _uiState.update { currentState ->
             when (currentState) {
                 is SingleProjectUiState.Success -> {
                     currentState.copy(
@@ -83,16 +84,18 @@ class SingleProjectViewModel @Inject constructor(
                     )
                 }
             }
-        }
+        }*/
     }
 
     fun initializeState() {
         var project: SingleProjectState? = null
+        var workTypes: List<String>? = null
         viewModelScope.launch {
             project = projectRepository.getProject(
                 date = selectedDate.value,
                 projectName = selectedProjectName.value
             )
+            workTypes = settingsRepository.getWorkTypes()
         }
         _uiState.update { currentState ->
             when (currentState) {
@@ -107,7 +110,8 @@ class SingleProjectViewModel @Inject constructor(
                             workType = project?.workType ?: "",
                             date = project?.date ?: ""
                         ),
-                        workTimeByDate = currentState.workTimeByDate
+                        workTimeByDate = currentState.workTimeByDate,
+                        workTypes = workTypes ?: emptyList()
                     )
                 }
 
@@ -122,6 +126,8 @@ class SingleProjectViewModel @Inject constructor(
                             workType = project?.workType ?: "",
                             date = project?.date ?: ""
                         ),
+                        workTypes = workTypes ?: emptyList(),
+                        workTimeByDate = workTimeByDate.value
                     )
                 }
             }

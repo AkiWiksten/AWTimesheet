@@ -26,7 +26,7 @@ import com.akiwiksten.worktime30.feature.workday.components.WorkdaySuccessConten
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
 fun WorkdayScreen(
-    onNavigateToSingleProject: (Int) -> Unit,
+    onNavigateToSingleProject: (Int, String) -> Unit,
     workdayViewModel: WorkdayViewModel = hiltViewModel(),
 ) {
     LifecycleResumeEffect(Unit) {

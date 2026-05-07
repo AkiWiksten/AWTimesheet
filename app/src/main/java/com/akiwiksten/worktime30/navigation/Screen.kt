@@ -22,6 +22,7 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
     object Intro : Screen(INTRO_SCREEN)
     data class SingleProject(
         val index: Int = -1,
+        val date: String? = null,
         val projectName: String? = null,
         val projectTime: String? = null,
         val kilometres: String? = null,

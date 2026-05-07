@@ -87,8 +87,8 @@ internal fun ColumnScope.WorkdaySuccessContent(
     WorkdayActionButtons(
         items = state.projects,
         selectedIndex = selectedItemIndex,
-        onAddClick = { actions.onNavigateToSingleProject(-1) },
-        onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex) },
+        onAddClick = { actions.onNavigateToSingleProject(-1, state.date) },
+        onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex, state.date) },
         onDeleteClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
         }

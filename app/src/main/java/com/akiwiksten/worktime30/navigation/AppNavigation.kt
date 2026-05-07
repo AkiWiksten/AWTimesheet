@@ -70,8 +70,13 @@ internal fun WorkTimeNavDisplay(
             entry<Screen.Calendar> { CalendarScreen() }
             entry<Screen.Workday> {
                 WorkdayScreen(
-                    onNavigateToSingleProject = { index ->
-                        backStack.add(element = Screen.SingleProject(index = index))
+                    onNavigateToSingleProject = { index, date ->
+                        backStack.add(element =
+                            Screen.SingleProject(
+                                index = index,
+                                date = date
+                            )
+                        )
                     }
                 )
             }
@@ -113,6 +118,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
             .takeUnless { it.isNullOrBlank() }
             ?: stringResource(id = R.string.no_allowance),
         workType = screen.workType ?: "",
+        date = screen.date ?: ""
     )
     SingleProjectRoute(
         args = SingleProjectScreenArgs(

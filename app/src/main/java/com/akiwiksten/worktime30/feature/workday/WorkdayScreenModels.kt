@@ -4,7 +4,7 @@ import com.akiwiksten.worktime30.domain.model.SingleProjectState
 
 data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
-    val onNavigateToSingleProject: (Int) -> Unit,
+    val onNavigateToSingleProject: (Int, String) -> Unit,
     val onRetry: () -> Unit,
     val onSaveSettings: (String, Boolean) -> Unit,
     val onDeleteProject: (SingleProjectState) -> Unit

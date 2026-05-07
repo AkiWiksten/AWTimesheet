@@ -49,7 +49,6 @@ import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +66,6 @@ fun SingleProjectScreen(
     SingleProjectScreenStateful(
         args = args,
         config = SingleProjectScreenStatefulConfig(
-            //projectsUiState = projectsUiState,
             noAllowanceText = noAllowanceText,
             defaultWorkTypeText = defaultWorkTypeText,
             onNavigateBack = navigationActions.onNavigateBack,
@@ -92,6 +90,7 @@ private fun SingleProjectScreenStateful(
 
     val initialUiState = remember(
         args.initialSingleProjectState.index,
+        args.initialSingleProjectState.date,
         singleProjectUiState,
         args.initialSingleProjectState.projectTime,
         args.initialSingleProjectState.projectName,
@@ -410,7 +409,7 @@ private fun SingleProjectContent(
 ) {
     val scrollState = rememberScrollState()
     val defaultWorkTypeText = stringResource(id = R.string.other)
-    val workTypes = (((screenState.uiState as? WorkdayUiState.Success)?.workTypes ?: emptyList()) + defaultWorkTypeText)
+    val workTypes = (((screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()) + defaultWorkTypeText)
         .distinct()
         .sorted()
 

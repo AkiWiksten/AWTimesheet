@@ -14,21 +14,12 @@ fun SingleProjectRoute(
 ) {
     val vm: SingleProjectViewModel = hiltViewModel()
 
-    LifecycleResumeEffect(
-        args.initialSingleProjectState.date,
-        args.initialSingleProjectState.projectName,
-        args.initialSingleProjectState.index
-    ) {
-        vm.setInitialValues(
-            date = args.initialSingleProjectState.date,
-            projectName = args.initialSingleProjectState.projectName,
-            workTimeByDate = args.initialSingleProjectState.projectTime // or real day total source
-        )
-        vm.initializeState()
-        onPauseOrDispose {
-            // Optional cleanup
-        }
-    }
+    vm.setInitialValues(
+        date = args.initialSingleProjectState.date,
+        projectName = args.initialSingleProjectState.projectName,
+        workTimeByDate = args.initialSingleProjectState.projectTime // or real day total source
+    )
+    vm.initializeState()
 
     val uiState by vm.uiState.collectAsStateWithLifecycle()
 

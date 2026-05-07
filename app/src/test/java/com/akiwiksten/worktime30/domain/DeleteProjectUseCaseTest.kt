@@ -103,6 +103,8 @@ class DeleteProjectUseCaseTest {
         override suspend fun isProjectNameUsed(projectName: String): Boolean =
             isProjectNameUsedByName[projectName] ?: false
 
+        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
+
         override suspend fun getWorkTimeByDate(date: String): String =
             (projectsByDateRange[date] ?: emptyList()).fold(ZERO_TIME) { acc, p ->
                 WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)

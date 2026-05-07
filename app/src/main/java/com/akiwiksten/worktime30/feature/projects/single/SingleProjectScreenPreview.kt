@@ -4,29 +4,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import com.android.tools.screenshot.PreviewTest
 
 private const val PREVIEW_DATE = "2026-04-10"
-
+private const val NO_ALLOWANCE = "No allowance"
 @PreviewTest
 @Preview(showBackground = true, name = "Single Project - Loading")
 @Composable
 fun PreviewSingleProjectLoading() {
     SingleProjectPreviewContent(
-        params = SingleProjectScreenContentParams(
+        screenState = SingleProjectScreenState(
+            date = "",
+            editedProjectIndex = 0,
             state = SingleProjectState(),
             isAddMode = true,
+            uiState = SingleProjectUiState.Loading,
             isConfirmEnabled = false,
-            hasUnsavedChanges = false,
-            isDuplicateProjectName = false,
-            onStateChange = {},
-            onNavigateBack = {},
-            onOpenProjectDetails = {},
-            onConfirm = {},
-            index = 0,
-            singleProjectUiState = SingleProjectUiState.Loading
-        )
+            isDuplicateProjectName = false
+        ),
+        hasUnsavedChanges = false
     )
 }
 
@@ -35,33 +31,30 @@ fun PreviewSingleProjectLoading() {
 @Composable
 fun PreviewSingleProjectSuccessAdd() {
     SingleProjectPreviewContent(
-        params = SingleProjectScreenContentParams(
+        screenState = SingleProjectScreenState(
+            date = PREVIEW_DATE,
+            editedProjectIndex = 0,
             state = SingleProjectState(
                 projectTime = "00:00",
                 kilometres = "",
-                allowance = "No allowance",
+                allowance = NO_ALLOWANCE,
                 workType = "Installation",
             ),
             isAddMode = true,
-            isConfirmEnabled = false,
-            hasUnsavedChanges = false,
-            isDuplicateProjectName = false,
-            onStateChange = {},
-            onNavigateBack = {},
-            onOpenProjectDetails = {},
-            onConfirm = {},
-            index = 0,
-            singleProjectUiState = SingleProjectUiState.Success(
+            uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
                     projectTime = "00:00",
                     kilometres = "",
-                    allowance = "No allowance",
+                    allowance = NO_ALLOWANCE,
                     workType = "Installation",
                 ),
                 workTimeByDate = "07:45",
-            )
-        )
+            ),
+            isConfirmEnabled = false,
+            isDuplicateProjectName = false
+        ),
+        hasUnsavedChanges = false
     )
 }
 
@@ -70,7 +63,9 @@ fun PreviewSingleProjectSuccessAdd() {
 @Composable
 fun PreviewSingleProjectSuccessEdit() {
     SingleProjectPreviewContent(
-        params = SingleProjectScreenContentParams(
+        screenState = SingleProjectScreenState(
+            date = PREVIEW_DATE,
+            editedProjectIndex = -1,
             state = SingleProjectState(
                 index = 0,
                 projectName = "Beta Support",
@@ -80,25 +75,20 @@ fun PreviewSingleProjectSuccessEdit() {
                 workType = "Maintenance",
             ),
             isAddMode = false,
-            isConfirmEnabled = true,
-            hasUnsavedChanges = true,
-            isDuplicateProjectName = false,
-            onStateChange = {},
-            onNavigateBack = {},
-            onOpenProjectDetails = {},
-            onConfirm = {},
-            index = -1,
-            singleProjectUiState = SingleProjectUiState.Success(
+            uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
                     projectTime = "00:00",
                     kilometres = "",
-                    allowance = "No allowance",
+                    allowance = NO_ALLOWANCE,
                     workType = "Installation",
                 ),
                 workTimeByDate = "07:45",
-            )
-        )
+            ),
+            isConfirmEnabled = true,
+            isDuplicateProjectName = false
+        ),
+        hasUnsavedChanges = true
     )
 }
 
@@ -107,32 +97,29 @@ fun PreviewSingleProjectSuccessEdit() {
 @Composable
 fun PreviewSingleProjectDuplicateName() {
     SingleProjectPreviewContent(
-        params = SingleProjectScreenContentParams(
+        screenState = SingleProjectScreenState(
+            date = PREVIEW_DATE,
+            editedProjectIndex = 0,
             state = SingleProjectState(
                 index = -1,
                 projectName = "Alpha Site",
                 projectTime = "01:00",
             ),
             isAddMode = true,
-            isConfirmEnabled = false,
-            hasUnsavedChanges = true,
-            isDuplicateProjectName = true,
-            onStateChange = {},
-            onNavigateBack = {},
-            onOpenProjectDetails = {},
-            onConfirm = {},
-            index = 0,
-            singleProjectUiState = SingleProjectUiState.Success(
+            uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
                     projectTime = "00:00",
                     kilometres = "",
-                    allowance = "No allowance",
+                    allowance = NO_ALLOWANCE,
                     workType = "Installation",
                 ),
                 workTimeByDate = "07:45",
-            )
-        )
+            ),
+            isConfirmEnabled = false,
+            isDuplicateProjectName = true
+        ),
+        hasUnsavedChanges = true
     )
 }
 
@@ -141,23 +128,34 @@ fun PreviewSingleProjectDuplicateName() {
 @Composable
 fun PreviewSingleProjectError() {
     SingleProjectPreviewContent(
-        params = SingleProjectScreenContentParams(
+        screenState = SingleProjectScreenState(
+            date = "",
+            editedProjectIndex = -1,
             state = SingleProjectState(),
-            isAddMode = true,isConfirmEnabled = false,
-            hasUnsavedChanges = false,
-            isDuplicateProjectName = false,
-            onStateChange = {},
-            onNavigateBack = {},
-            onOpenProjectDetails = {},
-            onConfirm = {},
-            singleProjectUiState = SingleProjectUiState.Error(message = "Failed to load project")
-        )
+            isAddMode = true,
+            uiState = SingleProjectUiState.Error(message = "Failed to load project"),
+            isConfirmEnabled = false,
+            isDuplicateProjectName = false
+        ),
+        hasUnsavedChanges = false
     )
 }
 
 @Composable
-private fun SingleProjectPreviewContent(params: SingleProjectScreenContentParams) {
+private fun SingleProjectPreviewContent(
+    screenState: SingleProjectScreenState,
+    hasUnsavedChanges: Boolean
+) {
     WorkTime30Theme(dynamicColor = false) {
-        SingleProjectScreenContent(params = params)
+        SingleProjectScreenContent(
+            screenState = screenState,
+            actions = SingleProjectActions(
+                onStateChange = {},
+                onOpenProjectDetails = {},
+                onConfirm = {}
+            ),
+            hasUnsavedChanges = hasUnsavedChanges,
+            onNavigateBack = {}
+        )
     }
 }

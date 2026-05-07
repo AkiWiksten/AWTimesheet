@@ -58,4 +58,3 @@ class ProjectDetailsUiMapperTest {
         assertEquals("00:15", result.details.lunchTimeEstimate)
     }
 }
-

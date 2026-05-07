@@ -3,7 +3,6 @@ package com.akiwiksten.worktime30.feature.projects.single
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
-import com.akiwiksten.worktime30.feature.workday.WorkdayUiState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -73,28 +72,23 @@ class SingleProjectScreenStateResolverTest {
     }
 
     @Test
-    fun isDuplicate_matchesCaseInsensitive() {
-        val projects = listOf(
-            SingleProjectState(index = 0, projectName = "Alpha"),
-            SingleProjectState(index = 1, projectName = "Beta")
-        )
+    fun isDuplicate_addMode_matchesCaseInsensitive() {
+        val existingAlpha = SingleProjectState(index = 0, projectName = "Alpha")
+        val existingBeta = SingleProjectState(index = 1, projectName = "Beta")
 
-        assertEquals(true, isDuplicateProjectName("alpha", currentIndex = -1, projects = projects))
-        assertEquals(true, isDuplicateProjectName("BETA", currentIndex = -1, projects = projects))
-        assertEquals(false, isDuplicateProjectName("Gamma", currentIndex = -1, projects = projects))
+        assertEquals(true, isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha))
+        assertEquals(true, isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta))
+        assertEquals(false, isDuplicateProjectName("Gamma", currentIndex = -1, singleProjectState = existingAlpha))
     }
 
     @Test
     fun isDuplicate_editMode_ignoresOwnIndex() {
-        val projects = listOf(
-            SingleProjectState(index = 0, projectName = "Alpha"),
-            SingleProjectState(index = 1, projectName = "Beta")
-        )
+        val existing = SingleProjectState(index = 0, projectName = "Alpha")
 
-        // Editing index 0 with its own name → not a duplicate
-        assertEquals(false, isDuplicateProjectName("Alpha", currentIndex = 0, projects = projects))
-        // Editing index 0 but using index 1's name → duplicate
-        assertEquals(true, isDuplicateProjectName("Beta", currentIndex = 0, projects = projects))
+        // Editing index 0 with its own name → not a duplicate (edit mode bypasses check)
+        assertEquals(false, isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing))
+        // Editing index 0 but checking against different project → still not duplicate (edit mode ignores)
+        assertEquals(false, isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing))
     }
 
     @Test
@@ -104,17 +98,17 @@ class SingleProjectScreenStateResolverTest {
             projectName = "Alpha",
             projectTime = "01:45"
         )
-        val projectsUiState = WorkdayUiState.Success(
-            projects = listOf(
-                SingleProjectState(index = 0, projectName = "Alpha", projectTime = "00:00")
-            )
+        val singleProjectUiState = SingleProjectUiState.Success(
+            data = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "00:00"),
+            workTimeByDate = "00:00",
+            workTypes = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
             initialProjectDetails = ProjectDetailsState(projectTime = "01:45"),
             initialSettings = null,
-            projectsUiState = projectsUiState
+            singleProjectUiState = singleProjectUiState
         )
 
         assertEquals("01:45", resolved.projectTime)
@@ -123,13 +117,13 @@ class SingleProjectScreenStateResolverTest {
     @Test
     fun editMode_withoutNavigationPayload_usesCurrentProjectsState() {
         val initialState = SingleProjectState(index = 0)
-        val projectsUiState = WorkdayUiState.Success(
-            projects = listOf(
-                SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10")
-            )
+        val singleProjectUiState = SingleProjectUiState.Success(
+            data = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
+            workTimeByDate = "02:10",
+            workTypes = emptyList()
         )
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, null, projectsUiState)
+        val resolved = resolveInitialSingleProjectState(initialState, null, null, singleProjectUiState)
 
         assertEquals("Alpha", resolved.projectName)
         assertEquals("02:10", resolved.projectTime)
@@ -139,7 +133,7 @@ class SingleProjectScreenStateResolverTest {
     fun addMode_returnsInitialState() {
         val initialState = SingleProjectState(index = -1, projectName = "New", projectTime = "00:30")
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, null, WorkdayUiState.Loading)
+        val resolved = resolveInitialSingleProjectState(initialState, null, null, SingleProjectUiState.Loading)
 
         assertEquals(initialState, resolved)
     }
@@ -147,17 +141,17 @@ class SingleProjectScreenStateResolverTest {
     @Test
     fun editMode_withNavigationSettings_prefersNavigationState() {
         val initialState = SingleProjectState(index = 0)
-        val projectsUiState = WorkdayUiState.Success(
-            projects = listOf(
-                SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10")
-            )
+        val singleProjectUiState = SingleProjectUiState.Success(
+            data = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
+            workTimeByDate = "02:10",
+            workTypes = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
             initialProjectDetails = null,
             initialSettings = SettingsState(dailyWorkTimeEstimate = "07:30"),
-            projectsUiState = projectsUiState
+            singleProjectUiState = singleProjectUiState
         )
 
         assertEquals(initialState, resolved)

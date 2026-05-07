@@ -100,7 +100,6 @@ class WorkdayViewModel @Inject constructor(
         refreshTrigger.value += 1
     }
 
-
     fun deleteProject(state: SingleProjectState) {
         viewModelScope.launch {
             try {

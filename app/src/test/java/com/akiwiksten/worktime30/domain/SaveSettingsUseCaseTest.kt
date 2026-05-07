@@ -231,6 +231,8 @@ class SaveSettingsUseCaseTest {
 
         override suspend fun isProjectNameUsed(projectName: String): Boolean = false
 
+        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
+
         override suspend fun getWorkTimeByDate(date: String): String =
             projectsByDateRange.filter { it.date == date }.fold(ZERO_TIME) { acc, project ->
                 WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)

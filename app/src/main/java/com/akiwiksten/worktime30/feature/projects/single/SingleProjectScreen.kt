@@ -24,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,9 +83,7 @@ private fun SingleProjectScreenStateful(
     args: SingleProjectScreenArgs,
     config: SingleProjectScreenStatefulConfig
 ) {
-    //val projectsUiState = config.projectsUiState
     val singleProjectUiState = config.singleProjectUiState
-    val date = (singleProjectUiState as? SingleProjectUiState.Success)?.data?.date ?: ""
 
     val initialUiState = remember(
         args.initialSingleProjectState.index,
@@ -103,7 +100,6 @@ private fun SingleProjectScreenStateful(
             initialSingleProjectState = args.initialSingleProjectState,
             initialProjectDetails = args.initialProjectDetails,
             initialSettings = args.initialSettings,
-            //projectsUiState = projectsUiState
             singleProjectUiState = singleProjectUiState
         )
             .withDefaultAllowance(defaultAllowance = config.noAllowanceText)
@@ -118,36 +114,39 @@ private fun SingleProjectScreenStateful(
     val derived = rememberSingleProjectDerivedState(
         state = state,
         initialUiState = initialUiState,
-        //projectsUiState = projectsUiState,
         singleProjectUiState = singleProjectUiState,
         currentIndex = args.initialSingleProjectState.index
     )
 
+    val screenState = SingleProjectScreenState(
+        date = (singleProjectUiState as? SingleProjectUiState.Success)?.data?.date ?: "",
+        editedProjectIndex = args.initialSingleProjectState.index,
+        state = state,
+        isAddMode = args.initialSingleProjectState.index == -1,
+        uiState = singleProjectUiState,
+        isConfirmEnabled = derived.isConfirmEnabled,
+        isDuplicateProjectName = derived.isDuplicate
+    )
+    val actions = SingleProjectActions(
+        onStateChange = { state = it },
+        onOpenProjectDetails = {
+            config.onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
+        },
+        onConfirm = {
+            config.onSave(state)
+            config.onNavigateBack()
+        }
+    )
+
     SingleProjectScreenContent(
-        params = SingleProjectScreenContentParams(
-            index = args.initialSingleProjectState.index,
-            state = state,
-            isAddMode = args.initialSingleProjectState.index == -1,
-            //projectsUiState = projectsUiState,
-            singleProjectUiState = singleProjectUiState,
-            isConfirmEnabled = derived.isConfirmEnabled,
-            hasUnsavedChanges = derived.hasUnsavedChanges,
-            isDuplicateProjectName = derived.isDuplicate,
-            onStateChange = { state = it },
-            onNavigateBack = config.onNavigateBack,
-            onOpenProjectDetails = {
-                config.onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
-            },
-            onConfirm = {
-                config.onSave(state)
-                config.onNavigateBack()
-            }
-        )
+        screenState = screenState,
+        actions = actions,
+        hasUnsavedChanges = derived.hasUnsavedChanges,
+        onNavigateBack = config.onNavigateBack
     )
 }
 
 private data class SingleProjectScreenStatefulConfig(
-    //val projectsUiState: WorkdayUiState,
     val noAllowanceText: String,
     val defaultWorkTypeText: String,
     val singleProjectUiState: SingleProjectUiState,
@@ -177,7 +176,6 @@ internal data class SingleProjectDerivedState(
 private fun rememberSingleProjectDerivedState(
     state: SingleProjectState,
     initialUiState: SingleProjectState,
-    //projectsUiState: WorkdayUiState,
     currentIndex: Int,
     singleProjectUiState: SingleProjectUiState
 ): SingleProjectDerivedState {
@@ -186,15 +184,11 @@ private fun rememberSingleProjectDerivedState(
     }
     val isDuplicate by remember(state.projectName, singleProjectUiState, currentIndex) {
         derivedStateOf {
-            if (currentIndex != -1) {
-                false
-            } else {
-                isDuplicateProjectName(
-                    projectName = state.projectName,
-                    currentIndex = currentIndex,
-                    singleProjectState = (singleProjectUiState as? SingleProjectUiState.Success)?.data
-                )
-            }
+            isDuplicateProjectName(
+                projectName = state.projectName,
+                currentIndex = currentIndex,
+                singleProjectState = (singleProjectUiState as? SingleProjectUiState.Success)?.data
+            )
         }
     }
     val isConfirmEnabled by remember(state, hasUnsavedChanges, isDuplicate, currentIndex) {
@@ -215,42 +209,41 @@ private fun rememberSingleProjectDerivedState(
 }
 
 @Composable
-internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams) {
+internal fun SingleProjectScreenContent(
+    screenState: SingleProjectScreenState,
+    actions: SingleProjectActions,
+    hasUnsavedChanges: Boolean,
+    onNavigateBack: () -> Unit
+) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = params.singleProjectUiState is SingleProjectUiState.Loading
+        isLoading = screenState.uiState is SingleProjectUiState.Loading
     )
     val lastSuccessState = remember { mutableStateOf<SingleProjectUiState.Success?>(value = null) }
     val showUnsavedDialogState = remember { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
-    LaunchedEffect(params.singleProjectUiState) {
-        if (params.singleProjectUiState is SingleProjectUiState.Success) {
-            lastSuccessState.value = params.singleProjectUiState
+    LaunchedEffect(screenState.uiState) {
+        if (screenState.uiState is SingleProjectUiState.Success) {
+            lastSuccessState.value = screenState.uiState
         }
     }
 
     val guardedNavigateBack = {
-        if (params.hasUnsavedChanges) {
+        if (hasUnsavedChanges) {
             showUnsavedDialogState.value = true
         } else {
-            params.onNavigateBack()
+            onNavigateBack()
         }
     }
 
     if (showUnsavedDialogState.value) {
         UnsavedChangesDialog(
             onDismiss = { showUnsavedDialogState.value = false },
-            onDiscard = params.onNavigateBack,
-            onSave = params.onConfirm,
+            onDiscard = onNavigateBack,
+            onSave = actions.onConfirm,
             dialogText = unsavedMessage
         )
     }
-
-    val actions = SingleProjectActions(
-        onStateChange = params.onStateChange,
-        onOpenProjectDetails = params.onOpenProjectDetails,
-        onConfirm = params.onConfirm
-    )
 
     Scaffold(
         topBar = {
@@ -259,7 +252,7 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
     ) { padding ->
         SingleProjectContentByUiState(
             padding = padding,
-            params = params,
+            screenState = screenState,
             actions = actions,
             showLoadingIndicator = showLoadingIndicator,
             cachedSuccessState = lastSuccessState.value
@@ -270,15 +263,15 @@ internal fun SingleProjectScreenContent(params: SingleProjectScreenContentParams
 @Composable
 private fun SingleProjectContentByUiState(
     padding: PaddingValues,
-    params: SingleProjectScreenContentParams,
+    screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     showLoadingIndicator: Boolean,
     cachedSuccessState: SingleProjectUiState.Success?
 ) {
-    when (params.singleProjectUiState) {
+    when (screenState.uiState) {
         is SingleProjectUiState.Loading -> SingleProjectLoadingContent(
             padding = padding,
-            params = params,
+            screenState = screenState,
             actions = actions,
             showLoadingIndicator = showLoadingIndicator,
             cachedSuccessState = cachedSuccessState
@@ -286,9 +279,9 @@ private fun SingleProjectContentByUiState(
 
         is SingleProjectUiState.Success -> SingleProjectSuccessContent(
             padding = padding,
-            params = params,
+            screenState = screenState,
             actions = actions,
-            uiState = params.singleProjectUiState
+            uiState = screenState.uiState
         )
 
         is SingleProjectUiState.Error -> Box(
@@ -298,7 +291,7 @@ private fun SingleProjectContentByUiState(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Error: ${params.singleProjectUiState.message}",
+                text = "Error: ${screenState.uiState.message}",
                 color = MaterialTheme.colorScheme.error
             )
         }
@@ -308,7 +301,7 @@ private fun SingleProjectContentByUiState(
 @Composable
 private fun SingleProjectLoadingContent(
     padding: PaddingValues,
-    params: SingleProjectScreenContentParams,
+    screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     showLoadingIndicator: Boolean,
     cachedSuccessState: SingleProjectUiState.Success?
@@ -327,12 +320,12 @@ private fun SingleProjectLoadingContent(
 
     SingleProjectSuccessContent(
         padding = padding,
-        params = params,
+        screenState = screenState,
         actions = actions,
-        uiState = cachedSuccessState ?:
-        SingleProjectUiState.Success(
-            data = (params.singleProjectUiState as? SingleProjectUiState.Success)?.data!!,
-            workTimeByDate = ZERO_TIME
+        uiState = cachedSuccessState ?: SingleProjectUiState.Success(
+            data = (screenState.uiState as? SingleProjectUiState.Success)?.data ?: screenState.state,
+            workTimeByDate = ZERO_TIME,
+            workTypes = (screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()
         )
     )
 }
@@ -340,34 +333,25 @@ private fun SingleProjectLoadingContent(
 @Composable
 private fun SingleProjectSuccessContent(
     padding: PaddingValues,
-    params: SingleProjectScreenContentParams,
+    screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     uiState: SingleProjectUiState
 ) {
     val successState = uiState as? SingleProjectUiState.Success
-    val originalProjectTime = successState
-        ?.data?.projectTime ?: ""
+    val originalProjectTime = successState?.data?.projectTime ?: ""
     val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
         initialTime = successState?.workTimeByDate ?: ZERO_TIME,
         addedTime = "-$originalProjectTime"
     )
     val workTimeByDate = WorkTimeCalculator.calculateFlexTime(
         initialTime = baseWithoutCurrent,
-        addedTime = params.state.projectTime
+        addedTime = screenState.state.projectTime
     )
 
     SingleProjectContent(
         padding = padding,
         workTimeByDate = workTimeByDate,
-        screenState = SingleProjectScreenState(
-            date = (params.singleProjectUiState as? SingleProjectUiState.Success)?.data?.date ?: "",
-            editedProjectIndex = params.index,
-            state = params.state,
-            isAddMode = params.isAddMode,
-            uiState = uiState,
-            isConfirmEnabled = params.isConfirmEnabled,
-            isDuplicateProjectName = params.isDuplicateProjectName
-        ),
+        screenState = screenState.copy(uiState = uiState),
         actions = actions
     )
 }
@@ -413,9 +397,13 @@ private fun SingleProjectContent(
 ) {
     val scrollState = rememberScrollState()
     val defaultWorkTypeText = stringResource(id = R.string.other)
-    val workTypes = (((screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()) + defaultWorkTypeText)
-        .distinct()
-        .sorted()
+    val workTypes =
+        (
+            ((screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()) +
+                defaultWorkTypeText
+            )
+            .distinct()
+            .sorted()
 
     Column(
         modifier = Modifier
@@ -493,18 +481,3 @@ private fun SingleProjectFormFields(
         }
     }
 }
-
-data class SingleProjectScreenContentParams(
-    val index: Int = -1,
-    val state: SingleProjectState,
-    val singleProjectUiState: SingleProjectUiState,
-    val isAddMode: Boolean,
-    //val projectsUiState: WorkdayUiState,
-    val isConfirmEnabled: Boolean,
-    val hasUnsavedChanges: Boolean,
-    val isDuplicateProjectName: Boolean,
-    val onStateChange: (SingleProjectState) -> Unit,
-    val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: () -> Unit,
-    val onConfirm: () -> Unit
-)

@@ -8,9 +8,9 @@ internal fun isDuplicateProjectName(
     currentIndex: Int,
     singleProjectState: SingleProjectState?,
 ): Boolean {
-    if (projectName.isBlank()) return false
+    if (projectName.isBlank() || currentIndex != -1) return false
     return singleProjectState?.index != currentIndex &&
-            singleProjectState?.projectName.equals(projectName, ignoreCase = true)
+        singleProjectState?.projectName.equals(projectName, ignoreCase = true)
 }
 
 internal fun isSingleProjectConfirmEnabled(

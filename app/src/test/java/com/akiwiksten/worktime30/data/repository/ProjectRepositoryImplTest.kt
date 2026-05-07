@@ -109,6 +109,10 @@ class ProjectRepositoryImplTest {
         }
 
         override suspend fun loadProjectsByDate(date: String): List<ProjectEntity> = emptyList()
+        override suspend fun loadProject(
+            date: String,
+            projectName: String
+        ): ProjectEntity? = null
 
         override suspend fun delete(project: ProjectEntity) {
             deletedProject = project

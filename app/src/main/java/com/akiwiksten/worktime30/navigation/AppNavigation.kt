@@ -70,11 +70,16 @@ internal fun WorkTimeNavDisplay(
             entry<Screen.Calendar> { CalendarScreen() }
             entry<Screen.Workday> {
                 WorkdayScreen(
-                    onNavigateToSingleProject = { index, date ->
-                        backStack.add(element =
-                            Screen.SingleProject(
-                                index = index,
-                                date = date
+                    onNavigateToSingleProject = { project ->
+                        backStack.add(
+                            element = Screen.SingleProject(
+                                index = project.index,
+                                date = project.date,
+                                projectName = project.projectName,
+                                projectTime = project.projectTime,
+                                kilometres = project.kilometres,
+                                allowance = project.allowance,
+                                workType = project.workType
                             )
                         )
                     }

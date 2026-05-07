@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
+import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.SettingsEditorState
 import com.akiwiksten.worktime30.feature.workday.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.worktime30.feature.workday.WorkdayActions
@@ -87,8 +88,18 @@ internal fun ColumnScope.WorkdaySuccessContent(
     WorkdayActionButtons(
         items = state.projects,
         selectedIndex = selectedItemIndex,
-        onAddClick = { actions.onNavigateToSingleProject(-1, state.date) },
-        onEditClick = { actions.onNavigateToSingleProject(selectedItemIndex, state.date) },
+        onAddClick = {
+            actions.onNavigateToSingleProject(
+                SingleProjectState(index = -1, date = state.date)
+            )
+        },
+        onEditClick = {
+            state.projects.getOrNull(index = selectedItemIndex)?.let { selectedProject ->
+                actions.onNavigateToSingleProject(
+                    selectedProject.copy(date = selectedProject.date.ifBlank { state.date })
+                )
+            }
+        },
         onDeleteClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
         }

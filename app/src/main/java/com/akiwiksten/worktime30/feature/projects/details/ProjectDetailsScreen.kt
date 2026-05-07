@@ -42,6 +42,7 @@ import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDay
 import com.akiwiksten.worktime30.feature.projects.details.components.FooterSection
 import com.akiwiksten.worktime30.feature.projects.details.components.NewDayFields
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsFieldActions
+import com.akiwiksten.worktime30.feature.projects.details.components.TimeFieldAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -245,22 +246,38 @@ private fun createProjectDetailsScreenActions(
         onClearDetails = viewModel.clearDetails,
         onConfirm = onConfirm,
         fieldActions = ProjectDetailsFieldActions(
-            onCurrentStartTime = viewModel.currentStartTime,
-            onSetStartTime = viewModel.setStartTime,
-            onCurrentLunchTime = viewModel.currentLunchTime,
-            onSetLunchTime = viewModel.setLunchTime,
-            onCurrentEndTime = viewModel.currentEndTime,
-            onSetEndTime = viewModel.setEndTime,
-            onCurrentProjectTime = viewModel.currentProjectTime,
-            onSetProjectTime = viewModel.setProjectTime,
-            onCurrentLunchStart = viewModel.currentLunchStart,
-            onSetLunchStart = viewModel.setLunchStart,
-            onCurrentLunchEnd = viewModel.currentLunchEnd,
-            onSetLunchEnd = viewModel.setLunchEnd,
-            onCurrentBreakStart = viewModel.currentBreakStart,
-            onSetBreakStart = viewModel.setBreakStart,
-            onCurrentBreakEnd = viewModel.currentBreakEnd,
-            onSetBreakEnd = viewModel.setBreakEnd
+            startTime = TimeFieldAction(
+                onCurrent = viewModel.currentStartTime,
+                onSet = viewModel.setStartTime
+            ),
+            lunchTime = TimeFieldAction(
+                onCurrent = viewModel.currentLunchTime,
+                onSet = viewModel.setLunchTime
+            ),
+            endTime = TimeFieldAction(
+                onCurrent = viewModel.currentEndTime,
+                onSet = viewModel.setEndTime
+            ),
+            projectTime = TimeFieldAction(
+                onCurrent = viewModel.currentProjectTime,
+                onSet = viewModel.setProjectTime
+            ),
+            lunchStart = TimeFieldAction(
+                onCurrent = viewModel.currentLunchStart,
+                onSet = viewModel.setLunchStart
+            ),
+            lunchEnd = TimeFieldAction(
+                onCurrent = viewModel.currentLunchEnd,
+                onSet = viewModel.setLunchEnd
+            ),
+            breakStart = TimeFieldAction(
+                onCurrent = viewModel.currentBreakStart,
+                onSet = viewModel.setBreakStart
+            ),
+            breakEnd = TimeFieldAction(
+                onCurrent = viewModel.currentBreakEnd,
+                onSet = viewModel.setBreakEnd
+            )
         )
     )
 }

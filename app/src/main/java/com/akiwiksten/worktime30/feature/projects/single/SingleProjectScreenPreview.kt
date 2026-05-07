@@ -8,6 +8,7 @@ import com.android.tools.screenshot.PreviewTest
 
 private const val PREVIEW_DATE = "2026-04-10"
 private const val NO_ALLOWANCE = "No allowance"
+
 @PreviewTest
 @Preview(showBackground = true, name = "Single Project - Loading")
 @Composable

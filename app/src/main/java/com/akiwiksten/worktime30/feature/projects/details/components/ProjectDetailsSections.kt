@@ -100,21 +100,21 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                 AddTimeRow(
                     textFieldValue = uiState.details.startTime,
                     stringId = R.string.start_time,
-                    currentTime = actions.onCurrentStartTime,
-                    onConfirmation = actions.onSetStartTime,
+                    currentTime = actions.startTime.onCurrent,
+                    onConfirmation = actions.startTime.onSet,
                     labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
                 )
                 AddTimeRow(
                     textFieldValue = uiState.details.lunchTimeEstimate,
                     stringId = R.string.lunch_time,
-                    currentTime = actions.onCurrentLunchTime,
-                    onConfirmation = actions.onSetLunchTime
+                    currentTime = actions.lunchTime.onCurrent,
+                    onConfirmation = actions.lunchTime.onSet
                 )
                 AddTimeRow(
                     textFieldValue = uiState.details.projectTime,
                     stringId = R.string.project_time,
-                    currentTime = actions.onCurrentProjectTime,
-                    onConfirmation = actions.onSetProjectTime
+                    currentTime = actions.projectTime.onCurrent,
+                    onConfirmation = actions.projectTime.onSet
                 )
             }
         }
@@ -151,21 +151,21 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
             AddTimeRow(
                 textFieldValue = uiState.details.startTime,
                 stringId = R.string.start_time,
-                currentTime = actions.onCurrentStartTime,
-                onConfirmation = actions.onSetStartTime,
+                currentTime = actions.startTime.onCurrent,
+                onConfirmation = actions.startTime.onSet,
                 labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
             )
             AddTimeRow(
                 textFieldValue = uiState.details.endTime,
                 stringId = endTimeLabelId,
-                currentTime = actions.onCurrentEndTime,
-                onConfirmation = actions.onSetEndTime
+                currentTime = actions.endTime.onCurrent,
+                onConfirmation = actions.endTime.onSet
             )
             AddTimeRow(
                 textFieldValue = uiState.details.projectTime,
                 stringId = R.string.project_time,
-                currentTime = actions.onCurrentProjectTime,
-                onConfirmation = actions.onSetProjectTime
+                currentTime = actions.projectTime.onCurrent,
+                onConfirmation = actions.projectTime.onSet
             )
         }
     }
@@ -184,26 +184,26 @@ private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions:
             AddTimeRow(
                 textFieldValue = uiState.details.lunchStart,
                 stringId = R.string.lunch_start,
-                currentTime = actions.onCurrentLunchStart,
-                onConfirmation = actions.onSetLunchStart
+                currentTime = actions.lunchStart.onCurrent,
+                onConfirmation = actions.lunchStart.onSet
             )
             AddTimeRow(
                 textFieldValue = uiState.details.lunchEnd,
                 stringId = R.string.lunch_end,
-                currentTime = actions.onCurrentLunchEnd,
-                onConfirmation = actions.onSetLunchEnd
+                currentTime = actions.lunchEnd.onCurrent,
+                onConfirmation = actions.lunchEnd.onSet
             )
             AddTimeRow(
                 textFieldValue = uiState.details.breakStart,
                 stringId = R.string.break_start,
-                currentTime = actions.onCurrentBreakStart,
-                onConfirmation = actions.onSetBreakStart
+                currentTime = actions.breakStart.onCurrent,
+                onConfirmation = actions.breakStart.onSet
             )
             AddTimeRow(
                 textFieldValue = uiState.details.breakEnd,
                 stringId = R.string.break_end,
-                currentTime = actions.onCurrentBreakEnd,
-                onConfirmation = actions.onSetBreakEnd
+                currentTime = actions.breakEnd.onCurrent,
+                onConfirmation = actions.breakEnd.onSet
             )
         }
     }
@@ -222,8 +222,8 @@ private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: 
             AddTimeRow(
                 textFieldValue = uiState.details.lunchTimeEstimate,
                 stringId = R.string.lunch_time,
-                currentTime = actions.onCurrentLunchTime,
-                onConfirmation = actions.onSetLunchTime
+                currentTime = actions.lunchTime.onCurrent,
+                onConfirmation = actions.lunchTime.onSet
             )
         }
     }

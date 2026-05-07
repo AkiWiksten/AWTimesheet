@@ -197,56 +197,6 @@ private fun createSettingsActions(
     )
 }
 
-data class SettingsActions(
-    val onNameChange: (String) -> Unit,
-    val onEmployerChange: (String) -> Unit,
-    val onDailyWorkTimeEstimateChange: (String) -> Unit,
-    val onDailyLunchTimeEstimateChange: (String) -> Unit,
-    val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onWorkTypeAdded: (String) -> Unit,
-    val onWorkTypeRemoved: (String) -> Unit,
-    val onSave: () -> Unit,
-    val onGeneratePdf: () -> Unit
-)
-
-private data class WorkTypeDialogState(
-    val selectedWorkType: String,
-    val onWorkTypeSelected: (String) -> Unit,
-    val onAddClick: () -> Unit,
-    val onDeleteClick: () -> Unit
-)
-
-private data class WorkTypeSectionState(
-    val workTypes: List<String>,
-    val selectedWorkType: String,
-    val onWorkTypeSelected: (String) -> Unit,
-    val onAddClick: () -> Unit,
-    val onDeleteClick: () -> Unit,
-    val protectedWorkType: String
-)
-
-private data class AddWorkTypeDialogState(
-    val isVisible: Boolean,
-    val onDismiss: () -> Unit,
-    val onConfirm: (String) -> Unit
-)
-
-private data class TimePickerState(
-    val onDailyWorkTimePickerClick: () -> Unit,
-    val onDailyLunchTimeEstimatePickerClick: () -> Unit
-)
-
-private data class SettingsContentBodyState(
-    val uiState: SettingsUiState.Success,
-    val actions: SettingsActions,
-    val workTypeState: WorkTypeDialogState,
-    val timePickerState: TimePickerState,
-    val addWorkTypeDialogState: AddWorkTypeDialogState,
-    val scrollState: androidx.compose.foundation.ScrollState,
-    val saveUi: SettingsSaveUi,
-    val defaultWorkType: String
-)
-
 @Composable
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
@@ -304,11 +254,6 @@ internal fun SettingsContent(
         )
     )
 }
-
-private data class WorkTypeUiState(
-    val dialogState: WorkTypeDialogState,
-    val addDialogState: AddWorkTypeDialogState
-)
 
 @Composable
 private fun rememberWorkTypeUiState(
@@ -384,10 +329,7 @@ private fun SettingsContentBody(
             WorkTypeSection(
                 state = WorkTypeSectionState(
                     workTypes = state.uiState.data.workTypes,
-                    selectedWorkType = state.workTypeState.selectedWorkType,
-                    onWorkTypeSelected = state.workTypeState.onWorkTypeSelected,
-                    onAddClick = state.workTypeState.onAddClick,
-                    onDeleteClick = state.workTypeState.onDeleteClick,
+                    dialogState = state.workTypeState,
                     protectedWorkType = state.defaultWorkType
                 )
             )
@@ -436,13 +378,6 @@ private fun GlobalDefaultsCard(state: SettingsContentBodyState) {
         )
     }
 }
-
-private data class TimePickerDialogConfig(
-    val time: String,
-    val isVisible: Boolean,
-    val onDismiss: () -> Unit,
-    val onConfirm: (String) -> Unit
-)
 
 @Composable
 private fun TimePickerDialogsSection(
@@ -642,12 +577,6 @@ private fun rememberSettingsSaveUi(
     )
 }
 
-private data class SettingsSaveUi(
-    val isSaveEnabled: Boolean,
-    val isInitialFlexTimeTotalError: Boolean,
-    val onSaveRequested: () -> Unit
-)
-
 @Composable
 private fun SettingsCard(title: String? = null, content: @Composable () -> Unit) {
     ElevatedCard(
@@ -745,22 +674,22 @@ private fun WorkTypeSection(state: WorkTypeSectionState) {
     ) {
         DropdownMenuBox(
             items = state.workTypes,
-            onItemSelected = state.onWorkTypeSelected,
-            selectedText = state.selectedWorkType,
+            onItemSelected = state.dialogState.onWorkTypeSelected,
+            selectedText = state.dialogState.selectedWorkType,
             labelId = R.string.work_type,
             modifier = Modifier.fillMaxWidth()
         )
         Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
             Button(
-                onClick = state.onAddClick,
+                onClick = state.dialogState.onAddClick,
                 modifier = Modifier.weight(weight = 1f),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
                 Text(text = stringResource(id = R.string.add))
             }
             Button(
-                onClick = state.onDeleteClick,
-                enabled = state.selectedWorkType.isNotEmpty() && state.selectedWorkType != state.protectedWorkType,
+                onClick = state.dialogState.onDeleteClick,
+                enabled = state.dialogState.selectedWorkType.isNotEmpty() && state.dialogState.selectedWorkType != state.protectedWorkType,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
@@ -805,3 +734,69 @@ private fun ActionButtonsSection(
         )
     }
 }
+
+
+data class SettingsActions(
+    val onNameChange: (String) -> Unit,
+    val onEmployerChange: (String) -> Unit,
+    val onDailyWorkTimeEstimateChange: (String) -> Unit,
+    val onDailyLunchTimeEstimateChange: (String) -> Unit,
+    val onInitialFlexTimeTotalChange: (String) -> Unit,
+    val onWorkTypeAdded: (String) -> Unit,
+    val onWorkTypeRemoved: (String) -> Unit,
+    val onSave: () -> Unit,
+    val onGeneratePdf: () -> Unit
+)
+
+private data class WorkTypeDialogState(
+    val selectedWorkType: String,
+    val onWorkTypeSelected: (String) -> Unit,
+    val onAddClick: () -> Unit,
+    val onDeleteClick: () -> Unit
+)
+
+private data class WorkTypeSectionState(
+    val workTypes: List<String>,
+    val dialogState: WorkTypeDialogState,
+    val protectedWorkType: String
+)
+
+private data class AddWorkTypeDialogState(
+    val isVisible: Boolean,
+    val onDismiss: () -> Unit,
+    val onConfirm: (String) -> Unit
+)
+
+private data class TimePickerState(
+    val onDailyWorkTimePickerClick: () -> Unit,
+    val onDailyLunchTimeEstimatePickerClick: () -> Unit
+)
+
+private data class SettingsContentBodyState(
+    val uiState: SettingsUiState.Success,
+    val actions: SettingsActions,
+    val workTypeState: WorkTypeDialogState,
+    val timePickerState: TimePickerState,
+    val addWorkTypeDialogState: AddWorkTypeDialogState,
+    val scrollState: androidx.compose.foundation.ScrollState,
+    val saveUi: SettingsSaveUi,
+    val defaultWorkType: String
+)
+
+private data class WorkTypeUiState(
+    val dialogState: WorkTypeDialogState,
+    val addDialogState: AddWorkTypeDialogState
+)
+
+private data class TimePickerDialogConfig(
+    val time: String,
+    val isVisible: Boolean,
+    val onDismiss: () -> Unit,
+    val onConfirm: (String) -> Unit
+)
+
+private data class SettingsSaveUi(
+    val isSaveEnabled: Boolean,
+    val isInitialFlexTimeTotalError: Boolean,
+    val onSaveRequested: () -> Unit
+)

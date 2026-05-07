@@ -186,11 +186,15 @@ private fun rememberSingleProjectDerivedState(
     }
     val isDuplicate by remember(state.projectName, singleProjectUiState, currentIndex) {
         derivedStateOf {
-            isDuplicateProjectName(
-                projectName = state.projectName,
-                currentIndex = currentIndex,
-                singleProjectState = (singleProjectUiState as? SingleProjectUiState.Success)?.data
-            )
+            if (currentIndex != -1) {
+                false
+            } else {
+                isDuplicateProjectName(
+                    projectName = state.projectName,
+                    currentIndex = currentIndex,
+                    singleProjectState = (singleProjectUiState as? SingleProjectUiState.Success)?.data
+                )
+            }
         }
     }
     val isConfirmEnabled by remember(state, hasUnsavedChanges, isDuplicate, currentIndex) {

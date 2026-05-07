@@ -59,82 +59,82 @@ fun SingleProjectScreen(
 ) {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
-    val noAllowanceText = stringResource(id = R.string.no_allowance)
-    val defaultWorkTypeText = stringResource(id = R.string.other)
 
     SingleProjectScreenStateful(
         args = args,
-        config = SingleProjectScreenStatefulConfig(
-            noAllowanceText = noAllowanceText,
-            defaultWorkTypeText = defaultWorkTypeText,
-            onNavigateBack = navigationActions.onNavigateBack,
-            onOpenProjectDetails = navigationActions.onOpenProjectDetails,
-            singleProjectUiState = uiState,
-            onSave = { state ->
-                singleProjectViewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
-                Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
-            }
-        )
+        uiState = uiState,
+        onNavigateBack = navigationActions.onNavigateBack,
+        onOpenProjectDetails = navigationActions.onOpenProjectDetails,
+        onSave = { state ->
+            singleProjectViewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
+            Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+        }
     )
 }
 
 @Composable
 private fun SingleProjectScreenStateful(
     args: SingleProjectScreenArgs,
-    config: SingleProjectScreenStatefulConfig
+    uiState: SingleProjectUiState,
+    onNavigateBack: () -> Unit,
+    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
+    onSave: (SingleProjectState) -> Unit
 ) {
-    val singleProjectUiState = config.singleProjectUiState
+    val noAllowanceText = stringResource(id = R.string.no_allowance)
+    val defaultWorkTypeText = stringResource(id = R.string.other)
 
     val initialUiState = remember(
         args.initialSingleProjectState.index,
         args.initialSingleProjectState.date,
-        singleProjectUiState,
+        uiState,
         args.initialSingleProjectState.projectTime,
         args.initialSingleProjectState.projectName,
         args.initialProjectDetails,
         args.initialSettings,
-        config.noAllowanceText,
-        config.defaultWorkTypeText
+        noAllowanceText,
+        defaultWorkTypeText
     ) {
         resolveInitialSingleProjectState(
             initialSingleProjectState = args.initialSingleProjectState,
             initialProjectDetails = args.initialProjectDetails,
             initialSettings = args.initialSettings,
-            singleProjectUiState = singleProjectUiState
+            singleProjectUiState = uiState
         )
-            .withDefaultAllowance(defaultAllowance = config.noAllowanceText)
-            .withDefaultWorkType(defaultWorkType = config.defaultWorkTypeText)
+            .withDefaultAllowance(defaultAllowance = noAllowanceText)
+            .withDefaultWorkType(defaultWorkType = defaultWorkTypeText)
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
 
-    // Update state when the ViewModel data changes (e.g., returning from ProjectDetailsScreen)
+    // Mutable state for form edits; updates when ViewModel data changes (e.g., returning from ProjectDetailsScreen)
     LaunchedEffect(initialUiState) { state = initialUiState }
 
     val derived = rememberSingleProjectDerivedState(
         state = state,
         initialUiState = initialUiState,
-        singleProjectUiState = singleProjectUiState,
+        singleProjectUiState = uiState,
         currentIndex = args.initialSingleProjectState.index
     )
 
+    // Build screen state from form state and derived flags
+    val successData = (uiState as? SingleProjectUiState.Success)?.data
     val screenState = SingleProjectScreenState(
-        date = (singleProjectUiState as? SingleProjectUiState.Success)?.data?.date ?: "",
+        date = successData?.date ?: "",
         editedProjectIndex = args.initialSingleProjectState.index,
         state = state,
         isAddMode = args.initialSingleProjectState.index == -1,
-        uiState = singleProjectUiState,
+        uiState = uiState,
         isConfirmEnabled = derived.isConfirmEnabled,
         isDuplicateProjectName = derived.isDuplicate
     )
     val actions = SingleProjectActions(
         onStateChange = { state = it },
         onOpenProjectDetails = {
-            config.onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
+            onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
         },
         onConfirm = {
-            config.onSave(state)
-            config.onNavigateBack()
+            onSave(state)
+            onNavigateBack()
         }
     )
 
@@ -142,7 +142,7 @@ private fun SingleProjectScreenStateful(
         screenState = screenState,
         actions = actions,
         hasUnsavedChanges = derived.hasUnsavedChanges,
-        onNavigateBack = config.onNavigateBack
+        onNavigateBack = onNavigateBack
     )
 }
 
@@ -440,15 +440,6 @@ private fun SingleProjectFormFields(
     }
 }
 
-private data class SingleProjectScreenStatefulConfig(
-    val noAllowanceText: String,
-    val defaultWorkTypeText: String,
-    val singleProjectUiState: SingleProjectUiState,
-    val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
-    val onSave: (SingleProjectState) -> Unit
-)
-
 data class SingleProjectScreenArgs(
     val initialSingleProjectState: SingleProjectState,
     val initialProjectDetails: ProjectDetailsState? = null,
@@ -460,12 +451,11 @@ data class SingleProjectNavigationActions(
     val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit
 )
 
-internal data class SingleProjectDerivedState(
+private data class SingleProjectDerivedState(
     val hasUnsavedChanges: Boolean,
     val isDuplicate: Boolean,
     val isConfirmEnabled: Boolean
 )
-
 
 data class SingleProjectScreenState(
     val date: String,

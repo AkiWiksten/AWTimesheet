@@ -47,7 +47,7 @@ import com.akiwiksten.worktime30.feature.projects.details.components.TimeFieldAc
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsScreen(
-    args: ProjectDetailsArgs,
+    args: ProjectDetailsInitialData,
     onNavigateBack: () -> Unit,
     onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
@@ -282,8 +282,7 @@ private fun createProjectDetailsScreenActions(
     )
 }
 
-data class ProjectDetailsArgs(
-    val projectName: String? = null,
+data class ProjectDetailsInitialData(
     val projectDetails: ProjectDetailsState? = null,
     val settings: SettingsState? = null
 )

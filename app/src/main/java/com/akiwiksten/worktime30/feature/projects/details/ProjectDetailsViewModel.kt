@@ -46,7 +46,7 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
-    fun observeDateRepository(args: ProjectDetailsArgs) {
+    fun observeDateRepository(args: ProjectDetailsInitialData) {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 setDate(date = date)

@@ -16,7 +16,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 internal fun rememberBaselineData(
     uiState: ProjectDetailsUiState,
     isInitialLoadComplete: Boolean,
-    args: ProjectDetailsArgs,
+    args: ProjectDetailsInitialData,
 ): ProjectDetailsState? {
     var initialData by remember { mutableStateOf<ProjectDetailsState?>(value = null) }
     var isBaselineInitialized by remember { mutableStateOf(value = false) }
@@ -34,7 +34,7 @@ internal fun rememberBaselineData(
     return initialData
 }
 
-internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsArgs, settings: SettingsState): Boolean {
+internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsInitialData, settings: SettingsState): Boolean {
     val projectDetailsArg = args.projectDetails ?: return args.settings == null || settings == args.settings
     val expectedProjectTime = ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
         startTime = projectDetailsArg.startTime.ifEmpty { ZERO_TIME },

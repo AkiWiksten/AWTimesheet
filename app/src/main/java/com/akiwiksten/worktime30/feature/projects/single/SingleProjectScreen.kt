@@ -146,32 +146,6 @@ private fun SingleProjectScreenStateful(
     )
 }
 
-private data class SingleProjectScreenStatefulConfig(
-    val noAllowanceText: String,
-    val defaultWorkTypeText: String,
-    val singleProjectUiState: SingleProjectUiState,
-    val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
-    val onSave: (SingleProjectState) -> Unit
-)
-
-data class SingleProjectScreenArgs(
-    val initialSingleProjectState: SingleProjectState,
-    val initialProjectDetails: ProjectDetailsState? = null,
-    val initialSettings: SettingsState? = null
-)
-
-data class SingleProjectNavigationActions(
-    val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit
-)
-
-internal data class SingleProjectDerivedState(
-    val hasUnsavedChanges: Boolean,
-    val isDuplicate: Boolean,
-    val isConfirmEnabled: Boolean
-)
-
 @Composable
 private fun rememberSingleProjectDerivedState(
     state: SingleProjectState,
@@ -356,22 +330,6 @@ private fun SingleProjectSuccessContent(
     )
 }
 
-data class SingleProjectScreenState(
-    val date: String,
-    val editedProjectIndex: Int,
-    val state: SingleProjectState,
-    val isAddMode: Boolean,
-    val uiState: SingleProjectUiState,
-    val isConfirmEnabled: Boolean,
-    val isDuplicateProjectName: Boolean
-)
-
-data class SingleProjectActions(
-    val onStateChange: (SingleProjectState) -> Unit,
-    val onOpenProjectDetails: () -> Unit,
-    val onConfirm: () -> Unit
-)
-
 @Composable
 private fun SingleProjectTopSection(
     onNavigateBack: () -> Unit
@@ -481,3 +439,46 @@ private fun SingleProjectFormFields(
         }
     }
 }
+
+private data class SingleProjectScreenStatefulConfig(
+    val noAllowanceText: String,
+    val defaultWorkTypeText: String,
+    val singleProjectUiState: SingleProjectUiState,
+    val onNavigateBack: () -> Unit,
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
+    val onSave: (SingleProjectState) -> Unit
+)
+
+data class SingleProjectScreenArgs(
+    val initialSingleProjectState: SingleProjectState,
+    val initialProjectDetails: ProjectDetailsState? = null,
+    val initialSettings: SettingsState? = null
+)
+
+data class SingleProjectNavigationActions(
+    val onNavigateBack: () -> Unit,
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit
+)
+
+internal data class SingleProjectDerivedState(
+    val hasUnsavedChanges: Boolean,
+    val isDuplicate: Boolean,
+    val isConfirmEnabled: Boolean
+)
+
+
+data class SingleProjectScreenState(
+    val date: String,
+    val editedProjectIndex: Int,
+    val state: SingleProjectState,
+    val isAddMode: Boolean,
+    val uiState: SingleProjectUiState,
+    val isConfirmEnabled: Boolean,
+    val isDuplicateProjectName: Boolean
+)
+
+data class SingleProjectActions(
+    val onStateChange: (SingleProjectState) -> Unit,
+    val onOpenProjectDetails: () -> Unit,
+    val onConfirm: () -> Unit
+)

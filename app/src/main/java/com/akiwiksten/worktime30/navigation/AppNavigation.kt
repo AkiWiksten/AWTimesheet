@@ -20,7 +20,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsArgs
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsInitialData
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectNavigationActions
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectRoute
@@ -100,7 +100,7 @@ internal fun WorkTimeNavDisplay(
 private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     val projectName = screen.projectDetails?.projectName ?: ""
     ProjectDetailsScreen(
-        args = ProjectDetailsArgs(
+        args = ProjectDetailsInitialData(
             projectDetails = screen.projectDetails ?: ProjectDetailsState()
                 .copy(projectName = projectName),
             settings = screen.settingsEstimates

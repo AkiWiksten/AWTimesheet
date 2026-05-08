@@ -14,7 +14,7 @@ import org.junit.Test
 class DeleteProjectUseCaseTest {
 
     @Test
-    fun invoke_nonZeroTime_deletesProjectAndProjectDetails_andDeletesUnusedProjectName() = runBlocking {
+    fun invoke_nonZeroTime_deletesProjectAndProjectDetails_andKeepsProjectName() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             isProjectNameUsedByName["Beta"] = false
         }
@@ -31,7 +31,7 @@ class DeleteProjectUseCaseTest {
             listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")),
             projectRepository.deletedProjects
         )
-        assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
+        assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
         assertEquals(
             listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Beta")),
             projectDetailsRepository.deletedProjectDetails

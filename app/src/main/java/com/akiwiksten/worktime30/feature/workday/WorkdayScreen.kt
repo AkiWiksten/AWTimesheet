@@ -50,7 +50,6 @@ fun WorkdayScreen(
             onSaveSettings = workdayViewModel::updateSettings,
             onDeleteProject = { project ->
                 workdayViewModel.deleteProject(state = project)
-                selectedItemIndexState.intValue = -1
             }
         )
     )

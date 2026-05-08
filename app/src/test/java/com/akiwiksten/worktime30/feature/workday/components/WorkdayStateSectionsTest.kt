@@ -10,8 +10,8 @@ class WorkdayStateSectionsTest {
         val result = calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",
             persistedCalculatedFlexTimeTotal = "+03:30",
-            persistedflexTimeByDate = "+00:30",
-            editedflexTimeByDate = "+00:30"
+            persistedFlexTimeByDate = "+00:30",
+            editedFlexTimeByDate = "+00:30"
         )
 
         assertEquals("03:30", result)
@@ -22,8 +22,8 @@ class WorkdayStateSectionsTest {
         val result = calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "00:00",
             persistedCalculatedFlexTimeTotal = "00:00",
-            persistedflexTimeByDate = "00:00",
-            editedflexTimeByDate = "00:00"
+            persistedFlexTimeByDate = "00:00",
+            editedFlexTimeByDate = "00:00"
         )
 
         assertEquals("00:00", result)
@@ -34,8 +34,8 @@ class WorkdayStateSectionsTest {
         val result = calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",
             persistedCalculatedFlexTimeTotal = "+03:30",
-            persistedflexTimeByDate = "+00:30",
-            editedflexTimeByDate = "-00:30"
+            persistedFlexTimeByDate = "+00:30",
+            editedFlexTimeByDate = "-00:30"
         )
 
         assertEquals("02:30", result)

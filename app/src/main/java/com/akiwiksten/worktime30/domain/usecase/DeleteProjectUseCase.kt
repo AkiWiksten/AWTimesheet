@@ -23,9 +23,5 @@ class DeleteProjectUseCase @Inject constructor(
         projectDetailsRepository.deleteProjectDetails(
             ProjectDetailsState(date = date, projectName = projectName)
         )
-
-        if (!projectRepository.isProjectNameUsed(projectName)) {
-            projectRepository.deleteProjectName(projectName)
-        }
     }
 }

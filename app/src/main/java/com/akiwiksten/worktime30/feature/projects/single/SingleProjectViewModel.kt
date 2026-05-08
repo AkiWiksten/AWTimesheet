@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
@@ -71,7 +72,7 @@ class SingleProjectViewModel @Inject constructor(
                 val projectDate = project?.date?.ifBlank { effectiveDate } ?: effectiveDate
 
                 SingleProjectUiState.Success(
-                    workTimeByDate = currentSuccess?.workTimeByDate ?: workTimeByDate,
+                    workTimeByDate = workTimeByDate,
                     workTypes = workTypes,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
@@ -82,6 +83,29 @@ class SingleProjectViewModel @Inject constructor(
                         workType = project?.workType ?: currentData.workType,
                         date = projectDate
                     )
+                )
+            }
+        }
+    }
+
+    fun addWorkTimeByDate(projectTime: String) {
+        viewModelScope.launch {
+            val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
+            selectedDate.value = effectiveDate
+
+            val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
+            val workTimeByDateSum = WorkTimeCalculator.calculateFlexTime(
+                initialTime = workTimeByDate,
+                addedTime = projectTime
+            )
+            _uiState.update { currentState ->
+                val currentSuccess = currentState as? SingleProjectUiState.Success
+                val currentData = currentSuccess?.data ?: SingleProjectState()
+
+                SingleProjectUiState.Success(
+                    workTimeByDate = workTimeByDateSum,
+                    workTypes = currentSuccess?.workTypes ?: emptyList(),
+                    data = currentData
                 )
             }
         }

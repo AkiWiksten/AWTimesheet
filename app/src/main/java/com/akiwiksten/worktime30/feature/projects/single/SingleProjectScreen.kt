@@ -75,10 +75,7 @@ fun SingleProjectScreen(
         args = args,
         uiState = uiState,
         onNavigateBack = navigationActions.onNavigateBack,
-        onOpenProjectDetails = { single, projectDetails, settings ->
-            viewModel.addWorkTimeByDate(single.projectTime)
-            navigationActions.onOpenProjectDetails(single, projectDetails, settings)
-        },
+        onOpenProjectDetails = navigationActions.onOpenProjectDetails,
         onSave = { state ->
             viewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
             Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()

@@ -42,7 +42,7 @@ class SingleProjectViewModel @Inject constructor(
 ) : ViewModel() {
     private val selectedProjectName = MutableStateFlow("")
     private val selectedDate = MutableStateFlow("")
-    private val workTimeByDate = MutableStateFlow("")
+    //private val workTimeByDate = MutableStateFlow("")
     private val _uiState = MutableStateFlow<SingleProjectUiState>(SingleProjectUiState.Loading)
     val uiState: StateFlow<SingleProjectUiState> = _uiState.asStateFlow()
 
@@ -51,7 +51,7 @@ class SingleProjectViewModel @Inject constructor(
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
             selectedProjectName.value = singleProjectState.projectName
-            workTimeByDate.value = singleProjectState.projectTime
+            //workTimeByDate.value = singleProjectState.projectTime
 
             val project = projectRepository.getProject(
                 date = effectiveDate,
@@ -77,29 +77,6 @@ class SingleProjectViewModel @Inject constructor(
                         workType = project?.workType ?: currentData.workType,
                         date = projectDate
                     )
-                )
-            }
-        }
-    }
-
-    fun addWorkTimeByDate(projectTime: String) {
-        viewModelScope.launch {
-            val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
-            selectedDate.value = effectiveDate
-
-            val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
-            val workTimeByDateSum = WorkTimeCalculator.calculateFlexTime(
-                initialTime = workTimeByDate,
-                addedTime = projectTime
-            )
-            _uiState.update { currentState ->
-                val currentSuccess = currentState as? SingleProjectUiState.Success
-                val currentData = currentSuccess?.data ?: SingleProjectState()
-
-                SingleProjectUiState.Success(
-                    workTimeByDate = workTimeByDateSum,
-                    workTypes = currentSuccess?.workTypes ?: emptyList(),
-                    data = currentData
                 )
             }
         }

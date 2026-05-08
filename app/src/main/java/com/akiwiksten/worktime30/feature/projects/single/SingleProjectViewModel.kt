@@ -46,18 +46,12 @@ class SingleProjectViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SingleProjectUiState>(SingleProjectUiState.Loading)
     val uiState: StateFlow<SingleProjectUiState> = _uiState.asStateFlow()
 
-    fun setInitialValues(date: String, projectName: String, workTimeByDate: String) {
-        val effectiveDate = date.ifBlank { dateRepository.selectedDate.value }
-        selectedDate.value = effectiveDate
-        selectedProjectName.value = projectName
-        this.workTimeByDate.value = workTimeByDate
-        _uiState.value = getBaseState(effectiveDate, projectName)
-    }
-
-    fun initializeState() {
+    fun initializeState(singleProjectState: SingleProjectState) {
         viewModelScope.launch {
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
+            selectedProjectName.value = singleProjectState.projectName
+            workTimeByDate.value = singleProjectState.projectTime
 
             val project = projectRepository.getProject(
                 date = effectiveDate,
@@ -143,17 +137,5 @@ class SingleProjectViewModel @Inject constructor(
                 Log.e("SingleProjectViewModel", "saveProject: ", e)
             }
         }
-    }
-
-    private fun getBaseState(date: String, projectName: String): SingleProjectUiState.Success {
-        val currentSuccess = _uiState.value as? SingleProjectUiState.Success
-        return SingleProjectUiState.Success(
-            workTimeByDate = currentSuccess?.workTimeByDate ?: ZERO_TIME,
-            workTypes = currentSuccess?.workTypes ?: emptyList(),
-            data = (currentSuccess?.data ?: SingleProjectState()).copy(
-                date = date,
-                projectName = projectName
-            )
-        )
     }
 }

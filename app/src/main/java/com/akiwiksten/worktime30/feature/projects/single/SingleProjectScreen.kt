@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,14 +61,15 @@ fun SingleProjectScreen(
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
 
-    viewModel.setInitialValues(
-        date = args.initialSingleProjectState.date,
-        projectName = args.initialSingleProjectState.projectName,
-        workTimeByDate = args.initialSingleProjectState.projectTime
-    )
-    viewModel.initializeState()
+    LaunchedEffect(args.initialSingleProjectState.date,
+        args.initialSingleProjectState.projectName,
+        args.initialSingleProjectState.projectTime) {
+        viewModel.initializeState(
+            singleProjectState = args.initialSingleProjectState,
+        )
+    }
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
 
     SingleProjectScreenStateful(
         args = args,

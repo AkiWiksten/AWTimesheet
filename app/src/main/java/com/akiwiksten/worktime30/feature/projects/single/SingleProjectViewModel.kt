@@ -63,6 +63,7 @@ class SingleProjectViewModel @Inject constructor(
                 projectName = selectedProjectName.value
             )
             val workTypes = settingsRepository.getWorkTypes()
+            val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
 
             _uiState.update { currentState ->
                 val currentSuccess = currentState as? SingleProjectUiState.Success
@@ -70,7 +71,7 @@ class SingleProjectViewModel @Inject constructor(
                 val projectDate = project?.date?.ifBlank { effectiveDate } ?: effectiveDate
 
                 SingleProjectUiState.Success(
-                    workTimeByDate = currentSuccess?.workTimeByDate ?: workTimeByDate.value,
+                    workTimeByDate = currentSuccess?.workTimeByDate ?: workTimeByDate,
                     workTypes = workTypes,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,

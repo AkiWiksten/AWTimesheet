@@ -23,7 +23,7 @@ import com.akiwiksten.worktime30.feature.intro.IntroScreen
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsInitialData
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectNavigationActions
-import com.akiwiksten.worktime30.feature.projects.single.SingleProjectRoute
+import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenArgs
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
@@ -125,7 +125,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         workType = screen.workType ?: "",
         date = screen.date ?: ""
     )
-    SingleProjectRoute(
+    SingleProjectScreen(
         args = SingleProjectScreenArgs(
             initialSingleProjectState = initialSingleProjectState,
             initialProjectDetails = screen.projectDetails,

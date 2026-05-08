@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
@@ -54,11 +55,19 @@ import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdo
 fun SingleProjectScreen(
     args: SingleProjectScreenArgs,
     navigationActions: SingleProjectNavigationActions,
-    singleProjectViewModel: SingleProjectViewModel = hiltViewModel(),
-    uiState: SingleProjectUiState
+    viewModel: SingleProjectViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
+
+    viewModel.setInitialValues(
+        date = args.initialSingleProjectState.date,
+        projectName = args.initialSingleProjectState.projectName,
+        workTimeByDate = args.initialSingleProjectState.projectTime
+    )
+    viewModel.initializeState()
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     SingleProjectScreenStateful(
         args = args,
@@ -66,7 +75,7 @@ fun SingleProjectScreen(
         onNavigateBack = navigationActions.onNavigateBack,
         onOpenProjectDetails = navigationActions.onOpenProjectDetails,
         onSave = { state ->
-            singleProjectViewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
+            viewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
             Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
         }
     )

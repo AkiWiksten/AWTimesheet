@@ -23,7 +23,7 @@ class ProjectDetailsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun setDate_andProjectName_thenLoadProjectDetails_loadsProjectDetailsData() = runTest {
+    fun loadProjectDetails_withExplicitDateAndProjectName_loadsProjectDetailsData() = runTest {
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             projectDetails = ProjectDetailsState(
                 date = "2026-04-10",
@@ -45,7 +45,7 @@ class ProjectDetailsViewModelTest {
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
-        viewModel.loadProjectDetails()
+        viewModel.loadProjectDetails(date = "2026-04-10", projectName = "Alpha")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -72,9 +72,9 @@ class ProjectDetailsViewModelTest {
             DateRepository()
         )
 
-        viewModel.setDate("2026-04-10")
-        viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -115,9 +115,9 @@ class ProjectDetailsViewModelTest {
             DateRepository()
         )
 
-        viewModel.setDate("2026-04-10")
-        viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -154,9 +154,7 @@ class ProjectDetailsViewModelTest {
         val viewModel =
             ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
-        viewModel.setDate("2026-04-10")
-        viewModel.setProjectName("Alpha")
-        viewModel.loadProjectDetails()
+        viewModel.loadProjectDetails(date = "2026-04-10", projectName = "Alpha")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as ProjectDetailsUiState.Success
@@ -179,9 +177,9 @@ class ProjectDetailsViewModelTest {
             DateRepository()
         )
 
-        viewModel.setDate("2026-04-10")
-        viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -210,9 +208,9 @@ class ProjectDetailsViewModelTest {
             DateRepository()
         )
 
-        viewModel.setDate("2026-04-10")
-        viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -244,9 +242,9 @@ class ProjectDetailsViewModelTest {
             DateRepository()
         )
 
-        viewModel.setDate("2026-04-10")
-        viewModel.setProjectName("Alpha")
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha"
@@ -317,6 +315,8 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",
@@ -355,6 +355,8 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.loadProjectDetails(
+            date = "2026-04-10",
+            projectName = "Alpha",
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha",

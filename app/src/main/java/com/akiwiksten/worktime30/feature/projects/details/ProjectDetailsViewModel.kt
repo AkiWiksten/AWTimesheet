@@ -40,8 +40,6 @@ class ProjectDetailsViewModel @Inject constructor(
     val uiState: StateFlow<ProjectDetailsUiState> = _uiState.asStateFlow()
     private val _isInitialLoadComplete = MutableStateFlow(false)
     val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
-    private val selectedDate = MutableStateFlow("")
-    private val selectedProjectName = MutableStateFlow("")
     private var dateObserverJob: Job? = null
     private var loadProjectDetailsJob: Job? = null
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
@@ -50,8 +48,9 @@ class ProjectDetailsViewModel @Inject constructor(
         dateObserverJob?.cancel()
         dateObserverJob = viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
-                setDate(date = date)
                 loadProjectDetails(
+                    date = date,
+                    projectName = projectDetails.projectName,
                     projectDetailsArg = projectDetails.copy(date = date)
                 )
             }
@@ -59,7 +58,6 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     fun setDate(date: String) {
-        selectedDate.value = date
         _uiState.update { currentState ->
             when (currentState) {
                 is ProjectDetailsUiState.Success -> {
@@ -78,7 +76,6 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     fun setProjectName(projectName: String) {
-        selectedProjectName.value = projectName
         _uiState.update { currentState ->
             when (currentState) {
                 is ProjectDetailsUiState.Success -> {
@@ -95,11 +92,6 @@ class ProjectDetailsViewModel @Inject constructor(
             }
         }
     }
-
-    private data class ProjectDetailsSelection(
-        val date: String,
-        val projectName: String
-    )
 
     val setStartTime: (String) -> Unit = { startTime ->
         _uiState.update { currentState ->
@@ -288,16 +280,27 @@ class ProjectDetailsViewModel @Inject constructor(
         (uiState.value as ProjectDetailsUiState.Success).settings
     }
 
-    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null) {
+    fun loadProjectDetails(
+        date: String,
+        projectName: String,
+        projectDetailsArg: ProjectDetailsState? = null
+    ) {
         _isInitialLoadComplete.value = false
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
         val baseState = (currentState as? ProjectDetailsUiState.Success)
-            ?: ProjectDetailsUiState.Success(details = ProjectDetailsState())
+            ?.let { successState ->
+                successState.copy(details = successState.details.copy(date = date, projectName = projectName))
+            }
+            ?: ProjectDetailsUiState.Success(
+                details = ProjectDetailsState(date = date, projectName = projectName)
+            )
         loadProjectDetailsJob?.cancel()
         loadProjectDetailsJob = viewModelScope.launch {
             loadProjectDetailsInternal(
                 baseState = baseState,
+                date = date,
+                projectName = projectName,
                 projectDetailsArg = projectDetailsArg,
                 showLoading = showLoading
             )
@@ -306,6 +309,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
+        date: String,
+        projectName: String,
         projectDetailsArg: ProjectDetailsState? = null,
         showLoading: Boolean
     ) {
@@ -314,23 +319,23 @@ class ProjectDetailsViewModel @Inject constructor(
         }
 
         try {
-            val selection = resolveSelection(baseState, projectDetailsArg)
-            if (selection.date.isEmpty()) return
+            if (date.isBlank()) return
 
             val loadedProjectDetails = resolveLoadedProjectDetails(
-                selection = selection,
+                date = date,
+                projectName = projectName,
                 projectDetailsArg = projectDetailsArg
             )
-            val settings = resolveSettings(loadedProjectDetails, selection.date)
+            val settings = resolveSettings(loadedProjectDetails, date)
             val normalizedProjectDetails = normalizeProjectDetails(loadedProjectDetails, settings)
 
             _uiState.value = createNextState(
                 baseState = baseState,
-                selection = selection,
+                date = date,
+                projectName = projectName,
                 projectDetails = normalizedProjectDetails,
                 settings = settings
             )
-            syncSelectedValuesFromDetails(normalizedProjectDetails)
         } catch (e: IllegalArgumentException) {
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {
@@ -340,19 +345,9 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun resolveSelection(
-        baseState: ProjectDetailsUiState.Success,
-        projectDetailsArg: ProjectDetailsState?
-    ): ProjectDetailsSelection {
-        val date = baseState.details.date.ifEmpty { projectDetailsArg?.date ?: selectedDate.value }
-        val projectName = baseState.details.projectName.ifEmpty {
-            projectDetailsArg?.projectName ?: selectedProjectName.value
-        }
-        return ProjectDetailsSelection(date = date, projectName = projectName)
-    }
-
     private suspend fun resolveLoadedProjectDetails(
-        selection: ProjectDetailsSelection,
+        date: String,
+        projectName: String,
         projectDetailsArg: ProjectDetailsState?
     ): ProjectDetailsState? {
         if (projectDetailsArg != null && !projectDetailsArg.hasOnlyProjectTime()) {
@@ -360,8 +355,8 @@ class ProjectDetailsViewModel @Inject constructor(
         }
 
         return projectDetailsRepository.getProjectDetails(
-            selection.date,
-            selection.projectName
+            date,
+            projectName
         ) ?: projectDetailsArg
     }
 
@@ -400,15 +395,16 @@ class ProjectDetailsViewModel @Inject constructor(
 
     private fun createNextState(
         baseState: ProjectDetailsUiState.Success,
-        selection: ProjectDetailsSelection,
+        date: String,
+        projectName: String,
         projectDetails: ProjectDetailsState?,
         settings: SettingsState?
     ): ProjectDetailsUiState.Success {
         return ProjectDetailsUiMapper.applyEntitiesToState(
             baseState.copy(
                 details = baseState.details.copy(
-                    date = selection.date,
-                    projectName = selection.projectName,
+                    date = date,
+                    projectName = projectName,
                 )
             ),
             projectDetails,
@@ -416,14 +412,6 @@ class ProjectDetailsViewModel @Inject constructor(
         )
     }
 
-    private fun syncSelectedValuesFromDetails(projectDetails: ProjectDetailsState?) {
-        projectDetails?.date
-            ?.takeIf { it.isNotBlank() }
-            ?.let { setDate(date = it) }
-        projectDetails?.projectName
-            ?.takeIf { it.isNotBlank() }
-            ?.let { setProjectName(projectName = it) }
-    }
 
     val clearDetails: () -> Unit = {
         _uiState.update { currentState ->

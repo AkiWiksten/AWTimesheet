@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -43,16 +44,17 @@ class ProjectDetailsViewModel @Inject constructor(
     val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
     private val selectedDate = MutableStateFlow("")
     private val selectedProjectName = MutableStateFlow("")
-
+    private var dateObserverJob: Job? = null
+    private var loadProjectDetailsJob: Job? = null
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
-    fun observeDateRepository(args: ProjectDetailsInitialData) {
-        viewModelScope.launch {
+    fun observeDateRepository(projectDetails: ProjectDetailsState) {
+        dateObserverJob?.cancel()
+        dateObserverJob = viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 setDate(date = date)
                 loadProjectDetails(
-                    projectDetailsArg = args.projectDetails?.copy(date = date),
-                    settingsArg = args.settings
+                    projectDetailsArg = projectDetails.copy(date = date)
                 )
             }
         }
@@ -260,16 +262,6 @@ class ProjectDetailsViewModel @Inject constructor(
         setLunchTime(LocalTime.now().format(timeFormatter))
     }
 
-    val setDailyWorkTime: (String) -> Unit = { dailyWorkTimeEstimate ->
-        _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
-            val updatedState = successState.copy(
-                settings = successState.settings.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
-            )
-            // flexTimeByDate is now calculated on-the-fly in the UI, not stored in state
-            updatedState
-        }
-    }
 
     val setBreakStart: (String) -> Unit = { breakStart0 ->
         _uiState.update { currentState ->
@@ -336,17 +328,17 @@ class ProjectDetailsViewModel @Inject constructor(
         (uiState.value as ProjectDetailsUiState.Success).settings
     }
 
-    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null, settingsArg: SettingsState? = null) {
+    fun loadProjectDetails(projectDetailsArg: ProjectDetailsState? = null) {
         _isInitialLoadComplete.value = false
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
         val baseState = (currentState as? ProjectDetailsUiState.Success)
             ?: ProjectDetailsUiState.Success(details = ProjectDetailsState())
-        viewModelScope.launch {
+        loadProjectDetailsJob?.cancel()
+        loadProjectDetailsJob = viewModelScope.launch {
             loadProjectDetailsInternal(
                 baseState = baseState,
                 projectDetailsArg = projectDetailsArg,
-                settingsArg = settingsArg,
                 showLoading = showLoading
             )
         }
@@ -355,7 +347,6 @@ class ProjectDetailsViewModel @Inject constructor(
     private suspend fun loadProjectDetailsInternal(
         baseState: ProjectDetailsUiState.Success,
         projectDetailsArg: ProjectDetailsState? = null,
-        settingsArg: SettingsState? = null,
         showLoading: Boolean
     ) {
         if (showLoading && _uiState.value !is ProjectDetailsUiState.Success) {
@@ -366,11 +357,16 @@ class ProjectDetailsViewModel @Inject constructor(
             val selection = resolveSelection(baseState, projectDetailsArg)
             if (selection.date.isEmpty()) return
 
-            val loadedProjectDetails = projectDetailsRepository.getProjectDetails(
+            val persistedProjectDetails = projectDetailsRepository.getProjectDetails(
                 selection.date,
                 selection.projectName
-            ) ?: projectDetailsArg
-            val settings = resolveSettings(settingsArg, loadedProjectDetails, selection.date)
+            )
+            val loadedProjectDetails = when {
+                // If caller provides richer edited fields, keep them instead of stale persisted values.
+                projectDetailsArg != null && !projectDetailsArg.hasOnlyProjectTime() -> projectDetailsArg
+                else -> persistedProjectDetails ?: projectDetailsArg
+            }
+            val settings = resolveSettings(loadedProjectDetails, selection.date)
             val normalizedProjectDetails = normalizeProjectDetails(loadedProjectDetails, settings)
 
             _uiState.value = createNextState(
@@ -401,12 +397,10 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     private suspend fun resolveSettings(
-        settingsArg: SettingsState?,
         projectDetails: ProjectDetailsState?,
         date: String
     ): SettingsState? {
         return when {
-            settingsArg != null -> settingsArg
             projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
             else -> settingsRepository.getSettings()
         }

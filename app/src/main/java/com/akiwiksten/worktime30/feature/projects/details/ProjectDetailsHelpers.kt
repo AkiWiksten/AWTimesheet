@@ -16,7 +16,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 internal fun rememberBaselineData(
     uiState: ProjectDetailsUiState,
     isInitialLoadComplete: Boolean,
-    args: ProjectDetailsInitialData,
+    projectDetails: ProjectDetailsState,
 ): ProjectDetailsState? {
     var initialData by remember { mutableStateOf<ProjectDetailsState?>(value = null) }
     var isBaselineInitialized by remember { mutableStateOf(value = false) }
@@ -25,7 +25,7 @@ internal fun rememberBaselineData(
         val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
         if (isBaselineInitialized || !isInitialLoadComplete) return@LaunchedEffect
         val data = successState.details
-        if (data.date.isNotBlank() && data.matchesArgs(args = args, settings = successState.settings)) {
+        if (data.date.isNotBlank() && data.matchesInitialProjectDetails(projectDetails = projectDetails)) {
             initialData = data
             isBaselineInitialized = true
         }
@@ -34,21 +34,20 @@ internal fun rememberBaselineData(
     return initialData
 }
 
-internal fun ProjectDetailsState.matchesArgs(args: ProjectDetailsInitialData, settings: SettingsState): Boolean {
-    val projectDetailsArg = args.projectDetails ?: return args.settings == null || settings == args.settings
+internal fun ProjectDetailsState.matchesInitialProjectDetails(projectDetails: ProjectDetailsState): Boolean {
     val expectedProjectTime = ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
-        startTime = projectDetailsArg.startTime.ifEmpty { ZERO_TIME },
-        endTime = projectDetailsArg.endTime.ifEmpty { ZERO_TIME },
-        projectTime = projectDetailsArg.projectTime.ifEmpty { ZERO_TIME }
+        startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },
+        endTime = projectDetails.endTime.ifEmpty { ZERO_TIME },
+        projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME }
     )
-    val matchesDetails = startTime == projectDetailsArg.startTime &&
-        endTime == projectDetailsArg.endTime &&
-        lunchStart == projectDetailsArg.lunchStart &&
-        lunchEnd == projectDetailsArg.lunchEnd &&
-        breakStart == projectDetailsArg.breakStart &&
-        breakEnd == projectDetailsArg.breakEnd &&
+    val matchesDetails = startTime == projectDetails.startTime &&
+        endTime == projectDetails.endTime &&
+        lunchStart == projectDetails.lunchStart &&
+        lunchEnd == projectDetails.lunchEnd &&
+        breakStart == projectDetails.breakStart &&
+        breakEnd == projectDetails.breakEnd &&
         projectTime == expectedProjectTime
-    return matchesDetails && (args.settings == null || settings == args.settings)
+    return matchesDetails
 }
 
 @Composable

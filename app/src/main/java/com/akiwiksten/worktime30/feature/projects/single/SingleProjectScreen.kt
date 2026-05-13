@@ -88,7 +88,7 @@ private fun SingleProjectScreenStateful(
     args: SingleProjectScreenArgs,
     uiState: SingleProjectUiState,
     onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit,
+    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
     onSave: (SingleProjectState) -> Unit
 ) {
     val noAllowanceText = stringResource(id = R.string.no_allowance)
@@ -141,7 +141,7 @@ private fun SingleProjectScreenStateful(
     val actions = SingleProjectActions(
         onStateChange = { state = it },
         onOpenProjectDetails = {
-            onOpenProjectDetails(state, args.initialProjectDetails, args.initialSettings)
+            onOpenProjectDetails(state, args.initialProjectDetails)
         },
         onConfirm = {
             onSave(state)
@@ -459,7 +459,7 @@ data class SingleProjectScreenArgs(
 
 data class SingleProjectNavigationActions(
     val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?, SettingsState?) -> Unit
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit
 )
 
 private data class SingleProjectDerivedState(

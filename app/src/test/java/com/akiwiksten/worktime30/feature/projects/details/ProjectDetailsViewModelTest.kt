@@ -8,6 +8,7 @@ import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.test.MainDispatcherRule
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -57,10 +58,17 @@ class ProjectDetailsViewModelTest {
     }
 
     @Test
-    fun loadProjectDetails_withArgs_mapsEntities_andClearDetailsResetsDailyFields() = runTest {
+    fun loadProjectDetails_withProjectDetailsArg_mapsEntities_andClearDetailsResetsDailyFields() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "02:00"
+            )
+        }
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeSettingsRepository(),
+            settingsRepository,
             DateRepository()
         )
 
@@ -73,11 +81,6 @@ class ProjectDetailsViewModelTest {
                 startTime = "08:00",
                 endTime = "16:00",
                 projectTime = "08:00",
-            ),
-            settingsArg = SettingsState(
-                dailyWorkTimeEstimate = "07:30",
-                dailyLunchTimeEstimate = "00:30",
-                initialFlexTimeTotal = "02:00"
             )
         )
         advanceUntilIdle()
@@ -99,9 +102,16 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun setProjectTime_doesNotMutateInitialFlexTimeTotal() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "02:00"
+            )
+        }
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeSettingsRepository(),
+            settingsRepository,
             DateRepository()
         )
 
@@ -114,11 +124,6 @@ class ProjectDetailsViewModelTest {
                 startTime = "08:00",
                 endTime = "16:00",
                 projectTime = "08:00",
-            ),
-            settingsArg = SettingsState(
-                dailyWorkTimeEstimate = "07:30",
-                dailyLunchTimeEstimate = "00:30",
-                initialFlexTimeTotal = "02:00"
             )
         )
         advanceUntilIdle()
@@ -160,10 +165,17 @@ class ProjectDetailsViewModelTest {
     }
 
     @Test
-    fun loadProjectDetails_withNewDayArgs_usesSettingsLunchTimeEstimate() = runTest {
+    fun loadProjectDetails_withNewDayProjectDetailsArg_usesSettingsLunchTimeEstimate() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:45",
+                initialFlexTimeTotal = "02:00"
+            )
+        }
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeSettingsRepository(),
+            settingsRepository,
             DateRepository()
         )
 
@@ -174,11 +186,6 @@ class ProjectDetailsViewModelTest {
                 date = "2026-04-10",
                 projectName = "Alpha",
                 lunchTimeEstimate = ZERO_TIME
-            ),
-            settingsArg = SettingsState(
-                dailyWorkTimeEstimate = "07:30",
-                dailyLunchTimeEstimate = "00:45",
-                initialFlexTimeTotal = "02:00"
             )
         )
         advanceUntilIdle()
@@ -189,10 +196,17 @@ class ProjectDetailsViewModelTest {
     }
 
     @Test
-    fun loadProjectDetails_withExistingDayArgs_preservesProjectLunchTimeEstimate() = runTest {
+    fun loadProjectDetails_withExistingDayProjectDetailsArg_preservesProjectLunchTimeEstimate() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:45",
+                initialFlexTimeTotal = "02:00"
+            )
+        }
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeSettingsRepository(),
+            settingsRepository,
             DateRepository()
         )
 
@@ -206,11 +220,6 @@ class ProjectDetailsViewModelTest {
                 endTime = "16:00",
                 projectTime = "08:00",
                 lunchTimeEstimate = "00:15"
-            ),
-            settingsArg = SettingsState(
-                dailyWorkTimeEstimate = "07:30",
-                dailyLunchTimeEstimate = "00:45",
-                initialFlexTimeTotal = "02:00"
             )
         )
         advanceUntilIdle()
@@ -222,9 +231,16 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun setProjectTime_whenOnlyProjectTime_usesSameDerivedFieldsAsOpenNormalization() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "02:00"
+            )
+        }
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
-            FakeSettingsRepository(),
+            settingsRepository,
             DateRepository()
         )
 
@@ -234,11 +250,6 @@ class ProjectDetailsViewModelTest {
             projectDetailsArg = ProjectDetailsState(
                 date = "2026-04-10",
                 projectName = "Alpha"
-            ),
-            settingsArg = SettingsState(
-                dailyWorkTimeEstimate = "07:30",
-                dailyLunchTimeEstimate = "00:30",
-                initialFlexTimeTotal = "02:00"
             )
         )
         advanceUntilIdle()
@@ -255,14 +266,120 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals(ZERO_TIME, state.details.breakEnd)
     }
 
+    @Test
+    fun observeDateRepository_whenReObserved_doesNotLetOlderLoadOverwriteNewerDetails() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            delayMsByProjectName["Alpha"] = 1_000L
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
+
+        viewModel.observeDateRepository(
+            ProjectDetailsState(date = "2026-04-10", projectName = "Alpha", projectTime = "01:00")
+        )
+        viewModel.observeDateRepository(
+            ProjectDetailsState(date = "2026-04-10", projectName = "Beta", projectTime = "02:00")
+        )
+        dateRepository.updateDate("2026-04-11")
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertEquals("2026-04-11", state.details.date)
+        Assert.assertEquals("Beta", state.details.projectName)
+        Assert.assertEquals("02:00", state.details.projectTime)
+    }
+
+    @Test
+    fun loadProjectDetails_withDetailedProjectDetailsArg_prefersArgOverPersistedDetails() = runTest {
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            projectDetails = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00"
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+
+        viewModel.loadProjectDetails(
+            projectDetailsArg = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "09:00",
+                endTime = "17:00",
+                projectTime = "07:00"
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertEquals("09:00", state.details.startTime)
+        Assert.assertEquals("17:00", state.details.endTime)
+        Assert.assertEquals("07:00", state.details.projectTime)
+    }
+
+    @Test
+    fun loadProjectDetails_withProjectTimeOnlyArg_prefersPersistedDetailsWhenAvailable() = runTest {
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            projectDetails = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00"
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+
+        viewModel.loadProjectDetails(
+            projectDetailsArg = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "02:00"
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertEquals("08:00", state.details.startTime)
+        Assert.assertEquals("16:00", state.details.endTime)
+        Assert.assertEquals("08:00", state.details.projectTime)
+    }
+
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var projectDetails: ProjectDetailsState? = null
         var projectDetailsByDateRangeResult: List<ProjectDetailsState> = emptyList()
+        val delayMsByProjectName = mutableMapOf<String, Long>()
 
         override suspend fun getProjectDetails(
             date: String,
             projectName: String
-        ): ProjectDetailsState? = projectDetails
+        ): ProjectDetailsState? {
+            delay(timeMillis = delayMsByProjectName[projectName] ?: 0L)
+            return projectDetails
+        }
 
         override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) {
             this.projectDetails = projectDetails

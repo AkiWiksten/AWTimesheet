@@ -47,7 +47,7 @@ import com.akiwiksten.worktime30.feature.projects.details.components.TimeFieldAc
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsScreen(
-    args: ProjectDetailsInitialData,
+    projectDetails: ProjectDetailsState,
     onNavigateBack: () -> Unit,
     onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
@@ -57,14 +57,14 @@ fun ProjectDetailsScreen(
     val showUnsavedDialogState = remember { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
-    LaunchedEffect(Unit) {
-        viewModel.observeDateRepository(args)
+    LaunchedEffect(projectDetails) {
+        viewModel.observeDateRepository(projectDetails)
     }
 
     val baselineData = rememberBaselineData(
         uiState = uiState,
         isInitialLoadComplete = isInitialLoadComplete,
-        args = args
+        projectDetails = projectDetails
     )
 
     val hasUnsavedChanges = baselineData != null &&
@@ -282,7 +282,3 @@ private fun createProjectDetailsScreenActions(
     )
 }
 
-data class ProjectDetailsInitialData(
-    val projectDetails: ProjectDetailsState? = null,
-    val settings: SettingsState? = null
-)

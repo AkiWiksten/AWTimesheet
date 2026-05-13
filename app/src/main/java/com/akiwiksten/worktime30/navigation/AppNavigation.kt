@@ -20,7 +20,6 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.calendar.CalendarScreen
 import com.akiwiksten.worktime30.feature.intro.IntroScreen
-import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsInitialData
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsScreen
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectNavigationActions
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
@@ -98,13 +97,8 @@ internal fun WorkTimeNavDisplay(
 
 @Composable
 private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
-    val projectName = screen.projectDetails?.projectName ?: ""
     ProjectDetailsScreen(
-        args = ProjectDetailsInitialData(
-            projectDetails = screen.projectDetails ?: ProjectDetailsState()
-                .copy(projectName = projectName),
-            settings = screen.settingsEstimates
-        ),
+        projectDetails = screen.projectDetails,
         onNavigateBack = { backStack.pop() },
         onConfirm = { projectDetails, settings ->
             backStack.updateSingleProjectWorkTime(projectDetails = projectDetails, settings = settings)
@@ -133,11 +127,10 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
         ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
-            onOpenProjectDetails = { singleProject, projectDetails, settings ->
+            onOpenProjectDetails = { singleProject, projectDetails ->
                 backStack.updateSingleProjectState(
                     singleProject = singleProject,
-                    projectDetails = projectDetails,
-                    settings = settings
+                    projectDetails = projectDetails
                 )
                 backStack.add(
                     element = Screen.ProjectDetails(
@@ -146,8 +139,7 @@ private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapshot
                                 date = singleProject.date,
                                 projectName = singleProject.projectName,
                                 projectTime = singleProject.projectTime
-                            ),
-                        settingsEstimates = settings
+                            )
                     )
                 )
             }
@@ -178,8 +170,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
 
 internal fun SnapshotStateList<Any>.updateSingleProjectState(
     singleProject: SingleProjectState,
-    projectDetails: ProjectDetailsState?,
-    settings: SettingsState?
+    projectDetails: ProjectDetailsState?
 ) {
     val index = size - 1
     val current = getOrNull(index = index)
@@ -190,8 +181,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
             kilometres = singleProject.kilometres,
             allowance = singleProject.allowance,
             workType = singleProject.workType,
-            projectDetails = projectDetails,
-            settingsEstimates = settings
+            projectDetails = projectDetails
         )
     }
 }

@@ -19,8 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -96,43 +94,6 @@ class ProjectDetailsViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun observeSelectionChanges() {
-        viewModelScope.launch {
-            combine(selectedDate, selectedProjectName) { date, projectName -> date to projectName }
-                .distinctUntilChanged()
-                .collect { (date, projectName) ->
-                    if (date.isNotEmpty()) {
-                        val currentState = _uiState.value
-                        if (isSameSelection(currentState, date, projectName)) {
-                            return@collect
-                        }
-
-                        loadProjectDetailsInternal(
-                            baseState = getBaseState(date, projectName),
-                            showLoading = false
-                        )
-                    }
-                }
-        }
-    }
-
-    private fun isSameSelection(state: ProjectDetailsUiState, date: String, projectName: String): Boolean {
-        return state is ProjectDetailsUiState.Success &&
-            state.details.date == date &&
-            state.details.projectName == projectName &&
-            !state.details.isNewDayForProject()
-    }
-
-    private fun getBaseState(date: String, projectName: String): ProjectDetailsUiState.Success {
-        val currentSuccess = uiState.value as? ProjectDetailsUiState.Success
-        return ProjectDetailsUiState.Success(
-            details = (currentSuccess?.details ?: ProjectDetailsState()).copy(
-                date = date,
-                projectName = projectName
-            )
-        )
     }
 
     private data class ProjectDetailsSelection(
@@ -262,7 +223,6 @@ class ProjectDetailsViewModel @Inject constructor(
         setLunchTime(LocalTime.now().format(timeFormatter))
     }
 
-
     val setBreakStart: (String) -> Unit = { breakStart0 ->
         _uiState.update { currentState ->
             val successState = currentState as ProjectDetailsUiState.Success
@@ -357,15 +317,10 @@ class ProjectDetailsViewModel @Inject constructor(
             val selection = resolveSelection(baseState, projectDetailsArg)
             if (selection.date.isEmpty()) return
 
-            val persistedProjectDetails = projectDetailsRepository.getProjectDetails(
-                selection.date,
-                selection.projectName
+            val loadedProjectDetails = resolveLoadedProjectDetails(
+                selection = selection,
+                projectDetailsArg = projectDetailsArg
             )
-            val loadedProjectDetails = when {
-                // If caller provides richer edited fields, keep them instead of stale persisted values.
-                projectDetailsArg != null && !projectDetailsArg.hasOnlyProjectTime() -> projectDetailsArg
-                else -> persistedProjectDetails ?: projectDetailsArg
-            }
             val settings = resolveSettings(loadedProjectDetails, selection.date)
             val normalizedProjectDetails = normalizeProjectDetails(loadedProjectDetails, settings)
 
@@ -394,6 +349,20 @@ class ProjectDetailsViewModel @Inject constructor(
             projectDetailsArg?.projectName ?: selectedProjectName.value
         }
         return ProjectDetailsSelection(date = date, projectName = projectName)
+    }
+
+    private suspend fun resolveLoadedProjectDetails(
+        selection: ProjectDetailsSelection,
+        projectDetailsArg: ProjectDetailsState?
+    ): ProjectDetailsState? {
+        if (projectDetailsArg != null && !projectDetailsArg.hasOnlyProjectTime()) {
+            return projectDetailsArg
+        }
+
+        return projectDetailsRepository.getProjectDetails(
+            selection.date,
+            selection.projectName
+        ) ?: projectDetailsArg
     }
 
     private suspend fun resolveSettings(

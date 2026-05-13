@@ -41,8 +41,6 @@ object ProjectDetailsUiMapper {
         projectDetails: ProjectDetailsState,
         defaultLunchTimeEstimate: String
     ): ProjectDetailsState {
-        val normalizedStartTime = projectDetails.startTime.ifEmpty { ZERO_TIME }
-        val normalizedEndTime = projectDetails.endTime.ifEmpty { ZERO_TIME }
         val resolvedLunchTimeEstimate = if (projectDetails.isNewDayForProject()) {
             defaultLunchTimeEstimate
         } else {
@@ -52,8 +50,8 @@ object ProjectDetailsUiMapper {
         return state.copy(
             date = projectDetails.date,
             projectName = projectDetails.projectName,
-            startTime = normalizedStartTime,
-            endTime = normalizedEndTime,
+            startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },
+            endTime = projectDetails.endTime.ifEmpty { ZERO_TIME },
             lunchStart = projectDetails.lunchStart.ifEmpty { ZERO_TIME },
             lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },

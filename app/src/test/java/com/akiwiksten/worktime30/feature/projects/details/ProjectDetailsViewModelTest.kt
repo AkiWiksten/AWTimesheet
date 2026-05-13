@@ -331,6 +331,7 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals("09:00", state.details.startTime)
         Assert.assertEquals("17:00", state.details.endTime)
         Assert.assertEquals("07:00", state.details.projectTime)
+        Assert.assertEquals(0, projectDetailsRepository.getProjectDetailsCallCount)
     }
 
     @Test
@@ -372,11 +373,13 @@ class ProjectDetailsViewModelTest {
         var projectDetails: ProjectDetailsState? = null
         var projectDetailsByDateRangeResult: List<ProjectDetailsState> = emptyList()
         val delayMsByProjectName = mutableMapOf<String, Long>()
+        var getProjectDetailsCallCount: Int = 0
 
         override suspend fun getProjectDetails(
             date: String,
             projectName: String
         ): ProjectDetailsState? {
+            getProjectDetailsCallCount++
             delay(timeMillis = delayMsByProjectName[projectName] ?: 0L)
             return projectDetails
         }

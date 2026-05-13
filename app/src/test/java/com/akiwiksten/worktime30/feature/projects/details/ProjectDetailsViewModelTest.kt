@@ -8,8 +8,8 @@ import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import com.akiwiksten.worktime30.test.MainDispatcherRule
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -371,17 +371,161 @@ class ProjectDetailsViewModelTest {
         Assert.assertEquals("08:00", state.details.projectTime)
     }
 
+    @Test
+    fun observeDateRepository_afterProjectNameChange_usesLatestProjectNameOnDateUpdates() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            projectDetails = ProjectDetailsState(
+                date = "2026-04-11",
+                projectName = "Beta",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00"
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
+
+        viewModel.observeDateRepository(ProjectDetailsState(date = "2026-04-10", projectName = "Alpha"))
+        advanceUntilIdle()
+        viewModel.setProjectName("Beta")
+        val callsBeforeDateChange = projectDetailsRepository.getProjectDetailsCallCount
+
+        dateRepository.updateDate("2026-04-11")
+        advanceUntilIdle()
+
+        Assert.assertEquals(callsBeforeDateChange, projectDetailsRepository.getProjectDetailsCallCount)
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertEquals("Beta", state.details.projectName)
+        Assert.assertEquals("2026-04-11", state.details.date)
+    }
+
+    @Test
+    fun loadProjectDetails_blankDate_shortCircuitsWithoutRepositoryCall() = runTest {
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            projectDetails = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00"
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+
+        viewModel.loadProjectDetails(date = "2026-04-10", projectName = "Alpha")
+        advanceUntilIdle()
+        val callsAfterValidLoad = projectDetailsRepository.getProjectDetailsCallCount
+        Assert.assertTrue(viewModel.isInitialLoadComplete.value)
+
+        viewModel.loadProjectDetails(date = "", projectName = "Alpha")
+        advanceUntilIdle()
+
+        Assert.assertEquals(callsAfterValidLoad, projectDetailsRepository.getProjectDetailsCallCount)
+        Assert.assertTrue(viewModel.isInitialLoadComplete.value)
+    }
+
+    @Test
+    fun observeDateRepository_withRapidDateUpdates_keepsLatestDateState() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            projectDetails = ProjectDetailsState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                startTime = "08:00",
+                endTime = "16:00",
+                projectTime = "08:00"
+            )
+            delayMsByDate["2026-04-11"] = 1_000L
+            delayMsByDate["2026-04-12"] = 0L
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "01:00"
+            )
+        }
+        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
+
+        viewModel.observeDateRepository(ProjectDetailsState(date = "2026-04-10", projectName = "Alpha"))
+        advanceUntilIdle()
+
+        dateRepository.updateDate("2026-04-11")
+        dateRepository.updateDate("2026-04-12")
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ProjectDetailsUiState.Success
+        Assert.assertEquals("2026-04-12", state.details.date)
+        Assert.assertEquals("Alpha", state.details.projectName)
+    }
+
+    @Test
+    fun getProjectDetailsState_beforeSuccessfulLoad_throwsClearMessage() = runTest {
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeSettingsRepository(),
+            DateRepository()
+        )
+
+        val error = Assert.assertThrows(IllegalStateException::class.java) {
+            viewModel.getProjectDetailsState()
+        }
+
+        Assert.assertEquals(
+            "Project details are unavailable before successful load.",
+            error.message
+        )
+    }
+
+    @Test
+    fun getSettingsEstimatesState_beforeSuccessfulLoad_throwsClearMessage() = runTest {
+        val viewModel = ProjectDetailsViewModel(
+            FakeProjectDetailsRepository(),
+            FakeSettingsRepository(),
+            DateRepository()
+        )
+
+        val error = Assert.assertThrows(IllegalStateException::class.java) {
+            viewModel.getSettingsEstimatesState()
+        }
+
+        Assert.assertEquals(
+            "Settings are unavailable before successful load.",
+            error.message
+        )
+    }
+
     private class FakeProjectDetailsRepository : ProjectDetailsRepository {
         var projectDetails: ProjectDetailsState? = null
         var projectDetailsByDateRangeResult: List<ProjectDetailsState> = emptyList()
         val delayMsByProjectName = mutableMapOf<String, Long>()
+        val delayMsByDate = mutableMapOf<String, Long>()
         var getProjectDetailsCallCount: Int = 0
+        var lastRequestedDate: String? = null
+        var lastRequestedProjectName: String? = null
 
         override suspend fun getProjectDetails(
             date: String,
             projectName: String
         ): ProjectDetailsState? {
             getProjectDetailsCallCount++
+            lastRequestedDate = date
+            lastRequestedProjectName = projectName
+            delay(timeMillis = delayMsByDate[date] ?: 0L)
             delay(timeMillis = delayMsByProjectName[projectName] ?: 0L)
             return projectDetails
         }

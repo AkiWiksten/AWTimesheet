@@ -16,11 +16,12 @@ import com.akiwiksten.worktime30.domain.repository.DateRepository
 import com.akiwiksten.worktime30.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.worktime30.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -47,11 +48,13 @@ class ProjectDetailsViewModel @Inject constructor(
     fun observeDateRepository(projectDetails: ProjectDetailsState) {
         dateObserverJob?.cancel()
         dateObserverJob = viewModelScope.launch {
-            dateRepository.selectedDate.collect { date ->
+            dateRepository.selectedDate.collectLatest { date ->
+                val currentDetails = (uiState.value as? ProjectDetailsUiState.Success)?.details
+                    ?: projectDetails
                 loadProjectDetails(
                     date = date,
-                    projectName = projectDetails.projectName,
-                    projectDetailsArg = projectDetails.copy(date = date)
+                    projectName = currentDetails.projectName,
+                    projectDetailsArg = currentDetails.copy(date = date)
                 )
             }
         }
@@ -95,7 +98,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setStartTime: (String) -> Unit = { startTime ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldStart = WorkTimeCalculator.stringToLocalTime(successState.details.startTime)
             val update = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
@@ -126,7 +130,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setEndTime: (String) -> Unit = { endTime ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldEnd = WorkTimeCalculator.stringToLocalTime(successState.details.endTime)
             val update = ProjectDetailsTimeUpdateCalculator.calculateEndTimeUpdate(
                 EndTimeUpdateParams(
@@ -150,7 +155,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setLunchStart: (String) -> Unit = { lunchStart0 ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldLunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart)
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
@@ -171,7 +177,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setLunchEnd: (String) -> Unit = { lunchEnd ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd)
             val update = ProjectDetailsTimeUpdateCalculator.calculateLunchEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
@@ -189,7 +196,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setLunchTime: (String) -> Unit = { dailyLunchTimeEstimate ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
                 successState.details.lunchTimeEstimate
             )
@@ -217,7 +225,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setBreakStart: (String) -> Unit = { breakStart0 ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldBreakStart = WorkTimeCalculator.stringToLocalTime(successState.details.breakStart)
             val update = ProjectDetailsTimeUpdateCalculator.calculateBreakStartUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
@@ -236,7 +245,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setBreakEnd: (String) -> Unit = { breakEnd0 ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val oldBreakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd)
             val update = ProjectDetailsTimeUpdateCalculator.calculateBreakEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
@@ -273,11 +283,15 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     val getProjectDetailsState: () -> ProjectDetailsState = {
-        (uiState.value as ProjectDetailsUiState.Success).details
+        val successState = uiState.value as? ProjectDetailsUiState.Success
+            ?: error("Project details are unavailable before successful load.")
+        successState.details
     }
 
     val getSettingsEstimatesState: () -> SettingsState = {
-        (uiState.value as ProjectDetailsUiState.Success).settings
+        val successState = uiState.value as? ProjectDetailsUiState.Success
+            ?: error("Settings are unavailable before successful load.")
+        successState.settings
     }
 
     fun loadProjectDetails(
@@ -285,9 +299,16 @@ class ProjectDetailsViewModel @Inject constructor(
         projectName: String,
         projectDetailsArg: ProjectDetailsState? = null
     ) {
-        _isInitialLoadComplete.value = false
+        if (date.isBlank()) {
+            _isInitialLoadComplete.value = true
+            return
+        }
+
         val currentState = _uiState.value
         val showLoading = currentState !is ProjectDetailsUiState.Success && projectDetailsArg == null
+        if (showLoading) {
+            _isInitialLoadComplete.value = false
+        }
         val baseState = (currentState as? ProjectDetailsUiState.Success)
             ?.let { successState ->
                 successState.copy(details = successState.details.copy(date = date, projectName = projectName))
@@ -295,6 +316,7 @@ class ProjectDetailsViewModel @Inject constructor(
             ?: ProjectDetailsUiState.Success(
                 details = ProjectDetailsState(date = date, projectName = projectName)
             )
+        // Cancel any in-flight load so rapid date changes always keep the latest result.
         loadProjectDetailsJob?.cancel()
         loadProjectDetailsJob = viewModelScope.launch {
             loadProjectDetailsInternal(
@@ -319,8 +341,6 @@ class ProjectDetailsViewModel @Inject constructor(
         }
 
         try {
-            if (date.isBlank()) return
-
             val loadedProjectDetails = resolveLoadedProjectDetails(
                 date = date,
                 projectName = projectName,
@@ -412,10 +432,10 @@ class ProjectDetailsViewModel @Inject constructor(
         )
     }
 
-
     val clearDetails: () -> Unit = {
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
 
             successState.copy(
                 details = successState.details.copy(
@@ -434,7 +454,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
     val setProjectTime: (String) -> Unit = { projectTime ->
         _uiState.update { currentState ->
-            val successState = currentState as ProjectDetailsUiState.Success
+            val successState = currentState as? ProjectDetailsUiState.Success
+                ?: return@update currentState
             val nextDetails = successState.details.copy(projectTime = projectTime)
 
             if (nextDetails.hasOnlyProjectTime()) {

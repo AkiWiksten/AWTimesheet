@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.calculator.WorkTimeCalculator
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
@@ -42,7 +41,6 @@ class SingleProjectViewModel @Inject constructor(
 ) : ViewModel() {
     private val selectedProjectName = MutableStateFlow("")
     private val selectedDate = MutableStateFlow("")
-    //private val workTimeByDate = MutableStateFlow("")
     private val _uiState = MutableStateFlow<SingleProjectUiState>(SingleProjectUiState.Loading)
     val uiState: StateFlow<SingleProjectUiState> = _uiState.asStateFlow()
 
@@ -51,7 +49,6 @@ class SingleProjectViewModel @Inject constructor(
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
             selectedProjectName.value = singleProjectState.projectName
-            //workTimeByDate.value = singleProjectState.projectTime
 
             val project = projectRepository.getProject(
                 date = effectiveDate,

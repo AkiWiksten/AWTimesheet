@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
@@ -61,9 +60,11 @@ fun SingleProjectScreen(
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
 
-    LaunchedEffect(args.initialSingleProjectState.date,
+    LaunchedEffect(
+        args.initialSingleProjectState.date,
         args.initialSingleProjectState.projectName,
-        args.initialSingleProjectState.projectTime) {
+        args.initialSingleProjectState.projectTime
+    ) {
         viewModel.initializeState(
             singleProjectState = args.initialSingleProjectState,
         )

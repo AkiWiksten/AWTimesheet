@@ -689,7 +689,8 @@ private fun WorkTypeSection(state: WorkTypeSectionState) {
             }
             Button(
                 onClick = state.dialogState.onDeleteClick,
-                enabled = state.dialogState.selectedWorkType.isNotEmpty() && state.dialogState.selectedWorkType != state.protectedWorkType,
+                enabled = state.dialogState.selectedWorkType.isNotEmpty() &&
+                    state.dialogState.selectedWorkType != state.protectedWorkType,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
@@ -734,8 +735,6 @@ private fun ActionButtonsSection(
         )
     }
 }
-
-
 data class SettingsActions(
     val onNameChange: (String) -> Unit,
     val onEmployerChange: (String) -> Unit,

@@ -1,9 +1,12 @@
 package com.akiwiksten.worktime30.feature.workday
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,6 +22,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.worktime30.feature.workday.components.WorkdayLoadingContent
@@ -36,6 +40,7 @@ fun WorkdayScreen(
     }
 
     val workdayUiState by workdayViewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
     val selectedItemIndexState = remember { mutableIntStateOf(value = -1) }
@@ -43,6 +48,7 @@ fun WorkdayScreen(
     WorkdayContent(
         workdayUiState = workdayUiState,
         selectedItemIndex = selectedItemIndexState.intValue,
+        scrollState = scrollState,
         actions = WorkdayActions(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onNavigateToSingleProject = onNavigateToSingleProject,
@@ -59,6 +65,7 @@ fun WorkdayScreen(
 internal fun WorkdayContent(
     workdayUiState: WorkdayUiState,
     selectedItemIndex: Int,
+    scrollState: androidx.compose.foundation.ScrollState,
     actions: WorkdayActions
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -72,31 +79,38 @@ internal fun WorkdayContent(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(all = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            .verticalScrollbar(scrollState = scrollState)
     ) {
-        when (workdayUiState) {
-            is WorkdayUiState.Loading -> WorkdayLoadingContent(
-                showLoadingIndicator = showLoadingIndicator,
-                cachedState = lastSuccessState,
-                selectedItemIndex = selectedItemIndex,
-                actions = actions
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = scrollState)
+                .padding(all = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+        ) {
+            when (workdayUiState) {
+                is WorkdayUiState.Loading -> WorkdayLoadingContent(
+                    showLoadingIndicator = showLoadingIndicator,
+                    cachedState = lastSuccessState,
+                    selectedItemIndex = selectedItemIndex,
+                    actions = actions
+                )
 
-            is WorkdayUiState.Success -> WorkdaySuccessContent(
-                state = workdayUiState,
-                selectedItemIndex = selectedItemIndex,
-                actions = actions
-            )
+                is WorkdayUiState.Success -> WorkdaySuccessContent(
+                    state = workdayUiState,
+                    selectedItemIndex = selectedItemIndex,
+                    actions = actions
+                )
 
-            is WorkdayUiState.Error -> WorkdayErrorContent(
-                message = workdayUiState.message,
-                onRetry = actions.onRetry
-            )
+                is WorkdayUiState.Error -> WorkdayErrorContent(
+                    message = workdayUiState.message,
+                    onRetry = actions.onRetry
+                )
+            }
         }
     }
 }

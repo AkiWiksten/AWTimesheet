@@ -414,44 +414,49 @@ private fun SingleProjectFormFields(
     workTypes: List<String>,
     actions: SingleProjectActions
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .verticalScrollbar(scrollState = scrollState)
-            .padding(all = 16.dp)
-            .verticalScroll(state = scrollState),
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        DialogMainFields(
-            state = screenState.state,
-            isAddMode = screenState.isAddMode,
-            isDuplicateProjectName = screenState.isDuplicateProjectName,
-            onStateChange = actions.onStateChange
-        )
-
-        TimeSelectionSection(
-            state = screenState.state,
-            onOpenProjectDetails = actions.onOpenProjectDetails,
-            onStateChange = actions.onStateChange
-        )
-
-        DialogDropdownFields(
-            state = screenState.state,
-            workTypeDropDownList = workTypes,
-            onStateChange = actions.onStateChange
-        )
-
-        Spacer(modifier = Modifier.weight(weight = 1f))
-
-        Button(
-            onClick = actions.onConfirm,
-            enabled = screenState.isConfirmEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 16.dp)
+                .verticalScroll(state = scrollState),
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+            DialogMainFields(
+                state = screenState.state,
+                isAddMode = screenState.isAddMode,
+                isDuplicateProjectName = screenState.isDuplicateProjectName,
+                onStateChange = actions.onStateChange
+            )
+
+            TimeSelectionSection(
+                state = screenState.state,
+                onOpenProjectDetails = actions.onOpenProjectDetails,
+                onStateChange = actions.onStateChange
+            )
+
+            DialogDropdownFields(
+                state = screenState.state,
+                workTypeDropDownList = workTypes,
+                onStateChange = actions.onStateChange
+            )
+
+            Spacer(modifier = Modifier.weight(weight = 1f))
+
+            Button(
+                onClick = actions.onConfirm,
+                enabled = screenState.isConfirmEnabled,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            ) {
+                Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
 }

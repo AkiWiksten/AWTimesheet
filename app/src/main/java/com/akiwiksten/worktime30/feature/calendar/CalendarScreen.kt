@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -73,37 +74,42 @@ internal fun CalendarContent(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
+    Box(
         modifier = Modifier
+            .fillMaxSize()
             .verticalScrollbar(scrollState = scrollState)
-            .verticalScroll(state = scrollState)
-            .fillMaxWidth()
-            .padding(all = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp)
     ) {
-        when (uiState) {
-            is CalendarUiState.Loading -> LoadingContent()
-            is CalendarUiState.Success -> {
-                CalendarHeaderSection(selectedDate = uiState.date)
-                ElevatedCard(
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    CustomCalendar(
-                        selectedDate = LocalDate.parse(uiState.date),
-                        datesWithWork = uiState.datesWithWork,
-                        onDateSelected = { onDateSelected(it.toString()) },
-                        modifier = Modifier.padding(all = 8.dp),
-                        monthConfig = CalendarVisibleMonthConfig(
-                            visibleMonth = uiState.visibleMonth,
-                            onVisibleMonthChanged = onVisibleMonthChanged
+        Column(
+            modifier = Modifier
+                .verticalScroll(state = scrollState)
+                .fillMaxWidth()
+                .padding(all = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+        ) {
+            when (uiState) {
+                is CalendarUiState.Loading -> LoadingContent()
+                is CalendarUiState.Success -> {
+                    CalendarHeaderSection(selectedDate = uiState.date)
+                    ElevatedCard(
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CustomCalendar(
+                            selectedDate = LocalDate.parse(uiState.date),
+                            datesWithWork = uiState.datesWithWork,
+                            onDateSelected = { onDateSelected(it.toString()) },
+                            modifier = Modifier.padding(all = 8.dp),
+                            monthConfig = CalendarVisibleMonthConfig(
+                                visibleMonth = uiState.visibleMonth,
+                                onVisibleMonthChanged = onVisibleMonthChanged
+                            )
                         )
-                    )
+                    }
+                    WorkTimeSummarySection(uiState = uiState)
                 }
-                WorkTimeSummarySection(uiState = uiState)
+                is CalendarUiState.Error -> ErrorContent(message = uiState.message)
             }
-            is CalendarUiState.Error -> ErrorContent(message = uiState.message)
         }
     }
 }

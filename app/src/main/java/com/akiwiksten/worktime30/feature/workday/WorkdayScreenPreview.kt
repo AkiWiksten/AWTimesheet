@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.feature.workday
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
@@ -84,10 +85,12 @@ private fun WorkdayPreviewContent(
     uiState: WorkdayUiState,
     selectedItemIndex: Int
 ) {
+    val scrollState = rememberScrollState()
     WorkTime30Theme(dynamicColor = false) {
         WorkdayContent(
             workdayUiState = uiState,
             selectedItemIndex = selectedItemIndex,
+            scrollState = scrollState,
             actions = WorkdayActions(
                 onSelectedItemIndexChange = {},
                 onNavigateToSingleProject = {},

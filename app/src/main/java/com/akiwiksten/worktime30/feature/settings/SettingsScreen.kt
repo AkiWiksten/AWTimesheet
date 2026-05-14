@@ -321,50 +321,55 @@ private fun rememberWorkTypeUiState(
 private fun SettingsContentBody(
     state: SettingsContentBodyState
 ) {
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScrollbar(scrollState = state.scrollState)
-            .verticalScroll(state = state.scrollState)
-            .padding(all = FORM_SECTION_SPACING),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
-        HeaderSection(date = state.uiState.selectedDate)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(state = state.scrollState)
+                .padding(all = FORM_SECTION_SPACING),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
+        ) {
+            HeaderSection(date = state.uiState.selectedDate)
 
-        SettingsCard {
-            ProfileSection(
-                name = state.uiState.data.name,
-                employer = state.uiState.data.employer,
-                onNameChange = state.actions.onNameChange,
-                onEmployerChange = state.actions.onEmployerChange
-            )
-        }
-
-        GlobalDefaultsCard(state = state)
-
-        SettingsCard {
-            WorkTypeSection(
-                state = WorkTypeSectionState(
-                    workTypes = state.uiState.data.workTypes,
-                    dialogState = state.workTypeState,
-                    protectedWorkType = state.defaultWorkType
+            SettingsCard {
+                ProfileSection(
+                    name = state.uiState.data.name,
+                    employer = state.uiState.data.employer,
+                    onNameChange = state.actions.onNameChange,
+                    onEmployerChange = state.actions.onEmployerChange
                 )
+            }
+
+            GlobalDefaultsCard(state = state)
+
+            SettingsCard {
+                WorkTypeSection(
+                    state = WorkTypeSectionState(
+                        workTypes = state.uiState.data.workTypes,
+                        dialogState = state.workTypeState,
+                        protectedWorkType = state.defaultWorkType
+                    )
+                )
+            }
+
+            ActionButtonsSection(
+                onSave = state.saveUi.onSaveRequested,
+                onGeneratePdf = state.actions.onGeneratePdf,
+                isPdfEnabled = state.uiState.selectedDate.isNotBlank(),
+                isSaveEnabled = state.saveUi.isSaveEnabled
+            )
+
+            AddWorkTypeDialogSection(
+                isVisible = state.addWorkTypeDialogState.isVisible,
+                onDismiss = state.addWorkTypeDialogState.onDismiss,
+                onConfirmed = state.addWorkTypeDialogState.onConfirm
             )
         }
-
-        ActionButtonsSection(
-            onSave = state.saveUi.onSaveRequested,
-            onGeneratePdf = state.actions.onGeneratePdf,
-            isPdfEnabled = state.uiState.selectedDate.isNotBlank(),
-            isSaveEnabled = state.saveUi.isSaveEnabled
-        )
-
-        AddWorkTypeDialogSection(
-            isVisible = state.addWorkTypeDialogState.isVisible,
-            onDismiss = state.addWorkTypeDialogState.onDismiss,
-            onConfirmed = state.addWorkTypeDialogState.onConfirm
-        )
     }
 }
 

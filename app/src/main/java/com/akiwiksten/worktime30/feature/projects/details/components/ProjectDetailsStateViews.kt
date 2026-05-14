@@ -1,6 +1,7 @@
 package com.akiwiksten.worktime30.feature.projects.details.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -67,29 +68,34 @@ internal fun ProjectDetailsSuccessState(
         else -> R.string.done_project
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
             .verticalScrollbar(scrollState = scrollState)
-            .padding(16.dp, 16.dp, 16.dp, 0.dp)
-            .verticalScroll(state = scrollState),
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderSection(
-            date = uiState.details.date,
-            projectName = uiState.details.projectName,
-            helperTextResId = helperTextResId,
-            onClearDetails = actions.onClearDetails
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp, 16.dp, 16.dp, 0.dp)
+                .verticalScroll(state = scrollState),
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HeaderSection(
+                date = uiState.details.date,
+                projectName = uiState.details.projectName,
+                helperTextResId = helperTextResId,
+                onClearDetails = actions.onClearDetails
+            )
 
-        if (uiState.details.isNewDayForProject()) {
-            NewDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
-        } else {
-            ExistingDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
+            if (uiState.details.isNewDayForProject()) {
+                NewDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
+            } else {
+                ExistingDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
+            }
+
+            FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
         }
-
-        FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
     }
 }

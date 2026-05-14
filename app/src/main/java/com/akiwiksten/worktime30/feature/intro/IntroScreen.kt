@@ -8,6 +8,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -36,15 +37,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextMotion
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -181,45 +179,44 @@ private fun IntroAnimatedContent(
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
-    val windowInfo = LocalWindowInfo.current
 
     val textStyle = LocalTextStyle.current.copy(
         textMotion = TextMotion.Animated,
         fontSize = 20.sp
     )
 
-    // Ensure we have valid dimensions before calculating the target scale
-    val containerSize = windowInfo.containerSize
-    val hasValidDimensions = containerSize.width > 0 && containerSize.height > 0
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val contentWidthPx = with(density) { maxWidth.roundToPx() }
+        val hasValidDimensions = contentWidthPx > 0 && maxHeight > 0.dp
 
-    val targetScaleFactor = if (hasValidDimensions) {
-        calculateTargetScale(
-            appName = appName,
-            textStyle = textStyle,
-            textMeasurer = textMeasurer,
-            windowInfo = windowInfo,
-            density = density
-        )
-    } else {
-        DEFAULT_FALLBACK_SCALE
-    }
-
-    val currentScale = remember { Animatable(initialValue = MIN_INITIAL_SCALE) }
-
-    LaunchedEffect(key1 = targetScaleFactor, key2 = hasValidDimensions) {
-        if (hasValidDimensions) {
-            currentScale.animateTo(
-                targetValue = targetScaleFactor,
-                animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
+        val targetScaleFactor = if (hasValidDimensions) {
+            calculateTargetScale(
+                appName = appName,
+                textStyle = textStyle,
+                textMeasurer = textMeasurer,
+                contentWidthPx = contentWidthPx
             )
+        } else {
+            DEFAULT_FALLBACK_SCALE
         }
-    }
 
-    IntroContent(
-        appName = appName,
-        currentScale = currentScale.value,
-        onItemClick = onItemClick
-    )
+        val currentScale = remember { Animatable(initialValue = MIN_INITIAL_SCALE) }
+
+        LaunchedEffect(key1 = targetScaleFactor, key2 = hasValidDimensions) {
+            if (hasValidDimensions) {
+                currentScale.animateTo(
+                    targetValue = targetScaleFactor,
+                    animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
+                )
+            }
+        }
+
+        IntroContent(
+            appName = appName,
+            currentScale = currentScale.value,
+            onItemClick = onItemClick
+        )
+    }
 }
 
 @Composable
@@ -227,15 +224,13 @@ private fun calculateTargetScale(
     appName: String,
     textStyle: TextStyle,
     textMeasurer: TextMeasurer,
-    windowInfo: WindowInfo,
-    density: Density
-): Float = remember(appName, windowInfo.containerSize, density) {
+    contentWidthPx: Int
+): Float = remember(appName, textStyle, contentWidthPx) {
     val textLayoutResult = textMeasurer.measure(text = appName, style = textStyle)
     val textWidthPx = textLayoutResult.size.width
-    val screenWidthPx = windowInfo.containerSize.width
 
-    if (textWidthPx > 0 && screenWidthPx > 0) {
-        (screenWidthPx / textWidthPx) * SCREEN_FILL_RATIO
+    if (textWidthPx > 0 && contentWidthPx > 0) {
+        (contentWidthPx / textWidthPx) * SCREEN_FILL_RATIO
     } else {
         DEFAULT_FALLBACK_SCALE
     }

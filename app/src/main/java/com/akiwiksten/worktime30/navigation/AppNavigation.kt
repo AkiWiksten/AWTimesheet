@@ -1,14 +1,23 @@
 package com.akiwiksten.worktime30.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -26,25 +35,73 @@ import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.worktime30.feature.projects.single.SingleProjectScreenArgs
 import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
+import kotlin.math.min
 
 @Composable
 fun WorkTime30App() {
     val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
+    val portraitWidth = rememberPortraitWidthDp()
 
     if (isIntroRoute) {
-        WorkTimeNavDisplay(
-            backStack = backStack,
-            modifier = Modifier.fillMaxSize()
-        )
-    } else {
-        Scaffold(
-            bottomBar = { WorkTimeNavigationBar(backStack = backStack) }
-        ) { padding ->
+        PortraitWidthContainer(
+            portraitWidth = portraitWidth,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background)
+        ) {
             WorkTimeNavDisplay(
                 backStack = backStack,
-                modifier = Modifier.padding(paddingValues = padding)
+                modifier = Modifier.fillMaxSize()
             )
+        }
+    } else {
+        Scaffold(
+            bottomBar = {
+                PortraitWidthContainer(portraitWidth = portraitWidth) {
+                    WorkTimeNavigationBar(backStack = backStack)
+                }
+            }
+        ) { padding ->
+            PortraitWidthContainer(
+                portraitWidth = portraitWidth,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues = padding)
+            ) {
+                WorkTimeNavDisplay(
+                    backStack = backStack,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun rememberPortraitWidthDp(): Dp {
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current
+    return with(density) {
+        min(windowInfo.containerSize.width, windowInfo.containerSize.height).toDp()
+    }
+}
+
+@Composable
+internal fun PortraitWidthContainer(
+    portraitWidth: Dp,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Box(
+            modifier = Modifier
+                .width(width = portraitWidth)
+        ) {
+            content()
         }
     }
 }

@@ -7,7 +7,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.isNewDayForProject
 
 object ProjectDetailsUiMapper {
-    fun applyEntitiesToState(
+    fun mapEntitiesToUiState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
         settings: SettingsState?
@@ -15,7 +15,7 @@ object ProjectDetailsUiMapper {
         val normalizedSettings = normalizedSettings(settings = settings)
         val mappedData = projectDetails?.let {
             applyProjectDetails(
-                state = baseState.details,
+                baseState = baseState.details,
                 projectDetails = it,
                 defaultLunchTimeEstimate = normalizedSettings.dailyLunchTimeEstimate
             )
@@ -37,7 +37,7 @@ object ProjectDetailsUiMapper {
     }
 
     private fun applyProjectDetails(
-        state: ProjectDetailsState,
+        baseState: ProjectDetailsState,
         projectDetails: ProjectDetailsState,
         defaultLunchTimeEstimate: String
     ): ProjectDetailsState {
@@ -47,7 +47,7 @@ object ProjectDetailsUiMapper {
             projectDetails.lunchTimeEstimate.ifEmpty { ZERO_TIME }
         }
 
-        return state.copy(
+        return baseState.copy(
             date = projectDetails.date,
             projectName = projectDetails.projectName,
             startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },

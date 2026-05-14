@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,50 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.worktime30.core.FORM_INLINE_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
-
-fun isValidText(text: String): Boolean {
-    return text.matches(regex = Regex(pattern = "-?[1-9][0-9]+:[0-5][0-9]")) ||
-        text.matches(regex = Regex(pattern = "-?0[0-9]:[0-5][0-9]"))
-}
-
-@Composable
-fun AddCustomTimeRow(
-    customTime: String,
-    customTimeFunction: (String, Boolean) -> Unit,
-    stringId: Int
-) {
-    OutlinedTextField(
-        value = customTime,
-        onValueChange = { customTimeFunction(it, isValidText(text = it)) },
-        singleLine = true,
-        label = {
-            Text(
-                text = stringResource(id = stringId),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        },
-        modifier = Modifier.fillMaxWidth(),
-        enabled = false,
-        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        isError = !isValidText(text = customTime)
-    )
-}
-
-data class TimeRowLabels(
-    val currentTimeLabelId: Int? = null,
-    val timePickerLabelId: Int? = null,
-)
+import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
+import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
+import com.akiwiksten.worktime30.domain.model.SettingsState
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
+import com.akiwiksten.worktime30.feature.projects.details.TimeRowLabels
 
 @Composable
-fun AddTimeRow(
+internal fun AddTimeRow(
     textFieldValue: String,
     stringId: Int,
     currentTime: () -> Unit,
@@ -189,4 +159,51 @@ private fun LabeledIconAction(
             icon()
         }
     }
+}
+
+@Composable
+internal fun ProjectNameField(name: String) {
+    OutlinedTextField(
+        value = name,
+        onValueChange = {},
+        label = {
+            Text(
+                text = stringResource(id = R.string.project_name),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = true,
+        enabled = false,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+    )
+}
+
+@Composable
+internal fun UnsavedChangesDialog(
+    showState: MutableState<Boolean>,
+    uiState: ProjectDetailsUiState,
+    unsavedMessage: String,
+    onNavigateBack: () -> Unit,
+    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
+) {
+    if (!showState.value) return
+    val successState = uiState as? ProjectDetailsUiState.Success
+    UnsavedChangesDialog(
+        onDismiss = { showState.value = false },
+        onDiscard = onNavigateBack,
+        onSave = successState?.let {
+            {
+                onConfirm(
+                    it.details,
+                    it.settings.copy(dailyLunchTimeEstimate = it.details.lunchTimeEstimate)
+                )
+            }
+        },
+        dialogText = unsavedMessage
+    )
 }

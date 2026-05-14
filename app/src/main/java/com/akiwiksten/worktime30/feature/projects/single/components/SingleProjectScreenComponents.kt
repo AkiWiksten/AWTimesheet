@@ -1,4 +1,4 @@
-package com.akiwiksten.worktime30.feature.projects.single
+package com.akiwiksten.worktime30.feature.projects.single.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

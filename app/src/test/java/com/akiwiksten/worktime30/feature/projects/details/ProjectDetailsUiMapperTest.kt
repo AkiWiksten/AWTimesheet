@@ -11,8 +11,8 @@ import org.junit.Test
 class ProjectDetailsUiMapperTest {
 
     @Test
-    fun applyEntitiesToState_withNoProjectDetails_usesSettingsLunchTimeEstimate() {
-        val result = ProjectDetailsUiMapper.applyEntitiesToState(
+    fun mapEntitiesToUiState_withNoProjectDetails_usesSettingsLunchTimeEstimate() {
+        val result = ProjectDetailsUiMapper.mapEntitiesToUiState(
             baseState = ProjectDetailsUiState.Success(
                 details = ProjectDetailsState(date = "2026-05-05", projectName = "Alpha")
             ),
@@ -25,8 +25,8 @@ class ProjectDetailsUiMapperTest {
     }
 
     @Test
-    fun applyEntitiesToState_withNewDayProjectDetails_usesSettingsLunchTimeEstimate() {
-        val result = ProjectDetailsUiMapper.applyEntitiesToState(
+    fun mapEntitiesToUiState_withNewDayProjectDetails_usesSettingsLunchTimeEstimate() {
+        val result = ProjectDetailsUiMapper.mapEntitiesToUiState(
             baseState = ProjectDetailsUiState.Success(details = ProjectDetailsState()),
             projectDetails = ProjectDetailsState(
                 date = "2026-05-05",
@@ -40,8 +40,8 @@ class ProjectDetailsUiMapperTest {
     }
 
     @Test
-    fun applyEntitiesToState_withExistingDayProjectDetails_preservesProjectLunchTimeEstimate() {
-        val result = ProjectDetailsUiMapper.applyEntitiesToState(
+    fun mapEntitiesToUiState_withExistingDayProjectDetails_preservesProjectLunchTimeEstimate() {
+        val result = ProjectDetailsUiMapper.mapEntitiesToUiState(
             baseState = ProjectDetailsUiState.Success(details = ProjectDetailsState()),
             projectDetails = ProjectDetailsState(
                 date = "2026-05-05",

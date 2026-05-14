@@ -420,7 +420,7 @@ class ProjectDetailsViewModel @Inject constructor(
         projectDetails: ProjectDetailsState?,
         settings: SettingsState?
     ): ProjectDetailsUiState.Success {
-        return ProjectDetailsUiMapper.applyEntitiesToState(
+        return ProjectDetailsUiMapper.mapEntitiesToUiState(
             baseState.copy(
                 details = baseState.details.copy(
                     date = date,

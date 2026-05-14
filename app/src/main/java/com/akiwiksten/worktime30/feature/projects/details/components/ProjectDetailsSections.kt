@@ -10,7 +10,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,68 +25,63 @@ import com.akiwiksten.worktime30.core.FORM_GROUP_SPACING
 import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
-import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsFieldActions
 import com.akiwiksten.worktime30.feature.projects.details.ProjectDetailsUiState
+import com.akiwiksten.worktime30.feature.projects.details.TimeRowLabels
 
 @Composable
-fun ProjectNameField(name: String) {
-    OutlinedTextField(
-        value = name,
-        onValueChange = {},
-        label = {
-            Text(
-                text = stringResource(id = R.string.project_name),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        },
-        modifier = Modifier.fillMaxWidth(),
-        readOnly = true,
-        enabled = false,
-        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-    )
-}
-
-@Composable
-fun HeaderSection(date: String, onClearDetails: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = HEADER_CONTENT_PADDING,
-                top = HEADER_CONTENT_PADDING,
-                end = HEADER_CONTENT_PADDING
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+fun HeaderSection(
+    date: String,
+    onClearDetails: () -> Unit,
+    projectName: String?,
+    helperTextResId: Int?
+) {
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = date,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = onClearDetails,
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(HEADER_CONTENT_PADDING),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
         ) {
-            Text(text = stringResource(id = R.string.clear_details))
+            Text(
+                text = date,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(
+                onClick = onClearDetails,
+                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Text(text = stringResource(id = R.string.clear_details))
+            }
+            ProjectNameField(name = projectName.orEmpty())
+
+            helperTextResId?.let { textResId ->
+                Text(
+                    text = stringResource(id = textResId),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+fun NewDayForProjectSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
@@ -102,7 +96,10 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
                     stringId = R.string.start_time,
                     currentTime = actions.startTime.onCurrent,
                     onConfirmation = actions.startTime.onSet,
-                    labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
+                    labels = TimeRowLabels(
+                        currentTimeLabelId = R.string.now,
+                        timePickerLabelId = R.string.pick
+                    )
                 )
                 AddTimeRow(
                     textFieldValue = uiState.details.lunchTimeEstimate,
@@ -122,18 +119,18 @@ fun NewDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetails
 }
 
 @Composable
-fun ExistingDayFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+fun ExistingDayForProjectSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
-        MainWorkTimeFields(uiState = uiState, actions = actions)
+        MainWorkTimeSection(uiState = uiState, actions = actions)
 
-        LunchAndBreakFields(uiState = uiState, actions = actions)
+        LunchAndBreakSection(uiState = uiState, actions = actions)
 
-        DailySummaryFields(uiState = uiState, actions = actions)
+        DailySummarySection(uiState = uiState, actions = actions)
     }
 }
 
 @Composable
-private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     val endTimeLabelId = if (uiState.details.projectTime == ZERO_TIME) {
         R.string.estimated_end_time
     } else {
@@ -172,7 +169,7 @@ private fun MainWorkTimeFields(uiState: ProjectDetailsUiState.Success, actions: 
 }
 
 @Composable
-private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier.fillMaxWidth()
@@ -210,7 +207,7 @@ private fun LunchAndBreakFields(uiState: ProjectDetailsUiState.Success, actions:
 }
 
 @Composable
-private fun DailySummaryFields(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier.fillMaxWidth()

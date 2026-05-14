@@ -2,15 +2,12 @@ package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.akiwiksten.worktime30.core.ZERO_TIME
-import com.akiwiksten.worktime30.core.ui.UnsavedChangesDialog
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
-import com.akiwiksten.worktime30.domain.model.SettingsState
 
 @Composable
 internal fun rememberBaselineData(
@@ -50,27 +47,46 @@ internal fun ProjectDetailsState.matchesInitialProjectDetails(projectDetails: Pr
     return matchesDetails
 }
 
-@Composable
-internal fun UnsavedChangesSection(
-    showState: MutableState<Boolean>,
-    uiState: ProjectDetailsUiState,
-    unsavedMessage: String,
-    onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
-) {
-    if (!showState.value) return
-    val successState = uiState as? ProjectDetailsUiState.Success
-    UnsavedChangesDialog(
-        onDismiss = { showState.value = false },
-        onDiscard = onNavigateBack,
-        onSave = successState?.let {
-            {
-                onConfirm(
-                    it.details,
-                    it.settings.copy(dailyLunchTimeEstimate = it.details.lunchTimeEstimate)
-                )
-            }
-        },
-        dialogText = unsavedMessage
+fun createProjectDetailsScreenActions(
+    viewModel: ProjectDetailsViewModel,
+    onConfirm: () -> Unit
+): ProjectDetailsScreenActions {
+    return ProjectDetailsScreenActions(
+        onClearDetails = viewModel.clearDetails,
+        onConfirm = onConfirm,
+        fieldActions = ProjectDetailsFieldActions(
+            startTime = TimeFieldAction(
+                onCurrent = viewModel.currentStartTime,
+                onSet = viewModel.setStartTime
+            ),
+            lunchTime = TimeFieldAction(
+                onCurrent = viewModel.currentLunchTime,
+                onSet = viewModel.setLunchTime
+            ),
+            endTime = TimeFieldAction(
+                onCurrent = viewModel.currentEndTime,
+                onSet = viewModel.setEndTime
+            ),
+            projectTime = TimeFieldAction(
+                onCurrent = viewModel.currentProjectTime,
+                onSet = viewModel.setProjectTime
+            ),
+            lunchStart = TimeFieldAction(
+                onCurrent = viewModel.currentLunchStart,
+                onSet = viewModel.setLunchStart
+            ),
+            lunchEnd = TimeFieldAction(
+                onCurrent = viewModel.currentLunchEnd,
+                onSet = viewModel.setLunchEnd
+            ),
+            breakStart = TimeFieldAction(
+                onCurrent = viewModel.currentBreakStart,
+                onSet = viewModel.setBreakStart
+            ),
+            breakEnd = TimeFieldAction(
+                onCurrent = viewModel.currentBreakEnd,
+                onSet = viewModel.setBreakEnd
+            )
+        )
     )
 }

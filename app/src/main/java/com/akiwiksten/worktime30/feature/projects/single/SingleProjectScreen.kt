@@ -49,6 +49,10 @@ import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.akiwiksten.worktime30.feature.projects.single.components.DialogDropdownFields
+import com.akiwiksten.worktime30.feature.projects.single.components.DialogMainFields
+import com.akiwiksten.worktime30.feature.projects.single.components.HeaderSection
+import com.akiwiksten.worktime30.feature.projects.single.components.SingleProjectTopBar
+import com.akiwiksten.worktime30.feature.projects.single.components.TimeSelectionSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

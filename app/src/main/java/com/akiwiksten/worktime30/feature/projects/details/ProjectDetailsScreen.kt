@@ -1,14 +1,10 @@
 package com.akiwiksten.worktime30.feature.projects.details
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -24,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -34,15 +29,12 @@ import com.akiwiksten.worktime30.core.ZERO_TIME
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.hasChanges
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
-import com.akiwiksten.worktime30.domain.model.isNewDayForProject
-import com.akiwiksten.worktime30.feature.projects.details.components.ExistingDayFields
-import com.akiwiksten.worktime30.feature.projects.details.components.FooterSection
-import com.akiwiksten.worktime30.feature.projects.details.components.NewDayFields
-import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsFieldActions
-import com.akiwiksten.worktime30.feature.projects.details.components.TimeFieldAction
+import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsErrorState
+import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsLoadingState
+import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsSuccessState
+import com.akiwiksten.worktime30.feature.projects.details.components.UnsavedChangesDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +76,7 @@ fun ProjectDetailsScreen(
 
     BackHandler(onBack = guardedNavigateBack)
 
-    UnsavedChangesSection(
+    UnsavedChangesDialog(
         showState = showUnsavedDialogState,
         uiState = uiState,
         unsavedMessage = unsavedMessage,
@@ -141,47 +133,6 @@ internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-internal fun ProjectDetailsContent(
-    padding: PaddingValues,
-    uiState: ProjectDetailsUiState.Success,
-    actions: ProjectDetailsScreenActions,
-    isConfirmEnabled: Boolean
-) {
-    val scrollState = rememberScrollState()
-    val helperTextResId = when {
-        uiState.details.isNewDayForProject() -> R.string.add_new_project_details
-        uiState.details.startTime != ZERO_TIME && uiState.details.projectTime == ZERO_TIME -> R.string.select_end_time
-        else -> R.string.done_project
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues = padding)
-            .verticalScrollbar(scrollState = scrollState)
-            .padding(16.dp, 16.dp, 16.dp, 0.dp)
-            .verticalScroll(state = scrollState),
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        ProjectDetailsHeaderGroup(
-            date = uiState.details.date,
-            projectName = uiState.details.projectName,
-            helperTextResId = helperTextResId,
-            onClearDetails = actions.onClearDetails
-        )
-
-        if (uiState.details.isNewDayForProject()) {
-            NewDayFields(uiState = uiState, actions = actions.fieldActions)
-        } else {
-            ExistingDayFields(uiState = uiState, actions = actions.fieldActions)
-        }
-
-        FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
-    }
-}
-
-@Composable
 internal fun ProjectDetailsStateContent(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState,
@@ -206,7 +157,7 @@ internal fun ProjectDetailsStateContent(
                 ProjectDetailsLoadingState(padding = contentPadding)
             } else {
                 lastSuccessState?.let { cachedState ->
-                    ProjectDetailsContent(
+                    ProjectDetailsSuccessState(
                         padding = contentPadding,
                         uiState = cachedState,
                         actions = actions,
@@ -219,7 +170,7 @@ internal fun ProjectDetailsStateContent(
                 )
             }
         }
-        is ProjectDetailsUiState.Success -> ProjectDetailsContent(
+        is ProjectDetailsUiState.Success -> ProjectDetailsSuccessState(
             padding = contentPadding,
             uiState = uiState,
             actions = actions,
@@ -230,54 +181,4 @@ internal fun ProjectDetailsStateContent(
             errorMessage = uiState.message
         )
     }
-}
-
-internal data class ProjectDetailsScreenActions(
-    val onClearDetails: () -> Unit = {},
-    val onConfirm: () -> Unit = {},
-    val fieldActions: ProjectDetailsFieldActions = ProjectDetailsFieldActions()
-)
-
-private fun createProjectDetailsScreenActions(
-    viewModel: ProjectDetailsViewModel,
-    onConfirm: () -> Unit
-): ProjectDetailsScreenActions {
-    return ProjectDetailsScreenActions(
-        onClearDetails = viewModel.clearDetails,
-        onConfirm = onConfirm,
-        fieldActions = ProjectDetailsFieldActions(
-            startTime = TimeFieldAction(
-                onCurrent = viewModel.currentStartTime,
-                onSet = viewModel.setStartTime
-            ),
-            lunchTime = TimeFieldAction(
-                onCurrent = viewModel.currentLunchTime,
-                onSet = viewModel.setLunchTime
-            ),
-            endTime = TimeFieldAction(
-                onCurrent = viewModel.currentEndTime,
-                onSet = viewModel.setEndTime
-            ),
-            projectTime = TimeFieldAction(
-                onCurrent = viewModel.currentProjectTime,
-                onSet = viewModel.setProjectTime
-            ),
-            lunchStart = TimeFieldAction(
-                onCurrent = viewModel.currentLunchStart,
-                onSet = viewModel.setLunchStart
-            ),
-            lunchEnd = TimeFieldAction(
-                onCurrent = viewModel.currentLunchEnd,
-                onSet = viewModel.setLunchEnd
-            ),
-            breakStart = TimeFieldAction(
-                onCurrent = viewModel.currentBreakStart,
-                onSet = viewModel.setBreakStart
-            ),
-            breakEnd = TimeFieldAction(
-                onCurrent = viewModel.currentBreakEnd,
-                onSet = viewModel.setBreakEnd
-            )
-        )
-    )
 }

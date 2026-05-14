@@ -66,10 +66,11 @@ This is called feature-based packaging.
 + SingleProjectScreen
   + Project name edit and validation
   + Kilometres validation. 0050 not valid.
+  + Select distance from map also
   + Show work_type_help string
   + Selecting work type doesn't work in edit mode
   + Rename DialogMainFields -> UpperTextFields
-  + Own ViewModel. Decouple from WorkdayViewModel.
+  + DialogDropdownFields -> DropdownFields
 + WorkdayScreen 
   + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects
@@ -90,10 +91,10 @@ This is called feature-based packaging.
 
 ## What to test constantly
 + Thorough testing of all features in all screens
-    + Intro,
-    + Calendar,
-    + Projects,
-    + Single project,
-    + Project Details,
-    + Settings
-      + PDF creation
+    + Intro, 
+    + Calendar, 
+    + Workday, R
+    + Single project, R
+    + Project Details, 
+    + Settings R
+      + PDF creation R

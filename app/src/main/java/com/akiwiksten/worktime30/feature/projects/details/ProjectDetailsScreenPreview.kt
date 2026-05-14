@@ -12,15 +12,15 @@ import com.android.tools.screenshot.PreviewTest
 @PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Loading")
 @Composable
-fun previewProjectDetailsLoading() {
-    projectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
+fun PreviewProjectDetailsLoading() {
+    ProjectDetailsPreviewContent(uiState = ProjectDetailsUiState.Loading)
 }
 
 @PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Success New Day")
 @Composable
-fun previewProjectDetailsSuccessNewDay() {
-    projectDetailsPreviewContent(
+fun PreviewProjectDetailsSuccessNewDay() {
+    ProjectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
             details = ProjectDetailsState(
                 date = "2026-04-10",
@@ -38,8 +38,8 @@ fun previewProjectDetailsSuccessNewDay() {
 @PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Success Existing Day")
 @Composable
-fun previewProjectDetailsSuccessExistingDay() {
-    projectDetailsPreviewContent(
+fun PreviewProjectDetailsSuccessExistingDay() {
+    ProjectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Success(
             details = ProjectDetailsState(
                 date = "2026-04-10",
@@ -64,14 +64,14 @@ fun previewProjectDetailsSuccessExistingDay() {
 @PreviewTest
 @Preview(showBackground = true, name = "ProjectDetails - Error")
 @Composable
-fun previewProjectDetailsError() {
-    projectDetailsPreviewContent(
+fun PreviewProjectDetailsError() {
+    ProjectDetailsPreviewContent(
         uiState = ProjectDetailsUiState.Error(message = "Failed to load project details")
     )
 }
 
 @Composable
-private fun projectDetailsPreviewContent(
+private fun ProjectDetailsPreviewContent(
     uiState: ProjectDetailsUiState
 ) {
     WorkTime30Theme(dynamicColor = false) {

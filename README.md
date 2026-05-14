@@ -53,8 +53,7 @@ This is called feature-based packaging.
 
 ## Features to be implemented still
 + General
-  + create full backup support.
-  + Sync
+  + Test implemented backup & sync
   + Better orientation support
   + Dark theme
   + FormChangeRules outside ui package

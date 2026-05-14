@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.navigation
 
+import android.os.Parcelable
 import com.akiwiksten.worktime30.R
 import com.akiwiksten.worktime30.core.CALENDAR_SCREEN
 import com.akiwiksten.worktime30.core.INTRO_SCREEN
@@ -9,16 +10,46 @@ import com.akiwiksten.worktime30.core.SETTINGS_SCREEN
 import com.akiwiksten.worktime30.core.SINGLE_PROJECT_SCREEN
 import com.akiwiksten.worktime30.domain.model.ProjectDetailsState
 import com.akiwiksten.worktime30.domain.model.SettingsState
+import kotlinx.parcelize.Parcelize
 
 // Navigation routes
-sealed class Screen(val route: String, val titleResId: Int? = null) {
-    object Calendar : Screen(CALENDAR_SCREEN, R.string.calendar)
-    object Workday : Screen(PROJECTS_SCREEN, R.string.workday)
-    object Settings : Screen(SETTINGS_SCREEN, R.string.settings)
+sealed interface Screen : Parcelable {
+    val route: String
+    val titleResId: Int?
+
+    @Parcelize
+    data object Calendar : Screen {
+        override val route: String get() = CALENDAR_SCREEN
+        override val titleResId: Int get() = R.string.calendar
+    }
+
+    @Parcelize
+    data object Workday : Screen {
+        override val route: String get() = PROJECTS_SCREEN
+        override val titleResId: Int get() = R.string.workday
+    }
+
+    @Parcelize
+    data object Settings : Screen {
+        override val route: String get() = SETTINGS_SCREEN
+        override val titleResId: Int get() = R.string.settings
+    }
+
+    @Parcelize
     data class ProjectDetails(
         val projectDetails: ProjectDetailsState = ProjectDetailsState()
-    ) : Screen(PROJECT_DETAILS_SCREEN, R.string.project_details)
-    object Intro : Screen(INTRO_SCREEN)
+    ) : Screen {
+        override val route: String get() = PROJECT_DETAILS_SCREEN
+        override val titleResId: Int get() = R.string.project_details
+    }
+
+    @Parcelize
+    data object Intro : Screen {
+        override val route: String get() = INTRO_SCREEN
+        override val titleResId: Int? get() = null
+    }
+
+    @Parcelize
     data class SingleProject(
         val index: Int = -1,
         val date: String? = null,
@@ -29,5 +60,8 @@ sealed class Screen(val route: String, val titleResId: Int? = null) {
         val workType: String? = null,
         val projectDetails: ProjectDetailsState? = null,
         val settingsEstimates: SettingsState? = null
-    ) : Screen(SINGLE_PROJECT_SCREEN)
+    ) : Screen {
+        override val route: String get() = SINGLE_PROJECT_SCREEN
+        override val titleResId: Int? get() = null
+    }
 }

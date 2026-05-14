@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +44,7 @@ fun WorkdayScreen(
     val scrollState = rememberScrollState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
-    val selectedItemIndexState = remember { mutableIntStateOf(value = -1) }
+    val selectedItemIndexState = rememberSaveable { mutableIntStateOf(value = -1) }
 
     WorkdayContent(
         workdayUiState = workdayUiState,

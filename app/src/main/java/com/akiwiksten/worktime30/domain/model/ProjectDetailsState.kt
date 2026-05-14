@@ -1,7 +1,10 @@
 package com.akiwiksten.worktime30.domain.model
 
+import android.os.Parcelable
 import com.akiwiksten.worktime30.core.ZERO_TIME
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class ProjectDetailsState(
     val date: String = "",
     val projectName: String = "",
@@ -13,7 +16,7 @@ data class ProjectDetailsState(
     val breakEnd: String = ZERO_TIME,
     val projectTime: String = ZERO_TIME,
     val lunchTimeEstimate: String = ZERO_TIME
-)
+) : Parcelable
 
 fun ProjectDetailsState.isNewDayForProject(): Boolean {
     fun isZero(time: String) = time == ZERO_TIME || time.isEmpty()

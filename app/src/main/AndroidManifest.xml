@@ -6,7 +6,7 @@
         android:maxSdkVersion="28" />
     <application
         android:name=".core.WorkTimeApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/core_ui_work_time30_app_icon"

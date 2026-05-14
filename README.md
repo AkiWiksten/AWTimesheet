@@ -53,7 +53,7 @@ This is called feature-based packaging.
 
 ## Features to be implemented still
 + General
-  + Test implemented backup & sync
+  + Test implemented backup & sync (android:allowBackup="true")
   + Better orientation support
   + Dark theme
   + FormChangeRules outside ui package

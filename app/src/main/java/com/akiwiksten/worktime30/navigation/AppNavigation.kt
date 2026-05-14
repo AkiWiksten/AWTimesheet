@@ -1,5 +1,6 @@
 package com.akiwiksten.worktime30.navigation
 
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +11,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import kotlinx.parcelize.Parcelize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -37,9 +40,17 @@ import com.akiwiksten.worktime30.feature.settings.SettingsScreen
 import com.akiwiksten.worktime30.feature.workday.WorkdayScreen
 import kotlin.math.min
 
+@Parcelize
+private class BackStackData(val items: ArrayList<Screen>) : Parcelable
+
+private val BackStackSaver: Saver<SnapshotStateList<Any>, BackStackData> = Saver(
+    save = { stack -> BackStackData(ArrayList(stack.filterIsInstance<Screen>())) },
+    restore = { data -> mutableStateListOf<Any>(*data.items.toTypedArray()) }
+)
+
 @Composable
 fun WorkTime30App() {
-    val backStack = remember { mutableStateListOf<Any>(Screen.Intro) }
+    val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(Screen.Intro) }
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
     val portraitWidth = rememberPortraitWidthDp()
 

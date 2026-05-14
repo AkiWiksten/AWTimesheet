@@ -29,6 +29,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -209,7 +210,7 @@ internal fun SingleProjectScreenContent(
         isLoading = screenState.uiState is SingleProjectUiState.Loading
     )
     val lastSuccessState = remember { mutableStateOf<SingleProjectUiState.Success?>(value = null) }
-    val showUnsavedDialogState = remember { mutableStateOf(value = false) }
+    val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(screenState.uiState) {

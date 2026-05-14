@@ -19,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -47,7 +48,7 @@ fun ProjectDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
-    val showUnsavedDialogState = remember { mutableStateOf(value = false) }
+    val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(projectDetails) {

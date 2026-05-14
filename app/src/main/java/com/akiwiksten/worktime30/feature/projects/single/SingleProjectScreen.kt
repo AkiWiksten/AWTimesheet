@@ -1,7 +1,6 @@
 package com.akiwiksten.worktime30.feature.projects.single
 
 import android.widget.Toast
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -379,84 +379,80 @@ private fun SingleProjectContent(
             .distinct()
             .sorted()
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues = padding)
-            .padding(all = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            .verticalScrollbar(scrollState = scrollState)
     ) {
-        HeaderSection(
-            date = screenState.date,
-            workTimeByDate = workTimeByDate
-        )
-
-        ElevatedCard(
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(weight = 1f)
+                .verticalScroll(state = scrollState)
+                .padding(all = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
         ) {
-            SingleProjectFormFields(
-                scrollState = scrollState,
-                screenState = screenState,
-                workTypes = workTypes,
-                actions = actions
+            HeaderSection(
+                date = screenState.date,
+                workTimeByDate = workTimeByDate
             )
+
+            ElevatedCard(
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SingleProjectFormFields(
+                    screenState = screenState,
+                    workTypes = workTypes,
+                    actions = actions
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun SingleProjectFormFields(
-    scrollState: ScrollState,
     screenState: SingleProjectScreenState,
     workTypes: List<String>,
     actions: SingleProjectActions
 ) {
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScrollbar(scrollState = scrollState)
+            .fillMaxWidth()
+            .padding(all = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(space = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 16.dp)
-                .verticalScroll(state = scrollState),
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        DialogMainFields(
+            state = screenState.state,
+            isAddMode = screenState.isAddMode,
+            isDuplicateProjectName = screenState.isDuplicateProjectName,
+            onStateChange = actions.onStateChange
+        )
+
+        TimeSelectionSection(
+            state = screenState.state,
+            onOpenProjectDetails = actions.onOpenProjectDetails,
+            onStateChange = actions.onStateChange
+        )
+
+        DialogDropdownFields(
+            state = screenState.state,
+            workTypeDropDownList = workTypes,
+            onStateChange = actions.onStateChange
+        )
+
+        Spacer(modifier = Modifier.height(height = 8.dp))
+
+        Button(
+            onClick = actions.onConfirm,
+            enabled = screenState.isConfirmEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
-            DialogMainFields(
-                state = screenState.state,
-                isAddMode = screenState.isAddMode,
-                isDuplicateProjectName = screenState.isDuplicateProjectName,
-                onStateChange = actions.onStateChange
-            )
-
-            TimeSelectionSection(
-                state = screenState.state,
-                onOpenProjectDetails = actions.onOpenProjectDetails,
-                onStateChange = actions.onStateChange
-            )
-
-            DialogDropdownFields(
-                state = screenState.state,
-                workTypeDropDownList = workTypes,
-                onStateChange = actions.onStateChange
-            )
-
-            Spacer(modifier = Modifier.weight(weight = 1f))
-
-            Button(
-                onClick = actions.onConfirm,
-                enabled = screenState.isConfirmEnabled,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-            ) {
-                Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
-            }
+            Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
         }
     }
 }

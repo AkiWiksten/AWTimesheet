@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +39,7 @@ fun TimePickerDialog(
 ) {
     val initialHour = time.substringBefore(delimiter = ':', missingDelimiterValue = "0").toIntOrNull() ?: 0
     val initialMinute = time.substringAfter(delimiter = ':', missingDelimiterValue = "0").toIntOrNull() ?: 0
+    val scrollState = rememberScrollState()
 
     val timePickerState = rememberTimePickerState(
         initialHour = initialHour,
@@ -53,7 +57,8 @@ fun TimePickerDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(all = 24.dp),
+                    .verticalScroll(state = scrollState)
+                    .padding(all = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(space = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -65,6 +70,7 @@ fun TimePickerDialog(
 
                 TimePicker(
                     state = timePickerState,
+                    layoutType = TimePickerLayoutType.Vertical,
                 )
 
                 Row(

@@ -3,6 +3,7 @@ package com.akiwiksten.worktime30.feature.workday.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -109,13 +110,10 @@ internal fun WorkdayStatsCard(
 private fun WorkdayStatsCardContent(
     params: WorkdayStatsCardContentParams
 ) {
-    val scrollState = rememberScrollState()
     ElevatedCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(max = STATS_CARD_MAX_HEIGHT)
-            .verticalScrollbar(scrollState = scrollState)
-            .verticalScroll(state = scrollState),
+            .fillMaxSize()
+            .heightIn(max = STATS_CARD_MAX_HEIGHT),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(

@@ -27,6 +27,17 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+sealed class ProjectDetailsUiState {
+    object Loading : ProjectDetailsUiState()
+
+    data class Success(
+        val details: ProjectDetailsState,
+        val settings: SettingsState = SettingsState()
+    ) : ProjectDetailsUiState()
+
+    data class Error(val message: String) : ProjectDetailsUiState()
+}
+
 /**
  * ViewModel for managing the project details screen.
  */

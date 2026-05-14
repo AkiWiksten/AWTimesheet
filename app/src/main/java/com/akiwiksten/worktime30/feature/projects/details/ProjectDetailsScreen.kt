@@ -34,6 +34,7 @@ import com.akiwiksten.worktime30.domain.model.SettingsState
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsErrorState
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsLoadingState
 import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsSuccessState
+import com.akiwiksten.worktime30.feature.projects.details.components.ProjectDetailsTopBar
 import com.akiwiksten.worktime30.feature.projects.details.components.UnsavedChangesDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,30 +105,6 @@ fun ProjectDetailsScreen(
             uiState = uiState,
             actions = actions,
             isConfirmEnabled = hasUnsavedChanges || shouldEnableConfirmForInitialProjectTime
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
-    Surface(
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
-    ) {
-        CenterAlignedTopAppBar(
-            title = {
-                Header(
-                    title = stringResource(id = R.string.project_details),
-                    modifier = Modifier.padding(top = 0.dp),
-                    fillMaxWidth = false
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onNavigateBack) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                }
-            }
         )
     }
 }

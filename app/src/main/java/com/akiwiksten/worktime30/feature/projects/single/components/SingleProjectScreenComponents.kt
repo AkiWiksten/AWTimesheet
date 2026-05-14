@@ -47,6 +47,7 @@ import com.akiwiksten.worktime30.core.FORM_SECTION_SPACING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.worktime30.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.worktime30.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.worktime30.core.ui.DropdownMenuBox
 import com.akiwiksten.worktime30.core.ui.Header
 import com.akiwiksten.worktime30.core.ui.TimePickerDialog
 import com.akiwiksten.worktime30.domain.model.SingleProjectState
@@ -306,4 +307,31 @@ internal fun TimeSelectionSection(
         onOpenTimePicker = { openTimePickerDialogState.value = true },
         onStateChange = onStateChange
     )
+}
+
+@Composable
+internal fun DialogDropdownFields(
+    state: SingleProjectState,
+    workTypeDropDownList: List<String>,
+    onStateChange: (SingleProjectState) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+        DropdownMenuBox(
+            labelId = R.string.work_type,
+            items = workTypeDropDownList,
+            selectedText = state.workType,
+            onItemSelected = { onStateChange(state.copy(workType = it)) }
+        )
+
+        DropdownMenuBox(
+            labelId = R.string.allowance,
+            items = listOf(
+                stringResource(id = R.string.no_allowance),
+                stringResource(id = R.string.full_allowance),
+                stringResource(id = R.string.half_day_allowance)
+            ),
+            selectedText = state.allowance,
+            onItemSelected = { onStateChange(state.copy(allowance = it)) }
+        )
+    }
 }

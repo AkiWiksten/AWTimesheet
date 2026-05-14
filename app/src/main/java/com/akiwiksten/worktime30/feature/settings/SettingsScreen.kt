@@ -2,7 +2,6 @@
 
 package com.akiwiksten.worktime30.feature.settings
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,6 +61,7 @@ import com.akiwiksten.worktime30.core.ui.isActionEnabled
 import com.akiwiksten.worktime30.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.worktime30.core.ui.verticalScrollbar
 import com.akiwiksten.worktime30.domain.model.SettingsState
+import kotlinx.coroutines.flow.collectLatest
 
 private val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
 
@@ -72,6 +72,7 @@ fun SettingsScreen(
     val uiState by settingsViewModel.uiState.collectAsState()
     val ctx = LocalContext.current
     val defaultWorkType = stringResource(id = R.string.other)
+    val noProjectsMessage = stringResource(id = R.string.no_projects_available)
 
     LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
@@ -83,14 +84,35 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(settingsViewModel, ctx, noProjectsMessage) {
+        settingsViewModel.events.collectLatest { event ->
+            when (event) {
+                is SettingsEvent.MonthlyReportReady -> {
+                    generateReport(
+                        ctx = ctx,
+                        projectsByMonth = event.projectsByMonth,
+                        endOfMonthDate = event.endOfMonthDate,
+                        name = event.name,
+                        employer = event.employer
+                    )
+                }
+                is SettingsEvent.MonthlyReportError -> {
+                    Toast.makeText(ctx, event.message, Toast.LENGTH_SHORT).show()
+                }
+                is SettingsEvent.NoProjectsForMonth -> {
+                    Toast.makeText(ctx, noProjectsMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     SettingsStateContent(
         uiState = uiState,
         defaultWorkType = defaultWorkType,
         createActions = { successState ->
             createSettingsActions(
                 settingsViewModel = settingsViewModel,
-                successState = successState,
-                ctx = ctx
+                successState = successState
             )
         }
     )
@@ -137,7 +159,7 @@ internal fun SettingsStateContent(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Error: ${uiState.message}",
+                    text = stringResource(id = R.string.error_message, uiState.message),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -173,23 +195,19 @@ private fun SettingsLoadingContent(
 
 private fun createSettingsActions(
     settingsViewModel: SettingsViewModel,
-    successState: SettingsUiState.Success,
-    ctx: Context
+    successState: SettingsUiState.Success
 ): SettingsActions {
     return SettingsActions(
         onNameChange = settingsViewModel::setName,
         onEmployerChange = settingsViewModel::setEmployer,
         onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
-        onDailyLunchTimeEstimateChange = settingsViewModel::setLunchTimeEstimate,
+        onDailyLunchTimeEstimateChange = settingsViewModel::setDailyLunchTimeEstimate,
         onInitialFlexTimeTotalChange = settingsViewModel::setInitialFlexTimeTotal,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
         onSave = { settingsViewModel.saveSettings() },
         onGeneratePdf = {
-            generateReport(
-                ctx = ctx,
-                projectsByMonth = successState.projectsByMonth,
-                endOfMonthDate = successState.endMonthDate,
+            settingsViewModel.requestMonthlyReport(
                 name = successState.data.name,
                 employer = successState.data.employer
             )
@@ -338,7 +356,7 @@ private fun SettingsContentBody(
         ActionButtonsSection(
             onSave = state.saveUi.onSaveRequested,
             onGeneratePdf = state.actions.onGeneratePdf,
-            isPdfEnabled = state.uiState.projectsByMonth.isNotEmpty(),
+            isPdfEnabled = state.uiState.selectedDate.isNotBlank(),
             isSaveEnabled = state.saveUi.isSaveEnabled
         )
 

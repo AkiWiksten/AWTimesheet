@@ -151,7 +151,7 @@ internal fun IntroStateContent(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = "Error: ${uiState.message}",
+                        text = stringResource(id = R.string.error_message, uiState.message),
                         color = Color.White,
                         style = MaterialTheme.typography.bodyLarge
                     )

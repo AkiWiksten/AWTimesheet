@@ -11,9 +11,12 @@ import com.akiwiksten.worktime30.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.worktime30.domain.usecase.ProjectsByMonthResult
 import com.akiwiksten.worktime30.domain.usecase.SaveSettingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,12 +25,23 @@ sealed class SettingsUiState {
 
     data class Success(
         val data: SettingsState,
-        val selectedDate: String = "",
-        val endMonthDate: String = "",
-        val projectsByMonth: List<SingleProjectState> = emptyList()
+        val selectedDate: String = ""
     ) : SettingsUiState()
 
     data class Error(val message: String) : SettingsUiState()
+}
+
+sealed class SettingsEvent {
+    data class MonthlyReportReady(
+        val projectsByMonth: List<SingleProjectState>,
+        val endOfMonthDate: String,
+        val name: String,
+        val employer: String
+    ) : SettingsEvent()
+
+    object NoProjectsForMonth : SettingsEvent()
+
+    data class MonthlyReportError(val message: String) : SettingsEvent()
 }
 
 @HiltViewModel
@@ -42,12 +56,14 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    private val _events = MutableSharedFlow<SettingsEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<SettingsEvent> = _events.asSharedFlow()
+
     init {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 if (date.isNotEmpty()) {
                     _uiState.updateSelectedDate(date)
-                    refreshProjectsByMonth(date)
                 }
             }
         }
@@ -80,11 +96,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setLunchTimeEstimate(lunchTimeEstimate: String) {
+    fun setDailyLunchTimeEstimate(dailyLunchTimeEstimate: String) {
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {
             _uiState.value = currentState.copy(
-                data = currentState.data.copy(dailyLunchTimeEstimate = lunchTimeEstimate)
+                data = currentState.data.copy(dailyLunchTimeEstimate = dailyLunchTimeEstimate)
             )
         }
     }
@@ -147,21 +163,29 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun refreshProjectsByMonth(date: String) {
+    fun requestMonthlyReport(name: String, employer: String) {
         viewModelScope.launch {
             try {
-                val monthlyResult = getProjectsByMonthUseCase.getMonthlyProjects(date)
-                val currentState = _uiState.value
-                if (currentState is SettingsUiState.Success) {
-                    _uiState.value = currentState.copy(
-                        endMonthDate = monthlyResult.endOfMonth,
-                        projectsByMonth = monthlyResult.projects
+                val selectedDate = (_uiState.value as? SettingsUiState.Success)?.selectedDate
+                    ?.takeIf { it.isNotBlank() }
+                    ?: dateRepository.selectedDate.value
+                val monthlyResult = getProjectsByMonthUseCase.getMonthlyProjects(selectedDate)
+                if (monthlyResult.projects.isEmpty()) {
+                    _events.emit(SettingsEvent.NoProjectsForMonth)
+                } else {
+                    _events.emit(
+                        SettingsEvent.MonthlyReportReady(
+                            projectsByMonth = monthlyResult.projects,
+                            endOfMonthDate = monthlyResult.endOfMonth,
+                            name = name,
+                            employer = employer
+                        )
                     )
                 }
             } catch (e: IllegalArgumentException) {
-                _uiState.handleException(e, "Failed to load projects")
+                _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
             } catch (e: IllegalStateException) {
-                _uiState.handleException(e, "Failed to load projects")
+                _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
             }
         }
     }
@@ -172,13 +196,10 @@ class SettingsViewModel @Inject constructor(
             try {
                 val currentDate = dateRepository.selectedDate.value
                 val loadedData = getSettingsUseCase()
-                val monthlyResult = getProjectsByMonthUseCase.getMonthlyProjects(currentDate)
 
                 _uiState.value = SettingsUiState.Success(
                     data = loadedData,
-                    selectedDate = currentDate,
-                    endMonthDate = monthlyResult.endOfMonth,
-                    projectsByMonth = monthlyResult.projects
+                    selectedDate = currentDate
                 )
             } catch (e: IllegalArgumentException) {
                 _uiState.handleException(e, "Failed to load settings")

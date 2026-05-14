@@ -82,7 +82,7 @@ This is called feature-based packaging.
   + Translate fed "Work type"
   + App localization selection
   + Ask to save does not work
-  + SettingsViewModel.refreshProjectsByMonth maybe be called when pushing pdf button, not on VM init
+  + Create Excel report also, or export to Excel, CSV or similar
 + PDF
   + Use Intent to ask user where to save pdf and 
   + show the pdf instantly on screen

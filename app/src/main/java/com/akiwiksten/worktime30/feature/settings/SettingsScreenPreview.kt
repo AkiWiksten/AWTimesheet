@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.worktime30.core.theme.WorkTime30Theme
 import com.akiwiksten.worktime30.domain.model.SettingsState
-import com.akiwiksten.worktime30.domain.model.SingleProjectState
 import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
@@ -27,18 +26,7 @@ fun PreviewSettingsSuccess() {
                 dailyLunchTimeEstimate = "00:00",
                 workTypes = listOf("Installation", "Maintenance", "Meeting")
             ),
-            selectedDate = "2026-04-19",
-            endMonthDate = "2026-04-30",
-            projectsByMonth = listOf(
-                SingleProjectState(
-                    date = "2026-04-10",
-                    projectName = "Alpha Site",
-                    projectTime = "04:00",
-                    kilometres = 20.toString(),
-                    allowance = "Daily allowance",
-                    workType = "Installation"
-                )
-            )
+            selectedDate = "2026-04-19"
         )
     )
 }

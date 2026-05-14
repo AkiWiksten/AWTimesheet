@@ -64,6 +64,7 @@
     <string name="no_projects_available">Ei projekteja saatavilla. Lisää sellainen napilla.</string>
     <string name="nullify">Nollaa</string>
     <string name="retry">Yritä uudelleen</string>
+    <string name="error_message">Virhe: %1$s</string>
     <string name="details">Tiedot</string>
     <string name="now">Nyt</string>
     <string name="pick">Valitse</string>

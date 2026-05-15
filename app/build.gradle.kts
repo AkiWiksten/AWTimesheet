@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-    namespace = "com.akiwiksten.worktime30"
+    namespace = "com.akiwiksten.awtimesheet"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.akiwiksten.worktime30"
+        applicationId = "com.akiwiksten.awtimesheet"
         minSdk = 29
         targetSdk = 36
         versionCode = 1

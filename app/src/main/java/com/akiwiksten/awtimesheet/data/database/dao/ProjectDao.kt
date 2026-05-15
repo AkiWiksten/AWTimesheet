@@ -1,0 +1,45 @@
+package com.akiwiksten.awtimesheet.data.database.dao
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.akiwiksten.awtimesheet.core.DATE
+import com.akiwiksten.awtimesheet.core.PROJECT_NAME
+import com.akiwiksten.awtimesheet.core.PROJECT_TIME
+import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
+
+@Dao
+interface ProjectDao {
+    @Query("SELECT COUNT(*) > 0 FROM project")
+    suspend fun anyRecords(): Boolean
+
+    @Query("SELECT * FROM project")
+    suspend fun getAll(): List<ProjectEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProject(project: ProjectEntity)
+
+    @Query("SELECT * FROM project WHERE $DATE = :date")
+    @Suppress("unused")
+    suspend fun loadProjectsByDate(date: String): List<ProjectEntity>
+
+    @Query("SELECT * FROM project WHERE $DATE = :date AND $PROJECT_NAME = :projectName")
+    @Suppress("unused")
+    suspend fun loadProject(date: String, projectName: String): ProjectEntity?
+
+    @Delete
+    suspend fun delete(project: ProjectEntity)
+
+    @Query("SELECT * FROM project WHERE $DATE BETWEEN :dateStart AND :dateEnd")
+    @Suppress("unused")
+    suspend fun getProjectsByDateRange(dateStart: String, dateEnd: String): List<ProjectEntity>
+
+    @Query("SELECT COUNT(*) > 0 FROM project WHERE $PROJECT_NAME = :projectName")
+    @Suppress("unused")
+    suspend fun isProjectNameUsed(projectName: String): Boolean
+
+    @Query("SELECT $PROJECT_TIME FROM project WHERE $DATE = :date")
+    suspend fun getProjectTimesByDate(date: String): List<String>
+}

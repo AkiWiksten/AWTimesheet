@@ -4,7 +4,7 @@
     <style name="Theme.WorkTime30" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.WorkTime30.Launch" parent="Theme.WorkTime30">
-        <item name="android:windowBackground">@drawable/core_ui_work_time30</item>
+        <item name="android:windowBackground">@drawable/aw_timesheet_background_portrait</item>
         <item name="android:windowNoTitle">true</item>
     </style>
 </resources>

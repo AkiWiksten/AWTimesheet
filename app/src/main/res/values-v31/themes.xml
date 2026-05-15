@@ -6,7 +6,7 @@
         <item name="android:windowSplashScreenBackground">@android:color/transparent</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
-        <item name="android:windowBackground">@drawable/core_ui_work_time30</item>
+        <item name="android:windowBackground">@drawable/aw_timesheet_background_portrait</item>
     </style>
 </resources>
 

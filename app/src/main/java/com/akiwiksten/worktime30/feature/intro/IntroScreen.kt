@@ -163,7 +163,7 @@ internal fun IntroStateContent(
 private fun IntroBackgroundContainer(content: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.core_ui_work_time30),
+            painter = painterResource(id = R.drawable.aw_timesheet_background_portrait),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

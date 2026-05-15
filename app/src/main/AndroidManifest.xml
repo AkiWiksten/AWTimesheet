@@ -9,9 +9,9 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/core_ui_work_time30_app_icon"
+        android:icon="@mipmap/aw_timesheet_app_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/core_ui_work_time30_app_icon_round"
+        android:roundIcon="@mipmap/aw_timesheet_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WorkTime30">
         <activity

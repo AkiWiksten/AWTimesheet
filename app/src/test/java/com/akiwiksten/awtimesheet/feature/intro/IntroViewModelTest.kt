@@ -8,11 +8,11 @@ class IntroViewModelTest {
 
     @Test
     fun init_setsSuccessStateWithProvidedAppName() {
-        val viewModel = IntroViewModel(appNameStr = "WorkTime30")
+        val viewModel = IntroViewModel(appNameStr = "AWTimesheet")
 
         val state = viewModel.uiState.value
 
         assertTrue(state is IntroUiState.Success)
-        assertEquals("WorkTime30", (state as IntroUiState.Success).appName)
+        assertEquals("AWTimesheet", (state as IntroUiState.Success).appName)
     }
 }

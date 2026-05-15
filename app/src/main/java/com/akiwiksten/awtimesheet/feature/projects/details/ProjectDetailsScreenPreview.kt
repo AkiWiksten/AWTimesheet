@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.core.theme.WorkTime30Theme
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.android.tools.screenshot.PreviewTest
@@ -74,7 +74,7 @@ fun PreviewProjectDetailsError() {
 private fun ProjectDetailsPreviewContent(
     uiState: ProjectDetailsUiState
 ) {
-    WorkTime30Theme(dynamicColor = false) {
+    AWTimesheetTheme(dynamicColor = false) {
         ProjectDetailsStateContent(
             padding = PaddingValues(0.dp),
             uiState = uiState,

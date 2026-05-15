@@ -2,7 +2,7 @@ package com.akiwiksten.awtimesheet.feature.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.akiwiksten.awtimesheet.core.theme.WorkTime30Theme
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.android.tools.screenshot.PreviewTest
 
@@ -40,7 +40,7 @@ fun PreviewSettingsError() {
 
 @Composable
 private fun SettingsPreviewContent(uiState: SettingsUiState) {
-    WorkTime30Theme(dynamicColor = false) {
+    AWTimesheetTheme(dynamicColor = false) {
         SettingsStateContent(
             uiState = uiState,
             defaultWorkType = "Other",

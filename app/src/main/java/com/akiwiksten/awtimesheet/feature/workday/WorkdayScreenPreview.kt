@@ -3,7 +3,7 @@ package com.akiwiksten.awtimesheet.feature.workday
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.akiwiksten.awtimesheet.core.theme.WorkTime30Theme
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.android.tools.screenshot.PreviewTest
 
@@ -86,7 +86,7 @@ private fun WorkdayPreviewContent(
     selectedItemIndex: Int
 ) {
     val scrollState = rememberScrollState()
-    WorkTime30Theme(dynamicColor = false) {
+    AWTimesheetTheme(dynamicColor = false) {
         WorkdayContent(
             workdayUiState = uiState,
             selectedItemIndex = selectedItemIndex,

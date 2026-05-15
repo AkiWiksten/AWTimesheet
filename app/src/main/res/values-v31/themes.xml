@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.WorkTime30.Launch" parent="Theme.WorkTime30">
+    <style name="Theme.AWTimesheet.Launch" parent="Theme.AWTimesheet">
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/themes_transparent_splash_icon</item>
         <item name="android:windowSplashScreenBackground">@android:color/transparent</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>

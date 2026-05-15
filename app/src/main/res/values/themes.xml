@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.WorkTime30" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.AWTimesheet" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <style name="Theme.WorkTime30.Launch" parent="Theme.WorkTime30">
+    <style name="Theme.AWTimesheet.Launch" parent="Theme.AWTimesheet">
         <item name="android:windowBackground">@drawable/aw_timesheet_background_portrait</item>
         <item name="android:windowNoTitle">true</item>
     </style>

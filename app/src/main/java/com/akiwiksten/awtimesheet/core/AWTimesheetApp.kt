@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
-class WorkTimeApp : Application() {
+class AWTimesheetApp : Application() {
 
     @Inject
     lateinit var ensureDefaultSettingsUseCase: EnsureDefaultSettingsUseCase
@@ -25,3 +25,4 @@ class WorkTimeApp : Application() {
         }
     }
 }
+

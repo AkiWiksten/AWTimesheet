@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.akiwiksten.awtimesheet.core.theme.WorkTime30Theme
-import com.akiwiksten.awtimesheet.navigation.WorkTime30App
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
+import com.akiwiksten.awtimesheet.navigation.AWTimesheetApp
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,8 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            WorkTime30Theme {
-                WorkTime30App()
+            AWTimesheetTheme {
+                AWTimesheetApp()
             }
         }
     }

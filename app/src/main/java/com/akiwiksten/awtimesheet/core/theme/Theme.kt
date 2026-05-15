@@ -25,7 +25,7 @@ private val WarmColorScheme = lightColorScheme(
 )
 
 @Composable
-fun WorkTime30Theme(
+fun AWTimesheetTheme(
     darkTheme: Boolean = false,
     // Dynamic color is disabled so our custom warm palette is always used
     dynamicColor: Boolean = false,

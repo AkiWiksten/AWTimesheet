@@ -5,7 +5,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <application
-        android:name=".core.WorkTimeApp"
+        android:name=".core.AWTimesheetApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -13,11 +13,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/aw_timesheet_app_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.WorkTime30">
+        android:theme="@style/Theme.AWTimesheet">
         <activity
             android:name=".core.ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.WorkTime30.Launch">
+            android:theme="@style/Theme.AWTimesheet.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

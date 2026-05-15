@@ -49,7 +49,7 @@ private val BackStackSaver: Saver<SnapshotStateList<Any>, BackStackData> = Saver
 )
 
 @Composable
-fun WorkTime30App() {
+fun AWTimesheetApp() {
     val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(Screen.Intro) }
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
     val portraitWidth = rememberPortraitWidthDp()

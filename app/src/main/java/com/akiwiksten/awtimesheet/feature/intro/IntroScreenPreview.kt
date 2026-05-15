@@ -2,7 +2,7 @@ package com.akiwiksten.awtimesheet.feature.intro
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.akiwiksten.awtimesheet.core.theme.WorkTime30Theme
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
@@ -35,7 +35,7 @@ fun PreviewIntroError() {
 
 @Composable
 private fun IntroPreviewContent(uiState: IntroUiState) {
-    WorkTime30Theme(dynamicColor = false) {
+    AWTimesheetTheme(dynamicColor = false) {
         IntroStateContent(
             uiState = uiState,
             onItemClick = {}

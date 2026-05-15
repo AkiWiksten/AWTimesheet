@@ -6,16 +6,13 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -53,7 +50,6 @@ import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 
 private const val ANIMATION_DURATION = 3000
 private const val SCREEN_FILL_RATIO = 0.6f
-private const val BUTTON_SCALE_DIVIDER = 2.6f
 private const val DEFAULT_FALLBACK_SCALE = 2.4f
 private const val MIN_INITIAL_SCALE = 0.01f
 
@@ -251,7 +247,8 @@ private fun IntroContent(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .clickable(enabled = true, onClick = onItemClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -264,27 +261,6 @@ private fun IntroContent(
                     transformOrigin = TransformOrigin.Center
                 }
         )
-
-        Spacer(modifier = Modifier.padding(all = 80.dp))
-
-        Button(
-            onClick = onItemClick,
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp),
-            modifier = Modifier
-                .graphicsLayer {
-                    val btnScale = currentScale / BUTTON_SCALE_DIVIDER
-                    scaleX = btnScale
-                    scaleY = btnScale
-                    transformOrigin = TransformOrigin.Center
-                }
-        ) {
-            Text(
-                text = stringResource(id = R.string.continueFromIntro),
-                fontSize = 24.sp,
-                modifier = Modifier.padding(all = 4.dp),
-                style = LocalTextStyle.current.copy(textMotion = TextMotion.Animated)
-            )
-        }
     }
 }
 
@@ -293,7 +269,7 @@ private fun StrokeText(text: String, modifier: Modifier = Modifier) {
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(120.dp)
+            .fillMaxHeight()
     ) {
         val paint = android.graphics.Paint().apply {
             isAntiAlias = true
@@ -305,12 +281,12 @@ private fun StrokeText(text: String, modifier: Modifier = Modifier) {
         }
 
         val centerX = size.width / 2f
-        val baselineY = size.height * 0.8f
+        val centerY = size.height / 2f
 
-        drawContext.canvas.nativeCanvas.drawText(text, centerX, baselineY, paint)
+        drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
 
         paint.style = android.graphics.Paint.Style.FILL
         paint.color = android.graphics.Color.WHITE
-        drawContext.canvas.nativeCanvas.drawText(text, centerX, baselineY, paint)
+        drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
     }
 }

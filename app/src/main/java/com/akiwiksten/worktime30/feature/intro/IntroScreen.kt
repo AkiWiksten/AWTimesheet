@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -161,13 +160,21 @@ internal fun IntroStateContent(
 
 @Composable
 private fun IntroBackgroundContainer(content: @Composable () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val isLandscape = maxWidth > maxHeight
+        val backgroundRes = if (isLandscape) {
+            R.drawable.aw_timesheet_background_landscape
+        } else {
+            R.drawable.aw_timesheet_background_portrait
+        }
+
         Image(
-            painter = painterResource(id = R.drawable.aw_timesheet_background_portrait),
+            painter = painterResource(id = backgroundRes),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier.fillMaxSize()
         )
+
         content()
     }
 }
@@ -186,15 +193,15 @@ private fun IntroAnimatedContent(
     )
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val contentWidthPx = with(density) { maxWidth.roundToPx() }
-        val hasValidDimensions = contentWidthPx > 0 && maxHeight > 0.dp
+        val scaleReferenceWidthPx = with(density) { minOf(maxWidth, maxHeight).roundToPx() }
+        val hasValidDimensions = scaleReferenceWidthPx > 0 && maxHeight > 0.dp
 
         val targetScaleFactor = if (hasValidDimensions) {
             calculateTargetScale(
                 appName = appName,
                 textStyle = textStyle,
                 textMeasurer = textMeasurer,
-                contentWidthPx = contentWidthPx
+                contentWidthPx = scaleReferenceWidthPx
             )
         } else {
             DEFAULT_FALLBACK_SCALE

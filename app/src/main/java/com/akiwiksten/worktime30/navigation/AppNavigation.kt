@@ -55,17 +55,10 @@ fun WorkTime30App() {
     val portraitWidth = rememberPortraitWidthDp()
 
     if (isIntroRoute) {
-        PortraitWidthContainer(
-            portraitWidth = portraitWidth,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background)
-        ) {
-            WorkTimeNavDisplay(
-                backStack = backStack,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+        WorkTimeNavDisplay(
+            backStack = backStack,
+            modifier = Modifier.fillMaxSize()
+        )
     } else {
         Scaffold(
             bottomBar = {

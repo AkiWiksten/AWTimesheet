@@ -23,6 +23,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WorkTime3.0"
+rootProject.name = "AWTimesheet"
 include(":app")
  

@@ -1,11 +1,17 @@
 package com.akiwiksten.awtimesheet.core.theme
 
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 
 private val WarmColorScheme = lightColorScheme(
@@ -31,12 +37,22 @@ fun AWTimesheetTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val activity = LocalActivity.current as? ComponentActivity
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         else -> WarmColorScheme
+    }
+
+    val systemBarColor = colorScheme.surface.toArgb()
+    SideEffect {
+        activity?.enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(systemBarColor, systemBarColor),
+            navigationBarStyle = SystemBarStyle.auto(systemBarColor, systemBarColor)
+        )
     }
 
     MaterialTheme(

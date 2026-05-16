@@ -2,6 +2,8 @@ package com.akiwiksten.awtimesheet.feature.settings.report
 
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,6 +78,110 @@ class TimesheetGeneratorTest {
         assertEquals(listOf("Type 4"), exportData.hiddenWorkTypes)
         assertEquals(3, exportData.displayedEntriesByDay.getValue(1).size)
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
+        assertEquals(1.0 / 24.0, exportData.summaryProjectTimes.getValue("Project 4"), 0.000001)
+        assertEquals(40.0, exportData.summaryProjectKilometres.getValue("Project 4"), 0.000001)
+        assertEquals(0, exportData.allowanceRows[0].countByProjectName.getValue("Project 4"))
+        assertEquals(0, exportData.allowanceRows[1].countByProjectName.getValue("Project 4"))
+        assertEquals(1, exportData.allowanceRows[2].countByProjectName.getValue("Project 4"))
+        assertEquals(0.0, exportData.workTypeRows[0].timeByProjectName.getValue("Project 4"), 0.000001)
+    }
+
+    @Test
+    fun createWorkbook_placesAllProjectSummaryColumnsContiguously_whenProjectsExceedTemplateBlock() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(
+                listOf(
+                    sampleProject(ProjectSpec("2026-05-01", 0, "Project 1", "01:00", "10", "No allowance", "Other")),
+                    sampleProject(ProjectSpec("2026-05-01", 1, "Project 2", "01:00", "20", "No allowance", "Other")),
+                    sampleProject(
+                        ProjectSpec(
+                            "2026-05-01",
+                            2,
+                            "Project 3",
+                            "01:00",
+                            "30",
+                            "Half-day allowance",
+                            "Other"
+                        )
+                    ),
+                    sampleProject(ProjectSpec("2026-05-01", 3, "Project 4", "01:00", "40", "Full allowance", "Other"))
+                )
+            )
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        assertEquals("Project 1", sheetXml.cellInlineString("U1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("V1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("W1"))
+        assertEquals("Project 4", sheetXml.cellInlineString("X1"))
+        assertEquals("Total", sheetXml.cellInlineString("Y1"))
+        assertNotNull(sheetXml.cellNumericValue("U2"))
+        assertNotNull(sheetXml.cellNumericValue("X3"))
+        assertNotNull(sheetXml.cellNumericValue("Y2"))
+        assertNotNull(sheetXml.cellNumericValue("Y3"))
+        assertEquals("Project 1", sheetXml.cellInlineString("Z1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("AA1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("AB1"))
+        assertEquals("Project 4", sheetXml.cellInlineString("AC1"))
+        assertEquals("Total", sheetXml.cellInlineString("AD1"))
+        assertNotNull(sheetXml.cellNumericValue("AC4"))
+        assertEquals("Project 1", sheetXml.cellInlineString("AG1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("AH1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("AI1"))
+        assertEquals("Project 4", sheetXml.cellInlineString("AJ1"))
+        assertEquals("Total", sheetXml.cellInlineString("AK1"))
+        assertNotNull(sheetXml.cellNumericValue("AJ2"))
+        assertNotNull(sheetXml.cellNumericValue("AK2"))
+    }
+
+    @Test
+    fun createWorkbook_keepsLegacySummaryBlock_whenProjectCountFitsTemplate() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(
+                listOf(
+                    sampleProject(ProjectSpec("2026-05-01", 0, "Project 1", "02:00", "10", "No allowance", "Other")),
+                    sampleProject(ProjectSpec("2026-05-02", 0, "Project 2", "03:00", "20", "No allowance", "Other")),
+                    sampleProject(ProjectSpec("2026-05-03", 0, "Project 3", "04:00", "30", "No allowance", "Other"))
+                )
+            )
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        assertEquals("Project 1", sheetXml.cellInlineString("E1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("F1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("G1"))
+        assertEquals("Total", sheetXml.cellInlineString("H1"))
+        assertNotNull(sheetXml.cellNumericValue("E2"))
+        assertNotNull(sheetXml.cellNumericValue("G3"))
+        assertNotNull(sheetXml.cellNumericValue("H2"))
+        assertNotNull(sheetXml.cellNumericValue("H3"))
+        assertEquals("Project 1", sheetXml.cellInlineString("K1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("L1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("M1"))
+        assertEquals("Total", sheetXml.cellInlineString("N1"))
+        assertNotNull(sheetXml.cellNumericValue("M4"))
+        assertNotNull(sheetXml.cellNumericValue("N4"))
+        assertEquals("Project 1", sheetXml.cellInlineString("Q1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("R1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("S1"))
+        assertEquals("Total", sheetXml.cellInlineString("T1"))
+        assertNotNull(sheetXml.cellNumericValue("S2"))
+        assertNotNull(sheetXml.cellNumericValue("T2"))
+
+        assertNull(sheetXml.cellInlineString("U1"))
+        assertNull(sheetXml.cellNumericValue("U2"))
     }
 
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
@@ -165,4 +271,82 @@ class TimesheetGeneratorTest {
     )
 }
 
+@RunWith(RobolectricTestRunner::class)
+class TimesheetGeneratorExcelInspectionTest {
+    private data class SpecItem(
+        val date: String,
+        val index: Int,
+        val name: String,
+        val time: String,
+        val km: String,
+        val allowance: String,
+        val workType: String
+    )
+
+    @Test
+    fun inspectExcelLayout_withExtraAWProjectOn13May() {
+        val startProjects = listOf(
+            SpecItem("2026-05-13", 0, "Kala", "08:00", "0", "No allowance", "Other"),
+            SpecItem("2026-05-14", 0, "AWProject", "04:30", "50", "No allowance", "Other"),
+            SpecItem("2026-05-14", 1, "Lankku", "02:00", "75", "Half-day allowance", "Other"),
+            SpecItem("2026-05-15", 0, "AWProject", "07:00", "60", "No allowance", "Other"),
+            SpecItem("2026-05-15", 1, "Project 1", "06:00", "100", "No allowance", "Other"),
+            SpecItem("2026-05-16", 0, "Project 1", "05:30", "85", "No allowance", "Other")
+        )
+
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(startProjects.map { spec ->
+                SingleProjectState(
+                    index = spec.index,
+                    date = spec.date,
+                    projectName = spec.name,
+                    projectTime = spec.time,
+                    kilometres = spec.km,
+                    allowance = spec.allowance,
+                    workType = spec.workType
+                )
+            })
+        )
+
+        println("=== PROJECT SUMMARIES ===")
+        exportData.summaryProjectNames.forEach { name ->
+            val time = exportData.summaryProjectTimes[name] ?: 0.0
+            val km = exportData.summaryProjectKilometres[name] ?: 0.0
+            println("$name: time=$time km=$km")
+        }
+
+        println("\n=== ALLOWANCE COUNTS ===")
+        exportData.allowanceRows.forEachIndexed { idx, row ->
+            println("${row.label}:")
+            row.countByProjectName.forEach { (proj, cnt) ->
+                println("  $proj=$cnt")
+            }
+            println("  Total=$row.totalCount")
+        }
+
+        println("\n=== WORKTYPE TIMES ===")
+        exportData.workTypeRows.forEachIndexed { idx, row ->
+            println("${row.label}:")
+            row.timeByProjectName.forEach { (proj, tm) ->
+                if (tm > 0.0) println("  $proj=$tm")
+            }
+            if (row.totalTime > 0.0) println("  Total=$row.totalTime")
+        }
+    }
+
+    private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
+        ctx = RuntimeEnvironment.getApplication(),
+        projectsByMonth = projects,
+        endOfMonthDate = "2026-05-31",
+        name = "Aki Wiksten",
+        employer = "AJVW Inc.",
+        defaultWorkTypeLabel = "Other",
+        noAllowanceSourceLabel = "No allowance",
+        halfDayAllowanceSourceLabel = "Half-day allowance",
+        fullAllowanceSourceLabel = "Full allowance",
+        noAllowanceExportLabel = "No",
+        halfDayAllowanceExportLabel = "Half-day",
+        fullAllowanceExportLabel = "Full"
+    )
+}
 

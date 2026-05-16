@@ -29,23 +29,37 @@ private const val TEMPLATE_ASSET_NAME = "timesheet_template.xlsx"
 private const val MAX_DAILY_ENTRIES = 3
 private const val MAX_SUMMARY_PROJECTS = 3
 private const val MAX_SUMMARY_WORK_TYPES = 3
+private const val EXTENDED_PROJECT_SUMMARY_START_COLUMN_INDEX = 21 // U
+private const val DEFAULT_PROJECT_SUMMARY_START_COLUMN_INDEX = 5 // E
+private const val DEFAULT_PROJECT_SUMMARY_TOTAL_COLUMN_INDEX = 8 // H
+private const val DEFAULT_ALLOWANCE_START_COLUMN_INDEX = 11 // K
+private const val DEFAULT_WORK_TYPE_LABEL_COLUMN_INDEX = 16 // P
 private const val LOG_TAG = "TimesheetGenerator"
 private const val PROJECT_NAME_STYLE = 5
 private const val WORK_TIME_STYLE = 6
 private const val START_DATE_STYLE = 28
 private const val END_DATE_STYLE = 29
 private const val WORK_TYPE_THIRD_ROW_LABEL_STYLE = 7
+private const val PROJECT_SUMMARY_HEADER_STYLE = 14
+private const val PROJECT_SUMMARY_WORK_TIME_STYLE = 16
+private const val PROJECT_SUMMARY_KILOMETRES_STYLE = 19
+private const val PROJECT_SUMMARY_TOTAL_HEADER_STYLE = 15
+private const val PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE = 27
+private const val PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE = 20
+private const val ALLOWANCE_HEADER_STYLE = 14
+private const val ALLOWANCE_TOTAL_HEADER_STYLE = 15
+private val ALLOWANCE_PROJECT_VALUE_STYLES = listOf(30, 30, 36)
+private val ALLOWANCE_TOTAL_VALUE_STYLES = listOf(33, 33, 37)
+private const val WORK_TYPE_HEADER_STYLE = 14
+private const val WORK_TYPE_TOTAL_HEADER_STYLE = 31
+private const val TOTAL_LABEL = "Total"
 private val DAILY_SLOT_BASE_ROWS = listOf(8, 14, 20)
 private val PROJECT_NAME_HEADER_CELLS = listOf("E1", "F1", "G1")
 private val PROJECT_TIME_SUMMARY_CELLS = listOf("E2", "F2", "G2")
 private val PROJECT_KILOMETRES_SUMMARY_CELLS = listOf("E3", "F3", "G3")
+private val ALLOWANCE_HEADER_CELLS = listOf("K1", "L1", "M1", "N1")
 private val ALLOWANCE_LABEL_CELLS = listOf("J2", "J3", "J4")
-private val ALLOWANCE_COUNT_CELLS = listOf(
-    listOf("K2", "L2", "M2"),
-    listOf("K3", "L3", "M3"),
-    listOf("K4", "L4", "M4")
-)
-private val ALLOWANCE_TOTAL_CELLS = listOf("N2", "N3", "N4")
+private val WORK_TYPE_HEADER_CELLS = listOf("Q1", "R1", "S1", "T1")
 private val WORK_TYPE_LABEL_CELLS = listOf("P2", "P3", "P4")
 private val WORK_TYPE_VALUE_CELLS = listOf(
     listOf("Q2", "R2", "S2"),
@@ -112,14 +126,15 @@ internal object TimesheetExportDataBuilder {
         val startDate = endDate.withDayOfMonth(1)
         val entries = params.projectsByMonth.toSortedTimesheetEntries(labels)
 
-        val summaryProjectNames = entries.extractDistinctProjectNames()
+        val allProjectNames = entries.allDistinctProjectNames()
+        val summaryProjectNames = allProjectNames.take(MAX_SUMMARY_PROJECTS)
         val summaryWorkTypes = entries.extractDistinctWorkTypes()
         val entriesByDay = entries.groupBy { it.dayOfMonth }
         val displayedEntriesByDay = entriesByDay.mapValues { (_, dayEntries) ->
             dayEntries.take(MAX_DAILY_ENTRIES)
         }
-        val allowanceRows = buildAllowanceRows(entries, summaryProjectNames, labels)
-        val workTypeRows = buildWorkTypeRows(entries, summaryProjectNames, summaryWorkTypes)
+        val allowanceRows = buildAllowanceRows(entries, allProjectNames, labels)
+        val workTypeRows = buildWorkTypeRows(entries, allProjectNames, summaryWorkTypes)
 
         return TimesheetExportData(
             name = params.name,
@@ -127,10 +142,10 @@ internal object TimesheetExportDataBuilder {
             startDate = startDate,
             endDate = endDate,
             summaryProjectNames = summaryProjectNames,
-            summaryProjectTimes = summaryProjectNames.associateWith { projectName ->
+            summaryProjectTimes = allProjectNames.associateWith { projectName ->
                 entries.filter { it.projectName == projectName }.sumOf { it.workTimeFraction }
             },
-            summaryProjectKilometres = summaryProjectNames.associateWith { projectName ->
+            summaryProjectKilometres = allProjectNames.associateWith { projectName ->
                 entries.filter { it.projectName == projectName }.sumOf { it.kilometres }
             },
             totalWorkTime = entries.sumOf { it.workTimeFraction },
@@ -142,7 +157,7 @@ internal object TimesheetExportDataBuilder {
                 .filterValues { dayEntries -> dayEntries.size > MAX_DAILY_ENTRIES }
                 .keys
                 .sorted(),
-            hiddenProjectNames = entries.allDistinctProjectNames().drop(MAX_SUMMARY_PROJECTS),
+            hiddenProjectNames = allProjectNames.drop(MAX_SUMMARY_PROJECTS),
             hiddenWorkTypes = entries.allDistinctWorkTypes().drop(MAX_SUMMARY_WORK_TYPES)
         )
     }
@@ -176,13 +191,13 @@ private fun List<SingleProjectState>.toSortedTimesheetEntries(
 
 private fun buildAllowanceRows(
     entries: List<TimesheetEntry>,
-    summaryProjectNames: List<String>,
+    allProjectNames: List<String>,
     labels: TimesheetLabels
 ): List<TimesheetAllowanceSummaryRow> {
     return ALLOWANCE_ORDER.map { allowanceType ->
         TimesheetAllowanceSummaryRow(
             label = allowanceType.toExportLabel(labels),
-            countByProjectName = summaryProjectNames.associateWith { projectName ->
+            countByProjectName = allProjectNames.associateWith { projectName ->
                 entries.count { entry ->
                     entry.projectName == projectName && entry.allowanceType == allowanceType
                 }
@@ -194,13 +209,13 @@ private fun buildAllowanceRows(
 
 private fun buildWorkTypeRows(
     entries: List<TimesheetEntry>,
-    summaryProjectNames: List<String>,
+    allProjectNames: List<String>,
     summaryWorkTypes: List<String>
 ): List<TimesheetWorkTypeSummaryRow> {
     return summaryWorkTypes.map { workType ->
         TimesheetWorkTypeSummaryRow(
             label = workType,
-            timeByProjectName = summaryProjectNames.associateWith { projectName ->
+            timeByProjectName = allProjectNames.associateWith { projectName ->
                 entries.filter { entry ->
                     entry.projectName == projectName && entry.workType == workType
                 }.sumOf { it.workTimeFraction }
@@ -210,7 +225,7 @@ private fun buildWorkTypeRows(
     }
 }
 
-private object TimesheetWorkbookEditor {
+internal object TimesheetWorkbookEditor {
     fun createWorkbook(templateBytes: ByteArray, exportData: TimesheetExportData): ByteArray {
         val zipEntries = unzipEntries(templateBytes)
         zipEntries["[Content_Types].xml"] = removeCalcChainContentType(
@@ -289,16 +304,16 @@ private object TimesheetWorkbookEditor {
 
     private fun clearDynamicCells(sheetData: Element) {
         listOf(
-            "B2", "B3", "B4", "B5", "H2", "H3"
+            "B2", "B3", "B4", "B5", "H1", "H2", "H3"
         ).forEach { cellReference ->
             clearCell(sheetData, cellReference)
         }
         PROJECT_NAME_HEADER_CELLS.forEach { clearCell(sheetData, it) }
         PROJECT_TIME_SUMMARY_CELLS.forEach { clearCell(sheetData, it) }
         PROJECT_KILOMETRES_SUMMARY_CELLS.forEach { clearCell(sheetData, it) }
+        ALLOWANCE_HEADER_CELLS.forEach { clearCell(sheetData, it) }
         ALLOWANCE_LABEL_CELLS.forEach { clearCell(sheetData, it) }
-        ALLOWANCE_COUNT_CELLS.flatten().forEach { clearCell(sheetData, it) }
-        ALLOWANCE_TOTAL_CELLS.forEach { clearCell(sheetData, it) }
+        WORK_TYPE_HEADER_CELLS.forEach { clearCell(sheetData, it) }
         WORK_TYPE_LABEL_CELLS.forEach { clearCell(sheetData, it) }
         WORK_TYPE_VALUE_CELLS.flatten().forEach { clearCell(sheetData, it) }
         WORK_TYPE_TOTAL_CELLS.forEach { clearCell(sheetData, it) }
@@ -339,23 +354,56 @@ private object TimesheetWorkbookEditor {
         sheetData: Element,
         exportData: TimesheetExportData
     ) {
-        exportData.summaryProjectNames.forEachIndexed { index, projectName ->
-            setStringCell(document, sheetData, PROJECT_NAME_HEADER_CELLS[index], projectName)
-            setNumericCell(
+        val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
+        val projectSummaryColumns = projectSummaryColumnLetters(allProjectNames.size)
+
+        allProjectNames.forEachIndexed { index, projectName ->
+            val columnLetters = projectSummaryColumns[index]
+            setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = PROJECT_TIME_SUMMARY_CELLS[index],
-                numericValue = exportData.summaryProjectTimes.getValue(projectName)
+                cellReference = "${columnLetters}1",
+                value = projectName,
+                styleIndex = PROJECT_SUMMARY_HEADER_STYLE
             )
             setNumericCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = PROJECT_KILOMETRES_SUMMARY_CELLS[index],
-                numericValue = exportData.summaryProjectKilometres.getValue(projectName)
+                cellReference = "${columnLetters}2",
+                numericValue = exportData.summaryProjectTimes.getValue(projectName),
+                styleIndex = PROJECT_SUMMARY_WORK_TIME_STYLE
+            )
+            setNumericCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = "${columnLetters}3",
+                numericValue = exportData.summaryProjectKilometres.getValue(projectName),
+                styleIndex = PROJECT_SUMMARY_KILOMETRES_STYLE
             )
         }
-        setNumericCell(document, sheetData, "H2", exportData.totalWorkTime)
-        setNumericCell(document, sheetData, "H3", exportData.totalKilometres)
+
+        val totalColumnLetters = projectSummaryTotalColumnLetters(allProjectNames.size)
+        setStringCell(
+            document = document,
+            sheetData = sheetData,
+            cellReference = "${totalColumnLetters}1",
+            value = TOTAL_LABEL,
+            styleIndex = PROJECT_SUMMARY_TOTAL_HEADER_STYLE
+        )
+        setNumericCell(
+            document = document,
+            sheetData = sheetData,
+            cellReference = "${totalColumnLetters}2",
+            numericValue = exportData.totalWorkTime,
+            styleIndex = PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
+        )
+        setNumericCell(
+            document = document,
+            sheetData = sheetData,
+            cellReference = "${totalColumnLetters}3",
+            numericValue = exportData.totalKilometres,
+            styleIndex = PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
+        )
     }
 
     private fun populateAllowanceSummary(
@@ -363,21 +411,53 @@ private object TimesheetWorkbookEditor {
         sheetData: Element,
         exportData: TimesheetExportData
     ) {
+        val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
+        val allowanceStartColumnIndex = allowanceStartColumnIndex(allProjectNames.size)
+        val allowanceTotalColumnIndex = allowanceStartColumnIndex + allProjectNames.size
+
+        allProjectNames.forEachIndexed { index, projectName ->
+            val columnLetters = columnIndexToLetters(allowanceStartColumnIndex + index)
+            setStringCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = "${columnLetters}1",
+                value = projectName,
+                styleIndex = ALLOWANCE_HEADER_STYLE
+            )
+        }
+        val totalColumnLetters = columnIndexToLetters(allowanceTotalColumnIndex)
+        setStringCell(
+            document = document,
+            sheetData = sheetData,
+            cellReference = "${totalColumnLetters}1",
+            value = TOTAL_LABEL,
+            styleIndex = ALLOWANCE_TOTAL_HEADER_STYLE
+        )
+
         exportData.allowanceRows.forEachIndexed { rowIndex, allowanceRow ->
             setStringCell(document, sheetData, ALLOWANCE_LABEL_CELLS[rowIndex], allowanceRow.label)
-            exportData.summaryProjectNames.forEachIndexed { columnIndex, projectName ->
+            allProjectNames.forEachIndexed { columnIndex, projectName ->
+                val cellReference = buildCellReference(
+                    columnIndex = allowanceStartColumnIndex + columnIndex,
+                    rowNumber = rowIndex + 2
+                )
                 setNumericCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = ALLOWANCE_COUNT_CELLS[rowIndex][columnIndex],
-                    numericValue = allowanceRow.countByProjectName.getValue(projectName).toDouble()
+                    cellReference = cellReference,
+                    numericValue = allowanceRow.countByProjectName.getValue(projectName).toDouble(),
+                    styleIndex = ALLOWANCE_PROJECT_VALUE_STYLES[rowIndex]
                 )
             }
             setNumericCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = ALLOWANCE_TOTAL_CELLS[rowIndex],
-                numericValue = allowanceRow.totalCount.toDouble()
+                cellReference = buildCellReference(
+                    columnIndex = allowanceTotalColumnIndex,
+                    rowNumber = rowIndex + 2
+                ),
+                numericValue = allowanceRow.totalCount.toDouble(),
+                styleIndex = ALLOWANCE_TOTAL_VALUE_STYLES[rowIndex]
             )
         }
     }
@@ -387,22 +467,47 @@ private object TimesheetWorkbookEditor {
         sheetData: Element,
         exportData: TimesheetExportData
     ) {
+        val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
+        val workTypeLabelColumnIndex = workTypeLabelColumnIndex(allProjectNames.size)
+        val workTypeStartColumnIndex = workTypeLabelColumnIndex + 1
+        val workTypeTotalColumnIndex = workTypeStartColumnIndex + allProjectNames.size
+
+        allProjectNames.forEachIndexed { index, projectName ->
+            setStringCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = buildCellReference(workTypeStartColumnIndex + index, 1),
+                value = projectName,
+                styleIndex = WORK_TYPE_HEADER_STYLE
+            )
+        }
+        setStringCell(
+            document = document,
+            sheetData = sheetData,
+            cellReference = buildCellReference(workTypeTotalColumnIndex, 1),
+            value = TOTAL_LABEL,
+            styleIndex = WORK_TYPE_TOTAL_HEADER_STYLE
+        )
+
         exportData.workTypeRows.forEachIndexed { rowIndex, workTypeRow ->
             val labelStyle = if (rowIndex == 2) WORK_TYPE_THIRD_ROW_LABEL_STYLE else null
             setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = WORK_TYPE_LABEL_CELLS[rowIndex],
+                cellReference = buildCellReference(workTypeLabelColumnIndex, rowIndex + 2),
                 value = workTypeRow.label,
                 styleIndex = labelStyle
             )
-            exportData.summaryProjectNames.forEachIndexed { columnIndex, projectName ->
+            allProjectNames.forEachIndexed { columnIndex, projectName ->
                 val value = workTypeRow.timeByProjectName.getValue(projectName)
                 if (value > 0.0) {
                     setNumericCell(
                         document = document,
                         sheetData = sheetData,
-                        cellReference = WORK_TYPE_VALUE_CELLS[rowIndex][columnIndex],
+                        cellReference = buildCellReference(
+                            workTypeStartColumnIndex + columnIndex,
+                            rowIndex + 2
+                        ),
                         numericValue = value,
                         styleIndex = WORK_TYPE_VALUE_STYLES[rowIndex]
                     )
@@ -412,7 +517,7 @@ private object TimesheetWorkbookEditor {
                 setNumericCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = WORK_TYPE_TOTAL_CELLS[rowIndex],
+                    cellReference = buildCellReference(workTypeTotalColumnIndex, rowIndex + 2),
                     numericValue = workTypeRow.totalTime,
                     styleIndex = WORK_TYPE_TOTAL_STYLES[rowIndex]
                 )
@@ -661,9 +766,6 @@ private fun TimesheetAllowanceType.toExportLabel(labels: TimesheetLabels): Strin
     }
 }
 
-private fun List<TimesheetEntry>.extractDistinctProjectNames(): List<String> {
-    return allDistinctProjectNames().take(MAX_SUMMARY_PROJECTS)
-}
 
 private fun List<TimesheetEntry>.allDistinctProjectNames(): List<String> {
     return map { it.projectName }
@@ -679,6 +781,57 @@ private fun List<TimesheetEntry>.allDistinctWorkTypes(): List<String> {
     return map { it.workType }
         .filter { it.isNotBlank() }
         .distinct()
+}
+
+private fun projectSummaryColumnLetters(projectCount: Int): List<String> {
+    val startIndex = projectSummaryStartColumnIndex(projectCount)
+    return (0 until projectCount).map { offset ->
+        columnIndexToLetters(startIndex + offset)
+    }
+}
+
+private fun projectSummaryTotalColumnLetters(projectCount: Int): String {
+    return columnIndexToLetters(projectSummaryTotalColumnIndex(projectCount))
+}
+
+private fun projectSummaryStartColumnIndex(projectCount: Int): Int {
+    return if (projectCount <= MAX_SUMMARY_PROJECTS) {
+        DEFAULT_PROJECT_SUMMARY_START_COLUMN_INDEX
+    } else {
+        EXTENDED_PROJECT_SUMMARY_START_COLUMN_INDEX
+    }
+}
+
+private fun projectSummaryTotalColumnIndex(projectCount: Int): Int {
+    return if (projectCount <= MAX_SUMMARY_PROJECTS) {
+        DEFAULT_PROJECT_SUMMARY_TOTAL_COLUMN_INDEX
+    } else {
+        EXTENDED_PROJECT_SUMMARY_START_COLUMN_INDEX + projectCount
+    }
+}
+
+private fun allowanceStartColumnIndex(projectCount: Int): Int {
+    return if (projectCount <= MAX_SUMMARY_PROJECTS) {
+        DEFAULT_ALLOWANCE_START_COLUMN_INDEX
+    } else {
+        projectSummaryTotalColumnIndex(projectCount) + 1
+    }
+}
+
+private fun allowanceTotalColumnIndex(projectCount: Int): Int {
+    return allowanceStartColumnIndex(projectCount) + projectCount
+}
+
+private fun workTypeLabelColumnIndex(projectCount: Int): Int {
+    return if (projectCount <= MAX_SUMMARY_PROJECTS) {
+        DEFAULT_WORK_TYPE_LABEL_COLUMN_INDEX
+    } else {
+        allowanceTotalColumnIndex(projectCount) + 2
+    }
+}
+
+private fun buildCellReference(columnIndex: Int, rowNumber: Int): String {
+    return "${columnIndexToLetters(columnIndex)}$rowNumber"
 }
 
 private fun String.toExcelTimeFraction(): Double {

@@ -3,7 +3,6 @@ package com.akiwiksten.awtimesheet.feature.settings.report
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -116,28 +115,18 @@ class TimesheetGeneratorTest {
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
-        assertEquals("Project 1", sheetXml.cellInlineString("U1"))
-        assertEquals("Project 2", sheetXml.cellInlineString("V1"))
-        assertEquals("Project 3", sheetXml.cellInlineString("W1"))
-        assertEquals("Project 4", sheetXml.cellInlineString("X1"))
-        assertEquals("Total", sheetXml.cellInlineString("Y1"))
-        assertNotNull(sheetXml.cellNumericValue("U2"))
-        assertNotNull(sheetXml.cellNumericValue("X3"))
-        assertNotNull(sheetXml.cellNumericValue("Y2"))
-        assertNotNull(sheetXml.cellNumericValue("Y3"))
-        assertEquals("Project 1", sheetXml.cellInlineString("Z1"))
-        assertEquals("Project 2", sheetXml.cellInlineString("AA1"))
-        assertEquals("Project 3", sheetXml.cellInlineString("AB1"))
-        assertEquals("Project 4", sheetXml.cellInlineString("AC1"))
-        assertEquals("Total", sheetXml.cellInlineString("AD1"))
-        assertNotNull(sheetXml.cellNumericValue("AC4"))
-        assertEquals("Project 1", sheetXml.cellInlineString("AG1"))
-        assertEquals("Project 2", sheetXml.cellInlineString("AH1"))
-        assertEquals("Project 3", sheetXml.cellInlineString("AI1"))
-        assertEquals("Project 4", sheetXml.cellInlineString("AJ1"))
-        assertEquals("Total", sheetXml.cellInlineString("AK1"))
-        assertNotNull(sheetXml.cellNumericValue("AJ2"))
-        assertNotNull(sheetXml.cellNumericValue("AK2"))
+        assertEquals("General", sheetXml.cellInlineString("D1"))
+        assertEquals("Work time total", sheetXml.cellInlineString("D2"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("D3"))
+        assertEquals("Project 1", sheetXml.cellInlineString("E1"))
+        assertEquals("Project 2", sheetXml.cellInlineString("F1"))
+        assertEquals("Project 3", sheetXml.cellInlineString("G1"))
+        assertEquals("Project 4", sheetXml.cellInlineString("H1"))
+        assertEquals("Total", sheetXml.cellInlineString("I1"))
+        assertNotNull(sheetXml.cellNumericValue("E2"))
+        assertNotNull(sheetXml.cellNumericValue("H3"))
+        assertNotNull(sheetXml.cellNumericValue("I2"))
+        assertNotNull(sheetXml.cellNumericValue("I3"))
     }
 
     @Test
@@ -159,6 +148,9 @@ class TimesheetGeneratorTest {
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
+        assertEquals("General", sheetXml.cellInlineString("D1"))
+        assertEquals("Work time total", sheetXml.cellInlineString("D2"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("D3"))
         assertEquals("Project 1", sheetXml.cellInlineString("E1"))
         assertEquals("Project 2", sheetXml.cellInlineString("F1"))
         assertEquals("Project 3", sheetXml.cellInlineString("G1"))
@@ -167,21 +159,6 @@ class TimesheetGeneratorTest {
         assertNotNull(sheetXml.cellNumericValue("G3"))
         assertNotNull(sheetXml.cellNumericValue("H2"))
         assertNotNull(sheetXml.cellNumericValue("H3"))
-        assertEquals("Project 1", sheetXml.cellInlineString("K1"))
-        assertEquals("Project 2", sheetXml.cellInlineString("L1"))
-        assertEquals("Project 3", sheetXml.cellInlineString("M1"))
-        assertEquals("Total", sheetXml.cellInlineString("N1"))
-        assertNotNull(sheetXml.cellNumericValue("M4"))
-        assertNotNull(sheetXml.cellNumericValue("N4"))
-        assertEquals("Project 1", sheetXml.cellInlineString("Q1"))
-        assertEquals("Project 2", sheetXml.cellInlineString("R1"))
-        assertEquals("Project 3", sheetXml.cellInlineString("S1"))
-        assertEquals("Total", sheetXml.cellInlineString("T1"))
-        assertNotNull(sheetXml.cellNumericValue("S2"))
-        assertNotNull(sheetXml.cellNumericValue("T2"))
-
-        assertNull(sheetXml.cellInlineString("U1"))
-        assertNull(sheetXml.cellNumericValue("U2"))
     }
 
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
@@ -196,7 +173,11 @@ class TimesheetGeneratorTest {
         fullAllowanceSourceLabel = "Full allowance",
         noAllowanceExportLabel = "No",
         halfDayAllowanceExportLabel = "Half-day",
-        fullAllowanceExportLabel = "Full"
+        fullAllowanceExportLabel = "Full",
+        totalLabel = "Total",
+        generalLabel = "General",
+        workTimeTotalLabel = "Work time total",
+        kilometresLabel = "Kilometres"
     )
 
     private fun sampleProject(spec: ProjectSpec) = SingleProjectState(
@@ -208,6 +189,7 @@ class TimesheetGeneratorTest {
         allowance = spec.allowance,
         workType = spec.workType
     )
+
 
     private fun assertProjectSummaries(exportData: TimesheetExportData) {
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
@@ -346,7 +328,10 @@ class TimesheetGeneratorExcelInspectionTest {
         fullAllowanceSourceLabel = "Full allowance",
         noAllowanceExportLabel = "No",
         halfDayAllowanceExportLabel = "Half-day",
-        fullAllowanceExportLabel = "Full"
+        fullAllowanceExportLabel = "Full",
+        totalLabel = "Total",
+        generalLabel = "General",
+        workTimeTotalLabel = "Work time total",
+        kilometresLabel = "Kilometres"
     )
 }
-

@@ -72,5 +72,9 @@ private fun Context.createTimesheetParams(
     fullAllowanceSourceLabel = getString(R.string.full_allowance),
     noAllowanceExportLabel = getString(R.string.timesheet_no_allowance_short),
     halfDayAllowanceExportLabel = getString(R.string.timesheet_half_day_allowance_short),
-    fullAllowanceExportLabel = getString(R.string.timesheet_full_allowance_short)
+    fullAllowanceExportLabel = getString(R.string.timesheet_full_allowance_short),
+    totalLabel = getString(R.string.timesheet_total),
+    generalLabel = getString(R.string.timesheet_general),
+    workTimeTotalLabel = getString(R.string.timesheet_work_time_total),
+    kilometresLabel = getString(R.string.kilometres)
 )

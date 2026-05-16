@@ -25,3 +25,8 @@ key.properties
 
 # Logs
 *.log
+
+# Excel XML inspection artifacts
+/template_extracted/
+/xlsx_extracted/
+

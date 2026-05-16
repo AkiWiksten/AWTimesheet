@@ -55,6 +55,9 @@
 <string name="timesheet_no_allowance_short">No</string>
 <string name="timesheet_half_day_allowance_short">Half-day</string>
 <string name="timesheet_full_allowance_short">Full</string>
+<string name="timesheet_total">Total</string>
+<string name="timesheet_general">General</string>
+<string name="timesheet_work_time_total">Work time total</string>
 <string name="total_sum">TOTAL SUM</string>
 <string name="other">Other</string>
 <string name="work_type_help">You can add items into \"Work type\" dropdown list in the similar list in \"Settings\" tab.</string>

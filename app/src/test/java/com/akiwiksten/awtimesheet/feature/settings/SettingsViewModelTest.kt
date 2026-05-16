@@ -49,7 +49,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun refreshProjectsByMonth_setsEndOfMonthAndProjects() = runTest {
+    fun requestMonthlyReport_preservesLoadedSettingsState() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
             settings = SettingsState(name = "Aki", employer = "Company")
         }
@@ -58,19 +58,35 @@ class SettingsViewModelTest {
                 ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
         }
-        val viewModel = createViewModel(settingsRepository, projectRepository)
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val workdayRepository = FakeWorkdayRepository()
+        val viewModel = SettingsViewModel(
+            getSettingsUseCase = GetSettingsUseCase(settingsRepository),
+            saveSettingsUseCase = SaveSettingsUseCase(
+                settingsRepository = settingsRepository,
+                workdayRepository = workdayRepository,
+                projectRepository = projectRepository,
+                dateRepository = dateRepository
+            ),
+            getProjectsByMonthUseCase = GetProjectsByMonthUseCase(projectRepository),
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
 
         viewModel.loadSettings()
-        viewModel.refreshProjectsByMonth("2026-04-10")
+        advanceUntilIdle()
+
+        viewModel.requestMonthlyReport(name = "Aki", employer = "Company")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as SettingsUiState.Success
-        assertEquals("2026-04-30", state.endMonthDate)
-        assertEquals(1, state.projectsByMonth.size)
+        assertEquals("Aki", state.data.name)
+        assertEquals("Company", state.data.employer)
+        assertEquals("2026-04-10", state.selectedDate)
     }
 
     @Test
-    fun selectedDateChange_refreshesMonthDataWithoutOverwritingUnsavedSettings() = runTest {
+    fun selectedDateChange_updatesSelectedDateWithoutOverwritingUnsavedSettings() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
             settings = SettingsState(name = "Aki", employer = "Company")
         }
@@ -107,8 +123,6 @@ class SettingsViewModelTest {
         val state = viewModel.uiState.value as SettingsUiState.Success
         assertEquals("Edited Name", state.data.name)
         assertEquals("2026-05-10", state.selectedDate)
-        assertEquals("2026-05-31", state.endMonthDate)
-        assertEquals(listOf("Beta"), state.projectsByMonth.map { it.projectName })
     }
 
     @Test
@@ -187,6 +201,7 @@ class SettingsViewModelTest {
         override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
             return (projectsByRange["$start|$end"] ?: emptyList()).map { entity ->
                 SingleProjectState(
+                    date = entity.date,
                     projectName = entity.projectName,
                     projectTime = entity.projectTime,
                     kilometres = entity.kilometres.toString(),

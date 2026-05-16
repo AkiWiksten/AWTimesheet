@@ -88,7 +88,16 @@ fun SettingsScreen(
         settingsViewModel.events.collectLatest { event ->
             when (event) {
                 is SettingsEvent.MonthlyReportReady -> {
-                    generateReport(
+                    generatePdfReport(
+                        ctx = ctx,
+                        projectsByMonth = event.projectsByMonth,
+                        endOfMonthDate = event.endOfMonthDate,
+                        name = event.name,
+                        employer = event.employer
+                    )
+                }
+                is SettingsEvent.TimesheetReportReady -> {
+                    generateTimesheetReport(
                         ctx = ctx,
                         projectsByMonth = event.projectsByMonth,
                         endOfMonthDate = event.endOfMonthDate,
@@ -210,6 +219,13 @@ private fun createSettingsActions(
             settingsViewModel.requestMonthlyReport(
                 name = successState.data.name,
                 employer = successState.data.employer
+            )
+        },
+        onGenerateXlsx = {
+            settingsViewModel.requestMonthlyReport(
+                name = successState.data.name,
+                employer = successState.data.employer,
+                reportFormat = ReportFormat.XLSX
             )
         }
     )
@@ -360,6 +376,7 @@ private fun SettingsContentBody(
             ActionButtonsSection(
                 onSave = state.saveUi.onSaveRequested,
                 onGeneratePdf = state.actions.onGeneratePdf,
+                onGenerateXlsx = state.actions.onGenerateXlsx,
                 isPdfEnabled = state.uiState.selectedDate.isNotBlank(),
                 isSaveEnabled = state.saveUi.isSaveEnabled
             )
@@ -728,6 +745,7 @@ private fun WorkTypeSection(state: WorkTypeSectionState) {
 private fun ActionButtonsSection(
     onSave: () -> Unit,
     onGeneratePdf: () -> Unit,
+    onGenerateXlsx: () -> Unit,
     isPdfEnabled: Boolean,
     isSaveEnabled: Boolean
 ) {
@@ -751,11 +769,28 @@ private fun ActionButtonsSection(
         ) {
             Text(text = stringResource(id = R.string.generate_pdf), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
-        Text(
-            text = stringResource(id = R.string.monthly_help),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-        )
+        if (isPdfEnabled) {
+            Text(
+                text = stringResource(id = R.string.monthly_help_pdf),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+            )
+        }
+        Button(
+            onClick = onGenerateXlsx,
+            enabled = isPdfEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(text = stringResource(id = R.string.generate_xlsx), fontSize = ACTION_BUTTON_FONT_SIZE)
+        }
+        if (isPdfEnabled) {
+            Text(
+                text = stringResource(id = R.string.monthly_help_xlsx),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+            )
+        }
     }
 }
 data class SettingsActions(
@@ -767,7 +802,8 @@ data class SettingsActions(
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
-    val onGeneratePdf: () -> Unit
+    val onGeneratePdf: () -> Unit,
+    val onGenerateXlsx: () -> Unit
 )
 
 private data class WorkTypeDialogState(

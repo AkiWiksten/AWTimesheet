@@ -39,9 +39,21 @@ sealed class SettingsEvent {
         val employer: String
     ) : SettingsEvent()
 
+    data class TimesheetReportReady(
+        val projectsByMonth: List<SingleProjectState>,
+        val endOfMonthDate: String,
+        val name: String,
+        val employer: String
+    ) : SettingsEvent()
+
     object NoProjectsForMonth : SettingsEvent()
 
     data class MonthlyReportError(val message: String) : SettingsEvent()
+}
+
+enum class ReportFormat {
+    PDF,
+    XLSX
 }
 
 @HiltViewModel
@@ -163,7 +175,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun requestMonthlyReport(name: String, employer: String) {
+    fun requestMonthlyReport(
+        name: String,
+        employer: String,
+        reportFormat: ReportFormat = ReportFormat.PDF
+    ) {
         viewModelScope.launch {
             try {
                 val selectedDate = (_uiState.value as? SettingsUiState.Success)?.selectedDate
@@ -173,14 +189,21 @@ class SettingsViewModel @Inject constructor(
                 if (monthlyResult.projects.isEmpty()) {
                     _events.emit(SettingsEvent.NoProjectsForMonth)
                 } else {
-                    _events.emit(
-                        SettingsEvent.MonthlyReportReady(
+                    val reportEvent = when (reportFormat) {
+                        ReportFormat.PDF -> SettingsEvent.MonthlyReportReady(
                             projectsByMonth = monthlyResult.projects,
                             endOfMonthDate = monthlyResult.endOfMonth,
                             name = name,
                             employer = employer
                         )
-                    )
+                        ReportFormat.XLSX -> SettingsEvent.TimesheetReportReady(
+                            projectsByMonth = monthlyResult.projects,
+                            endOfMonthDate = monthlyResult.endOfMonth,
+                            name = name,
+                            employer = employer
+                        )
+                    }
+                    _events.emit(reportEvent)
                 }
             } catch (e: IllegalArgumentException) {
                 _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))

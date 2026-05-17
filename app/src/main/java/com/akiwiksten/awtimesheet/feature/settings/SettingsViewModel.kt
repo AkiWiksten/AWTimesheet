@@ -43,7 +43,8 @@ sealed class SettingsEvent {
         val projectsByMonth: List<SingleProjectState>,
         val endOfMonthDate: String,
         val name: String,
-        val employer: String
+        val employer: String,
+        val totalFlexTimeTotal: String = "00:00"
     ) : SettingsEvent()
 
     object NoProjectsForMonth : SettingsEvent()
@@ -200,7 +201,8 @@ class SettingsViewModel @Inject constructor(
                             projectsByMonth = monthlyResult.projects,
                             endOfMonthDate = monthlyResult.endOfMonth,
                             name = name,
-                            employer = employer
+                            employer = employer,
+                            totalFlexTimeTotal = monthlyResult.totalFlexTimeTotal
                         )
                     }
                     _events.emit(reportEvent)

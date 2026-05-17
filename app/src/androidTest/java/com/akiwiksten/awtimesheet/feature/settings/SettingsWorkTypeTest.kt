@@ -128,7 +128,8 @@ class SettingsWorkTypeTest {
             onWorkTypeAdded = onWorkTypeAdded,
             onWorkTypeRemoved = {},
             onSave = {},
-            onGeneratePdf = {}
+            onGeneratePdf = {},
+            onGenerateXlsx = {}
         )
     }
 

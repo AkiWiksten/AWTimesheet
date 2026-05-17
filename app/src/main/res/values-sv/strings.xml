@@ -57,6 +57,10 @@
     <string name="timesheet_half_day_allowance_short">Halvdag</string>
     <string name="timesheet_full_allowance_short">Heldag</string>
     <string name="total_sum">TOTALSUMMA</string>
+    <string name="timesheet_total">Totalt</string>
+    <string name="timesheet_general">Allmänt</string>
+    <string name="timesheet_work_time_total">Total arbetstid</string>
+    <string name="timesheet_flex_time_total">Total flex</string>
     <string name="other">Övrigt</string>
     <string name="work_type_help">Du kan lägga till alternativ i rullistan "Arbetstyp" i motsvarande lista under fliken "Inställningar".</string>
     <string name="continueFromIntro">Fortsätt</string>

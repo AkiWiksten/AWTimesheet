@@ -57,6 +57,10 @@
     <string name="timesheet_half_day_allowance_short">Puolipäivä</string>
     <string name="timesheet_full_allowance_short">Kokopäivä</string>
     <string name="total_sum">KOKONAISSUMMA</string>
+    <string name="timesheet_total">Yhteensä</string>
+    <string name="timesheet_general">Yleinen</string>
+    <string name="timesheet_work_time_total">Kokonaistyöaika</string>
+    <string name="timesheet_flex_time_total">Kokonaisliukuma</string>
     <string name="other">Muu</string>
     <string name="work_type_help">Voit lisätä vaihtoehtoja \"Työn tyyppi\" alasvetovalikkoon \"Asetukset\" tabin vastaavaan valikkoon.</string>
     <string name="continueFromIntro">Jatka</string>

@@ -58,6 +58,7 @@
 <string name="timesheet_total">Total</string>
 <string name="timesheet_general">General</string>
 <string name="timesheet_work_time_total">Work time total</string>
+<string name="timesheet_flex_time_total">Flex time total</string>
 <string name="total_sum">TOTAL SUM</string>
 <string name="other">Other</string>
 <string name="work_type_help">You can add items into \"Work type\" dropdown list in the similar list in \"Settings\" tab.</string>

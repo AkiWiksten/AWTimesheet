@@ -72,10 +72,10 @@ class TimesheetGeneratorTest {
             )
         )
 
-        assertEquals(listOf(1), exportData.overflowedDays)
+        assertTrue(exportData.overflowedDays.isEmpty())
         assertEquals(listOf("Project 4"), exportData.hiddenProjectNames)
         assertEquals(listOf("Type 4"), exportData.hiddenWorkTypes)
-        assertEquals(3, exportData.displayedEntriesByDay.getValue(1).size)
+        assertEquals(4, exportData.displayedEntriesByDay.getValue(1).size)
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
         assertEquals(1.0 / 24.0, exportData.summaryProjectTimes.getValue("Project 4"), 0.000001)
         assertEquals(40.0, exportData.summaryProjectKilometres.getValue("Project 4"), 0.000001)
@@ -200,6 +200,26 @@ class TimesheetGeneratorTest {
         )
     }
 
+    @Test
+    fun createWorkbook_hasBlankSeparatorRowAt8() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(emptyList())
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        for (columnIndex in 1..32) {
+            val cellReference = "${toColumnLetters(columnIndex)}8"
+            assertEquals(null, sheetXml.cellInlineString(cellReference))
+            assertEquals(null, sheetXml.cellNumericValue(cellReference))
+        }
+    }
+
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
         ctx = RuntimeEnvironment.getApplication(),
         projectsByMonth = projects,
@@ -216,7 +236,9 @@ class TimesheetGeneratorTest {
         totalLabel = "Total",
         generalLabel = "General",
         workTimeTotalLabel = "Work time total",
-        kilometresLabel = "Kilometres"
+        kilometresLabel = "Kilometres",
+        flexTimeTotalLabel = "Flex time total",
+        totalFlexTimeTotal = "00:00"
     )
 
     private fun sampleProject(spec: ProjectSpec) = SingleProjectState(
@@ -290,6 +312,17 @@ class TimesheetGeneratorTest {
         val allowance: String,
         val workType: String
     )
+
+    private fun toColumnLetters(columnIndex: Int): String {
+        var value = columnIndex
+        val builder = StringBuilder()
+        while (value > 0) {
+            val remainder = (value - 1) % 26
+            builder.insert(0, ('A'.code + remainder).toChar())
+            value = (value - 1) / 26
+        }
+        return builder.toString()
+    }
 }
 
 @RunWith(RobolectricTestRunner::class)
@@ -371,6 +404,8 @@ class TimesheetGeneratorExcelInspectionTest {
         totalLabel = "Total",
         generalLabel = "General",
         workTimeTotalLabel = "Work time total",
-        kilometresLabel = "Kilometres"
+        kilometresLabel = "Kilometres",
+        flexTimeTotalLabel = "Flex time total",
+        totalFlexTimeTotal = "00:00"
     )
 }

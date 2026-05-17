@@ -43,14 +43,16 @@ internal fun generateTimesheetReport(
     projectsByMonth: List<SingleProjectState>,
     endOfMonthDate: String,
     name: String,
-    employer: String
+    employer: String,
+    totalFlexTimeTotal: String = "00:00"
 ) {
     TimesheetGenerator.generateXlsx(
         params = ctx.createTimesheetParams(
             projectsByMonth = projectsByMonth,
             endOfMonthDate = endOfMonthDate,
             name = name,
-            employer = employer
+            employer = employer,
+            totalFlexTimeTotal = totalFlexTimeTotal
         )
     )
 }
@@ -59,7 +61,8 @@ private fun Context.createTimesheetParams(
     projectsByMonth: List<SingleProjectState>,
     endOfMonthDate: String,
     name: String,
-    employer: String
+    employer: String,
+    totalFlexTimeTotal: String = "00:00"
 ) = GenerateTimesheetParams(
     ctx = this,
     projectsByMonth = projectsByMonth,
@@ -76,5 +79,7 @@ private fun Context.createTimesheetParams(
     totalLabel = getString(R.string.timesheet_total),
     generalLabel = getString(R.string.timesheet_general),
     workTimeTotalLabel = getString(R.string.timesheet_work_time_total),
-    kilometresLabel = getString(R.string.kilometres)
+    kilometresLabel = getString(R.string.kilometres),
+    flexTimeTotalLabel = getString(R.string.timesheet_flex_time_total),
+    totalFlexTimeTotal = totalFlexTimeTotal
 )

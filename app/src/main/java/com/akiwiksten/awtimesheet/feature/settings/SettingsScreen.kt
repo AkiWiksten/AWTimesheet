@@ -102,7 +102,8 @@ fun SettingsScreen(
                         projectsByMonth = event.projectsByMonth,
                         endOfMonthDate = event.endOfMonthDate,
                         name = event.name,
-                        employer = event.employer
+                        employer = event.employer,
+                        totalFlexTimeTotal = event.totalFlexTimeTotal
                     )
                 }
                 is SettingsEvent.MonthlyReportError -> {

@@ -27,7 +27,6 @@ import org.w3c.dom.Node
 
 private const val TEMPLATE_ASSET_NAME = "timesheet_template.xlsx"
 private const val MAX_SUMMARY_PROJECTS = 3
-private const val MAX_SUMMARY_WORK_TYPES = 3
 private const val DAILY_ENTRY_ROW_HEIGHT = 6
 private const val DAILY_ENTRIES_START_ROW = 9
 private const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
@@ -38,10 +37,19 @@ private const val LOG_TAG = "TimesheetGenerator"
 private const val PROJECT_NAME_STYLE = 5
 private const val WORK_TIME_STYLE = 6
 // Date cells B4/B5 keep template styles; avoid hardcoded style indices.
-private const val PLAIN_TEXT_STYLE = 15
-private const val BOLD_TEXT_STYLE = 16
-private const val PLAIN_TIME_STYLE = 18
-private const val PLAIN_INTEGER_STYLE = 19
+// Style indices match template cellXfs directly (template has 11 xf entries, 0-based):
+//   0 = default plain text (no bold, no border)
+//   1 = bold, no border
+//   2 = bold + all thin borders          (A8 "Day of Month" label)
+//   3 = bold + all thin borders + center  (B8-AF8 day-of-month numbers)
+//   6 = hh:mm time format
+//   7 = [hh]:mm cumulative time format
+//   8 = integer number format
+private const val PLAIN_TEXT_STYLE = 0
+private const val BOLD_TEXT_STYLE = 1
+private const val DAY_OF_MONTH_VALUE_STYLE = 3   // bold + border + center; B8-AF8
+private const val PLAIN_TIME_STYLE = 18           // normalizes to 18-11=7 = [hh]:mm
+private const val PLAIN_INTEGER_STYLE = 19        // normalizes to 19-11=8 = integer
 private const val PROJECT_SUMMARY_HEADER_STYLE = PLAIN_TEXT_STYLE
 private const val PROJECT_SUMMARY_WORK_TIME_STYLE = PLAIN_TIME_STYLE
 private const val PROJECT_SUMMARY_KILOMETRES_STYLE = PLAIN_INTEGER_STYLE
@@ -199,7 +207,7 @@ internal object TimesheetExportDataBuilder {
         val allProjectNames = entries.allDistinctProjectNames()
         val summaryProjectNames = allProjectNames.take(MAX_SUMMARY_PROJECTS)
         val allWorkTypes = entries.allDistinctWorkTypes()
-        val summaryWorkTypes = allWorkTypes.take(MAX_SUMMARY_WORK_TYPES)
+        val summaryWorkTypes = allWorkTypes
         val displayData = createDisplayData(entries)
         val aggregates = aggregateEntries(entries, allProjectNames)
 
@@ -235,7 +243,7 @@ internal object TimesheetExportDataBuilder {
             displayedEntriesByDay = displayData.displayedEntriesByDay,
             overflowedDays = displayData.overflowedDays,
             hiddenProjectNames = allProjectNames.drop(MAX_SUMMARY_PROJECTS),
-            hiddenWorkTypes = allWorkTypes.drop(MAX_SUMMARY_WORK_TYPES),
+            hiddenWorkTypes = emptyList(),
             flexTimeTotalLabel = params.flexTimeTotalLabel,
             totalFlexTimeTotal = params.totalFlexTimeTotal
         )
@@ -375,6 +383,7 @@ private object TimesheetSheetEditor {
         // Keep the full top summary area deterministic even when some populate* calls are disabled.
         clearTopSummaryArea(sheetData)
         populateHeader(document, sheetData, exportData)
+        populateDayOfMonthRow(document, sheetData)
         populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
         populateProjectSummary(document, sheetData, exportData)
         populateAllowanceSummary(document, sheetData, exportData)
@@ -486,7 +495,7 @@ private object TimesheetSheetEditor {
         WORK_TYPE_LABEL_CELLS.forEach { clearCell(sheetData, it) }
         WORK_TYPE_VALUE_CELLS.flatten().forEach { clearCell(sheetData, it) }
         WORK_TYPE_TOTAL_CELLS.forEach { clearCell(sheetData, it) }
-        for (columnIndex in 1..32) {
+        for (columnIndex in 2..32) { // column 1 (A8) is the "Day of Month" label — keep it
             clearCell(sheetData, buildCellReference(columnIndex, DAILY_ENTRIES_SEPARATOR_ROW))
         }
 
@@ -534,15 +543,11 @@ private object TimesheetSheetEditor {
             cellReference = "B5",
             numericValue = exportData.endDate.toExcelSerialDate()
         )
-        // Add Flex time total at the bottom of header
+        // Add Flex time total at the bottom of header.
+        // B6 is stored as a plain HH:mm string so it renders correctly regardless of the
+        // viewer's number-format support (and avoids the fraction>1 double-division bug).
         setStringCell(document, sheetData, "A6", exportData.flexTimeTotalLabel, BOLD_TEXT_STYLE)
-        setNumericCell(
-            document = document,
-            sheetData = sheetData,
-            cellReference = "B6",
-            numericValue = exportData.totalFlexTimeTotal.toExcelTimeFraction().ensureExcelTimeFraction(),
-            styleIndex = PLAIN_TIME_STYLE
-        )
+        setStringCell(document, sheetData, "B6", exportData.totalFlexTimeTotal)
     }
 
     private fun populateProjectSummary(
@@ -640,10 +645,22 @@ private object TimesheetSheetEditor {
             spec = SectionBodyStyleSpec(
                 labelColumnIndex = context.labelColumnIndex,
                 valueColumnRange = context.startColumnIndex..context.totalColumnIndex,
-                rowRange = 2..4,
+                rowRange = 2..(context.exportData.workTypeRows.size + 1),
                 valueStyle = PLAIN_TIME_STYLE
             )
         )
+    }
+
+    private fun populateDayOfMonthRow(document: Document, sheetData: Element) {
+        for (day in 1..31) {
+            setNumericCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = "${dayToColumn(day)}$DAILY_ENTRIES_SEPARATOR_ROW",
+                numericValue = day.toDouble(),
+                styleIndex = DAY_OF_MONTH_VALUE_STYLE
+            )
+        }
     }
 
     private fun dailyEntriesRowOffset(exportData: TimesheetExportData): Int {
@@ -865,7 +882,7 @@ private object TimesheetSheetEditor {
                         context.sheetData,
                         buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2),
                         value.ensureExcelTimeFraction(),
-                        WORK_TYPE_VALUE_STYLES[rowIndex]
+                        WORK_TYPE_VALUE_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
                     )
                 }
             }
@@ -875,7 +892,7 @@ private object TimesheetSheetEditor {
                     context.sheetData,
                     buildCellReference(context.totalColumnIndex, rowIndex + 2),
                     workTypeRow.totalTime.ensureExcelTimeFraction(),
-                    WORK_TYPE_TOTAL_STYLES[rowIndex]
+                    WORK_TYPE_TOTAL_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
                 )
             }
         }

@@ -74,7 +74,7 @@ class TimesheetGeneratorTest {
 
         assertTrue(exportData.overflowedDays.isEmpty())
         assertEquals(listOf("Project 4"), exportData.hiddenProjectNames)
-        assertEquals(listOf("Type 4"), exportData.hiddenWorkTypes)
+        assertTrue(exportData.hiddenWorkTypes.isEmpty())
         assertEquals(4, exportData.displayedEntriesByDay.getValue(1).size)
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
         assertEquals(1.0 / 24.0, exportData.summaryProjectTimes.getValue("Project 4"), 0.000001)
@@ -162,6 +162,76 @@ class TimesheetGeneratorTest {
     }
 
     @Test
+    fun createWorkbook_writesAllWorkTypeRows_whenWorkTypesExceedThree() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(
+                listOf(
+                    sampleProject(ProjectSpec("2026-05-01", 0, "Project 1", "01:00", "0", "No allowance", "Type 1")),
+                    sampleProject(ProjectSpec("2026-05-02", 0, "Project 1", "01:00", "0", "No allowance", "Type 2")),
+                    sampleProject(ProjectSpec("2026-05-03", 0, "Project 1", "01:00", "0", "No allowance", "Type 3")),
+                    sampleProject(ProjectSpec("2026-05-04", 0, "Project 1", "01:00", "0", "No allowance", "Type 4"))
+                )
+            )
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        // Dynamic work type block starts after project summary and allowance sections.
+        // With one project this places labels in L2..L5 and project values in M2..M5.
+        assertEquals("Type 1", sheetXml.cellInlineString("L2"))
+        assertEquals("Type 2", sheetXml.cellInlineString("L3"))
+        assertEquals("Type 3", sheetXml.cellInlineString("L4"))
+        assertEquals("Type 4", sheetXml.cellInlineString("L5"))
+        assertNotNull(sheetXml.cellNumericValue("M2"))
+        assertNotNull(sheetXml.cellNumericValue("M3"))
+        assertNotNull(sheetXml.cellNumericValue("M4"))
+        assertNotNull(sheetXml.cellNumericValue("M5"))
+        assertTrue(exportData.hiddenWorkTypes.isEmpty())
+    }
+
+    @Test
+    fun createWorkbook_writesAllWorkTypeRows_withMultipleProjectsAndShiftedColumns() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(
+                listOf(
+                    sampleProject(ProjectSpec("2026-05-01", 0, "Project 1", "01:00", "0", "No allowance", "Type 1")),
+                    sampleProject(ProjectSpec("2026-05-01", 1, "Project 2", "01:00", "0", "No allowance", "Type 2")),
+                    sampleProject(ProjectSpec("2026-05-01", 2, "Project 3", "01:00", "0", "No allowance", "Type 3")),
+                    sampleProject(ProjectSpec("2026-05-01", 3, "Project 4", "01:00", "0", "No allowance", "Type 4"))
+                )
+            )
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        val allProjects = exportData.summaryProjectNames + exportData.hiddenProjectNames
+        val workTypeLabelColumn = calculateWorkTypeLabelColumnIndex(allProjects.size)
+        val workTypeTotalColumn = workTypeLabelColumn + allProjects.size + 1
+
+        exportData.workTypeRows.forEachIndexed { index, row ->
+            val rowNumber = index + 2
+            val labelCell = "${toColumnLetters(workTypeLabelColumn)}$rowNumber"
+            val totalCell = "${toColumnLetters(workTypeTotalColumn)}$rowNumber"
+
+            assertEquals(row.label, sheetXml.cellInlineString(labelCell))
+            assertNotNull(sheetXml.cellNumericValue(totalCell))
+        }
+
+        assertEquals(4, exportData.workTypeRows.size)
+        assertTrue(exportData.hiddenWorkTypes.isEmpty())
+    }
+
+    @Test
     fun createWorkbook_removesCalcChainEntryAndReferences() {
         val exportData = TimesheetExportDataBuilder.build(
             params = createParams(emptyList())
@@ -201,7 +271,7 @@ class TimesheetGeneratorTest {
     }
 
     @Test
-    fun createWorkbook_hasBlankSeparatorRowAt8() {
+    fun createWorkbook_hasDayOfMonthNumbersInRow8() {
         val exportData = TimesheetExportDataBuilder.build(
             params = createParams(emptyList())
         )
@@ -213,11 +283,18 @@ class TimesheetGeneratorTest {
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
-        for (columnIndex in 1..32) {
+        // Day columns: day 1 → column B (index 2) … day 31 → column AF (index 32)
+        for (day in 1..31) {
+            val columnIndex = day + 1
             val cellReference = "${toColumnLetters(columnIndex)}8"
-            assertEquals(null, sheetXml.cellInlineString(cellReference))
-            assertEquals(null, sheetXml.cellNumericValue(cellReference))
+            assertEquals(
+                "Expected day $day in cell $cellReference",
+                day.toString(),
+                sheetXml.cellNumericValue(cellReference)
+            )
         }
+        // Column A8 retains the "Day of Month" label from the template (not cleared)
+        assertEquals("Day of Month", sheetXml.cellSharedString("A8", templateBytes))
     }
 
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
@@ -312,6 +389,18 @@ class TimesheetGeneratorTest {
         val allowance: String,
         val workType: String
     )
+
+    private fun calculateWorkTypeLabelColumnIndex(projectCount: Int): Int {
+        // Mirrors production layout formula:
+        // project summary starts at E(5), total at (5 + projectCount),
+        // allowance label = +2, allowance start = +1, allowance total = +projectCount,
+        // work type label = allowance total +2
+        val projectSummaryTotal = 5 + projectCount
+        val allowanceLabel = projectSummaryTotal + 2
+        val allowanceStart = allowanceLabel + 1
+        val allowanceTotal = allowanceStart + projectCount
+        return allowanceTotal + 2
+    }
 
     private fun toColumnLetters(columnIndex: Int): String {
         var value = columnIndex

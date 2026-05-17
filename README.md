@@ -87,7 +87,8 @@ This is called feature-based packaging.
   + show the pdf instantly on screen
   + make pdf dynamic?
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
-
++ Excel
+  + Handle weekly and biweekly reports also, not only monthly, by a start date selection
 ## What to test constantly
 + Thorough testing of all features in all screens
     + Intro, 

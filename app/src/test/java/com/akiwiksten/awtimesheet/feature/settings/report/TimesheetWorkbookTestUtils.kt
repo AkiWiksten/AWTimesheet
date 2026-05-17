@@ -25,6 +25,25 @@ internal fun loadTemplateBytes(): ByteArray {
     return Files.readAllBytes(templatePath)
 }
 
+internal fun org.w3c.dom.Document.cellSharedString(cellReference: String, workbookBytes: ByteArray): String? {
+    val cell = findCell(cellReference) ?: return null
+    if (cell.getAttribute("t") != "s") return null
+    val sharedStringIndex = cell.getElementsByTagNameNS(
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "v"
+    ).item(0)?.textContent?.toIntOrNull() ?: return null
+
+    val sharedStringsBytes = workbookBytes.readZipEntryBytes("xl/sharedStrings.xml")
+    val ssDoc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
+        .newDocumentBuilder().parse(java.io.ByteArrayInputStream(sharedStringsBytes))
+    val siNodes = ssDoc.getElementsByTagNameNS(
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "si"
+    )
+    val si = siNodes.item(sharedStringIndex) ?: return null
+    return (si as? org.w3c.dom.Element)
+        ?.getElementsByTagNameNS("http://schemas.openxmlformats.org/spreadsheetml/2006/main", "t")
+        ?.item(0)?.textContent
+}
+
 internal fun org.w3c.dom.Document.cellInlineString(cellReference: String): String? {
     val textNodes = findCell(cellReference)?.getElementsByTagNameNS(
         "http://schemas.openxmlformats.org/spreadsheetml/2006/main",

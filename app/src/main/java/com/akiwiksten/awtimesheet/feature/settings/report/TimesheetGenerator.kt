@@ -26,9 +26,11 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 
 private const val TEMPLATE_ASSET_NAME = "timesheet_template.xlsx"
-private const val MAX_DAILY_ENTRIES = 3
 private const val MAX_SUMMARY_PROJECTS = 3
 private const val MAX_SUMMARY_WORK_TYPES = 3
+private const val DAILY_ENTRY_ROW_HEIGHT = 6
+private const val DAILY_ENTRIES_START_ROW = 8
+private const val EXCEL_MAX_ROW_INDEX = 1_048_576
 
 // Workbook style ids.
 private const val PROJECT_SUMMARY_START_COLUMN_INDEX = 5 // E
@@ -54,7 +56,6 @@ private const val WORK_TYPE_HEADER_STYLE = PLAIN_TEXT_STYLE
 private const val WORK_TYPE_TOTAL_HEADER_STYLE = PLAIN_TEXT_STYLE
 
 // Fixed template layout cells.
-private val DAILY_SLOT_BASE_ROWS = listOf(8, 14, 20)
 private val PROJECT_NAME_HEADER_CELLS = listOf("E1", "F1", "G1")
 private val PROJECT_TIME_SUMMARY_CELLS = listOf("E2", "F2", "G2")
 private val PROJECT_KILOMETRES_SUMMARY_CELLS = listOf("E3", "F3", "G3")
@@ -239,13 +240,8 @@ internal object TimesheetExportDataBuilder {
     private fun createDisplayData(entries: List<TimesheetEntry>): TimesheetDisplayData {
         val entriesByDay = entries.groupBy { it.dayOfMonth }
         return TimesheetDisplayData(
-            displayedEntriesByDay = entriesByDay.mapValues { (_, dayEntries) ->
-                dayEntries.take(MAX_DAILY_ENTRIES)
-            },
-            overflowedDays = entriesByDay
-                .filterValues { dayEntries -> dayEntries.size > MAX_DAILY_ENTRIES }
-                .keys
-                .sorted()
+            displayedEntriesByDay = entriesByDay,
+            overflowedDays = emptyList()
         )
     }
 
@@ -368,12 +364,13 @@ private object TimesheetSheetEditor {
             .parse(ByteArrayInputStream(sheetXml))
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
             .item(0) as Element
+        val dailyEntriesRowOffset = dailyEntriesRowOffset(exportData)
 
-        clearDynamicCells(sheetData)
+        clearDynamicCells(sheetData, dailyEntriesRowOffset)
         // Keep the full top summary area deterministic even when some populate* calls are disabled.
         clearTopSummaryArea(sheetData)
         populateHeader(document, sheetData, exportData)
-        populateDailyEntries(document, sheetData, exportData)
+        populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
         populateProjectSummary(document, sheetData, exportData)
         populateAllowanceSummary(document, sheetData, exportData)
         populateWorkTypeSummary(document, sheetData, exportData)
@@ -381,7 +378,7 @@ private object TimesheetSheetEditor {
         return document.toByteArray()
     }
 
-    private fun clearDynamicCells(sheetData: Element) {
+    private fun clearDynamicCells(sheetData: Element, dailyEntriesRowOffset: Int) {
         listOf("B2", "B3", "B4", "B5", "H1", "H2", "H3").forEach { cellReference ->
             clearCell(sheetData, cellReference)
         }
@@ -395,14 +392,23 @@ private object TimesheetSheetEditor {
         WORK_TYPE_VALUE_CELLS.flatten().forEach { clearCell(sheetData, it) }
         WORK_TYPE_TOTAL_CELLS.forEach { clearCell(sheetData, it) }
 
-        DAILY_SLOT_BASE_ROWS.forEach { baseRow ->
-            for (day in 1..31) {
-                val column = dayToColumn(day)
-                clearCell(sheetData, "$column$baseRow")
-                clearCell(sheetData, "$column${baseRow + 1}")
-                clearCell(sheetData, "$column${baseRow + 2}")
-                clearCell(sheetData, "$column${baseRow + 3}")
-                clearCell(sheetData, "$column${baseRow + 4}")
+        clearDailyEntriesArea(sheetData, dailyEntriesRowOffset)
+    }
+
+    private fun clearDailyEntriesArea(sheetData: Element, dailyEntriesRowOffset: Int) {
+        val lastDefinedRow = sheetData.childElementSequence("row")
+            .mapNotNull { row -> row.getAttribute("r").toIntOrNull() }
+            .maxOrNull()
+            ?: return
+        val clearEndRow = maxOf(lastDefinedRow, lastDefinedRow + dailyEntriesRowOffset)
+        if (clearEndRow < DAILY_ENTRIES_START_ROW) {
+            return
+        }
+
+        for (day in 1..31) {
+            val column = dayToColumn(day)
+            for (rowNumber in DAILY_ENTRIES_START_ROW..clearEndRow) {
+                clearCell(sheetData, "$column$rowNumber")
             }
         }
     }
@@ -531,6 +537,11 @@ private object TimesheetSheetEditor {
                 valueStyle = PLAIN_TIME_STYLE
             )
         )
+    }
+
+    private fun dailyEntriesRowOffset(exportData: TimesheetExportData): Int {
+        val workTypeLastRow = exportData.workTypeRows.size + 1
+        return if (workTypeLastRow == DAILY_ENTRIES_START_ROW - 1) 1 else 0
     }
 
     private fun writeProjectSummaryLabels(context: ProjectSummarySectionContext) {
@@ -766,12 +777,18 @@ private object TimesheetSheetEditor {
     private fun populateDailyEntries(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData
+        exportData: TimesheetExportData,
+        dailyEntriesRowOffset: Int
     ) {
+        val rowOverflowDays = mutableSetOf<Int>()
         exportData.displayedEntriesByDay.forEach { (day, dayEntries) ->
             val column = dayToColumn(day)
-            dayEntries.forEachIndexed { index, entry ->
-                val baseRow = DAILY_SLOT_BASE_ROWS[index]
+            for ((index, entry) in dayEntries.withIndex()) {
+                val baseRow = dailyEntryBaseRow(index) + dailyEntriesRowOffset
+                if (baseRow + 4 > EXCEL_MAX_ROW_INDEX) {
+                    rowOverflowDays += day
+                    break
+                }
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
@@ -808,6 +825,16 @@ private object TimesheetSheetEditor {
                 )
             }
         }
+        if (rowOverflowDays.isNotEmpty()) {
+            Log.w(
+                LOG_TAG,
+                "Daily entries exceeded Excel row limit; truncated days=$rowOverflowDays"
+            )
+        }
+    }
+
+    private fun dailyEntryBaseRow(entryIndex: Int): Int {
+        return DAILY_ENTRIES_START_ROW + (entryIndex * DAILY_ENTRY_ROW_HEIGHT)
     }
 
     private fun clearCell(sheetData: Element, cellReference: String) {

@@ -161,6 +161,45 @@ class TimesheetGeneratorTest {
         assertNotNull(sheetXml.cellNumericValue("H3"))
     }
 
+    @Test
+    fun createWorkbook_removesCalcChainEntryAndReferences() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(emptyList())
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+
+        assertTrue(!workbookBytes.hasZipEntry("xl/calcChain.xml"))
+        assertTrue(!workbookBytes.readZipEntryText("[Content_Types].xml").contains("/xl/calcChain.xml"))
+        assertTrue(!workbookBytes.readZipEntryText("xl/_rels/workbook.xml.rels").contains("calcChain"))
+    }
+
+    @Test
+    fun createWorkbook_usesOnlyExistingStyleIndexes() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(emptyList())
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+
+        val maxStyleIndex = workbookBytes.maxSheetStyleIndex()
+        val cellXfCount = workbookBytes.cellXfCount()
+
+        assertTrue("No style entries found in styles.xml", cellXfCount > 0)
+        assertTrue(
+            "Worksheet style index $maxStyleIndex exceeds available cellXfs ($cellXfCount)",
+            maxStyleIndex < cellXfCount
+        )
+    }
+
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
         ctx = RuntimeEnvironment.getApplication(),
         projectsByMonth = projects,

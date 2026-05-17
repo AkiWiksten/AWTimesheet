@@ -41,6 +41,57 @@ internal fun org.w3c.dom.Document.cellNumericValue(cellReference: String): Strin
     return valueNodes?.itemOrNull(0)?.textContent
 }
 
+internal fun ByteArray.readZipEntryText(entryPath: String): String {
+    return readZipEntryBytes(entryPath).toString(Charsets.UTF_8)
+}
+
+internal fun ByteArray.hasZipEntry(entryPath: String): Boolean {
+    val input = ZipInputStream(ByteArrayInputStream(this))
+    try {
+        var entry = input.nextEntry
+        while (entry != null) {
+            if (entry.name == entryPath) {
+                return true
+            }
+            input.closeEntry()
+            entry = input.nextEntry
+        }
+    } finally {
+        input.close()
+    }
+    return false
+}
+
+internal fun ByteArray.maxSheetStyleIndex(sheetPath: String = "xl/worksheets/sheet1.xml"): Int {
+    val sheetDoc = readWorksheetXml(sheetPath)
+    val cells = sheetDoc.getElementsByTagNameNS(
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        "c"
+    )
+    var maxStyle = -1
+    for (index in 0 until cells.length) {
+        val cell = cells.item(index) as? org.w3c.dom.Element ?: continue
+        val style = cell.getAttribute("s").toIntOrNull() ?: continue
+        if (style > maxStyle) maxStyle = style
+    }
+    return maxStyle
+}
+
+internal fun ByteArray.cellXfCount(): Int {
+    val stylesBytes = readZipEntryBytes("xl/styles.xml")
+    val stylesDoc = DocumentBuilderFactory.newInstance().apply {
+        isNamespaceAware = true
+    }.newDocumentBuilder().parse(ByteArrayInputStream(stylesBytes))
+    val cellXfs = stylesDoc.getElementsByTagNameNS(
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        "cellXfs"
+    ).item(0) as? org.w3c.dom.Element ?: return 0
+    return cellXfs.getElementsByTagNameNS(
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        "xf"
+    ).length
+}
+
 private fun org.w3c.dom.NodeList.asSequence(): Sequence<org.w3c.dom.Node> = sequence {
     for (index in 0 until length) {
         yield(item(index))

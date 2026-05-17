@@ -362,6 +362,7 @@ private object TimesheetSheetEditor {
     fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(sheetXml))
+        ensureTopRowFrozen(document)
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
             .item(0) as Element
         val dailyEntriesRowOffset = dailyEntriesRowOffset(exportData)
@@ -376,6 +377,59 @@ private object TimesheetSheetEditor {
         populateWorkTypeSummary(document, sheetData, exportData)
 
         return document.toByteArray()
+    }
+
+    private fun ensureTopRowFrozen(document: Document) {
+        val worksheet = document.documentElement ?: return
+        val sheetViews = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetViews").item(0) as? Element)
+            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetViews").also { created ->
+                var insertBeforeNode: Node? = null
+                var candidate = worksheet.firstChild
+                while (candidate != null) {
+                    if (candidate.nodeType == Node.ELEMENT_NODE &&
+                        candidate.localName in setOf("sheetFormatPr", "cols", "sheetData")
+                    ) {
+                        insertBeforeNode = candidate
+                        break
+                    }
+                    candidate = candidate.nextSibling
+                }
+                if (insertBeforeNode != null) {
+                    worksheet.insertBefore(created, insertBeforeNode)
+                } else {
+                    worksheet.appendChild(created)
+                }
+            }
+        val sheetView = (sheetViews.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
+            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetView").also { created ->
+                created.setAttribute("workbookViewId", "0")
+                sheetViews.appendChild(created)
+            }
+
+        // Freeze rows 1..7 and columns A:B so header area stays visible while scrolling.
+        val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
+            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "pane").also { created ->
+                val firstSelection = sheetView.childElementSequence("selection").firstOrNull()
+                if (firstSelection != null) {
+                    sheetView.insertBefore(created, firstSelection)
+                } else {
+                    sheetView.appendChild(created)
+                }
+            }
+        pane.setAttribute("xSplit", "2")
+        pane.setAttribute("ySplit", "7")
+        pane.setAttribute("topLeftCell", "C8")
+        pane.setAttribute("activePane", "bottomRight")
+        pane.setAttribute("state", "frozen")
+
+        val selections = sheetView.childElementSequence("selection").toList()
+        if (selections.none { it.getAttribute("pane") == "bottomRight" }) {
+            val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
+            selection.setAttribute("pane", "bottomRight")
+            selection.setAttribute("activeCell", "C8")
+            selection.setAttribute("sqref", "C8")
+            sheetView.appendChild(selection)
+        }
     }
 
     private fun clearDynamicCells(sheetData: Element, dailyEntriesRowOffset: Int) {

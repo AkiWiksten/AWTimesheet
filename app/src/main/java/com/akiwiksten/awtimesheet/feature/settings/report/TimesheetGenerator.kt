@@ -920,29 +920,25 @@ private object TimesheetSheetEditor {
                     document = document,
                     sheetData = sheetData,
                     cellReference = "$column$baseRow",
-                    value = entry.projectName,
-                    styleIndex = PROJECT_NAME_STYLE
+                    value = entry.projectName
                 )
                 setNumericCell(
                     document = document,
                     sheetData = sheetData,
                     cellReference = "$column${baseRow + 1}",
-                    numericValue = entry.workTimeFraction,
-                    styleIndex = WORK_TIME_STYLE
+                    numericValue = entry.workTimeFraction
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
                     cellReference = "$column${baseRow + 2}",
-                    value = entry.allowanceLabel,
-                    styleIndex = PROJECT_NAME_STYLE
+                    value = entry.allowanceLabel
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
                     cellReference = "$column${baseRow + 3}",
-                    value = entry.workType,
-                    styleIndex = PROJECT_NAME_STYLE
+                    value = entry.workType
                 )
                 setNumericCell(
                     document = document,

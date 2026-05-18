@@ -594,7 +594,7 @@ private object TimesheetSheetEditor {
         )
 
         writeWorkTypeHeader(context)
-        writeWorkTypeRows(context)
+        writeWorkTypeRows(context, sheetData)
 
         applySectionHeaderStyles(
             document = document,
@@ -829,7 +829,16 @@ private object TimesheetSheetEditor {
         )
     }
 
-    private fun writeWorkTypeRows(context: WorkTypeSectionContext) {
+    private fun writeWorkTypeRows(context: WorkTypeSectionContext, sheetData: Element) {
+        val additionalRowNumber = DAILY_ENTRIES_START_ROW - context.exportData.workTypeRows.size
+        for(i in 0 until additionalRowNumber) {
+            insertBlankRowRange(
+                sheetData = sheetData,
+                startColumn = 1,
+                rowNumber = i + context.exportData.workTypeRows.size,
+                endColumn = context.totalColumnIndex
+            )
+        }
         context.exportData.workTypeRows.forEachIndexed { rowIndex, workTypeRow ->
             setStringCell(
                 context.document,
@@ -872,7 +881,14 @@ private object TimesheetSheetEditor {
             val column = dayToColumn(day)
             // Insert blank row once per day at first entry position
             val firstEntryBaseRow = dailyEntryBaseRow(0) + dailyEntriesRowOffset
-            insertBlankRowRange(sheetData, firstEntryBaseRow, 2, 32) // columns B:AF
+            //insertBlankRowRange(sheetData, firstEntryBaseRow, 2, 32) // columns B:AF
+            val dailyTotalMinutes = dayEntries.sumOf { it.projectTime.toMinutesOrNull() ?: 0L }
+            setStringCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = "$column${firstEntryBaseRow - 1}",
+                value = dailyTotalMinutes.toHourMinuteString()
+            )
             for ((index, entry) in dayEntries.withIndex()) {
                 val baseRow = dailyEntryBaseRow(index) + dailyEntriesRowOffset
                 setStringCell(
@@ -915,10 +931,45 @@ private object TimesheetSheetEditor {
         startColumn: Int,
         endColumn: Int
     ) {
-        // Clear cells in the specified range at the target row
-        for (colIndex in startColumn..endColumn) {
-            val cellRef = buildCellReference(colIndex, rowNumber)
-            clearCell(sheetData, cellRef)
+        val document = sheetData.ownerDocument
+        val lastDefinedRow = sheetData.childElementSequence("row")
+            .mapNotNull { row -> row.getAttribute("r").toIntOrNull() }
+            .maxOrNull()
+            ?: return
+
+        // Shift cells down by one row inside the requested column range.
+        for (currentRow in lastDefinedRow downTo rowNumber) {
+            for (columnIndex in startColumn..endColumn) {
+                val sourceRef = buildCellReference(columnIndex, currentRow)
+                val sourceCell = getCell(sheetData, sourceRef) ?: continue
+                val targetRef = buildCellReference(columnIndex, currentRow + 1)
+
+                getCell(sheetData, targetRef)?.let { existingTarget ->
+                    existingTarget.parentNode?.removeChild(existingTarget)
+                }
+
+                val sourceRow = getRow(sheetData, currentRow) ?: continue
+                val targetRow = getOrCreateRow(document, sheetData, currentRow + 1)
+                sourceRow.removeChild(sourceCell)
+                sourceCell.setAttribute("r", targetRef)
+                insertCellInRowOrder(targetRow, sourceCell)
+            }
+        }
+
+        // Ensure the inserted row is blank in the requested range.
+        for (columnIndex in startColumn..endColumn) {
+            clearCell(sheetData, buildCellReference(columnIndex, rowNumber))
+        }
+    }
+
+    private fun insertCellInRowOrder(row: Element, cell: Element) {
+        val newColumnIndex = extractColumnIndex(cell.getAttribute("r"))
+        val nextCell = row.childElementSequence("c")
+            .firstOrNull { extractColumnIndex(it.getAttribute("r")) > newColumnIndex }
+        if (nextCell != null) {
+            row.insertBefore(cell, nextCell)
+        } else {
+            row.appendChild(cell)
         }
     }
 

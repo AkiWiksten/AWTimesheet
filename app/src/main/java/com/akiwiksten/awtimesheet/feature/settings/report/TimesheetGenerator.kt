@@ -1069,10 +1069,9 @@ internal object TimesheetWorkbookEditor {
             zipEntries.getValue("xl/_rels/workbook.xml.rels")
         )
         zipEntries.remove("xl/calcChain.xml")
-        // TODO: Fix time format - currently disabled as it breaks tests
-        // zipEntries["xl/styles.xml"] = ensureTimeFormatInStyles(
-        //     zipEntries.getValue("xl/styles.xml")
-        // )
+        zipEntries["xl/styles.xml"] = ensureLeftAlignmentInStyles(
+            zipEntries.getValue("xl/styles.xml")
+        )
         val updatedSheetXml = TimesheetSheetEditor.updateSheet(
             sheetXml = zipEntries.getValue("xl/worksheets/sheet1.xml"),
             exportData = exportData
@@ -1121,7 +1120,7 @@ internal object TimesheetWorkbookEditor {
         val styleSheet = stylesDocument.documentElement
 
         // Find existing time format in numFmts (typically ID 14 or similar in Excel templates)
-        var numFmts = (styleSheet.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "numFmts").item(0) as? Element)
+        val numFmts = (styleSheet.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "numFmts").item(0) as? Element)
         var timeFormatId = 14 // Default Excel time format ID (h:mm)
 
         if (numFmts != null) {
@@ -1146,6 +1145,31 @@ internal object TimesheetWorkbookEditor {
                 xfElement.setAttribute("numFmtId", timeFormatId.toString())
                 xfElement.setAttribute("applyNumberFormat", "1")
             }
+        }
+
+        return stylesDocument.toByteArray()
+    }
+
+    private fun ensureLeftAlignmentInStyles(stylesXml: ByteArray): ByteArray {
+        val stylesDocument = createDocumentBuilderFactory().newDocumentBuilder()
+            .parse(ByteArrayInputStream(stylesXml))
+
+        val styleSheet = stylesDocument.documentElement
+        val cellXfs = (styleSheet.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "cellXfs").item(0) as? Element)
+            ?: return stylesXml
+
+        // Add left alignment to all cell format styles
+        cellXfs.childElementSequence("xf").forEach { xf ->
+            // Remove existing alignment if present
+            xf.childElementSequence("alignment").firstOrNull()?.let { xf.removeChild(it) }
+            
+            // Add new alignment with left horizontal and center vertical
+            val alignment = stylesDocument.createElementNS(SPREADSHEET_NAMESPACE, "alignment")
+            alignment.setAttribute("horizontal", "left")
+            alignment.setAttribute("vertical", "center")
+            xf.appendChild(alignment)
+            
+            xf.setAttribute("applyAlignment", "1")
         }
 
         return stylesDocument.toByteArray()

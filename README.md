@@ -73,10 +73,18 @@ This is called feature-based packaging.
 + WorkdayScreen 
   + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects
+  + Add flexTimeTotal into SettingsEntity
+    + Update it, when projects by date update
 + ProjectDetailsScreen
   + "Lunch time estimate" → Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
+  + Better scalability
+    + Fetch projects of the current month once in the app lifecycle.
+      + Calculate workdaysByMonth (month, year, workdaytime) and weekSum + monthSum from that
+    + Update workdaysByMonth when returning from WorkdayScreen
+      + Update weekSum + monthSum
+    + When changing month, fetch projects and add to workdaysByMonth and so on…
 + SettingsScreen
   + Translate fed "Work type"
   + App localization selection
@@ -89,6 +97,9 @@ This is called feature-based packaging.
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 + Excel
   + Handle weekly and biweekly reports also, not only monthly, by a start date selection
+  + Select a row and shift cells down when there are too many work types.
+  + Handle dynamically the addition of attributes, like "Work type", "Kilometres", etc. on the left
+  + 
 ## What to test constantly
 + Thorough testing of all features in all screens
     + Intro, 

@@ -34,8 +34,6 @@ private const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
 // Workbook style ids.
 private const val PROJECT_SUMMARY_START_COLUMN_INDEX = 5 // E
 private const val LOG_TAG = "TimesheetGenerator"
-private const val PROJECT_NAME_STYLE = 5
-private const val WORK_TIME_STYLE = 6
 // Date cells B4/B5 keep template styles; avoid hardcoded style indices.
 // Style indices match template cellXfs directly (template has 11 xf entries, 0-based):
 //   0 = default plain text (no bold, no border)
@@ -390,43 +388,6 @@ private object TimesheetSheetEditor {
         populateWorkTypeSummary(document, sheetData, exportData)
 
         return document.toByteArray()
-    }
-
-    private fun calculateMaxColumnIndex(exportData: TimesheetExportData): Int {
-        // Daily entries span from column A (1) to AF (32) for days 1-31
-        val dailyEntriesMaxCol = 32
-
-        // Project summary section
-        val allProjects = exportData.summaryProjectNames + exportData.hiddenProjectNames
-        val projectSummaryMaxCol = projectSummaryTotalColumnIndex(allProjects.size)
-
-        // Allowance section
-        val allowanceMaxCol = allowanceTotalColumnIndex(allProjects.size)
-
-        // Work type section - extends beyond allowance
-        val workTypeMaxCol = allowanceTotalColumnIndex(allProjects.size) +
-                             (2 + allProjects.size + 1) // gap + section + total column
-
-        return maxOf(dailyEntriesMaxCol, projectSummaryMaxCol, allowanceMaxCol, workTypeMaxCol)
-    }
-
-    private fun calculateMaxRowIndex(exportData: TimesheetExportData, dailyEntriesRowOffset: Int): Int {
-        // Header ends at row 7, blank row at 8, daily entries start at row 9
-        val headerMaxRow = 8
-
-        // Calculate the furthest row that daily entries could reach
-        var dailyEntriesMaxRow = headerMaxRow
-        exportData.displayedEntriesByDay.forEach { (_, dayEntries) ->
-            for ((index, _) in dayEntries.withIndex()) {
-                val baseRow = dailyEntryBaseRow(index) + dailyEntriesRowOffset
-                val entryEndRow = baseRow + 4 // Each entry spans 5 rows
-                if (entryEndRow > dailyEntriesMaxRow) {
-                    dailyEntriesMaxRow = entryEndRow
-                }
-            }
-        }
-
-        return maxOf(headerMaxRow, dailyEntriesMaxRow)
     }
 
     private fun ensureTopRowFrozen(document: Document) {
@@ -904,18 +865,10 @@ private object TimesheetSheetEditor {
         exportData: TimesheetExportData,
         dailyEntriesRowOffset: Int
     ) {
-        val maxRowIndex = calculateMaxRowIndex(exportData, dailyEntriesRowOffset)
-        // Safety margin: allow writing rows up to 105% of the calculated max
-        val safetyMarginMaxRow = if (maxRowIndex > 0) (maxRowIndex * 1.05).toInt() else 1_000_000
-        val rowOverflowDays = mutableSetOf<Int>()
         exportData.displayedEntriesByDay.forEach { (day, dayEntries) ->
             val column = dayToColumn(day)
             for ((index, entry) in dayEntries.withIndex()) {
                 val baseRow = dailyEntryBaseRow(index) + dailyEntriesRowOffset
-                if (baseRow + 4 > safetyMarginMaxRow) {
-                    rowOverflowDays += day
-                    break
-                }
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
@@ -947,12 +900,6 @@ private object TimesheetSheetEditor {
                     numericValue = entry.kilometres
                 )
             }
-        }
-        if (rowOverflowDays.isNotEmpty()) {
-            Log.w(
-                LOG_TAG,
-                "Daily entries exceeded Excel row limit; truncated days=$rowOverflowDays"
-            )
         }
     }
 

@@ -870,39 +870,55 @@ private object TimesheetSheetEditor {
     ) {
         exportData.displayedEntriesByDay.forEach { (day, dayEntries) ->
             val column = dayToColumn(day)
+            // Insert blank row once per day at first entry position
+            val firstEntryBaseRow = dailyEntryBaseRow(0) + dailyEntriesRowOffset
+            insertBlankRowRange(sheetData, firstEntryBaseRow, 2, 32) // columns B:AF
             for ((index, entry) in dayEntries.withIndex()) {
                 val baseRow = dailyEntryBaseRow(index) + dailyEntriesRowOffset
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column$baseRow",
+                    cellReference = "$column${baseRow + 1}",
                     value = entry.projectName
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 1}",
+                    cellReference = "$column${baseRow + 2}",
                     value = entry.projectTime
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 2}",
+                    cellReference = "$column${baseRow + 3}",
                     value = entry.allowanceLabel
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 3}",
+                    cellReference = "$column${baseRow + 4}",
                     value = entry.workType
                 )
                 setNumericCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 4}",
+                    cellReference = "$column${baseRow + 5}",
                     numericValue = (entry.kilometres.toLongOrNull() ?: 0L).toString()
                 )
             }
+        }
+    }
+
+    private fun insertBlankRowRange(
+        sheetData: Element,
+        rowNumber: Int,
+        startColumn: Int,
+        endColumn: Int
+    ) {
+        // Clear cells in the specified range at the target row
+        for (colIndex in startColumn..endColumn) {
+            val cellRef = buildCellReference(colIndex, rowNumber)
+            clearCell(sheetData, cellRef)
         }
     }
 

@@ -77,12 +77,12 @@ class TimesheetGeneratorTest {
         assertTrue(exportData.hiddenWorkTypes.isEmpty())
         assertEquals(4, exportData.displayedEntriesByDay.getValue(1).size)
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
-        assertEquals(1.0 / 24.0, exportData.summaryProjectTimes.getValue("Project 4"), 0.000001)
-        assertEquals(40.0, exportData.summaryProjectKilometres.getValue("Project 4"), 0.000001)
+        assertEquals(60L, exportData.summaryProjectTimes.getValue("Project 4"))
+        assertEquals(40L, exportData.summaryProjectKilometres.getValue("Project 4"))
         assertEquals(0, exportData.allowanceRows[0].countByProjectName.getValue("Project 4"))
         assertEquals(0, exportData.allowanceRows[1].countByProjectName.getValue("Project 4"))
         assertEquals(1, exportData.allowanceRows[2].countByProjectName.getValue("Project 4"))
-        assertEquals(0.0, exportData.workTypeRows[0].timeByProjectName.getValue("Project 4"), 0.000001)
+        assertEquals(0L, exportData.workTypeRows[0].timeByProjectName.getValue("Project 4"))
     }
 
     @Test
@@ -331,14 +331,14 @@ class TimesheetGeneratorTest {
 
     private fun assertProjectSummaries(exportData: TimesheetExportData) {
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
-        assertEquals(0.375, exportData.summaryProjectTimes.getValue("Project 1"), 0.000001)
-        assertEquals(0.3958333333, exportData.summaryProjectTimes.getValue("Project 2"), 0.000001)
-        assertEquals(0.25, exportData.summaryProjectTimes.getValue("Project 3"), 0.000001)
-        assertEquals(140.0, exportData.summaryProjectKilometres.getValue("Project 1"), 0.000001)
-        assertEquals(220.0, exportData.summaryProjectKilometres.getValue("Project 2"), 0.000001)
-        assertEquals(240.0, exportData.summaryProjectKilometres.getValue("Project 3"), 0.000001)
-        assertEquals(1.0208333333, exportData.totalWorkTime, 0.000001)
-        assertEquals(600.0, exportData.totalKilometres, 0.000001)
+        assertEquals(540L, exportData.summaryProjectTimes.getValue("Project 1"))
+        assertEquals(570L, exportData.summaryProjectTimes.getValue("Project 2"))
+        assertEquals(360L, exportData.summaryProjectTimes.getValue("Project 3"))
+        assertEquals(140L, exportData.summaryProjectKilometres.getValue("Project 1"))
+        assertEquals(220L, exportData.summaryProjectKilometres.getValue("Project 2"))
+        assertEquals(240L, exportData.summaryProjectKilometres.getValue("Project 3"))
+        assertEquals(1470L, exportData.totalWorkTime)
+        assertEquals(600L, exportData.totalKilometres)
     }
 
     private fun assertDisplayedEntries(exportData: TimesheetExportData) {
@@ -370,14 +370,14 @@ class TimesheetGeneratorTest {
         val otherRow = exportData.workTypeRows[0]
         val designRow = exportData.workTypeRows[1]
         assertEquals("Other", otherRow.label)
-        assertEquals(0.375, otherRow.timeByProjectName.getValue("Project 1"), 0.000001)
-        assertEquals(0.25, otherRow.timeByProjectName.getValue("Project 2"), 0.000001)
-        assertEquals(0.1875, otherRow.timeByProjectName.getValue("Project 3"), 0.000001)
-        assertEquals(0.8125, otherRow.totalTime, 0.000001)
+        assertEquals(540L, otherRow.timeByProjectName.getValue("Project 1"))
+        assertEquals(360L, otherRow.timeByProjectName.getValue("Project 2"))
+        assertEquals(270L, otherRow.timeByProjectName.getValue("Project 3"))
+        assertEquals(1170L, otherRow.totalTime)
         assertEquals("Design", designRow.label)
-        assertEquals(0.1458333333, designRow.timeByProjectName.getValue("Project 2"), 0.000001)
-        assertEquals(0.0625, designRow.timeByProjectName.getValue("Project 3"), 0.000001)
-        assertEquals(0.2083333333, designRow.totalTime, 0.000001)
+        assertEquals(210L, designRow.timeByProjectName.getValue("Project 2"))
+        assertEquals(90L, designRow.timeByProjectName.getValue("Project 3"))
+        assertEquals(300L, designRow.totalTime)
     }
 
     private data class ProjectSpec(
@@ -453,8 +453,8 @@ class TimesheetGeneratorExcelInspectionTest {
 
         println("=== PROJECT SUMMARIES ===")
         exportData.summaryProjectNames.forEach { name ->
-            val time = exportData.summaryProjectTimes[name] ?: 0.0
-            val km = exportData.summaryProjectKilometres[name] ?: 0.0
+            val time = exportData.summaryProjectTimes[name] ?: 0L
+            val km = exportData.summaryProjectKilometres[name] ?: 0L
             println("$name: time=$time km=$km")
         }
 
@@ -471,9 +471,9 @@ class TimesheetGeneratorExcelInspectionTest {
         exportData.workTypeRows.forEachIndexed { idx, row ->
             println("${row.label}:")
             row.timeByProjectName.forEach { (proj, tm) ->
-                if (tm > 0.0) println("  $proj=$tm")
+                if (tm > 0L) println("  $proj=$tm")
             }
-            if (row.totalTime > 0.0) println("  Total=$row.totalTime")
+            if (row.totalTime > 0L) println("  Total=$row.totalTime")
         }
     }
 

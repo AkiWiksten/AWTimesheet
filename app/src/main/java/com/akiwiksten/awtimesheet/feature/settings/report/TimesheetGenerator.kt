@@ -30,6 +30,7 @@ private const val MAX_SUMMARY_PROJECTS = 3
 private const val DAILY_ENTRY_ROW_HEIGHT = 6
 private const val DAILY_ENTRIES_START_ROW = 9
 private const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
+private const val MINUTES_PER_DAY = 1440L
 
 // Workbook style ids.
 private const val PROJECT_SUMMARY_START_COLUMN_INDEX = 5 // E
@@ -90,14 +91,14 @@ private const val TOP_SUMMARY_CLEAR_START_ROW = 1
 private const val TOP_SUMMARY_CLEAR_END_ROW = 5
 
 private data class TimesheetEntryAggregates(
-    val summaryProjectTimes: Map<String, Double>,
-    val summaryProjectKilometres: Map<String, Double>,
+    val summaryProjectTimes: Map<String, Long>,
+    val summaryProjectKilometres: Map<String, Long>,
     val allowanceCountsByProjectAndType: Map<Pair<String, TimesheetAllowanceType>, Int>,
     val allowanceTotalCountsByType: Map<TimesheetAllowanceType, Int>,
-    val workTypeTimeByProjectAndType: Map<Pair<String, String>, Double>,
-    val workTypeTotalTime: Map<String, Double>,
-    val totalWorkTime: Double,
-    val totalKilometres: Double
+    val workTypeTimeByProjectAndType: Map<Pair<String, String>, Long>,
+    val workTypeTotalTime: Map<String, Long>,
+    val totalWorkTime: Long,
+    val totalKilometres: Long
 )
 
 private data class TimesheetDisplayData(
@@ -259,22 +260,24 @@ internal object TimesheetExportDataBuilder {
         entries: List<TimesheetEntry>,
         allProjectNames: List<String>
     ): TimesheetEntryAggregates {
-        val summaryProjectTimes = allProjectNames.associateWith { 0.0 }.toMutableMap()
-        val summaryProjectKilometres = allProjectNames.associateWith { 0.0 }.toMutableMap()
+        val summaryProjectTimes = allProjectNames.associateWith { 0L }.toMutableMap()
+        val summaryProjectKilometres = allProjectNames.associateWith { 0L }.toMutableMap()
         val allowanceCountsByProjectAndType = mutableMapOf<Pair<String, TimesheetAllowanceType>, Int>()
         val allowanceTotalCountsByType = mutableMapOf<TimesheetAllowanceType, Int>()
-        val workTypeTimeByProjectAndType = mutableMapOf<Pair<String, String>, Double>()
-        val workTypeTotalTime = mutableMapOf<String, Double>()
-        var totalWorkTime = 0.0
-        var totalKilometres = 0.0
+        val workTypeTimeByProjectAndType = mutableMapOf<Pair<String, String>, Long>()
+        val workTypeTotalTime = mutableMapOf<String, Long>()
+        var totalWorkTime = 0L
+        var totalKilometres = 0L
 
         entries.forEach { entry ->
+            val projectTimeMinutes = entry.projectTime.toMinutesOrNull() ?: return@forEach
+            val kilometres = entry.kilometres.toLongOrNull() ?: 0L
             if (entry.projectName in summaryProjectTimes) {
                 summaryProjectTimes.compute(entry.projectName) { _, current ->
-                    (current ?: 0.0) + entry.workTimeFraction
+                    (current ?: 0L) + projectTimeMinutes
                 }
                 summaryProjectKilometres.compute(entry.projectName) { _, current ->
-                    (current ?: 0.0) + entry.kilometres
+                    (current ?: 0L) + kilometres
                 }
             }
             allowanceCountsByProjectAndType.compute(entry.projectName to entry.allowanceType) { _, current ->
@@ -284,13 +287,13 @@ internal object TimesheetExportDataBuilder {
                 (current ?: 0) + 1
             }
             workTypeTimeByProjectAndType.compute(entry.projectName to entry.workType) { _, current ->
-                (current ?: 0.0) + entry.workTimeFraction
+                (current ?: 0L) + projectTimeMinutes
             }
             workTypeTotalTime.compute(entry.workType) { _, current ->
-                (current ?: 0.0) + entry.workTimeFraction
+                (current ?: 0L) + projectTimeMinutes
             }
-            totalWorkTime += entry.workTimeFraction
-            totalKilometres += entry.kilometres
+            totalWorkTime += projectTimeMinutes
+            totalKilometres += kilometres
         }
 
         return TimesheetEntryAggregates(
@@ -353,16 +356,16 @@ private fun buildAllowanceRows(
 private fun buildWorkTypeRows(
     allProjectNames: List<String>,
     summaryWorkTypes: List<String>,
-    workTypeTimeByProjectAndType: Map<Pair<String, String>, Double>,
-    workTypeTotalTime: Map<String, Double>
+    workTypeTimeByProjectAndType: Map<Pair<String, String>, Long>,
+    workTypeTotalTime: Map<String, Long>
 ): List<TimesheetWorkTypeSummaryRow> {
     return summaryWorkTypes.map { workType ->
         TimesheetWorkTypeSummaryRow(
             label = workType,
             timeByProjectName = allProjectNames.associateWith { projectName ->
-                workTypeTimeByProjectAndType[projectName to workType] ?: 0.0
+                workTypeTimeByProjectAndType[projectName to workType] ?: 0L
             },
-            totalTime = workTypeTotalTime[workType] ?: 0.0
+            totalTime = workTypeTotalTime[workType] ?: 0L
         )
     }
 }
@@ -496,13 +499,13 @@ private object TimesheetSheetEditor {
             document = document,
             sheetData = sheetData,
             cellReference = "B4",
-            numericValue = exportData.startDate.toExcelSerialDate()
+            numericValue = exportData.startDate.toExcelSerialDate().toString()
         )
         setNumericCell(
             document = document,
             sheetData = sheetData,
             cellReference = "B5",
-            numericValue = exportData.endDate.toExcelSerialDate()
+            numericValue = exportData.endDate.toExcelSerialDate().toString()
         )
         // Add Flex time total at the bottom of header.
         // B6 is stored as a plain HH:mm string so it renders correctly regardless of the
@@ -618,7 +621,7 @@ private object TimesheetSheetEditor {
                 document = document,
                 sheetData = sheetData,
                 cellReference = "${dayToColumn(day)}$DAILY_ENTRIES_SEPARATOR_ROW",
-                numericValue = day.toDouble(),
+                numericValue = day.toString(),
                 styleIndex = DAY_OF_MONTH_VALUE_STYLE
             )
         }
@@ -670,14 +673,14 @@ private object TimesheetSheetEditor {
                 context.document,
                 context.sheetData,
                 "${columnLetters}2",
-                context.exportData.summaryProjectTimes.getValue(projectName).ensureExcelTimeFraction(),
+                context.exportData.summaryProjectTimes.getValue(projectName).toExcelTimeFractionNumberString(),
                 PROJECT_SUMMARY_WORK_TIME_STYLE
             )
             setNumericCell(
                 context.document,
                 context.sheetData,
                 "${columnLetters}3",
-                context.exportData.summaryProjectKilometres.getValue(projectName),
+                context.exportData.summaryProjectKilometres.getValue(projectName).toString(),
                 PROJECT_SUMMARY_KILOMETRES_STYLE
             )
         }
@@ -695,14 +698,14 @@ private object TimesheetSheetEditor {
             context.document,
             context.sheetData,
             "${context.totalColumnLetters}2",
-            context.exportData.totalWorkTime.ensureExcelTimeFraction(),
+            context.exportData.totalWorkTime.toExcelTimeFractionNumberString(),
             PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
         )
         setNumericCell(
             context.document,
             context.sheetData,
             "${context.totalColumnLetters}3",
-            context.exportData.totalKilometres,
+            context.exportData.totalKilometres.toString(),
             PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
         )
     }
@@ -786,7 +789,7 @@ private object TimesheetSheetEditor {
                     context.document,
                     context.sheetData,
                     cellReference,
-                    allowanceRow.countByProjectName.getValue(projectName).toDouble(),
+                    allowanceRow.countByProjectName.getValue(projectName).toString(),
                     ALLOWANCE_PROJECT_VALUE_STYLES[rowIndex]
                 )
             }
@@ -794,7 +797,7 @@ private object TimesheetSheetEditor {
                 context.document,
                 context.sheetData,
                 buildCellReference(context.totalColumnIndex, rowIndex + 2),
-                allowanceRow.totalCount.toDouble(),
+                allowanceRow.totalCount.toString(),
                 ALLOWANCE_TOTAL_VALUE_STYLES[rowIndex]
             )
         }
@@ -837,22 +840,22 @@ private object TimesheetSheetEditor {
             )
             context.allProjectNames.forEachIndexed { columnIndex, projectName ->
                 val value = workTypeRow.timeByProjectName.getValue(projectName)
-                if (value > 0.0) {
+                if (value > 0L) {
                     setNumericCell(
                         context.document,
                         context.sheetData,
                         buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2),
-                        value.ensureExcelTimeFraction(),
+                        value.toExcelTimeFractionNumberString(),
                         WORK_TYPE_VALUE_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
                     )
                 }
             }
-            if (workTypeRow.totalTime > 0.0) {
+            if (workTypeRow.totalTime > 0L) {
                 setNumericCell(
                     context.document,
                     context.sheetData,
                     buildCellReference(context.totalColumnIndex, rowIndex + 2),
-                    workTypeRow.totalTime.ensureExcelTimeFraction(),
+                    workTypeRow.totalTime.toExcelTimeFractionNumberString(),
                     WORK_TYPE_TOTAL_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
                 )
             }
@@ -875,11 +878,11 @@ private object TimesheetSheetEditor {
                     cellReference = "$column$baseRow",
                     value = entry.projectName
                 )
-                setNumericCell(
+                setStringCell(
                     document = document,
                     sheetData = sheetData,
                     cellReference = "$column${baseRow + 1}",
-                    numericValue = entry.workTimeFraction
+                    value = entry.projectTime
                 )
                 setStringCell(
                     document = document,
@@ -897,7 +900,7 @@ private object TimesheetSheetEditor {
                     document = document,
                     sheetData = sheetData,
                     cellReference = "$column${baseRow + 4}",
-                    numericValue = entry.kilometres
+                    numericValue = (entry.kilometres.toLongOrNull() ?: 0L).toString()
                 )
             }
         }
@@ -939,14 +942,14 @@ private object TimesheetSheetEditor {
         document: Document,
         sheetData: Element,
         cellReference: String,
-        numericValue: Double,
+        numericValue: String,
         styleIndex: Int? = null
     ) {
         val cell = getOrCreateCell(document, sheetData, cellReference, styleIndex)
         cell.clearContents()
         cell.removeAttribute("t")
         val valueElement = document.createElementNS(SPREADSHEET_NAMESPACE, "v")
-        valueElement.textContent = numericValue.toExcelNumberString()
+        valueElement.textContent = numericValue
         cell.appendChild(valueElement)
     }
 
@@ -1212,10 +1215,10 @@ internal data class TimesheetExportData(
     val workTimeTotalLabel: String,
     val kilometresLabel: String,
     val summaryProjectNames: List<String>,
-    val summaryProjectTimes: Map<String, Double>,
-    val summaryProjectKilometres: Map<String, Double>,
-    val totalWorkTime: Double,
-    val totalKilometres: Double,
+    val summaryProjectTimes: Map<String, Long>,
+    val summaryProjectKilometres: Map<String, Long>,
+    val totalWorkTime: Long,
+    val totalKilometres: Long,
     val allowanceRows: List<TimesheetAllowanceSummaryRow>,
     val workTypeRows: List<TimesheetWorkTypeSummaryRow>,
     val displayedEntriesByDay: Map<Int, List<TimesheetEntry>>,
@@ -1234,18 +1237,18 @@ internal data class TimesheetAllowanceSummaryRow(
 
 internal data class TimesheetWorkTypeSummaryRow(
     val label: String,
-    val timeByProjectName: Map<String, Double>,
-    val totalTime: Double
+    val timeByProjectName: Map<String, Long>,
+    val totalTime: Long
 )
 
 internal data class TimesheetEntry(
     val dayOfMonth: Int,
     val projectName: String,
-    val workTimeFraction: Double,
+    val projectTime: String,
     val allowanceType: TimesheetAllowanceType,
     val allowanceLabel: String,
     val workType: String,
-    val kilometres: Double
+    val kilometres: String
 )
 
 internal data class TimesheetLabels(
@@ -1267,8 +1270,8 @@ internal enum class TimesheetAllowanceType {
 // Entry conversion and formatting helpers.
 private fun SingleProjectState.toTimesheetEntry(labels: TimesheetLabels): TimesheetEntry? {
     val parsedDate = runCatching { LocalDate.parse(date) }.getOrNull() ?: return null
-    val workTimeFraction = projectTime.toExcelTimeFraction()
-    val isValidEntry = workTimeFraction > 0.0
+    val normalizedProjectTime = (projectTime.toMinutesOrNull() ?: 0L).toHourMinuteString()
+    val isValidEntry = normalizedProjectTime != ZERO_TIME
     return if (isValidEntry) {
         val normalizedProjectName = projectName.trim()
         val normalizedWorkType = workType.trim().ifBlank { labels.defaultWorkTypeLabel }
@@ -1276,11 +1279,11 @@ private fun SingleProjectState.toTimesheetEntry(labels: TimesheetLabels): Timesh
         TimesheetEntry(
             dayOfMonth = parsedDate.dayOfMonth,
             projectName = normalizedProjectName,
-            workTimeFraction = workTimeFraction,
+            projectTime = normalizedProjectTime,
             allowanceType = allowanceType,
             allowanceLabel = allowanceType.toExportLabel(labels),
             workType = normalizedWorkType,
-            kilometres = kilometres.toDoubleOrNull() ?: 0.0
+            kilometres = kilometres.trim()
         )
     } else {
         null
@@ -1357,43 +1360,40 @@ private fun buildCellReference(columnIndex: Int, rowNumber: Int): String {
     return "${columnIndexToLetters(columnIndex)}$rowNumber"
 }
 
-private fun String.toExcelTimeFraction(): Double {
+private fun String.toMinutesOrNull(): Long? {
     val normalized = trim()
-    val isNegative = normalized.startsWith("-")
-    val parts = normalized.removePrefix("-").split(':')
-    val hours = parts.getOrNull(index = 0)?.toLongOrNull()
-    val minutes = parts.getOrNull(index = 1)?.toLongOrNull()
-    val isValidTime = normalized.isNotBlank() && parts.size == 2 && hours != null && minutes != null
-    return if (isValidTime) {
-        val totalMinutes = (hours * 60) + minutes
-        val signedMinutes = if (isNegative) -totalMinutes else totalMinutes
-        signedMinutes / 1440.0
-    } else {
-        0.0
+    if (normalized.isBlank()) {
+        return null
     }
+    val parts = normalized.split(':')
+    if (parts.size != 2) {
+        return null
+    }
+    val hours = parts[0].toLongOrNull() ?: return null
+    val minutes = parts[1].toLongOrNull() ?: return null
+    if (minutes !in 0..59) {
+        return null
+    }
+    return (hours * 60) + minutes
 }
 
-private fun Double.ensureExcelTimeFraction(): Double {
-    // Ensure the value is a proper Excel time fraction (0-1 range per day)
-    // If the value is larger than 1, it's likely total minutes that need conversion
-    return if (this > 1.0) {
-        this / 1440.0
-    } else {
-        this
-    }
+private fun Long.toHourMinuteString(): String {
+    val hours = this / 60
+    val minutes = this % 60
+    return "${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}"
 }
 
-
-private fun Double.toExcelNumberString(): String {
+private fun Long.toExcelTimeFractionNumberString(): String {
     return BigDecimal.valueOf(this)
-        .setScale(15, RoundingMode.HALF_UP)
+        .divide(BigDecimal.valueOf(MINUTES_PER_DAY), 15, RoundingMode.HALF_UP)
         .stripTrailingZeros()
         .toPlainString()
 }
 
-private fun LocalDate.toExcelSerialDate(): Double {
+
+private fun LocalDate.toExcelSerialDate(): Long {
     val excelEpoch = LocalDate.of(1899, 12, 30)
-    return ChronoUnit.DAYS.between(excelEpoch, this).toDouble()
+    return ChronoUnit.DAYS.between(excelEpoch, this)
 }
 
 private fun TimesheetExportData.logIfTruncated() {

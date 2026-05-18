@@ -166,12 +166,12 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
 ): String {
     val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
         initialTime = persistedCalculatedFlexTimeTotal,
-        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedInitialFlexTimeTotal")
+        addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$persistedInitialFlexTimeTotal")
     )
 
     val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
         initialTime = editedFlexTimeByDate,
-        addedTime = WorkTimeCalculator.checkIfDoubleMinus("-$persistedFlexTimeByDate")
+        addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$persistedFlexTimeByDate")
     )
 
     val recalculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(

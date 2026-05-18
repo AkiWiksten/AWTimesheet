@@ -96,7 +96,7 @@ object WorkTimeCalculator {
         return hours * MINUTES_IN_HOUR + minutes
     }
 
-    fun checkIfDoubleMinus(value: String): String {
+    fun normalizeDuplicateMinus(value: String): String {
         return if (value.startsWith("--")) value.substring(2) else value
     }
 

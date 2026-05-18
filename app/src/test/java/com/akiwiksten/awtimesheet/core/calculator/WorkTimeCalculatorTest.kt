@@ -75,15 +75,15 @@ class WorkTimeCalculatorTest {
     }
 
     @Test
-    fun `checkIfDoubleMinus removes duplicate minus sign`() {
-        val result = WorkTimeCalculator.checkIfDoubleMinus("--08:00")
+    fun `normalizeDuplicateMinus removes duplicate minus sign`() {
+        val result = WorkTimeCalculator.normalizeDuplicateMinus("--08:00")
 
         assertEquals("08:00", result)
     }
 
     @Test
-    fun `checkIfDoubleMinus leaves normal values unchanged`() {
-        val result = WorkTimeCalculator.checkIfDoubleMinus("-08:00")
+    fun `normalizeDuplicateMinus leaves normal values unchanged`() {
+        val result = WorkTimeCalculator.normalizeDuplicateMinus("-08:00")
 
         assertEquals("-08:00", result)
     }

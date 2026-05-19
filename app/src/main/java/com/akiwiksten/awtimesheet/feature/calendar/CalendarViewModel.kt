@@ -3,6 +3,8 @@ package com.akiwiksten.awtimesheet.feature.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.DATE_FORMAT
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.CalendarData
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase
@@ -31,6 +33,9 @@ class CalendarViewModel @Inject constructor(
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+
+    // Cache for CalendarData to avoid re-fetching when returning to the screen
+    private val calendarDataCache = mutableMapOf<String, CalendarData>()
 
     init {
         viewModelScope.launch {
@@ -80,7 +85,12 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val monthDate = month.atDay(1).toString()
-                val monthData = getCalendarDataUseCase(monthDate)
+                // Check cache first before fetching
+                val monthData = calendarDataCache[monthDate] ?: run {
+                    val fetchedData = getCalendarDataUseCase(monthDate)
+                    calendarDataCache[monthDate] = fetchedData
+                    fetchedData
+                }
 
                 _uiState.value = currentState.copy(
                     datesWithWork = monthData.datesWithWork,
@@ -107,20 +117,51 @@ class CalendarViewModel @Inject constructor(
         }
 
         try {
-            val data: CalendarData = getCalendarDataUseCase(date)
+            val workTimeByDateChange = dateRepository.workTimeByDateChange.value
+            val cachedData = calendarDataCache[date]
+            val data: CalendarData = cachedData ?: run {
+                val fetchedData = getCalendarDataUseCase(date)
+                calendarDataCache[date] = fetchedData
+                fetchedData
+            }
+
+            val dataToDisplay = if (cachedData != null && workTimeByDateChange != ZERO_TIME) {
+                data.copy(
+                    timePerDay = addWorkTimeChange(data.timePerDay, workTimeByDateChange),
+                    timePerWeek = addWorkTimeChange(data.timePerWeek, workTimeByDateChange),
+                    timePerMonth = addWorkTimeChange(data.timePerMonth, workTimeByDateChange)
+                ).also { adjustedData ->
+                    calendarDataCache[date] = adjustedData
+                }
+            } else {
+                data
+            }
+
             val month = YearMonth.from(LocalDate.parse(date))
             _uiState.value = CalendarUiState.Success(
                 date = date,
-                timePerMonth = data.timePerMonth,
-                timePerWeek = data.timePerWeek,
-                timePerDay = data.timePerDay,
-                datesWithWork = data.datesWithWork,
+                timePerMonth = dataToDisplay.timePerMonth,
+                timePerWeek = dataToDisplay.timePerWeek,
+                timePerDay = dataToDisplay.timePerDay,
+                datesWithWork = dataToDisplay.datesWithWork,
                 visibleMonth = month
             )
+
+            if (workTimeByDateChange != ZERO_TIME) {
+                dateRepository.updateWorkTimeByDateChange(ZERO_TIME)
+            }
         } catch (e: IllegalArgumentException) {
             _uiState.value = CalendarUiState.Error(e.message ?: "Invalid argument provided")
         } catch (e: IllegalStateException) {
             _uiState.value = CalendarUiState.Error(e.message ?: "Invalid state")
+        }
+    }
+
+    private fun addWorkTimeChange(baseTime: String, change: String): String {
+        return if (change == ZERO_TIME) {
+            baseTime
+        } else {
+            WorkTimeCalculator.calculateFlexTime(baseTime, change)
         }
     }
 }

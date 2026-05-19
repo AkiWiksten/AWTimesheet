@@ -36,6 +36,7 @@ import com.akiwiksten.awtimesheet.feature.workday.WorkdayUiState
 internal fun WorkdayLoadingContent(
     showLoadingIndicator: Boolean,
     cachedState: WorkdayUiState.Success?,
+    workTimeByDateChange: String,
     selectedItemIndex: Int,
     actions: WorkdayActions
 ) {
@@ -52,6 +53,7 @@ internal fun WorkdayLoadingContent(
     cachedState?.let {
         WorkdaySuccessContent(
             state = it,
+            workTimeByDateChange = workTimeByDateChange,
             selectedItemIndex = selectedItemIndex,
             actions = actions
         )
@@ -61,6 +63,7 @@ internal fun WorkdayLoadingContent(
 @Composable
 internal fun WorkdaySuccessContent(
     state: WorkdayUiState.Success,
+    workTimeByDateChange: String,
     selectedItemIndex: Int,
     actions: WorkdayActions
 ) {
@@ -78,6 +81,7 @@ internal fun WorkdaySuccessContent(
         workTime = state.workTimeByDate,
         flexTimeByDate = displayState.displayedFlexTimeByDate,
         calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
+        workTimeByDateChange = workTimeByDateChange,
         settingsEditorState = displayState.settingsEditorState,
         headerActions = displayState.headerActions
     )

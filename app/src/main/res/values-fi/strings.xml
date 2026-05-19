@@ -18,6 +18,7 @@
     <string name="break_start">Tauon alku</string>
     <string name="break_end">Tauon loppu</string>
     <string name="work_time_by_date">Päivän työaika</string>
+    <string name="work_time_change">Työajan muutos</string>
     <string name="work_time_by_date_estimate">Päivän työajan arvio</string>
     <string name="flex_time_by_date">Liukuma päivämäärän mukaan</string>
     <string name="initial_flex_time_total">Kokonaisliukuma</string>

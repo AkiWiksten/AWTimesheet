@@ -18,6 +18,7 @@
     <string name="break_start">Pausstart</string>
     <string name="break_end">Pausslut</string>
     <string name="work_time_by_date">Arbetstid per datum</string>
+    <string name="work_time_change">Arbetstidsändring</string>
     <string name="work_time_by_date_estimate">Uppskattad arbetstid per datum</string>
     <string name="flex_time_by_date">Flex per datum</string>
     <string name="initial_flex_time_total">Initial total flex</string>

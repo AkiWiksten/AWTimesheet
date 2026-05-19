@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -87,7 +88,14 @@ class SingleProjectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val date = dateRepository.selectedDate.first()
+                val existingProject = selectedProjectName.value
+                    .takeIf { it.isNotBlank() }
+                    ?.let { projectRepository.getProject(date = date, projectName = it) }
                 val projectToSave = state.copy(date = date)
+                val workTimeByDateChange = calculateWorkTimeByDateChange(
+                    previousProjectTime = existingProject?.projectTime ?: ZERO_TIME,
+                    newProjectTime = projectToSave.projectTime
+                )
 
                 val projectDetailsToSave = projectDetails?.copy(
                     date = date,
@@ -104,6 +112,11 @@ class SingleProjectViewModel @Inject constructor(
                     projectDetailsToSave = projectDetailsToSave
                 )
 
+                if (workTimeByDateChange != ZERO_TIME) {
+                    dateRepository.addWorkTimeByDateChange(workTimeByDateChange)
+                }
+                selectedProjectName.value = projectToSave.projectName
+
                 settings?.let { settingsRepository.insertSettings(it) }
             } catch (e: IllegalArgumentException) {
                 Log.e("SingleProjectViewModel", "saveProject: ", e)
@@ -113,3 +126,11 @@ class SingleProjectViewModel @Inject constructor(
         }
     }
 }
+
+private fun calculateWorkTimeByDateChange(previousProjectTime: String, newProjectTime: String): String {
+    return WorkTimeCalculator.calculateFlexTime(
+        initialTime = newProjectTime,
+        addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$previousProjectTime")
+    )
+}
+

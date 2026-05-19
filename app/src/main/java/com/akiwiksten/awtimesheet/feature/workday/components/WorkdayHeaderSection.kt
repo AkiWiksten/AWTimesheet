@@ -34,6 +34,7 @@ import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.core.ui.verticalScrollbar
@@ -78,6 +79,7 @@ internal fun WorkdayStatsCard(
     workTime: String,
     flexTimeByDate: String,
     calculatedFlexTimeTotal: String,
+    workTimeByDateChange: String,
     settingsEditorState: SettingsEditorState,
     headerActions: WorkdayHeaderActions
 ) {
@@ -100,6 +102,7 @@ internal fun WorkdayStatsCard(
             workTime = workTime,
             flexTimeByDate = flexTimeByDate,
             calculatedFlexTimeTotal = calculatedFlexTimeTotal,
+            workTimeByDateChange = workTimeByDateChange,
             settingsEditorState = settingsEditorState,
             onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
@@ -125,7 +128,8 @@ private fun WorkdayStatsCardContent(
             WorkdayStatsSummaryTexts(
                 workTime = params.workTime,
                 flexTimeByDate = params.flexTimeByDate,
-                calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
+                calculatedFlexTimeTotal = params.calculatedFlexTimeTotal,
+                workTimeByDateChange = params.workTimeByDateChange
             )
             WorkTimeByDateEstimatePickerRow(
                 workTimeByDateEstimate = params.settingsEditorState.workTimeByDateEstimate,
@@ -140,7 +144,8 @@ private fun WorkdayStatsCardContent(
 private fun WorkdayStatsSummaryTexts(
     workTime: String,
     flexTimeByDate: String,
-    calculatedFlexTimeTotal: String
+    calculatedFlexTimeTotal: String,
+    workTimeByDateChange: String
 ) {
     Text(
         text = "${stringResource(id = R.string.work_time_by_date)}: $workTime",
@@ -150,6 +155,20 @@ private fun WorkdayStatsSummaryTexts(
         ),
         color = MaterialTheme.colorScheme.onSurface
     )
+    if (workTimeByDateChange != ZERO_TIME) {
+        val prefix = if (workTimeByDateChange.startsWith("-")) "" else "+"
+        Text(
+            text = "${stringResource(id = R.string.work_time_change)}: $prefix$workTimeByDateChange",
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                fontWeight = FontWeight.Bold
+            ),
+            color = if (workTimeByDateChange.startsWith("-"))
+                MaterialTheme.colorScheme.error
+            else
+                MaterialTheme.colorScheme.primary
+        )
+    }
     Text(
         text = "${stringResource(id = R.string.flex_time_by_date)}: $flexTimeByDate",
         style = MaterialTheme.typography.bodyLarge.copy(
@@ -173,6 +192,7 @@ private data class WorkdayStatsCardContentParams(
     val workTime: String,
     val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
+    val workTimeByDateChange: String,
     val settingsEditorState: SettingsEditorState,
     val onWorkTimeByDateEstimatePickerClick: () -> Unit
 )

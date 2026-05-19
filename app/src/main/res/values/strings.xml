@@ -17,6 +17,7 @@
 <string name="break_start">Break start</string>
 <string name="break_end">Break end</string>
 <string name="work_time_by_date">Work time by date</string>
+<string name="work_time_change">Work time change</string>
  <string name="work_time_by_date_estimate">Work time by date estimate</string>
 <string name="flex_time_by_date">Flex time by date</string>
 <string name="initial_flex_time_total">Initial flex time total</string>

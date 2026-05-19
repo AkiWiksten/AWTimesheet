@@ -81,6 +81,7 @@ private fun WorkdayContentConstrainedPreviewContent() {
             ) {
                 WorkdayContent(
                     workdayUiState = PreviewWorkdayState,
+                    workTimeByDateChange = "+01:30",
                     selectedItemIndex = 1,
                     scrollState = scrollState,
                     actions = PreviewActions

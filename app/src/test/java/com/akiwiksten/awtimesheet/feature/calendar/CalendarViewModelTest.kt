@@ -49,6 +49,69 @@ class CalendarViewModelTest {
     }
 
     @Test
+    fun init_withFreshFetch_doesNotDoubleCountStoredWorkTimeChange() = runTest {
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+            updateWorkTimeByDateChange("-02:30")
+        }
+        val projectRepository = FakeProjectRepository().apply {
+            dataByRange["2026-04-01|2026-04-30"] = listOf(
+                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00", 0, "", "")
+            )
+        }
+
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as CalendarUiState.Success
+        assertEquals("08:00", state.timePerMonth)
+        assertEquals("08:00", state.timePerWeek)
+        assertEquals("08:00", state.timePerDay)
+        assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
+    }
+
+    @Test
+    fun refresh_withCachedData_appliesStoredWorkTimeChangeOnce() = runTest {
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+        }
+        val projectRepository = FakeProjectRepository().apply {
+            dataByRange["2026-04-01|2026-04-30"] = listOf(
+                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00", 0, "", "")
+            )
+        }
+
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+
+        advanceUntilIdle()
+
+        dateRepository.updateWorkTimeByDateChange("02:30")
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        val refreshedState = viewModel.uiState.value as CalendarUiState.Success
+        assertEquals("10:30", refreshedState.timePerMonth)
+        assertEquals("10:30", refreshedState.timePerWeek)
+        assertEquals("10:30", refreshedState.timePerDay)
+        assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        val secondRefreshState = viewModel.uiState.value as CalendarUiState.Success
+        assertEquals("10:30", secondRefreshState.timePerMonth)
+        assertEquals("10:30", secondRefreshState.timePerWeek)
+        assertEquals("10:30", secondRefreshState.timePerDay)
+    }
+
+    @Test
     fun init_startsLoadingAndEmitsInitialDate() = runTest {
         val dateRepository = DateRepository().apply { updateDate("2026-01-01") }
         val projectRepository = FakeProjectRepository()

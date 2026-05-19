@@ -79,6 +79,7 @@ class WorkdayViewModelTest {
         Assert.assertEquals("+01:45", state.initialFlexTimeTotal)
         Assert.assertEquals("-03:15", state.calculatedFlexTimeTotal)
         Assert.assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
+        Assert.assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
     }
 
     @Test
@@ -207,6 +208,57 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         Assert.assertEquals(initialStats, projectDetailsRepository.settings)
+    }
+
+    @Test
+    fun deleteProject_subtractsDeletedProjectTimeFromTrackedChange() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                SingleProjectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:30"
+                )
+            )
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+            workdayStatsRows = listOf(
+                WorkdayStatsRow(
+                    date = "2026-04-10",
+                    workTimeByDateEstimate = "07:30"
+                )
+            )
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+            updateWorkTimeByDateChange("01:00")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        viewModel.deleteProject(
+            SingleProjectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "02:30"
+            )
+        )
+        advanceUntilIdle()
+
+        Assert.assertEquals("-01:30", dateRepository.workTimeByDateChange.value)
     }
 
     @Test

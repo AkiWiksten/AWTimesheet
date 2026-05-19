@@ -51,6 +51,8 @@ class WorkdayViewModel @Inject constructor(
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
+    val workTimeByDateChange: StateFlow<String> = dateRepository.workTimeByDateChange
+
     private val refreshTrigger = MutableStateFlow(value = 0)
 
     val uiState: StateFlow<WorkdayUiState> = refreshTrigger
@@ -70,15 +72,16 @@ class WorkdayViewModel @Inject constructor(
                 .mapIndexed { index, project -> project.copy(index = index) }
 
             val workTypes = settingsRepository.getWorkTypes()
+            val flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
+                initialTime = data.workTimeByDate,
+                addedTime = "-${data.workTimeByDateEstimate}"
+            )
 
             WorkdayUiState.Success(
                 date = date,
                 workTimeByDate = data.workTimeByDate,
                 workTimeByDateEstimate = data.workTimeByDateEstimate,
-                flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
-                    initialTime = data.workTimeByDate,
-                    addedTime = "-${data.workTimeByDateEstimate}"
-                ),
+                flexTimeByDate = flexTimeByDate,
                 initialFlexTimeTotal = data.initialFlexTimeTotal,
                 calculatedFlexTimeTotal = data.calculatedFlexTimeTotal,
                 projects = allProjects,
@@ -107,6 +110,9 @@ class WorkdayViewModel @Inject constructor(
                 val date = (currentState as? WorkdayUiState.Success)?.date ?: return@launch
 
                 deleteProjectUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
+                if (state.projectTime != ZERO_TIME) {
+                    dateRepository.addWorkTimeByDateChange("-${state.projectTime}")
+                }
                 requestReload()
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "deleteProject: ", e)

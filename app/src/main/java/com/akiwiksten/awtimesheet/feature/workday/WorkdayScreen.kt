@@ -41,6 +41,7 @@ fun WorkdayScreen(
     }
 
     val workdayUiState by workdayViewModel.uiState.collectAsState()
+    val workTimeByDateChange by workdayViewModel.workTimeByDateChange.collectAsState()
     val scrollState = rememberScrollState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
@@ -48,6 +49,7 @@ fun WorkdayScreen(
 
     WorkdayContent(
         workdayUiState = workdayUiState,
+        workTimeByDateChange = workTimeByDateChange,
         selectedItemIndex = selectedItemIndexState.intValue,
         scrollState = scrollState,
         actions = WorkdayActions(
@@ -65,6 +67,7 @@ fun WorkdayScreen(
 @Composable
 internal fun WorkdayContent(
     workdayUiState: WorkdayUiState,
+    workTimeByDateChange: String,
     selectedItemIndex: Int,
     scrollState: androidx.compose.foundation.ScrollState,
     actions: WorkdayActions
@@ -97,12 +100,14 @@ internal fun WorkdayContent(
                 is WorkdayUiState.Loading -> WorkdayLoadingContent(
                     showLoadingIndicator = showLoadingIndicator,
                     cachedState = lastSuccessState,
+                    workTimeByDateChange = workTimeByDateChange,
                     selectedItemIndex = selectedItemIndex,
                     actions = actions
                 )
 
                 is WorkdayUiState.Success -> WorkdaySuccessContent(
                     state = workdayUiState,
+                    workTimeByDateChange = workTimeByDateChange,
                     selectedItemIndex = selectedItemIndex,
                     actions = actions
                 )

@@ -111,7 +111,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
@@ -144,7 +145,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
@@ -177,7 +179,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
@@ -210,7 +213,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
@@ -240,7 +244,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
 
         assertTrue(!workbookBytes.hasZipEntry("xl/calcChain.xml"))
@@ -257,7 +262,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
 
         val maxStyleIndex = workbookBytes.maxSheetStyleIndex()
@@ -279,7 +285,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
@@ -310,7 +317,8 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
@@ -321,7 +329,7 @@ class TimesheetGeneratorTest {
         assertEquals("02:30", sheetXml.cellInlineString("B12"))
         assertEquals("Allowance", sheetXml.cellInlineString("A13"))
         assertEquals("No", sheetXml.cellInlineString("B13"))
-        assertEquals("Worktype", sheetXml.cellInlineString("A14"))
+        assertEquals("Work type", sheetXml.cellInlineString("A14"))
         assertEquals("Other", sheetXml.cellInlineString("B14"))
         assertEquals("Kilometres", sheetXml.cellInlineString("A15"))
         assertEquals("10", sheetXml.cellNumericValue("B15"))
@@ -346,21 +354,22 @@ class TimesheetGeneratorTest {
 
         val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
             templateBytes = templateBytes,
-            exportData = exportData
+            exportData = exportData,
+            ctx = RuntimeEnvironment.getApplication()
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
-        // 4th and 5th blocks are created dynamically beyond template defaults.
-        assertEquals("Project name", sheetXml.cellInlineString("A29"))
-        assertEquals("Project time", sheetXml.cellInlineString("A30"))
-        assertEquals("Allowance", sheetXml.cellInlineString("A31"))
-        assertEquals("Worktype", sheetXml.cellInlineString("A32"))
-        assertEquals("Kilometres", sheetXml.cellInlineString("A33"))
+         // 4th and 5th blocks are created dynamically beyond template defaults.
+         assertEquals("Project name", sheetXml.cellInlineString("A29"))
+         assertEquals("Project time", sheetXml.cellInlineString("A30"))
+         assertEquals("Allowance", sheetXml.cellInlineString("A31"))
+         assertEquals("Work type", sheetXml.cellInlineString("A32"))
+         assertEquals("Kilometres", sheetXml.cellInlineString("A33"))
 
-        assertEquals("Project name", sheetXml.cellInlineString("A35"))
-        assertEquals("Project time", sheetXml.cellInlineString("A36"))
-        assertEquals("Allowance", sheetXml.cellInlineString("A37"))
-        assertEquals("Worktype", sheetXml.cellInlineString("A38"))
+         assertEquals("Project name", sheetXml.cellInlineString("A35"))
+         assertEquals("Project time", sheetXml.cellInlineString("A36"))
+         assertEquals("Allowance", sheetXml.cellInlineString("A37"))
+         assertEquals("Work type", sheetXml.cellInlineString("A38"))
         assertEquals("Kilometres", sheetXml.cellInlineString("A39"))
 
         assertEquals("Project 4", sheetXml.cellInlineString("B29"))
@@ -529,7 +538,7 @@ class TimesheetGeneratorExcelInspectionTest {
         }
 
         println("\n=== ALLOWANCE COUNTS ===")
-        exportData.allowanceRows.forEachIndexed { idx, row ->
+        exportData.allowanceRows.forEach { row ->
             println("${row.label}:")
             row.countByProjectName.forEach { (proj, cnt) ->
                 println("  $proj=$cnt")
@@ -538,7 +547,7 @@ class TimesheetGeneratorExcelInspectionTest {
         }
 
         println("\n=== WORKTYPE TIMES ===")
-        exportData.workTypeRows.forEachIndexed { idx, row ->
+        exportData.workTypeRows.forEach { row ->
             println("${row.label}:")
             row.timeByProjectName.forEach { (proj, tm) ->
                 if (tm > 0L) println("  $proj=$tm")

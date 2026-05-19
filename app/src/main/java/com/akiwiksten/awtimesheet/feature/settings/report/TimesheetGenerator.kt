@@ -5,6 +5,7 @@ package com.akiwiksten.awtimesheet.feature.settings.report
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import java.io.ByteArrayInputStream
@@ -31,7 +32,6 @@ private const val DAILY_ENTRY_ROW_HEIGHT = 6
 private const val DAILY_ENTRIES_START_ROW = 9
 private const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
 private const val TEMPLATE_DAILY_ENTRY_BLOCKS = 1
-private val DAILY_ENTRY_LABELS = listOf("Project name", "Project time", "Allowance", "Worktype", "Kilometres")
 private const val MINUTES_PER_DAY = 1440L
 
 // Workbook style ids.
@@ -156,7 +156,8 @@ object TimesheetGenerator {
             val templateBytes = params.ctx.assets.open(TEMPLATE_ASSET_NAME).use { it.readBytes() }
             val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
                 templateBytes = templateBytes,
-                exportData = exportData
+                exportData = exportData,
+                ctx = params.ctx
             )
 
             TimesheetStorage.saveXlsx(
@@ -374,7 +375,7 @@ private fun buildWorkTypeRows(
 
 // Sheet XML editing.
 private object TimesheetSheetEditor {
-    fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData): ByteArray {
+    fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData, ctx: Context): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(sheetXml))
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
@@ -386,11 +387,11 @@ private object TimesheetSheetEditor {
         clearTopSummaryArea(sheetData)
         populateHeader(document, sheetData, exportData)
         populateDayOfMonthRow(document, sheetData)
-        populateDailyEntryLabels(document, sheetData, exportData)
+        populateDailyEntryLabels(document, sheetData, exportData, ctx)
         populateDailyEntries(document, sheetData, exportData, 0)
         populateProjectSummary(document, sheetData, exportData)
-        populateAllowanceSummary(document, sheetData, exportData)
-        populateWorkTypeSummary(document, sheetData, exportData)
+        populateAllowanceSummary(document, sheetData, exportData, ctx)
+        populateWorkTypeSummary(document, sheetData, exportData, ctx)
         ensureTopRowFrozen(document, sheetData)
         ensureFirstColumnFrozen(document)
 
@@ -596,7 +597,8 @@ private object TimesheetSheetEditor {
     private fun populateAllowanceSummary(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData
+        exportData: TimesheetExportData,
+        ctx: Context
     ) {
         val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
         val startColumnIndex = allowanceStartColumnIndex(allProjectNames.size)
@@ -610,7 +612,7 @@ private object TimesheetSheetEditor {
             totalColumnIndex = startColumnIndex + allProjectNames.size
         )
 
-        writeAllowanceHeader(context)
+        writeAllowanceHeader(context, ctx)
         writeAllowanceRows(context)
 
         applySectionHeaderStyles(
@@ -635,7 +637,8 @@ private object TimesheetSheetEditor {
     private fun populateWorkTypeSummary(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData
+        exportData: TimesheetExportData,
+        ctx: Context
     ) {
         val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
         val startColumnIndex = workTypeLabelColumnIndex(allProjectNames.size) + 1
@@ -649,7 +652,7 @@ private object TimesheetSheetEditor {
             totalColumnIndex = startColumnIndex + allProjectNames.size
         )
 
-        writeWorkTypeHeader(context)
+        writeWorkTypeHeader(context, ctx)
         writeWorkTypeRows(context, sheetData)
 
         applySectionHeaderStyles(
@@ -683,17 +686,27 @@ private object TimesheetSheetEditor {
         }
     }
 
-    private fun populateDailyEntryLabels(document: Document, sheetData: Element, exportData: TimesheetExportData) {
+    private fun populateDailyEntryLabels(
+        document: Document,
+        sheetData: Element,
+        exportData: TimesheetExportData,
+        ctx: Context
+    ) {
         val maxEntriesOnAnyDay = exportData.displayedEntriesByDay.values.maxOfOrNull { it.size } ?: 0
         val blockCount = maxEntriesOnAnyDay.coerceAtLeast(TEMPLATE_DAILY_ENTRY_BLOCKS)
+        val dailyEntryLabels = listOf(
+            ctx.safeString(R.string.project_name, "Project name"),
+            ctx.safeString(R.string.project_time, "Project time"),
+            ctx.safeString(R.string.kilometres, "Kilometres")
+        )
 
         for (entryIndex in 0 until blockCount) {
             val baseRow = dailyEntryBaseRow(entryIndex)
-            setStringCell(document, sheetData, "A${baseRow + 2}", DAILY_ENTRY_LABELS[0], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 3}", DAILY_ENTRY_LABELS[1], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 4}", DAILY_ENTRY_LABELS[2], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 5}", DAILY_ENTRY_LABELS[3], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 6}", DAILY_ENTRY_LABELS[4], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 2}", dailyEntryLabels[0], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 3}", dailyEntryLabels[1], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 4}", dailyEntryLabels[2], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 5}", dailyEntryLabels[3], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 6}", dailyEntryLabels[4], BOLD_TEXT_STYLE)
             if (entryIndex > 0) {
                 setStringCell(document, sheetData, "A${baseRow + 1}", "", BOLD_TEXT_STYLE)
             }
@@ -819,12 +832,12 @@ private object TimesheetSheetEditor {
         )
     }
 
-    private fun writeAllowanceHeader(context: AllowanceSectionContext) {
+    private fun writeAllowanceHeader(context: AllowanceSectionContext, ctx: Context) {
         setStringCell(
             context.document,
             context.sheetData,
             buildCellReference(context.labelColumnIndex, 1),
-            "Allowance",
+            ctx.safeString(R.string.allowance, "Allowance"),
             BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
@@ -876,12 +889,12 @@ private object TimesheetSheetEditor {
         }
     }
 
-    private fun writeWorkTypeHeader(context: WorkTypeSectionContext) {
+    private fun writeWorkTypeHeader(context: WorkTypeSectionContext, ctx: Context) {
         setStringCell(
             context.document,
             context.sheetData,
             buildCellReference(context.labelColumnIndex, 1),
-            "Work type",
+            ctx.safeString(R.string.work_type, "Work type"),
             BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
@@ -1243,8 +1256,12 @@ private object TimesheetSheetEditor {
 }
 
 internal object TimesheetWorkbookEditor {
-    fun createWorkbook(templateBytes: ByteArray, exportData: TimesheetExportData): ByteArray {
+    fun createWorkbook(templateBytes: ByteArray, exportData: TimesheetExportData, ctx: Context): ByteArray {
         val zipEntries = unzipEntries(templateBytes)
+        zipEntries["xl/sharedStrings.xml"] = localizeSharedStrings(
+            sharedStringsXml = zipEntries.getValue("xl/sharedStrings.xml"),
+            ctx = ctx
+        )
         zipEntries["[Content_Types].xml"] = removeCalcChainContentType(
             zipEntries.getValue("[Content_Types].xml")
         )
@@ -1257,13 +1274,39 @@ internal object TimesheetWorkbookEditor {
         )
         val updatedSheetXml = TimesheetSheetEditor.updateSheet(
             sheetXml = zipEntries.getValue("xl/worksheets/sheet1.xml"),
-            exportData = exportData
+            exportData = exportData,
+            ctx = ctx
         )
         zipEntries["xl/worksheets/sheet1.xml"] = normalizeStyleReferences(
             sheetXml = updatedSheetXml,
             stylesXml = zipEntries.getValue("xl/styles.xml")
         )
         return zipEntries(zipEntries)
+    }
+
+    private fun localizeSharedStrings(sharedStringsXml: ByteArray, ctx: Context): ByteArray {
+        val labelMappings = mapOf(
+             0 to ctx.safeString(R.string.timesheet_day_of_month, "Day of Month"),
+             1 to ctx.safeString(R.string.project_name, "Project name"),
+             2 to ctx.safeString(R.string.work_time_by_date, "Work time by date"),
+             3 to ctx.safeString(R.string.allowance, "Allowance"),
+             4 to ctx.safeString(R.string.work_type, "Work type"),
+             5 to ctx.safeString(R.string.kilometres, "Kilometres"),
+            6 to ctx.safeString(R.string.employer, "Employer"),
+            7 to ctx.safeString(R.string.name, "Name"),
+            14 to ctx.safeString(R.string.timesheet_work_time_total, "Work time total"),
+            16 to ctx.safeString(R.string.total_sum, "Sum"),
+            17 to ctx.safeString(R.string.timesheet_no_allowance_short, "No"),
+            18 to ctx.safeString(R.string.timesheet_half_day_allowance_short, "Half-day"),
+            19 to ctx.safeString(R.string.timesheet_full_allowance_short, "Full"),
+            20 to ctx.safeString(R.string.timesheet_start_date, "Start date"),
+            21 to ctx.safeString(R.string.timesheet_title, "Timesheet"),
+            22 to ctx.safeString(R.string.timesheet_end_date, "End date"),
+            23 to ctx.safeString(R.string.timesheet_general, "General"),
+            24 to ctx.safeString(R.string.timesheet_flex_time_total, "Flex time total"),
+            25 to ctx.safeString(R.string.project_time, "Project time")
+        )
+        return replaceSharedStrings(sharedStringsXml, labelMappings)
     }
 
     private fun normalizeStyleReferences(sheetXml: ByteArray, stylesXml: ByteArray): ByteArray {
@@ -1409,6 +1452,36 @@ internal object TimesheetWorkbookEditor {
         return document.toByteArray()
     }
 
+}
+
+internal fun replaceSharedStrings(
+    sharedStringsXml: ByteArray,
+    replacements: Map<Int, String>
+): ByteArray {
+    val document = createDocumentBuilderFactory().newDocumentBuilder()
+        .parse(ByteArrayInputStream(sharedStringsXml))
+    val sharedStrings = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "si")
+
+    replacements.forEach { (index, value) ->
+        val sharedString = sharedStrings.item(index) as? Element ?: return@forEach
+        val textNodes = sharedString.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "t")
+        for (i in 0 until textNodes.length) {
+            (textNodes.item(i) as? Element)?.apply {
+                textContent = value
+                if (value.firstOrNull()?.isWhitespace() == true || value.lastOrNull()?.isWhitespace() == true) {
+                    setAttributeNS(XML_NAMESPACE, "xml:space", "preserve")
+                } else {
+                    removeAttributeNS(XML_NAMESPACE, "space")
+                }
+            }
+        }
+    }
+
+    return document.toByteArray()
+}
+
+private fun Context.safeString(resId: Int, fallback: String): String {
+    return runCatching { getString(resId) }.getOrDefault(fallback)
 }
 
 // Export model objects.

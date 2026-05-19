@@ -43,6 +43,10 @@
     <string name="name">Namn</string>
     <string name="employer">Arbetsgivare</string>
     <string name="kilometres">Kilometer</string>
+    <string name="timesheet_day_of_month">Dag i månaden</string>
+    <string name="timesheet_start_date">Startdatum</string>
+    <string name="timesheet_end_date">Slutdatum</string>
+    <string name="timesheet_title">Tidrapport</string>
     <string name="generate_xlsx">Generera månatlig XLSX-rapport</string>
     <string name="daily_allowance">Dagtraktamente</string>
     <string name="half_day_allowance">Halvdagstraktamente</string>

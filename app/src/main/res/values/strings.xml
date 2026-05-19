@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 <string name="app_name">AWTimesheet</string>
 <string name="selected_date">Selected date</string>
 <string name="select_date">Select date</string>
@@ -42,6 +42,10 @@
 <string name="name">Name</string>
 <string name="employer">Employer</string>
 <string name="kilometres">Kilometres</string>
+<string name="timesheet_day_of_month">Day of Month</string>
+<string name="timesheet_start_date">Start date</string>
+<string name="timesheet_end_date">End date</string>
+<string name="timesheet_title">Timesheet</string>
 <string name="generate_xlsx">Generate monthly XLSX report</string>
 <string name="daily_allowance">Daily allowance</string>
 <string name="half_day_allowance">Half-day allowance</string>

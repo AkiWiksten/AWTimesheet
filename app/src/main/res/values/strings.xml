@@ -42,7 +42,6 @@
 <string name="name">Name</string>
 <string name="employer">Employer</string>
 <string name="kilometres">Kilometres</string>
-<string name="generate_pdf">Generate monthly PDF report</string>
 <string name="generate_xlsx">Generate monthly XLSX report</string>
 <string name="daily_allowance">Daily allowance</string>
 <string name="half_day_allowance">Half-day allowance</string>
@@ -50,7 +49,6 @@
 <string name="full_allowance">Full allowance</string>
 <string name="allowance">Allowance</string>
 <string name="work_type">Work type</string>
-<string name="monthly_help_pdf">The monthly PDF report of the selected day and its\' month is saved in \"Downloads/\'app_name\'\" folder.</string>
 <string name="monthly_help_xlsx">The monthly XLSX report of the selected day and its\' month is saved in \"Downloads/\'app_name\'\" folder.</string>
 <string name="timesheet_no_allowance_short">No</string>
 <string name="timesheet_half_day_allowance_short">Half-day</string>

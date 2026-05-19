@@ -43,7 +43,6 @@
     <string name="name">Namn</string>
     <string name="employer">Arbetsgivare</string>
     <string name="kilometres">Kilometer</string>
-    <string name="generate_pdf">Generera månatlig PDF-rapport</string>
     <string name="generate_xlsx">Generera månatlig XLSX-rapport</string>
     <string name="daily_allowance">Dagtraktamente</string>
     <string name="half_day_allowance">Halvdagstraktamente</string>
@@ -51,7 +50,6 @@
     <string name="full_allowance">Heldagstraktamente</string>
     <string name="allowance">Traktamente</string>
     <string name="work_type">Arbetstyp</string>
-    <string name="monthly_help_pdf">Den månatliga PDF-rapporten för den valda dagen och månaden sparas i mappen "Downloads/'app_name'".</string>
     <string name="monthly_help_xlsx">Den månatliga XLSX-rapporten för den valda dagen och månaden sparas i mappen "Downloads/'app_name'".</string>
     <string name="timesheet_no_allowance_short">Nej</string>
     <string name="timesheet_half_day_allowance_short">Halvdag</string>

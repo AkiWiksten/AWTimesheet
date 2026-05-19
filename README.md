@@ -96,9 +96,7 @@ This is called feature-based packaging.
   + make pdf dynamic?
   + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 + Excel
-  + Handle weekly and biweekly reports also, not only monthly, by a start date selection
-  + Select a row and shift cells down when there are too many work types.
-  + Handle dynamically the addition of attributes, like "Work type", "Kilometres", etc. on the left
+  + Handle monthly, weekly and biweekly reports, by selecting start date
   + 
 ## What to test constantly
 + Thorough testing of all features in all screens

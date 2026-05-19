@@ -54,7 +54,6 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
                     onWorkTypeAdded = {},
                     onWorkTypeRemoved = {},
                     onSave = {},
-                    onGeneratePdf = {},
                     onGenerateXlsx = {}
                 )
             }

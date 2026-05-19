@@ -32,13 +32,6 @@ sealed class SettingsUiState {
 }
 
 sealed class SettingsEvent {
-    data class MonthlyReportReady(
-        val projectsByMonth: List<SingleProjectState>,
-        val endOfMonthDate: String,
-        val name: String,
-        val employer: String
-    ) : SettingsEvent()
-
     data class TimesheetReportReady(
         val projectsByMonth: List<SingleProjectState>,
         val endOfMonthDate: String,
@@ -50,11 +43,6 @@ sealed class SettingsEvent {
     object NoProjectsForMonth : SettingsEvent()
 
     data class MonthlyReportError(val message: String) : SettingsEvent()
-}
-
-enum class ReportFormat {
-    PDF,
-    XLSX
 }
 
 @HiltViewModel
@@ -178,8 +166,7 @@ class SettingsViewModel @Inject constructor(
 
     fun requestMonthlyReport(
         name: String,
-        employer: String,
-        reportFormat: ReportFormat = ReportFormat.PDF
+        employer: String
     ) {
         viewModelScope.launch {
             try {
@@ -190,22 +177,15 @@ class SettingsViewModel @Inject constructor(
                 if (monthlyResult.projects.isEmpty()) {
                     _events.emit(SettingsEvent.NoProjectsForMonth)
                 } else {
-                    val reportEvent = when (reportFormat) {
-                        ReportFormat.PDF -> SettingsEvent.MonthlyReportReady(
-                            projectsByMonth = monthlyResult.projects,
-                            endOfMonthDate = monthlyResult.endOfMonth,
-                            name = name,
-                            employer = employer
-                        )
-                        ReportFormat.XLSX -> SettingsEvent.TimesheetReportReady(
+                    _events.emit(
+                        SettingsEvent.TimesheetReportReady(
                             projectsByMonth = monthlyResult.projects,
                             endOfMonthDate = monthlyResult.endOfMonth,
                             name = name,
                             employer = employer,
                             totalFlexTimeTotal = monthlyResult.totalFlexTimeTotal
                         )
-                    }
-                    _events.emit(reportEvent)
+                    )
                 }
             } catch (e: IllegalArgumentException) {
                 _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))

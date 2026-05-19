@@ -377,7 +377,7 @@ private object TimesheetSheetEditor {
     fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(sheetXml))
-        //ensureTopRowFrozen(document)
+        ensureTopRowFrozen(document)
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
             .item(0) as Element
         val dailyEntriesRowOffset = dailyEntriesRowOffset(exportData)
@@ -850,7 +850,12 @@ private object TimesheetSheetEditor {
     }
 
     private fun writeWorkTypeRows(context: WorkTypeSectionContext, sheetData: Element) {
-        val additionalRowNumber = DAILY_ENTRIES_START_ROW - context.exportData.workTypeRows.size
+        val additionalRowNumber =
+            if (context.totalColumnIndex > 31) {
+                DAILY_ENTRIES_START_ROW - context.exportData.workTypeRows.size
+            } else {
+                0
+            }
         for(i in 0 until additionalRowNumber) {
             insertBlankRowRange(
                 sheetData = sheetData,

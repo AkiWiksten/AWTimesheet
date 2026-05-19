@@ -387,7 +387,7 @@ private object TimesheetSheetEditor {
         populateHeader(document, sheetData, exportData)
         populateDayOfMonthRow(document, sheetData)
         populateDailyEntryLabels(document, sheetData, exportData)
-        populateDailyEntries(document, sheetData, exportData, 0)//dailyEntriesRowOffset)
+        populateDailyEntries(document, sheetData, exportData, 0)
         populateProjectSummary(document, sheetData, exportData)
         populateAllowanceSummary(document, sheetData, exportData)
         populateWorkTypeSummary(document, sheetData, exportData)
@@ -428,6 +428,8 @@ private object TimesheetSheetEditor {
                 created.setAttribute("workbookViewId", "0")
                 sheetViews.appendChild(created)
             }
+        // Template carries a fixed topLeftCell (A13); clear it so pane config controls opening view.
+        sheetView.removeAttribute("topLeftCell")
 
         val frozenRows = freezeThroughRow.coerceAtLeast(1)
         val firstScrollableRow = frozenRows + 1
@@ -468,6 +470,8 @@ private object TimesheetSheetEditor {
     private fun ensureFirstColumnFrozen(document: Document) {
         val sheetView = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
             ?: return
+        // Prevent inherited sheetView topLeftCell from forcing the view to start below header rows.
+        sheetView.removeAttribute("topLeftCell")
         val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
             ?: return
 

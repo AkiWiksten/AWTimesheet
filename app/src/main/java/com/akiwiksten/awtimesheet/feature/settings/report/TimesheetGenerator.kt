@@ -377,7 +377,6 @@ private object TimesheetSheetEditor {
     fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(sheetXml))
-        ensureTopRowFrozen(document)
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
             .item(0) as Element
         val dailyEntriesRowOffset = dailyEntriesRowOffset(exportData)
@@ -392,11 +391,17 @@ private object TimesheetSheetEditor {
         populateProjectSummary(document, sheetData, exportData)
         populateAllowanceSummary(document, sheetData, exportData)
         populateWorkTypeSummary(document, sheetData, exportData)
+        ensureTopRowFrozen(document, sheetData)
 
         return document.toByteArray()
     }
 
-    private fun ensureTopRowFrozen(document: Document) {
+    private fun ensureTopRowFrozen(document: Document, sheetData: Element) {
+        // Compute freeze row dynamically: find the day-of-month row (contains days 1-31)
+        // and freeze through it, accounting for any row shifts from populate functions.
+        // Fall back to DAILY_ENTRIES_SEPARATOR_ROW if detection fails.
+        val dayOfMonthRow = findDayOfMonthRow(sheetData) ?: DAILY_ENTRIES_SEPARATOR_ROW
+        val freezeThroughRow = dayOfMonthRow
         val worksheet = document.documentElement ?: return
         val sheetViews = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetViews").item(0) as? Element)
             ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetViews").also { created ->
@@ -423,7 +428,10 @@ private object TimesheetSheetEditor {
                 sheetViews.appendChild(created)
             }
 
-        // Freeze rows 1..8 and columns A:B so header area stays visible while scrolling.
+        val frozenRows = freezeThroughRow.coerceAtLeast(1)
+        val firstScrollableRow = frozenRows + 1
+
+        // Freeze top rows through the day-of-month row so headers stay visible.
         val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
             ?: document.createElementNS(SPREADSHEET_NAMESPACE, "pane").also { created ->
                 val firstSelection = sheetView.childElementSequence("selection").firstOrNull()
@@ -433,19 +441,26 @@ private object TimesheetSheetEditor {
                     sheetView.appendChild(created)
                 }
             }
-        pane.setAttribute("xSplit", "2")
-        pane.setAttribute("ySplit", "8")
-        pane.setAttribute("topLeftCell", "C9")
-        pane.setAttribute("activePane", "bottomRight")
+        pane.removeAttribute("xSplit")
+        pane.setAttribute("ySplit", frozenRows.toString())
+        pane.setAttribute("topLeftCell", "A$firstScrollableRow")
+        pane.setAttribute("activePane", "bottomLeft")
         pane.setAttribute("state", "frozen")
 
         val selections = sheetView.childElementSequence("selection").toList()
-        if (selections.none { it.getAttribute("pane") == "bottomRight" }) {
+        if (selections.none { it.getAttribute("pane") == "bottomLeft" }) {
             val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
-            selection.setAttribute("pane", "bottomRight")
-            selection.setAttribute("activeCell", "C9")
-            selection.setAttribute("sqref", "C9")
+            selection.setAttribute("pane", "bottomLeft")
+            selection.setAttribute("activeCell", "A$firstScrollableRow")
+            selection.setAttribute("sqref", "A$firstScrollableRow")
             sheetView.appendChild(selection)
+        } else {
+            selections
+                .filter { it.getAttribute("pane") == "bottomLeft" }
+                .forEach { selection ->
+                    selection.setAttribute("activeCell", "A$firstScrollableRow")
+                    selection.setAttribute("sqref", "A$firstScrollableRow")
+                }
         }
     }
 
@@ -1149,6 +1164,44 @@ private object TimesheetSheetEditor {
         }
         return newRow
     }
+
+    /**
+     * Scans sheetData to find the row containing day-of-month markers (1-31).
+     * The day-of-month row is identified by having numeric cell values 1-31.
+     * Searches all rows below row 2 (to allow for header area) since row shifts can occur.
+     */
+    private fun findDayOfMonthRow(sheetData: Element): Int? {
+        val rows = sheetData.childElementSequence("row").toList()
+        var bestRow: Int? = null
+        var bestCount = 0
+
+        for (row in rows) {
+            val rowNumber = row.getAttribute("r").toIntOrNull() ?: continue
+            // Skip very early rows (header area) and rows far beyond where daily entries should start
+            if (rowNumber < 2 || rowNumber > DAILY_ENTRIES_START_ROW + 50) continue
+
+            val cells = row.childElementSequence("c").toList()
+            var dayCount = 0
+
+            // Count numeric values 1-31 in this row
+            for (cell in cells) {
+                val vElement = cell.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "v").item(0)
+                val value = vElement?.textContent?.toIntOrNull()
+                if (value != null && value in 1..31) {
+                    dayCount++
+                }
+            }
+
+            // Track the row with the most day markers (should be the day-of-month row)
+            if (dayCount > bestCount) {
+                bestCount = dayCount
+                bestRow = rowNumber
+            }
+        }
+
+        // Return the row if we found at least 15 day markers (more than half)
+        return if (bestCount >= 15) bestRow else null
+    }
 }
 
 internal object TimesheetWorkbookEditor {
@@ -1596,3 +1649,4 @@ private const val SPREADSHEET_NAMESPACE = "http://schemas.openxmlformats.org/spr
 private const val XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace"
 private const val CONTENT_TYPES_NAMESPACE = "http://schemas.openxmlformats.org/package/2006/content-types"
 private const val RELATIONSHIPS_NAMESPACE = "http://schemas.openxmlformats.org/package/2006/relationships"
+

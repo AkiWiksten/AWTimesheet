@@ -392,6 +392,7 @@ private object TimesheetSheetEditor {
         populateAllowanceSummary(document, sheetData, exportData)
         populateWorkTypeSummary(document, sheetData, exportData)
         ensureTopRowFrozen(document, sheetData)
+        ensureFirstColumnFrozen(document)
 
         return document.toByteArray()
     }
@@ -460,6 +461,39 @@ private object TimesheetSheetEditor {
                 .forEach { selection ->
                     selection.setAttribute("activeCell", "A$firstScrollableRow")
                     selection.setAttribute("sqref", "A$firstScrollableRow")
+                }
+        }
+    }
+
+    private fun ensureFirstColumnFrozen(document: Document) {
+        val sheetView = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
+            ?: return
+        val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
+            ?: return
+
+        pane.setAttribute("xSplit", "1")
+        val ySplit = pane.getAttribute("ySplit").toIntOrNull() ?: 0
+        val firstScrollableRow = if (ySplit > 0) ySplit + 1 else 1
+        val topLeftCell = "B$firstScrollableRow"
+        val targetPane = if (ySplit > 0) "bottomRight" else "topRight"
+
+        pane.setAttribute("topLeftCell", topLeftCell)
+        pane.setAttribute("activePane", targetPane)
+        pane.setAttribute("state", "frozen")
+
+        val selections = sheetView.childElementSequence("selection").toList()
+        if (selections.none { it.getAttribute("pane") == targetPane }) {
+            val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
+            selection.setAttribute("pane", targetPane)
+            selection.setAttribute("activeCell", topLeftCell)
+            selection.setAttribute("sqref", topLeftCell)
+            sheetView.appendChild(selection)
+        } else {
+            selections
+                .filter { it.getAttribute("pane") == targetPane }
+                .forEach { selection ->
+                    selection.setAttribute("activeCell", topLeftCell)
+                    selection.setAttribute("sqref", topLeftCell)
                 }
         }
     }

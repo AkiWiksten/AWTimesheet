@@ -30,6 +30,8 @@ private const val MAX_SUMMARY_PROJECTS = 3
 private const val DAILY_ENTRY_ROW_HEIGHT = 6
 private const val DAILY_ENTRIES_START_ROW = 9
 private const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
+private const val TEMPLATE_DAILY_ENTRY_BLOCKS = 1
+private val DAILY_ENTRY_LABELS = listOf("Project name", "Project time", "Allowance", "Worktype", "Kilometres")
 private const val MINUTES_PER_DAY = 1440L
 
 // Workbook style ids.
@@ -375,7 +377,7 @@ private object TimesheetSheetEditor {
     fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(sheetXml))
-        ensureTopRowFrozen(document)
+        //ensureTopRowFrozen(document)
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
             .item(0) as Element
         val dailyEntriesRowOffset = dailyEntriesRowOffset(exportData)
@@ -385,7 +387,8 @@ private object TimesheetSheetEditor {
         clearTopSummaryArea(sheetData)
         populateHeader(document, sheetData, exportData)
         populateDayOfMonthRow(document, sheetData)
-        populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
+        populateDailyEntryLabels(document, sheetData, exportData)
+        populateDailyEntries(document, sheetData, exportData, 0)//dailyEntriesRowOffset)
         populateProjectSummary(document, sheetData, exportData)
         populateAllowanceSummary(document, sheetData, exportData)
         populateWorkTypeSummary(document, sheetData, exportData)
@@ -624,6 +627,23 @@ private object TimesheetSheetEditor {
                 numericValue = day.toString(),
                 styleIndex = DAY_OF_MONTH_VALUE_STYLE
             )
+        }
+    }
+
+    private fun populateDailyEntryLabels(document: Document, sheetData: Element, exportData: TimesheetExportData) {
+        val maxEntriesOnAnyDay = exportData.displayedEntriesByDay.values.maxOfOrNull { it.size } ?: 0
+        val blockCount = maxEntriesOnAnyDay.coerceAtLeast(TEMPLATE_DAILY_ENTRY_BLOCKS)
+
+        for (entryIndex in 0 until blockCount) {
+            val baseRow = dailyEntryBaseRow(entryIndex)
+            setStringCell(document, sheetData, "A${baseRow + 2}", DAILY_ENTRY_LABELS[0], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 3}", DAILY_ENTRY_LABELS[1], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 4}", DAILY_ENTRY_LABELS[2], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 5}", DAILY_ENTRY_LABELS[3], BOLD_TEXT_STYLE)
+            setStringCell(document, sheetData, "A${baseRow + 6}", DAILY_ENTRY_LABELS[4], BOLD_TEXT_STYLE)
+            if (entryIndex > 0) {
+                setStringCell(document, sheetData, "A${baseRow + 1}", "", BOLD_TEXT_STYLE)
+            }
         }
     }
 
@@ -886,7 +906,7 @@ private object TimesheetSheetEditor {
             setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = "$column${firstEntryBaseRow - 1}",
+                cellReference = "$column$firstEntryBaseRow",
                 value = dailyTotalMinutes.toHourMinuteString()
             )
             for ((index, entry) in dayEntries.withIndex()) {
@@ -894,31 +914,31 @@ private object TimesheetSheetEditor {
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 1}",
+                    cellReference = "$column${baseRow + 2}",
                     value = entry.projectName
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 2}",
+                    cellReference = "$column${baseRow + 3}",
                     value = entry.projectTime
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 3}",
+                    cellReference = "$column${baseRow + 4}",
                     value = entry.allowanceLabel
                 )
                 setStringCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 4}",
+                    cellReference = "$column${baseRow + 5}",
                     value = entry.workType
                 )
                 setNumericCell(
                     document = document,
                     sheetData = sheetData,
-                    cellReference = "$column${baseRow + 5}",
+                    cellReference = "$column${baseRow + 6}",
                     numericValue = (entry.kilometres.toLongOrNull() ?: 0L).toString()
                 )
             }

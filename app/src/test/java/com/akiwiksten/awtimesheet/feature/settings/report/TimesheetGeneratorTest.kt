@@ -297,6 +297,76 @@ class TimesheetGeneratorTest {
         assertEquals("Day of Month", sheetXml.cellSharedString("A8", templateBytes))
     }
 
+    @Test
+    fun createWorkbook_alignsDailyValuesToTemplateRows() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(
+                listOf(
+                    sampleProject(ProjectSpec("2026-05-01", 0, "Project A", "02:30", "10", "No allowance", "Other"))
+                )
+            )
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        assertEquals("02:30", sheetXml.cellInlineString("B9"))
+        assertEquals("Project name", sheetXml.cellInlineString("A11"))
+        assertEquals("Project A", sheetXml.cellInlineString("B11"))
+        assertEquals("Project time", sheetXml.cellInlineString("A12"))
+        assertEquals("02:30", sheetXml.cellInlineString("B12"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A13"))
+        assertEquals("No", sheetXml.cellInlineString("B13"))
+        assertEquals("Worktype", sheetXml.cellInlineString("A14"))
+        assertEquals("Other", sheetXml.cellInlineString("B14"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A15"))
+        assertEquals("10", sheetXml.cellNumericValue("B15"))
+    }
+
+    @Test
+    fun createWorkbook_expandsDailyEntryLabelsToFiveBlocks() {
+        val exportData = TimesheetExportDataBuilder.build(
+            params = createParams(
+                listOf(
+                    sampleProject(ProjectSpec("2026-05-01", 0, "Project 1", "01:00", "1", "No allowance", "Other")),
+                    sampleProject(ProjectSpec("2026-05-01", 1, "Project 2", "01:00", "2", "No allowance", "Other")),
+                    sampleProject(
+                        ProjectSpec("2026-05-01", 2, "Project 3", "01:00", "3", "Half-day allowance", "Other")
+                    ),
+                    sampleProject(ProjectSpec("2026-05-01", 3, "Project 4", "01:00", "4", "Full allowance", "Other")),
+                    sampleProject(ProjectSpec("2026-05-01", 4, "Project 5", "01:00", "5", "No allowance", "Other"))
+                )
+            )
+        )
+        val templateBytes = loadTemplateBytes()
+
+        val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
+            templateBytes = templateBytes,
+            exportData = exportData
+        )
+        val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
+
+        // 4th and 5th blocks are created dynamically beyond template defaults.
+        assertEquals("Project name", sheetXml.cellInlineString("A29"))
+        assertEquals("Project time", sheetXml.cellInlineString("A30"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A31"))
+        assertEquals("Worktype", sheetXml.cellInlineString("A32"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A33"))
+
+        assertEquals("Project name", sheetXml.cellInlineString("A35"))
+        assertEquals("Project time", sheetXml.cellInlineString("A36"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A37"))
+        assertEquals("Worktype", sheetXml.cellInlineString("A38"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A39"))
+
+        assertEquals("Project 4", sheetXml.cellInlineString("B29"))
+        assertEquals("Project 5", sheetXml.cellInlineString("B35"))
+    }
+
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
         ctx = RuntimeEnvironment.getApplication(),
         projectsByMonth = projects,

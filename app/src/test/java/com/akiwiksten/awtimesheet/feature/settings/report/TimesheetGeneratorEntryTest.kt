@@ -10,7 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
-class TimesheetGeneratorTest {
+class TimesheetGeneratorEntryTest {
 
     @Test
     fun build_mapsMonthlyProjectsIntoTimesheetLayoutData() {
@@ -359,17 +359,17 @@ class TimesheetGeneratorTest {
         )
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
-         // 4th and 5th blocks are created dynamically beyond template defaults.
-         assertEquals("Project name", sheetXml.cellInlineString("A29"))
-         assertEquals("Project time", sheetXml.cellInlineString("A30"))
-         assertEquals("Allowance", sheetXml.cellInlineString("A31"))
-         assertEquals("Work type", sheetXml.cellInlineString("A32"))
-         assertEquals("Kilometres", sheetXml.cellInlineString("A33"))
+        // 4th and 5th blocks are created dynamically beyond template defaults.
+        assertEquals("Project name", sheetXml.cellInlineString("A29"))
+        assertEquals("Project time", sheetXml.cellInlineString("A30"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A31"))
+        assertEquals("Work type", sheetXml.cellInlineString("A32"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A33"))
 
-         assertEquals("Project name", sheetXml.cellInlineString("A35"))
-         assertEquals("Project time", sheetXml.cellInlineString("A36"))
-         assertEquals("Allowance", sheetXml.cellInlineString("A37"))
-         assertEquals("Work type", sheetXml.cellInlineString("A38"))
+        assertEquals("Project name", sheetXml.cellInlineString("A35"))
+        assertEquals("Project time", sheetXml.cellInlineString("A36"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A37"))
+        assertEquals("Work type", sheetXml.cellInlineString("A38"))
         assertEquals("Kilometres", sheetXml.cellInlineString("A39"))
 
         assertEquals("Project 4", sheetXml.cellInlineString("B29"))
@@ -406,7 +406,6 @@ class TimesheetGeneratorTest {
         allowance = spec.allowance,
         workType = spec.workType
     )
-
 
     private fun assertProjectSummaries(exportData: TimesheetExportData) {
         assertEquals(listOf("Project 1", "Project 2", "Project 3"), exportData.summaryProjectNames)
@@ -494,7 +493,7 @@ class TimesheetGeneratorTest {
 }
 
 @RunWith(RobolectricTestRunner::class)
-class TimesheetGeneratorExcelInspectionTest {
+class TimesheetGeneratorEntryExcelInspectionTest {
     private data class SpecItem(
         val date: String,
         val index: Int,
@@ -517,17 +516,19 @@ class TimesheetGeneratorExcelInspectionTest {
         )
 
         val exportData = TimesheetExportDataBuilder.build(
-            params = createParams(startProjects.map { spec ->
-                SingleProjectState(
-                    index = spec.index,
-                    date = spec.date,
-                    projectName = spec.name,
-                    projectTime = spec.time,
-                    kilometres = spec.km,
-                    allowance = spec.allowance,
-                    workType = spec.workType
-                )
-            })
+            params = createParams(
+                startProjects.map { spec ->
+                    SingleProjectState(
+                        index = spec.index,
+                        date = spec.date,
+                        projectName = spec.name,
+                        projectTime = spec.time,
+                        kilometres = spec.km,
+                        allowance = spec.allowance,
+                        workType = spec.workType
+                    )
+                }
+            )
         )
 
         println("=== PROJECT SUMMARIES ===")

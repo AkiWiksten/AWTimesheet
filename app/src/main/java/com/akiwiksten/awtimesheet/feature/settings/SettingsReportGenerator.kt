@@ -2,42 +2,26 @@ package com.akiwiksten.awtimesheet.feature.settings
 
 import android.content.Context
 import com.akiwiksten.awtimesheet.R
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.settings.report.GenerateTimesheetParams
-import com.akiwiksten.awtimesheet.feature.settings.report.TimesheetGenerator
-
+import com.akiwiksten.awtimesheet.feature.settings.report.TimesheetGeneratorEntry
 
 internal fun generateTimesheetReport(
     ctx: Context,
-    projectsByMonth: List<SingleProjectState>,
-    endOfMonthDate: String,
-    name: String,
-    employer: String,
-    totalFlexTimeTotal: String = "00:00"
+    event: SettingsEvent.TimesheetReportReady
 ) {
-    TimesheetGenerator.generateXlsx(
-        params = ctx.createTimesheetParams(
-            projectsByMonth = projectsByMonth,
-            endOfMonthDate = endOfMonthDate,
-            name = name,
-            employer = employer,
-            totalFlexTimeTotal = totalFlexTimeTotal
-        )
+    TimesheetGeneratorEntry.generateXlsx(
+        params = ctx.createTimesheetParams(event)
     )
 }
 
 private fun Context.createTimesheetParams(
-    projectsByMonth: List<SingleProjectState>,
-    endOfMonthDate: String,
-    name: String,
-    employer: String,
-    totalFlexTimeTotal: String = "00:00"
+    event: SettingsEvent.TimesheetReportReady
 ) = GenerateTimesheetParams(
     ctx = this,
-    projectsByMonth = projectsByMonth,
-    endOfMonthDate = endOfMonthDate,
-    name = name,
-    employer = employer,
+    projectsByMonth = event.projectsByMonth,
+    endOfMonthDate = event.endOfMonthDate,
+    name = event.name,
+    employer = event.employer,
     defaultWorkTypeLabel = getString(R.string.other),
     noAllowanceSourceLabel = getString(R.string.no_allowance),
     halfDayAllowanceSourceLabel = getString(R.string.half_day_allowance),
@@ -50,5 +34,5 @@ private fun Context.createTimesheetParams(
     workTimeTotalLabel = getString(R.string.timesheet_work_time_total),
     kilometresLabel = getString(R.string.kilometres),
     flexTimeTotalLabel = getString(R.string.timesheet_flex_time_total),
-    totalFlexTimeTotal = totalFlexTimeTotal
+    totalFlexTimeTotal = event.totalFlexTimeTotal
 )

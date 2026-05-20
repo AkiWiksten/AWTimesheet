@@ -40,13 +40,13 @@ internal object TimesheetStorage {
                 contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
                 resolver.update(uri, contentValues, null, null)
 
-                Log.d("TimesheetGenerator", "XLSX saved successfully to: $relativePath/$fileName")
+                Log.d("TimesheetGeneratorEntry", "XLSX saved successfully to: $relativePath/$fileName")
                 Toast.makeText(ctx, "XLSX saved to Downloads/$appName", Toast.LENGTH_LONG).show()
             } else {
                 throw IOException("Failed to create MediaStore entry")
             }
         } catch (e: IOException) {
-            Log.e("TimesheetGenerator", "IO error saving XLSX", e)
+            Log.e("TimesheetGeneratorEntry", "IO error saving XLSX", e)
             Toast.makeText(ctx, "Failed to generate XLSX: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -55,4 +55,3 @@ internal object TimesheetStorage {
         return context.applicationInfo.loadLabel(context.packageManager).toString()
     }
 }
-

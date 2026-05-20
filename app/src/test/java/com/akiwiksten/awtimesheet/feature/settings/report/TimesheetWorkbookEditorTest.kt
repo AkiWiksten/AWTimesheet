@@ -57,4 +57,3 @@ class TimesheetWorkbookEditorTest {
         assertTrue(updatedXml.contains("Total flex"))
     }
 }
-

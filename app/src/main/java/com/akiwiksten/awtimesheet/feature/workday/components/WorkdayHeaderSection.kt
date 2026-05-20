@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.CardDefaults
@@ -37,7 +35,6 @@ import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.core.ui.verticalScrollbar
 import com.akiwiksten.awtimesheet.feature.workday.SettingsEditorState
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions
 
@@ -76,11 +73,7 @@ internal fun WorkdayHeader(
 
 @Composable
 internal fun WorkdayStatsCard(
-    workTime: String,
-    flexTimeByDate: String,
-    calculatedFlexTimeTotal: String,
-    workTimeByDateChange: String,
-    settingsEditorState: SettingsEditorState,
+    state: WorkdayStatsCardState,
     headerActions: WorkdayHeaderActions
 ) {
     val openWorkTimeByDateEstimatePicker = remember { mutableStateOf(value = false) }
@@ -92,22 +85,30 @@ internal fun WorkdayStatsCard(
                 headerActions.onWorkTimeByDateEstimateChange(time)
                 openWorkTimeByDateEstimatePicker.value = false
             },
-            time = settingsEditorState.workTimeByDateEstimate,
+            time = state.settingsEditorState.workTimeByDateEstimate,
             titleId = R.string.work_time_by_date_estimate
         )
     }
 
     WorkdayStatsCardContent(
         params = WorkdayStatsCardContentParams(
-            workTime = workTime,
-            flexTimeByDate = flexTimeByDate,
-            calculatedFlexTimeTotal = calculatedFlexTimeTotal,
-            workTimeByDateChange = workTimeByDateChange,
-            settingsEditorState = settingsEditorState,
+            workTime = state.workTime,
+            flexTimeByDate = state.flexTimeByDate,
+            calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+            workTimeByDateChange = state.workTimeByDateChange,
+            settingsEditorState = state.settingsEditorState,
             onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
     )
 }
+
+internal data class WorkdayStatsCardState(
+    val workTime: String,
+    val flexTimeByDate: String,
+    val calculatedFlexTimeTotal: String,
+    val workTimeByDateChange: String,
+    val settingsEditorState: SettingsEditorState
+)
 
 @Composable
 private fun WorkdayStatsCardContent(
@@ -163,10 +164,11 @@ private fun WorkdayStatsSummaryTexts(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                 fontWeight = FontWeight.Bold
             ),
-            color = if (workTimeByDateChange.startsWith("-"))
+            color = if (workTimeByDateChange.startsWith("-")) {
                 MaterialTheme.colorScheme.error
-            else
+            } else {
                 MaterialTheme.colorScheme.primary
+            }
         )
     }
     Text(

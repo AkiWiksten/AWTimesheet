@@ -78,11 +78,13 @@ internal fun WorkdaySuccessContent(
         date = state.date
     )
     WorkdayStatsCard(
-        workTime = state.workTimeByDate,
-        flexTimeByDate = displayState.displayedFlexTimeByDate,
-        calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
-        workTimeByDateChange = workTimeByDateChange,
-        settingsEditorState = displayState.settingsEditorState,
+        state = WorkdayStatsCardState(
+            workTime = state.workTimeByDate,
+            flexTimeByDate = displayState.displayedFlexTimeByDate,
+            calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
+            workTimeByDateChange = workTimeByDateChange,
+            settingsEditorState = displayState.settingsEditorState
+        ),
         headerActions = displayState.headerActions
     )
 

@@ -90,11 +90,7 @@ fun SettingsScreen(
                 is SettingsEvent.TimesheetReportReady -> {
                     generateTimesheetReport(
                         ctx = ctx,
-                        projectsByMonth = event.projectsByMonth,
-                        endOfMonthDate = event.endOfMonthDate,
-                        name = event.name,
-                        employer = event.employer,
-                        totalFlexTimeTotal = event.totalFlexTimeTotal
+                        event = event
                     )
                 }
                 is SettingsEvent.MonthlyReportError -> {

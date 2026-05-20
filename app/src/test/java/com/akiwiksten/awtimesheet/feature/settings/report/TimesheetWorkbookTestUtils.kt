@@ -36,7 +36,8 @@ internal fun org.w3c.dom.Document.cellSharedString(cellReference: String, workbo
     val ssDoc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
         .newDocumentBuilder().parse(java.io.ByteArrayInputStream(sharedStringsBytes))
     val siNodes = ssDoc.getElementsByTagNameNS(
-        "http://schemas.openxmlformats.org/spreadsheetml/2006/main", "si"
+        "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        "si"
     )
     val si = siNodes.item(sharedStringIndex) ?: return null
     return (si as? org.w3c.dom.Element)
@@ -89,9 +90,12 @@ internal fun ByteArray.maxSheetStyleIndex(sheetPath: String = "xl/worksheets/she
     )
     var maxStyle = -1
     for (index in 0 until cells.length) {
-        val cell = cells.item(index) as? org.w3c.dom.Element ?: continue
-        val style = cell.getAttribute("s").toIntOrNull() ?: continue
-        if (style > maxStyle) maxStyle = style
+        val style = (cells.item(index) as? org.w3c.dom.Element)
+            ?.getAttribute("s")
+            ?.toIntOrNull()
+        if (style != null && style > maxStyle) {
+            maxStyle = style
+        }
     }
     return maxStyle
 }
@@ -144,4 +148,3 @@ private fun ByteArray.readZipEntryBytes(entryPath: String): ByteArray {
     }
     error("Worksheet not found: $entryPath")
 }
-

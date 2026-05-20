@@ -12,7 +12,7 @@ import kotlin.system.measureTimeMillis
  * Generates synthetic monthly data at increasing scales and records generation time.
  */
 @RunWith(RobolectricTestRunner::class)
-class TimesheetGeneratorPerformanceTest {
+class TimesheetGeneratorEntryPerformanceTest {
 
     @Test
     fun benchmark_generatorPerformanceAtIncreasingScales() {
@@ -44,9 +44,9 @@ class TimesheetGeneratorPerformanceTest {
 
             println(
                 "${scale.name}\n" +
-                "  Build export data: ${buildTime}ms\n" +
-                "  Create workbook:   ${workbookTime}ms\n" +
-                "  Total:             ${buildTime + workbookTime}ms\n"
+                    "  Build export data: ${buildTime}ms\n" +
+                    "  Create workbook:   ${workbookTime}ms\n" +
+                    "  Total:             ${buildTime + workbookTime}ms\n"
             )
         }
     }
@@ -117,4 +117,3 @@ class TimesheetGeneratorPerformanceTest {
         val daysActive: Int
     )
 }
-

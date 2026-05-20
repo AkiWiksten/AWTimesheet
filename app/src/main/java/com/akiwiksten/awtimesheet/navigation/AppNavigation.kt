@@ -2,19 +2,16 @@ package com.akiwiksten.awtimesheet.navigation
 
 import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import kotlinx.parcelize.Parcelize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -38,6 +35,7 @@ import com.akiwiksten.awtimesheet.feature.projects.single.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.projects.single.SingleProjectScreenArgs
 import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
+import kotlinx.parcelize.Parcelize
 import kotlin.math.min
 
 @Parcelize
@@ -45,7 +43,11 @@ private class BackStackData(val items: ArrayList<Screen>) : Parcelable
 
 private val BackStackSaver: Saver<SnapshotStateList<Any>, BackStackData> = Saver(
     save = { stack -> BackStackData(ArrayList(stack.filterIsInstance<Screen>())) },
-    restore = { data -> mutableStateListOf<Any>(*data.items.toTypedArray()) }
+    restore = { data ->
+        mutableStateListOf<Any>().apply {
+            addAll(data.items)
+        }
+    }
 )
 
 @Composable

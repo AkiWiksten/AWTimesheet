@@ -36,11 +36,12 @@ class GetProjectsByMonthUseCase @Inject constructor(
         var calculatedFlexTimeFromAllWorkdays = ZERO_TIME
         val workdayRows = workdayRepository.getWorkdaysByDateRange("0000-01-01", "9999-12-31")
         for (row in workdayRows) {
-            val globalDailyWorkTimeEstimate = globalSettings?.dailyWorkTimeEstimate ?: "07:30"
+            val effectiveWorkTimeEstimate = row.workTimeByDateEstimate
+                .ifBlank { globalSettings?.dailyWorkTimeEstimate ?: DEFAULT_DAILY_WORK_TIME }
             val workedTime = projectRepository.getWorkTimeByDate(row.date)
             val flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
                 initialTime = workedTime,
-                addedTime = "-${row.workTimeByDateEstimate}"
+                addedTime = "-$effectiveWorkTimeEstimate"
             )
             calculatedFlexTimeFromAllWorkdays = WorkTimeCalculator.calculateFlexTime(
                 calculatedFlexTimeFromAllWorkdays,

@@ -929,7 +929,7 @@ private object TimesheetSheetEditor {
     private fun writeWorkTypeRows(context: WorkTypeSectionContext, sheetData: Element) {
         val additionalRowNumber =
             if (context.totalColumnIndex > 31) {
-                DAILY_ENTRIES_START_ROW - context.exportData.workTypeRows.size
+                DAILY_ENTRIES_START_ROW - 2 - context.exportData.workTypeRows.size
             } else {
                 0
             }
@@ -937,7 +937,7 @@ private object TimesheetSheetEditor {
             insertBlankRowRange(
                 sheetData = sheetData,
                 startColumn = 1,
-                rowNumber = i + context.exportData.workTypeRows.size,
+                rowNumber = i + context.exportData.workTypeRows.size + 1,
                 endColumn = context.totalColumnIndex
             )
         }

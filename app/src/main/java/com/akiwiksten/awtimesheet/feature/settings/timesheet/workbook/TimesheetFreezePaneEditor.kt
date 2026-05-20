@@ -1,7 +1,11 @@
 @file:Suppress("MagicNumber")
 
-package com.akiwiksten.awtimesheet.feature.settings.report
+package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.childElementSequence
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node

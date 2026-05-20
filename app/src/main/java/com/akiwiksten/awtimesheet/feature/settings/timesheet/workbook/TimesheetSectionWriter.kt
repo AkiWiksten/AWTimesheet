@@ -1,9 +1,39 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package com.akiwiksten.awtimesheet.feature.settings.report
+package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
 import android.content.Context
 import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_PROJECT_VALUE_STYLES
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_TOTAL_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_TOTAL_VALUE_STYLES
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.BOLD_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAY_OF_MONTH_VALUE_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PLAIN_INTEGER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PLAIN_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PLAIN_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_KILOMETRES_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_START_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_TOTAL_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_WORK_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.TEMPLATE_DAILY_ENTRY_BLOCKS
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_TOTAL_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_TOTAL_STYLES
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_VALUE_STYLES
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.AllowanceSectionContext
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.ProjectSummarySectionContext
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.SectionBodyStyleSpec
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.WorkTypeSectionContext
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.TimesheetXmlHelper
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.safeString
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 

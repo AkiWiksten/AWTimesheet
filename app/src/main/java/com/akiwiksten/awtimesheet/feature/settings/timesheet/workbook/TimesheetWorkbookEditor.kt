@@ -1,15 +1,26 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package com.akiwiksten.awtimesheet.feature.settings.report
+package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
 import android.content.Context
 import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.CONTENT_TYPES_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.RELATIONSHIPS_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.childElementSequence
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.createDocumentBuilderFactory
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.replaceSharedStrings
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.safeString
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.toByteArray
 import org.w3c.dom.Element
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+
+private const val STYLES_XML_ENTRY = "xl/styles.xml"
 
 internal object TimesheetWorkbookEditor {
     fun createWorkbook(templateBytes: ByteArray, exportData: TimesheetExportData, ctx: Context): ByteArray {
@@ -25,8 +36,8 @@ internal object TimesheetWorkbookEditor {
             zipEntries.getValue("xl/_rels/workbook.xml.rels")
         )
         zipEntries.remove("xl/calcChain.xml")
-        zipEntries["xl/styles.xml"] = ensureLeftAlignmentInStyles(
-            zipEntries.getValue("xl/styles.xml")
+        zipEntries[STYLES_XML_ENTRY] = ensureLeftAlignmentInStyles(
+            zipEntries.getValue(STYLES_XML_ENTRY)
         )
         val updatedSheetXml = TimesheetSheetEditor.updateSheet(
             sheetXml = zipEntries.getValue("xl/worksheets/sheet1.xml"),
@@ -35,7 +46,7 @@ internal object TimesheetWorkbookEditor {
         )
         zipEntries["xl/worksheets/sheet1.xml"] = normalizeStyleReferences(
             sheetXml = updatedSheetXml,
-            stylesXml = zipEntries.getValue("xl/styles.xml")
+            stylesXml = zipEntries.getValue(STYLES_XML_ENTRY)
         )
         return zipEntries(zipEntries)
     }

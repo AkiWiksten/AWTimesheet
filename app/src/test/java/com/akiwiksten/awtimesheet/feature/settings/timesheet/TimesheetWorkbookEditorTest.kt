@@ -1,5 +1,6 @@
-package com.akiwiksten.awtimesheet.feature.settings.report
+package com.akiwiksten.awtimesheet.feature.settings.timesheet
 
+import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.replaceSharedStrings
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

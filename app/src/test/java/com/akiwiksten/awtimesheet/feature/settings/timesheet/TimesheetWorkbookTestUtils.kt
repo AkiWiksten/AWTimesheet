@@ -1,6 +1,6 @@
 @file:Suppress("NestedBlockDepth", "ReturnCount")
 
-package com.akiwiksten.awtimesheet.feature.settings.report
+package com.akiwiksten.awtimesheet.feature.settings.timesheet
 
 import java.io.ByteArrayInputStream
 import java.nio.file.Files

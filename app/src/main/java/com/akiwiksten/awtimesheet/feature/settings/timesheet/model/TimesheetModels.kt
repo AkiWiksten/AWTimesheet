@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.settings.report
+package com.akiwiksten.awtimesheet.feature.settings.timesheet.model
 
 import org.w3c.dom.Document
 import org.w3c.dom.Element

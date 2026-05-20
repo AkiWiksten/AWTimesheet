@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -53,13 +51,15 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.SCREEN_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.AddTextFieldDialog
+import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
+import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.core.ui.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.isActionEnabled
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.awtimesheet.core.ui.verticalScrollbar
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import kotlinx.coroutines.flow.collectLatest
 
@@ -147,21 +147,13 @@ internal fun SettingsStateContent(
                 defaultWorkType = defaultWorkType
             )
         }
-        is SettingsUiState.Error -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = FORM_SECTION_SPACING),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = stringResource(id = R.string.error_message, uiState.message),
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
+        is SettingsUiState.Error -> CenteredErrorBox(
+            errorMessage = stringResource(id = R.string.error_message, uiState.message),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = FORM_SECTION_SPACING),
+            fillMaxSize = false
+        )
     }
 }
 
@@ -173,15 +165,12 @@ private fun SettingsLoadingContent(
     createActions: (SettingsUiState.Success) -> SettingsActions
 ) {
     if (showLoadingIndicator) {
-        Column(
+        CenteredLoadingBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = FORM_SECTION_SPACING),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CircularProgressIndicator()
-        }
+            fillMaxSize = false
+        )
     } else if (lastSuccessState != null) {
         val actions = remember(lastSuccessState) { createActions(lastSuccessState) }
         SettingsContent(uiState = lastSuccessState, actions = actions, defaultWorkType = defaultWorkType)
@@ -318,55 +307,50 @@ private fun rememberWorkTypeUiState(
 private fun SettingsContentBody(
     state: SettingsContentBodyState
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScrollbar(scrollState = state.scrollState)
+    ScrollableScreenColumn(
+        scrollState = state.scrollState,
+        modifier = Modifier.fillMaxSize(),
+        columnModifier = Modifier
+            .fillMaxWidth()
+            .padding(all = FORM_SECTION_SPACING),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(state = state.scrollState)
-                .padding(all = FORM_SECTION_SPACING),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
-        ) {
-            HeaderSection(date = state.uiState.selectedDate)
+        HeaderSection(date = state.uiState.selectedDate)
 
-            SettingsCard {
-                ProfileSection(
-                    name = state.uiState.data.name,
-                    employer = state.uiState.data.employer,
-                    onNameChange = state.actions.onNameChange,
-                    onEmployerChange = state.actions.onEmployerChange
-                )
-            }
-
-            GlobalDefaultsCard(state = state)
-
-            SettingsCard {
-                WorkTypeSection(
-                    state = WorkTypeSectionState(
-                        workTypes = state.uiState.data.workTypes,
-                        dialogState = state.workTypeState,
-                        protectedWorkType = state.defaultWorkType
-                    )
-                )
-            }
-
-            ActionButtonsSection(
-                onSave = state.saveUi.onSaveRequested,
-                onGenerateXlsx = state.actions.onGenerateXlsx,
-                isReportEnabled = state.uiState.selectedDate.isNotBlank(),
-                isSaveEnabled = state.saveUi.isSaveEnabled
-            )
-
-            AddWorkTypeDialogSection(
-                isVisible = state.addWorkTypeDialogState.isVisible,
-                onDismiss = state.addWorkTypeDialogState.onDismiss,
-                onConfirmed = state.addWorkTypeDialogState.onConfirm
+        SettingsCard {
+            ProfileSection(
+                name = state.uiState.data.name,
+                employer = state.uiState.data.employer,
+                onNameChange = state.actions.onNameChange,
+                onEmployerChange = state.actions.onEmployerChange
             )
         }
+
+        GlobalDefaultsCard(state = state)
+
+        SettingsCard {
+            WorkTypeSection(
+                state = WorkTypeSectionState(
+                    workTypes = state.uiState.data.workTypes,
+                    dialogState = state.workTypeState,
+                    protectedWorkType = state.defaultWorkType
+                )
+            )
+        }
+
+        ActionButtonsSection(
+            onSave = state.saveUi.onSaveRequested,
+            onGenerateXlsx = state.actions.onGenerateXlsx,
+            isReportEnabled = state.uiState.selectedDate.isNotBlank(),
+            isSaveEnabled = state.saveUi.isSaveEnabled
+        )
+
+        AddWorkTypeDialogSection(
+            isVisible = state.addWorkTypeDialogState.isVisible,
+            onDismiss = state.addWorkTypeDialogState.onDismiss,
+            onConfirmed = state.addWorkTypeDialogState.onConfirm
+        )
     }
 }
 

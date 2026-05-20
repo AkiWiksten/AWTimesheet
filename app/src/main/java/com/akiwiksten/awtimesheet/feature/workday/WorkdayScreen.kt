@@ -1,12 +1,9 @@
 package com.akiwiksten.awtimesheet.feature.workday
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.awtimesheet.core.ui.verticalScrollbar
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.awtimesheet.feature.workday.components.WorkdayLoadingContent
@@ -83,40 +80,35 @@ internal fun WorkdayContent(
         }
     }
 
-    Box(
-        modifier = Modifier
+    ScrollableScreenColumn(
+        scrollState = scrollState,
+        modifier = Modifier.fillMaxSize(),
+        columnModifier = Modifier
             .fillMaxSize()
-            .verticalScrollbar(scrollState = scrollState)
+            .padding(all = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(state = scrollState)
-                .padding(all = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
-        ) {
-            when (workdayUiState) {
-                is WorkdayUiState.Loading -> WorkdayLoadingContent(
-                    showLoadingIndicator = showLoadingIndicator,
-                    cachedState = lastSuccessState,
-                    workTimeByDateChange = workTimeByDateChange,
-                    selectedItemIndex = selectedItemIndex,
-                    actions = actions
-                )
+        when (workdayUiState) {
+            is WorkdayUiState.Loading -> WorkdayLoadingContent(
+                showLoadingIndicator = showLoadingIndicator,
+                cachedState = lastSuccessState,
+                workTimeByDateChange = workTimeByDateChange,
+                selectedItemIndex = selectedItemIndex,
+                actions = actions
+            )
 
-                is WorkdayUiState.Success -> WorkdaySuccessContent(
-                    state = workdayUiState,
-                    workTimeByDateChange = workTimeByDateChange,
-                    selectedItemIndex = selectedItemIndex,
-                    actions = actions
-                )
+            is WorkdayUiState.Success -> WorkdaySuccessContent(
+                state = workdayUiState,
+                workTimeByDateChange = workTimeByDateChange,
+                selectedItemIndex = selectedItemIndex,
+                actions = actions
+            )
 
-                is WorkdayUiState.Error -> WorkdayErrorContent(
-                    message = workdayUiState.message,
-                    onRetry = actions.onRetry
-                )
-            }
+            is WorkdayUiState.Error -> WorkdayErrorContent(
+                message = workdayUiState.message,
+                onRetry = actions.onRetry
+            )
         }
     }
 }

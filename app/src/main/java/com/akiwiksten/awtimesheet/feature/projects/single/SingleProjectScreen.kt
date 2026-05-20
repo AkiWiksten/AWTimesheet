@@ -2,7 +2,6 @@ package com.akiwiksten.awtimesheet.feature.projects.single
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -12,11 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -42,10 +39,12 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
+import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.awtimesheet.core.ui.verticalScrollbar
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -275,17 +274,12 @@ private fun SingleProjectContentByUiState(
             uiState = screenState.uiState
         )
 
-        is SingleProjectUiState.Error -> Box(
+        is SingleProjectUiState.Error -> CenteredErrorBox(
+            errorMessage = screenState.uiState.message,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues = padding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Error: ${screenState.uiState.message}",
-                color = MaterialTheme.colorScheme.error
-            )
-        }
+                .padding(paddingValues = padding)
+        )
     }
 }
 
@@ -298,14 +292,11 @@ private fun SingleProjectLoadingContent(
     cachedSuccessState: SingleProjectUiState.Success?
 ) {
     if (showLoadingIndicator) {
-        Box(
+        CenteredLoadingBox(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues = padding),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
+                .padding(paddingValues = padding)
+        )
         return
     }
 
@@ -380,34 +371,30 @@ private fun SingleProjectContent(
             .distinct()
             .sorted()
 
-    Box(
+    ScrollableScreenColumn(
+        scrollState = scrollState,
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues = padding)
-            .verticalScrollbar(scrollState = scrollState)
+            .padding(paddingValues = padding),
+        columnModifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(state = scrollState)
-                .padding(all = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
-        ) {
-            HeaderSection(
-                date = screenState.date,
-                workTimeByDate = workTimeByDate
-            )
+        HeaderSection(
+            date = screenState.date,
+            workTimeByDate = workTimeByDate
+        )
 
-            ElevatedCard(
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                SingleProjectFormFields(
-                    screenState = screenState,
-                    workTypes = workTypes,
-                    actions = actions
-                )
-            }
+        ElevatedCard(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SingleProjectFormFields(
+                screenState = screenState,
+                workTypes = workTypes,
+                actions = actions
+            )
         }
     }
 }

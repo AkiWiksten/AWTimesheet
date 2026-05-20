@@ -8,6 +8,9 @@ import android.widget.Toast
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
@@ -22,9 +25,6 @@ import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import org.w3c.dom.Node
 
 private const val TEMPLATE_ASSET_NAME = "timesheet_template.xlsx"
 private const val MAX_SUMMARY_PROJECTS = 3
@@ -48,9 +48,9 @@ private const val LOG_TAG = "TimesheetGenerator"
 //   8 = integer number format
 private const val PLAIN_TEXT_STYLE = 0
 private const val BOLD_TEXT_STYLE = 1
-private const val DAY_OF_MONTH_VALUE_STYLE = 3   // bold + border + center; B8-AF8
-private const val PLAIN_TIME_STYLE = 18           // normalizes to 18-11=7 = [hh]:mm
-private const val PLAIN_INTEGER_STYLE = 19        // normalizes to 19-11=8 = integer
+private const val DAY_OF_MONTH_VALUE_STYLE = 3 // bold + border + center; B8-AF8
+private const val PLAIN_TIME_STYLE = 18 // normalizes to 18-11=7 = [hh]:mm
+private const val PLAIN_INTEGER_STYLE = 19 // normalizes to 19-11=8 = integer
 private const val PROJECT_SUMMARY_HEADER_STYLE = PLAIN_TEXT_STYLE
 private const val PROJECT_SUMMARY_WORK_TIME_STYLE = PLAIN_TIME_STYLE
 private const val PROJECT_SUMMARY_KILOMETRES_STYLE = PLAIN_INTEGER_STYLE
@@ -373,7 +373,7 @@ private fun buildWorkTypeRows(
     }
 }
 
-// Sheet XML editing.
+// Sheet XML editing – orchestration.
 private object TimesheetSheetEditor {
     fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData, ctx: Context): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
@@ -385,139 +385,34 @@ private object TimesheetSheetEditor {
         clearDynamicCells(sheetData, dailyEntriesRowOffset)
         // Keep the full top summary area deterministic even when some populate* calls are disabled.
         clearTopSummaryArea(sheetData)
-        populateHeader(document, sheetData, exportData)
-        populateDayOfMonthRow(document, sheetData)
-        populateDailyEntryLabels(document, sheetData, exportData, ctx)
-        populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
-        populateProjectSummary(document, sheetData, exportData)
-        populateAllowanceSummary(document, sheetData, exportData, ctx)
-        populateWorkTypeSummary(document, sheetData, exportData, ctx)
-        ensureTopRowFrozen(document, sheetData)
-        ensureFirstColumnFrozen(document)
+        TimesheetSectionWriter.populateHeader(document, sheetData, exportData)
+        TimesheetSectionWriter.populateDayOfMonthRow(document, sheetData)
+        TimesheetSectionWriter.populateDailyEntryLabels(document, sheetData, exportData, ctx)
+        TimesheetSectionWriter.populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
+        TimesheetSectionWriter.populateProjectSummary(document, sheetData, exportData)
+        TimesheetSectionWriter.populateAllowanceSummary(document, sheetData, exportData, ctx)
+        TimesheetSectionWriter.populateWorkTypeSummary(document, sheetData, exportData, ctx)
+        TimesheetFreezePaneEditor.ensureTopRowFrozen(document, sheetData)
+        TimesheetFreezePaneEditor.ensureFirstColumnFrozen(document)
 
         return document.toByteArray()
     }
 
-    private fun ensureTopRowFrozen(document: Document, sheetData: Element) {
-        // Compute freeze row dynamically: find the day-of-month row (contains days 1-31)
-        // and freeze through it, accounting for any row shifts from populate functions.
-        // Fall back to DAILY_ENTRIES_SEPARATOR_ROW if detection fails.
-        val dayOfMonthRow = findDayOfMonthRow(sheetData) ?: DAILY_ENTRIES_SEPARATOR_ROW
-        val freezeThroughRow = dayOfMonthRow
-        val worksheet = document.documentElement ?: return
-        val sheetViews = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetViews").item(0) as? Element)
-            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetViews").also { created ->
-                var insertBeforeNode: Node? = null
-                var candidate = worksheet.firstChild
-                while (candidate != null) {
-                    if (candidate.nodeType == Node.ELEMENT_NODE &&
-                        candidate.localName in setOf("sheetFormatPr", "cols", "sheetData")
-                    ) {
-                        insertBeforeNode = candidate
-                        break
-                    }
-                    candidate = candidate.nextSibling
-                }
-                if (insertBeforeNode != null) {
-                    worksheet.insertBefore(created, insertBeforeNode)
-                } else {
-                    worksheet.appendChild(created)
-                }
-            }
-        val sheetView = (sheetViews.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
-            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetView").also { created ->
-                created.setAttribute("workbookViewId", "0")
-                sheetViews.appendChild(created)
-            }
-        // Template carries a fixed topLeftCell (A13); clear it so pane config controls opening view.
-        sheetView.removeAttribute("topLeftCell")
-
-        val frozenRows = freezeThroughRow.coerceAtLeast(1)
-        val firstScrollableRow = frozenRows + 1
-
-        // Freeze top rows through the day-of-month row so headers stay visible.
-        val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
-            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "pane").also { created ->
-                val firstSelection = sheetView.childElementSequence("selection").firstOrNull()
-                if (firstSelection != null) {
-                    sheetView.insertBefore(created, firstSelection)
-                } else {
-                    sheetView.appendChild(created)
-                }
-            }
-        pane.removeAttribute("xSplit")
-        pane.setAttribute("ySplit", frozenRows.toString())
-        pane.setAttribute("topLeftCell", "A$firstScrollableRow")
-        pane.setAttribute("activePane", "bottomLeft")
-        pane.setAttribute("state", "frozen")
-
-        val selections = sheetView.childElementSequence("selection").toList()
-        if (selections.none { it.getAttribute("pane") == "bottomLeft" }) {
-            val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
-            selection.setAttribute("pane", "bottomLeft")
-            selection.setAttribute("activeCell", "A$firstScrollableRow")
-            selection.setAttribute("sqref", "A$firstScrollableRow")
-            sheetView.appendChild(selection)
-        } else {
-            selections
-                .filter { it.getAttribute("pane") == "bottomLeft" }
-                .forEach { selection ->
-                    selection.setAttribute("activeCell", "A$firstScrollableRow")
-                    selection.setAttribute("sqref", "A$firstScrollableRow")
-                }
-        }
-    }
-
-    private fun ensureFirstColumnFrozen(document: Document) {
-        val sheetView = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
-            ?: return
-        // Prevent inherited sheetView topLeftCell from forcing the view to start below header rows.
-        sheetView.removeAttribute("topLeftCell")
-        val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
-            ?: return
-
-        pane.setAttribute("xSplit", "2")
-        val ySplit = pane.getAttribute("ySplit").toIntOrNull() ?: 0
-        val firstScrollableRow = if (ySplit > 0) ySplit + 1 else 1
-        val topLeftCell = "C$firstScrollableRow"
-        val targetPane = if (ySplit > 0) "bottomRight" else "topRight"
-
-        pane.setAttribute("topLeftCell", topLeftCell)
-        pane.setAttribute("activePane", targetPane)
-        pane.setAttribute("state", "frozen")
-
-        val selections = sheetView.childElementSequence("selection").toList()
-        if (selections.none { it.getAttribute("pane") == targetPane }) {
-            val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
-            selection.setAttribute("pane", targetPane)
-            selection.setAttribute("activeCell", topLeftCell)
-            selection.setAttribute("sqref", topLeftCell)
-            sheetView.appendChild(selection)
-        } else {
-            selections
-                .filter { it.getAttribute("pane") == targetPane }
-                .forEach { selection ->
-                    selection.setAttribute("activeCell", topLeftCell)
-                    selection.setAttribute("sqref", topLeftCell)
-                }
-        }
-    }
-
     private fun clearDynamicCells(sheetData: Element, dailyEntriesRowOffset: Int) {
         listOf("B2", "B3", "B4", "B5", "H1", "H2", "H3").forEach { cellReference ->
-            clearCell(sheetData, cellReference)
+            TimesheetXmlHelper.clearCell(sheetData, cellReference)
         }
-        PROJECT_NAME_HEADER_CELLS.forEach { clearCell(sheetData, it) }
-        PROJECT_TIME_SUMMARY_CELLS.forEach { clearCell(sheetData, it) }
-        PROJECT_KILOMETRES_SUMMARY_CELLS.forEach { clearCell(sheetData, it) }
-        ALLOWANCE_HEADER_CELLS.forEach { clearCell(sheetData, it) }
-        ALLOWANCE_LABEL_CELLS.forEach { clearCell(sheetData, it) }
-        WORK_TYPE_HEADER_CELLS.forEach { clearCell(sheetData, it) }
-        WORK_TYPE_LABEL_CELLS.forEach { clearCell(sheetData, it) }
-        WORK_TYPE_VALUE_CELLS.flatten().forEach { clearCell(sheetData, it) }
-        WORK_TYPE_TOTAL_CELLS.forEach { clearCell(sheetData, it) }
+        PROJECT_NAME_HEADER_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        PROJECT_TIME_SUMMARY_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        PROJECT_KILOMETRES_SUMMARY_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        ALLOWANCE_HEADER_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        ALLOWANCE_LABEL_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        WORK_TYPE_HEADER_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        WORK_TYPE_LABEL_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        WORK_TYPE_VALUE_CELLS.flatten().forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
+        WORK_TYPE_TOTAL_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
         for (columnIndex in 2..32) { // column 1 (A8) is the "Day of Month" label — keep it
-            clearCell(sheetData, buildCellReference(columnIndex, DAILY_ENTRIES_SEPARATOR_ROW))
+            TimesheetXmlHelper.clearCell(sheetData, buildCellReference(columnIndex, DAILY_ENTRIES_SEPARATOR_ROW))
         }
 
         clearDailyEntriesArea(sheetData, dailyEntriesRowOffset)
@@ -553,21 +448,185 @@ private object TimesheetSheetEditor {
     private fun clearTopSummaryArea(sheetData: Element) {
         for (row in TOP_SUMMARY_CLEAR_START_ROW..TOP_SUMMARY_CLEAR_END_ROW) {
             for (columnIndex in TOP_SUMMARY_CLEAR_START_COLUMN_INDEX..TOP_SUMMARY_CLEAR_END_COLUMN_INDEX) {
-                clearCell(sheetData, buildCellReference(columnIndex, row))
+                TimesheetXmlHelper.clearCell(sheetData, buildCellReference(columnIndex, row))
             }
         }
     }
 
-    private fun populateHeader(document: Document, sheetData: Element, exportData: TimesheetExportData) {
-        setStringCell(document, sheetData, "B2", exportData.name)
-        setStringCell(document, sheetData, "B3", exportData.employer)
-        setNumericCell(
+    fun dailyEntriesRowOffset(exportData: TimesheetExportData): Int {
+        val workTypeLastRow = exportData.workTypeRows.size + 1
+        return if (workTypeLastRow == DAILY_ENTRIES_START_ROW - 1) 1 else 0
+    }
+}
+
+// Freeze-pane XML editing.
+private object TimesheetFreezePaneEditor {
+    fun ensureTopRowFrozen(document: Document, sheetData: Element) {
+        // Compute freeze row dynamically: find the day-of-month row (contains days 1-31)
+        // and freeze through it, accounting for any row shifts from populate functions.
+        // Fall back to DAILY_ENTRIES_SEPARATOR_ROW if detection fails.
+        val freezeThroughRow = findDayOfMonthRow(sheetData) ?: DAILY_ENTRIES_SEPARATOR_ROW
+        val worksheet = document.documentElement ?: return
+        val sheetViews = ensureSheetViewsElement(document, worksheet)
+        val sheetView = ensureSheetViewElement(document, sheetViews)
+        // Template carries a fixed topLeftCell (A13); clear it so pane config controls opening view.
+        sheetView.removeAttribute("topLeftCell")
+
+        val frozenRows = freezeThroughRow.coerceAtLeast(1)
+        val firstScrollableRow = frozenRows + 1
+        configureFreezePane(document, sheetView, frozenRows, firstScrollableRow)
+        configureFrozenPaneSelections(document, sheetView, firstScrollableRow)
+    }
+
+    private fun ensureSheetViewsElement(document: Document, worksheet: Element): Element =
+        (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetViews").item(0) as? Element)
+            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetViews").also { created ->
+                var insertBeforeNode: Node? = null
+                var candidate = worksheet.firstChild
+                while (candidate != null) {
+                    if (candidate.nodeType == Node.ELEMENT_NODE &&
+                        candidate.localName in setOf("sheetFormatPr", "cols", "sheetData")
+                    ) {
+                        insertBeforeNode = candidate
+                        break
+                    }
+                    candidate = candidate.nextSibling
+                }
+                if (insertBeforeNode != null) worksheet.insertBefore(created, insertBeforeNode)
+                else worksheet.appendChild(created)
+            }
+
+    private fun ensureSheetViewElement(document: Document, sheetViews: Element): Element =
+        (sheetViews.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
+            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "sheetView").also { created ->
+                created.setAttribute("workbookViewId", "0")
+                sheetViews.appendChild(created)
+            }
+
+    private fun configureFreezePane(
+        document: Document,
+        sheetView: Element,
+        frozenRows: Int,
+        firstScrollableRow: Int
+    ) {
+        // Freeze top rows through the day-of-month row so headers stay visible.
+        val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
+            ?: document.createElementNS(SPREADSHEET_NAMESPACE, "pane").also { created ->
+                val firstSelection = sheetView.childElementSequence("selection").firstOrNull()
+                if (firstSelection != null) sheetView.insertBefore(created, firstSelection)
+                else sheetView.appendChild(created)
+            }
+        pane.removeAttribute("xSplit")
+        pane.setAttribute("ySplit", frozenRows.toString())
+        pane.setAttribute("topLeftCell", "A$firstScrollableRow")
+        pane.setAttribute("activePane", "bottomLeft")
+        pane.setAttribute("state", "frozen")
+    }
+
+    private fun configureFrozenPaneSelections(document: Document, sheetView: Element, firstScrollableRow: Int) {
+        val selections = sheetView.childElementSequence("selection").toList()
+        if (selections.none { it.getAttribute("pane") == "bottomLeft" }) {
+            val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
+            selection.setAttribute("pane", "bottomLeft")
+            selection.setAttribute("activeCell", "A$firstScrollableRow")
+            selection.setAttribute("sqref", "A$firstScrollableRow")
+            sheetView.appendChild(selection)
+        } else {
+            selections
+                .filter { it.getAttribute("pane") == "bottomLeft" }
+                .forEach { selection ->
+                    selection.setAttribute("activeCell", "A$firstScrollableRow")
+                    selection.setAttribute("sqref", "A$firstScrollableRow")
+                }
+        }
+    }
+
+    fun ensureFirstColumnFrozen(document: Document) {
+        val sheetView = (document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetView").item(0) as? Element)
+            ?: return
+        // Prevent inherited sheetView topLeftCell from forcing the view to start below header rows.
+        sheetView.removeAttribute("topLeftCell")
+        val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
+            ?: return
+
+        pane.setAttribute("xSplit", "2")
+        val ySplit = pane.getAttribute("ySplit").toIntOrNull() ?: 0
+        val firstScrollableRow = if (ySplit > 0) ySplit + 1 else 1
+        val topLeftCell = "C$firstScrollableRow"
+        val targetPane = if (ySplit > 0) "bottomRight" else "topRight"
+
+        pane.setAttribute("topLeftCell", topLeftCell)
+        pane.setAttribute("activePane", targetPane)
+        pane.setAttribute("state", "frozen")
+
+        val selections = sheetView.childElementSequence("selection").toList()
+        if (selections.none { it.getAttribute("pane") == targetPane }) {
+            val selection = document.createElementNS(SPREADSHEET_NAMESPACE, "selection")
+            selection.setAttribute("pane", targetPane)
+            selection.setAttribute("activeCell", topLeftCell)
+            selection.setAttribute("sqref", topLeftCell)
+            sheetView.appendChild(selection)
+        } else {
+            selections
+                .filter { it.getAttribute("pane") == targetPane }
+                .forEach { selection ->
+                    selection.setAttribute("activeCell", topLeftCell)
+                    selection.setAttribute("sqref", topLeftCell)
+                }
+        }
+    }
+
+    /**
+     * Scans sheetData to find the row containing day-of-month markers (1-31).
+     * The day-of-month row is identified by having numeric cell values 1-31.
+     * Searches all rows below row 2 (to allow for header area) since row shifts can occur.
+     */
+    fun findDayOfMonthRow(sheetData: Element): Int? {
+        val rows = sheetData.childElementSequence("row").toList()
+        var bestRow: Int? = null
+        var bestCount = 0
+
+        for (row in rows) {
+            val rowNumber = row.getAttribute("r").toIntOrNull() ?: continue
+            // Skip very early rows (header area) and rows far beyond where daily entries should start
+            if (rowNumber < 2 || rowNumber > DAILY_ENTRIES_START_ROW + 50) continue
+
+            val cells = row.childElementSequence("c").toList()
+            var dayCount = 0
+
+            // Count numeric values 1-31 in this row
+            for (cell in cells) {
+                val vElement = cell.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "v").item(0)
+                val value = vElement?.textContent?.toIntOrNull()
+                if (value != null && value in 1..31) {
+                    dayCount++
+                }
+            }
+
+            // Track the row with the most day markers (should be the day-of-month row)
+            if (dayCount > bestCount) {
+                bestCount = dayCount
+                bestRow = rowNumber
+            }
+        }
+
+        // Return the row if we found at least 15 day markers (more than half)
+        return if (bestCount >= 15) bestRow else null
+    }
+}
+
+// Sheet section population.
+private object TimesheetSectionWriter {
+    fun populateHeader(document: Document, sheetData: Element, exportData: TimesheetExportData) {
+        TimesheetXmlHelper.setStringCell(document, sheetData, "B2", exportData.name)
+        TimesheetXmlHelper.setStringCell(document, sheetData, "B3", exportData.employer)
+        TimesheetXmlHelper.setNumericCell(
             document = document,
             sheetData = sheetData,
             cellReference = "B4",
             numericValue = exportData.startDate.toExcelSerialDate().toString()
         )
-        setNumericCell(
+        TimesheetXmlHelper.setNumericCell(
             document = document,
             sheetData = sheetData,
             cellReference = "B5",
@@ -576,15 +635,84 @@ private object TimesheetSheetEditor {
         // Add Flex time total at the bottom of header.
         // B6 is stored as a plain HH:mm string so it renders correctly regardless of the
         // viewer's number-format support (and avoids the fraction>1 double-division bug).
-        setStringCell(document, sheetData, "A6", exportData.flexTimeTotalLabel, BOLD_TEXT_STYLE)
-        setStringCell(document, sheetData, "B6", exportData.totalFlexTimeTotal)
+        TimesheetXmlHelper.setStringCell(document, sheetData, "A6", exportData.flexTimeTotalLabel, BOLD_TEXT_STYLE)
+        TimesheetXmlHelper.setStringCell(document, sheetData, "B6", exportData.totalFlexTimeTotal)
     }
 
-    private fun populateProjectSummary(
+    fun populateDayOfMonthRow(document: Document, sheetData: Element) {
+        for (day in 1..31) {
+            TimesheetXmlHelper.setNumericCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = "${dayToColumn(day)}$DAILY_ENTRIES_SEPARATOR_ROW",
+                numericValue = day.toString(),
+                styleIndex = DAY_OF_MONTH_VALUE_STYLE
+            )
+        }
+    }
+
+    fun populateDailyEntryLabels(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData
+        exportData: TimesheetExportData,
+        ctx: Context
     ) {
+        val maxEntriesOnAnyDay = exportData.displayedEntriesByDay.values.maxOfOrNull { it.size } ?: 0
+        val blockCount = maxEntriesOnAnyDay.coerceAtLeast(TEMPLATE_DAILY_ENTRY_BLOCKS)
+        val dailyEntryLabels = listOf(
+            ctx.safeString(R.string.project_name, "Project name"),
+            ctx.safeString(R.string.project_time, "Project time"),
+            ctx.safeString(R.string.allowance, "Allowance"),
+            ctx.safeString(R.string.work_type, "Work type"),
+            ctx.safeString(R.string.kilometres, "Kilometres")
+        )
+
+        for (entryIndex in 0 until blockCount) {
+            val baseRow = TimesheetXmlHelper.dailyEntryBaseRow(entryIndex)
+            TimesheetXmlHelper.setStringCell(document, sheetData, "A${baseRow + 2}", dailyEntryLabels[0], BOLD_TEXT_STYLE)
+            TimesheetXmlHelper.setStringCell(document, sheetData, "A${baseRow + 3}", dailyEntryLabels[1], BOLD_TEXT_STYLE)
+            TimesheetXmlHelper.setStringCell(document, sheetData, "A${baseRow + 4}", dailyEntryLabels[2], BOLD_TEXT_STYLE)
+            TimesheetXmlHelper.setStringCell(document, sheetData, "A${baseRow + 5}", dailyEntryLabels[3], BOLD_TEXT_STYLE)
+            TimesheetXmlHelper.setStringCell(document, sheetData, "A${baseRow + 6}", dailyEntryLabels[4], BOLD_TEXT_STYLE)
+            if (entryIndex > 0) {
+                TimesheetXmlHelper.setStringCell(document, sheetData, "A${baseRow + 1}", "", BOLD_TEXT_STYLE)
+            }
+        }
+    }
+
+    fun populateDailyEntries(
+        document: Document,
+        sheetData: Element,
+        exportData: TimesheetExportData,
+        dailyEntriesRowOffset: Int
+    ) {
+        exportData.displayedEntriesByDay.forEach { (day, dayEntries) ->
+            val column = dayToColumn(day)
+            val firstEntryBaseRow = TimesheetXmlHelper.dailyEntryBaseRow(0) + dailyEntriesRowOffset
+            val dailyTotalMinutes = dayEntries.sumOf { it.projectTime.toMinutesOrNull() ?: 0L }
+            TimesheetXmlHelper.setStringCell(
+                document = document,
+                sheetData = sheetData,
+                cellReference = "$column$firstEntryBaseRow",
+                value = dailyTotalMinutes.toHourMinuteString()
+            )
+            for ((index, entry) in dayEntries.withIndex()) {
+                val baseRow = TimesheetXmlHelper.dailyEntryBaseRow(index) + dailyEntriesRowOffset
+                TimesheetXmlHelper.setStringCell(document, sheetData, "$column${baseRow + 2}", entry.projectName)
+                TimesheetXmlHelper.setStringCell(document, sheetData, "$column${baseRow + 3}", entry.projectTime)
+                TimesheetXmlHelper.setStringCell(document, sheetData, "$column${baseRow + 4}", entry.allowanceLabel)
+                TimesheetXmlHelper.setStringCell(document, sheetData, "$column${baseRow + 5}", entry.workType)
+                TimesheetXmlHelper.setNumericCell(
+                    document = document,
+                    sheetData = sheetData,
+                    cellReference = "$column${baseRow + 6}",
+                    numericValue = (entry.kilometres.toLongOrNull() ?: 0L).toString()
+                )
+            }
+        }
+    }
+
+    fun populateProjectSummary(document: Document, sheetData: Element, exportData: TimesheetExportData) {
         val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
         val context = ProjectSummarySectionContext(
             document = document,
@@ -603,7 +731,7 @@ private object TimesheetSheetEditor {
         applyProjectSummaryStyles(context)
     }
 
-    private fun populateAllowanceSummary(
+    fun populateAllowanceSummary(
         document: Document,
         sheetData: Element,
         exportData: TimesheetExportData,
@@ -624,14 +752,14 @@ private object TimesheetSheetEditor {
         writeAllowanceHeader(context, ctx)
         writeAllowanceRows(context)
 
-        applySectionHeaderStyles(
+        TimesheetXmlHelper.applySectionHeaderStyles(
             document = document,
             sheetData = sheetData,
             labelColumnIndex = context.labelColumnIndex,
             startColumnIndex = context.labelColumnIndex,
             endColumnIndex = context.totalColumnIndex
         )
-        applySectionBodyStyles(
+        TimesheetXmlHelper.applySectionBodyStyles(
             document = document,
             sheetData = sheetData,
             spec = SectionBodyStyleSpec(
@@ -643,7 +771,7 @@ private object TimesheetSheetEditor {
         )
     }
 
-    private fun populateWorkTypeSummary(
+    fun populateWorkTypeSummary(
         document: Document,
         sheetData: Element,
         exportData: TimesheetExportData,
@@ -664,14 +792,14 @@ private object TimesheetSheetEditor {
         writeWorkTypeHeader(context, ctx)
         writeWorkTypeRows(context, sheetData)
 
-        applySectionHeaderStyles(
+        TimesheetXmlHelper.applySectionHeaderStyles(
             document = document,
             sheetData = sheetData,
             labelColumnIndex = context.labelColumnIndex,
             startColumnIndex = context.labelColumnIndex,
             endColumnIndex = context.totalColumnIndex
         )
-        applySectionBodyStyles(
+        TimesheetXmlHelper.applySectionBodyStyles(
             document = document,
             sheetData = sheetData,
             spec = SectionBodyStyleSpec(
@@ -683,100 +811,38 @@ private object TimesheetSheetEditor {
         )
     }
 
-    private fun populateDayOfMonthRow(document: Document, sheetData: Element) {
-        for (day in 1..31) {
-            setNumericCell(
-                document = document,
-                sheetData = sheetData,
-                cellReference = "${dayToColumn(day)}$DAILY_ENTRIES_SEPARATOR_ROW",
-                numericValue = day.toString(),
-                styleIndex = DAY_OF_MONTH_VALUE_STYLE
-            )
-        }
-    }
-
-    private fun populateDailyEntryLabels(
-        document: Document,
-        sheetData: Element,
-        exportData: TimesheetExportData,
-        ctx: Context
-    ) {
-        val maxEntriesOnAnyDay = exportData.displayedEntriesByDay.values.maxOfOrNull { it.size } ?: 0
-        val blockCount = maxEntriesOnAnyDay.coerceAtLeast(TEMPLATE_DAILY_ENTRY_BLOCKS)
-        val dailyEntryLabels = listOf(
-            ctx.safeString(R.string.project_name, "Project name"),
-            ctx.safeString(R.string.project_time, "Project time"),
-            ctx.safeString(R.string.allowance, "Allowance"),
-            ctx.safeString(R.string.work_type, "Work type"),
-            ctx.safeString(R.string.kilometres, "Kilometres")
-        )
-
-        for (entryIndex in 0 until blockCount) {
-            val baseRow = dailyEntryBaseRow(entryIndex)
-            setStringCell(document, sheetData, "A${baseRow + 2}", dailyEntryLabels[0], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 3}", dailyEntryLabels[1], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 4}", dailyEntryLabels[2], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 5}", dailyEntryLabels[3], BOLD_TEXT_STYLE)
-            setStringCell(document, sheetData, "A${baseRow + 6}", dailyEntryLabels[4], BOLD_TEXT_STYLE)
-            if (entryIndex > 0) {
-                setStringCell(document, sheetData, "A${baseRow + 1}", "", BOLD_TEXT_STYLE)
-            }
-        }
-    }
-
-    private fun dailyEntriesRowOffset(exportData: TimesheetExportData): Int {
-        val workTypeLastRow = exportData.workTypeRows.size + 1
-        return if (workTypeLastRow == DAILY_ENTRIES_START_ROW - 1) 1 else 0
-    }
-
     private fun writeProjectSummaryLabels(context: ProjectSummarySectionContext) {
-        setStringCell(
-            context.document,
-            context.sheetData,
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData,
             buildCellReference(context.labelColumnIndex, 1),
-            context.exportData.generalLabel,
-            BOLD_TEXT_STYLE
+            context.exportData.generalLabel, BOLD_TEXT_STYLE
         )
-        setStringCell(
-            context.document,
-            context.sheetData,
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData,
             buildCellReference(context.labelColumnIndex, 2),
-            context.exportData.workTimeTotalLabel,
-            PLAIN_TEXT_STYLE
+            context.exportData.workTimeTotalLabel, PLAIN_TEXT_STYLE
         )
-        setStringCell(
-            context.document,
-            context.sheetData,
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData,
             buildCellReference(context.labelColumnIndex, 3),
-            context.exportData.kilometresLabel,
-            PLAIN_TEXT_STYLE
+            context.exportData.kilometresLabel, PLAIN_TEXT_STYLE
         )
     }
 
-    private fun writeProjectSummaryProjects(
-        context: ProjectSummarySectionContext,
-        allProjectNames: List<String>
-    ) {
+    private fun writeProjectSummaryProjects(context: ProjectSummarySectionContext, allProjectNames: List<String>) {
         allProjectNames.forEachIndexed { index, projectName ->
             val columnLetters = context.projectSummaryColumns[index]
-            setStringCell(
-                context.document,
-                context.sheetData,
-                "${columnLetters}1",
-                projectName,
-                PROJECT_SUMMARY_HEADER_STYLE
+            TimesheetXmlHelper.setStringCell(
+                context.document, context.sheetData, "${columnLetters}1",
+                projectName, PROJECT_SUMMARY_HEADER_STYLE
             )
-            setNumericCell(
-                context.document,
-                context.sheetData,
-                "${columnLetters}2",
+            TimesheetXmlHelper.setNumericCell(
+                context.document, context.sheetData, "${columnLetters}2",
                 context.exportData.summaryProjectTimes.getValue(projectName).toExcelTimeFractionNumberString(),
                 PROJECT_SUMMARY_WORK_TIME_STYLE
             )
-            setNumericCell(
-                context.document,
-                context.sheetData,
-                "${columnLetters}3",
+            TimesheetXmlHelper.setNumericCell(
+                context.document, context.sheetData, "${columnLetters}3",
                 context.exportData.summaryProjectKilometres.getValue(projectName).toString(),
                 PROJECT_SUMMARY_KILOMETRES_STYLE
             )
@@ -784,31 +850,24 @@ private object TimesheetSheetEditor {
     }
 
     private fun writeProjectSummaryTotals(context: ProjectSummarySectionContext) {
-        setStringCell(
-            context.document,
-            context.sheetData,
-            "${context.totalColumnLetters}1",
-            context.exportData.totalLabel,
-            PROJECT_SUMMARY_TOTAL_HEADER_STYLE
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData, "${context.totalColumnLetters}1",
+            context.exportData.totalLabel, PROJECT_SUMMARY_TOTAL_HEADER_STYLE
         )
-        setNumericCell(
-            context.document,
-            context.sheetData,
-            "${context.totalColumnLetters}2",
+        TimesheetXmlHelper.setNumericCell(
+            context.document, context.sheetData, "${context.totalColumnLetters}2",
             context.exportData.totalWorkTime.toExcelTimeFractionNumberString(),
             PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
         )
-        setNumericCell(
-            context.document,
-            context.sheetData,
-            "${context.totalColumnLetters}3",
+        TimesheetXmlHelper.setNumericCell(
+            context.document, context.sheetData, "${context.totalColumnLetters}3",
             context.exportData.totalKilometres.toString(),
             PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
         )
     }
 
     private fun applyProjectSummaryStyles(context: ProjectSummarySectionContext) {
-        applySectionHeaderStyles(
+        TimesheetXmlHelper.applySectionHeaderStyles(
             document = context.document,
             sheetData = context.sheetData,
             labelColumnIndex = context.labelColumnIndex,
@@ -816,83 +875,50 @@ private object TimesheetSheetEditor {
             endColumnIndex = context.endColumnIndex
         )
         for (columnIndex in context.startColumnIndex..context.endColumnIndex) {
-            setCellStyle(
-                context.document,
-                context.sheetData,
-                buildCellReference(columnIndex, 2),
-                PLAIN_TIME_STYLE
-            )
-            setCellStyle(
-                context.document,
-                context.sheetData,
-                buildCellReference(columnIndex, 3),
-                PLAIN_INTEGER_STYLE
-            )
+            TimesheetXmlHelper.setCellStyle(context.document, context.sheetData, buildCellReference(columnIndex, 2), PLAIN_TIME_STYLE)
+            TimesheetXmlHelper.setCellStyle(context.document, context.sheetData, buildCellReference(columnIndex, 3), PLAIN_INTEGER_STYLE)
         }
-        setCellStyle(
-            context.document,
-            context.sheetData,
-            buildCellReference(context.labelColumnIndex, 2),
-            PLAIN_TEXT_STYLE
-        )
-        setCellStyle(
-            context.document,
-            context.sheetData,
-            buildCellReference(context.labelColumnIndex, 3),
-            PLAIN_TEXT_STYLE
-        )
+        TimesheetXmlHelper.setCellStyle(context.document, context.sheetData, buildCellReference(context.labelColumnIndex, 2), PLAIN_TEXT_STYLE)
+        TimesheetXmlHelper.setCellStyle(context.document, context.sheetData, buildCellReference(context.labelColumnIndex, 3), PLAIN_TEXT_STYLE)
     }
 
     private fun writeAllowanceHeader(context: AllowanceSectionContext, ctx: Context) {
-        setStringCell(
-            context.document,
-            context.sheetData,
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData,
             buildCellReference(context.labelColumnIndex, 1),
-            ctx.safeString(R.string.allowance, "Allowance"),
-            BOLD_TEXT_STYLE
+            ctx.safeString(R.string.allowance, "Allowance"), BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
             val columnLetters = columnIndexToLetters(context.startColumnIndex + index)
-            setStringCell(
-                context.document,
-                context.sheetData,
-                "${columnLetters}1",
-                projectName,
-                ALLOWANCE_HEADER_STYLE
+            TimesheetXmlHelper.setStringCell(
+                context.document, context.sheetData, "${columnLetters}1",
+                projectName, ALLOWANCE_HEADER_STYLE
             )
         }
         val totalColumnLetters = columnIndexToLetters(context.totalColumnIndex)
-        setStringCell(
-            context.document,
-            context.sheetData,
-            "${totalColumnLetters}1",
-            context.exportData.totalLabel,
-            ALLOWANCE_TOTAL_HEADER_STYLE
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData, "${totalColumnLetters}1",
+            context.exportData.totalLabel, ALLOWANCE_TOTAL_HEADER_STYLE
         )
     }
 
     private fun writeAllowanceRows(context: AllowanceSectionContext) {
         context.exportData.allowanceRows.forEachIndexed { rowIndex, allowanceRow ->
-            setStringCell(
-                context.document,
-                context.sheetData,
+            TimesheetXmlHelper.setStringCell(
+                context.document, context.sheetData,
                 buildCellReference(context.labelColumnIndex, rowIndex + 2),
-                allowanceRow.label,
-                PLAIN_TEXT_STYLE
+                allowanceRow.label, PLAIN_TEXT_STYLE
             )
             context.allProjectNames.forEachIndexed { columnIndex, projectName ->
-                val cellReference = buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2)
-                setNumericCell(
-                    context.document,
-                    context.sheetData,
-                    cellReference,
+                TimesheetXmlHelper.setNumericCell(
+                    context.document, context.sheetData,
+                    buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2),
                     allowanceRow.countByProjectName.getValue(projectName).toString(),
                     ALLOWANCE_PROJECT_VALUE_STYLES[rowIndex]
                 )
             }
-            setNumericCell(
-                context.document,
-                context.sheetData,
+            TimesheetXmlHelper.setNumericCell(
+                context.document, context.sheetData,
                 buildCellReference(context.totalColumnIndex, rowIndex + 2),
                 allowanceRow.totalCount.toString(),
                 ALLOWANCE_TOTAL_VALUE_STYLES[rowIndex]
@@ -901,28 +927,22 @@ private object TimesheetSheetEditor {
     }
 
     private fun writeWorkTypeHeader(context: WorkTypeSectionContext, ctx: Context) {
-        setStringCell(
-            context.document,
-            context.sheetData,
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData,
             buildCellReference(context.labelColumnIndex, 1),
-            ctx.safeString(R.string.work_type, "Work type"),
-            BOLD_TEXT_STYLE
+            ctx.safeString(R.string.work_type, "Work type"), BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
-            setStringCell(
-                context.document,
-                context.sheetData,
+            TimesheetXmlHelper.setStringCell(
+                context.document, context.sheetData,
                 buildCellReference(context.startColumnIndex + index, 1),
-                projectName,
-                WORK_TYPE_HEADER_STYLE
+                projectName, WORK_TYPE_HEADER_STYLE
             )
         }
-        setStringCell(
-            context.document,
-            context.sheetData,
+        TimesheetXmlHelper.setStringCell(
+            context.document, context.sheetData,
             buildCellReference(context.totalColumnIndex, 1),
-            context.exportData.totalLabel,
-            WORK_TYPE_TOTAL_HEADER_STYLE
+            context.exportData.totalLabel, WORK_TYPE_TOTAL_HEADER_STYLE
         )
     }
 
@@ -933,8 +953,8 @@ private object TimesheetSheetEditor {
             } else {
                 0
             }
-        for(i in 0 until additionalRowNumber) {
-            insertBlankRowRange(
+        for (i in 0 until additionalRowNumber) {
+            TimesheetXmlHelper.insertBlankRowRange(
                 sheetData = sheetData,
                 startColumn = 1,
                 rowNumber = i + context.exportData.workTypeRows.size + 1,
@@ -942,19 +962,16 @@ private object TimesheetSheetEditor {
             )
         }
         context.exportData.workTypeRows.forEachIndexed { rowIndex, workTypeRow ->
-            setStringCell(
-                context.document,
-                context.sheetData,
+            TimesheetXmlHelper.setStringCell(
+                context.document, context.sheetData,
                 buildCellReference(context.labelColumnIndex, rowIndex + 2),
-                workTypeRow.label,
-                PLAIN_TEXT_STYLE
+                workTypeRow.label, PLAIN_TEXT_STYLE
             )
             context.allProjectNames.forEachIndexed { columnIndex, projectName ->
                 val value = workTypeRow.timeByProjectName.getValue(projectName)
                 if (value > 0L) {
-                    setNumericCell(
-                        context.document,
-                        context.sheetData,
+                    TimesheetXmlHelper.setNumericCell(
+                        context.document, context.sheetData,
                         buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2),
                         value.toExcelTimeFractionNumberString(),
                         WORK_TYPE_VALUE_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
@@ -962,9 +979,8 @@ private object TimesheetSheetEditor {
                 }
             }
             if (workTypeRow.totalTime > 0L) {
-                setNumericCell(
-                    context.document,
-                    context.sheetData,
+                TimesheetXmlHelper.setNumericCell(
+                    context.document, context.sheetData,
                     buildCellReference(context.totalColumnIndex, rowIndex + 2),
                     workTypeRow.totalTime.toExcelTimeFractionNumberString(),
                     WORK_TYPE_TOTAL_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
@@ -972,65 +988,92 @@ private object TimesheetSheetEditor {
             }
         }
     }
+}
 
-    private fun populateDailyEntries(
+// Low-level XML cell/row helpers.
+private object TimesheetXmlHelper {
+    fun dailyEntryBaseRow(entryIndex: Int): Int =
+        DAILY_ENTRIES_START_ROW + (entryIndex * DAILY_ENTRY_ROW_HEIGHT)
+
+    fun clearCell(sheetData: Element, cellReference: String) {
+        getCell(sheetData, cellReference)?.clearContents()
+    }
+
+    fun setStringCell(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData,
-        dailyEntriesRowOffset: Int
+        cellReference: String,
+        value: String,
+        styleIndex: Int? = null
     ) {
-        exportData.displayedEntriesByDay.forEach { (day, dayEntries) ->
-            val column = dayToColumn(day)
-            val firstEntryBaseRow = dailyEntryBaseRow(0) + dailyEntriesRowOffset
-            val dailyTotalMinutes = dayEntries.sumOf { it.projectTime.toMinutesOrNull() ?: 0L }
-            setStringCell(
+        val cell = getOrCreateCell(document, sheetData, cellReference, styleIndex)
+        if (value.isBlank()) {
+            cell.clearContents()
+            return
+        }
+        cell.clearContents()
+        cell.setAttribute("t", "inlineStr")
+        val isElement = document.createElementNS(SPREADSHEET_NAMESPACE, "is")
+        val textElement = document.createElementNS(SPREADSHEET_NAMESPACE, "t")
+        if (value.firstOrNull()?.isWhitespace() == true || value.lastOrNull()?.isWhitespace() == true) {
+            textElement.setAttributeNS(XML_NAMESPACE, "xml:space", "preserve")
+        }
+        textElement.textContent = value
+        isElement.appendChild(textElement)
+        cell.appendChild(isElement)
+    }
+
+    fun setNumericCell(
+        document: Document,
+        sheetData: Element,
+        cellReference: String,
+        numericValue: String,
+        styleIndex: Int? = null
+    ) {
+        val cell = getOrCreateCell(document, sheetData, cellReference, styleIndex)
+        cell.clearContents()
+        cell.removeAttribute("t")
+        val valueElement = document.createElementNS(SPREADSHEET_NAMESPACE, "v")
+        valueElement.textContent = numericValue
+        cell.appendChild(valueElement)
+    }
+
+    fun setCellStyle(document: Document, sheetData: Element, cellReference: String, styleIndex: Int) {
+        getOrCreateCell(document, sheetData, cellReference, styleIndex)
+    }
+
+    fun applySectionHeaderStyles(
+        document: Document,
+        sheetData: Element,
+        labelColumnIndex: Int,
+        startColumnIndex: Int,
+        endColumnIndex: Int
+    ) {
+        val rowCache = mutableMapOf<Int, Element>()
+        val headerRow = getOrCreateRowCached(document, sheetData, rowNumber = 1, rowCache = rowCache)
+        for (columnIndex in startColumnIndex..endColumnIndex) {
+            val firstRowStyle = if (columnIndex == labelColumnIndex) BOLD_TEXT_STYLE else PLAIN_TEXT_STYLE
+            getOrCreateCellInRow(
                 document = document,
-                sheetData = sheetData,
-                cellReference = "$column$firstEntryBaseRow",
-                value = dailyTotalMinutes.toHourMinuteString()
+                row = headerRow,
+                cellReference = buildCellReference(columnIndex, 1),
+                styleIndex = firstRowStyle
             )
-            for ((index, entry) in dayEntries.withIndex()) {
-                val baseRow = dailyEntryBaseRow(index) + dailyEntriesRowOffset
-                setStringCell(
-                    document = document,
-                    sheetData = sheetData,
-                    cellReference = "$column${baseRow + 2}",
-                    value = entry.projectName
-                )
-                setStringCell(
-                    document = document,
-                    sheetData = sheetData,
-                    cellReference = "$column${baseRow + 3}",
-                    value = entry.projectTime
-                )
-                setStringCell(
-                    document = document,
-                    sheetData = sheetData,
-                    cellReference = "$column${baseRow + 4}",
-                    value = entry.allowanceLabel
-                )
-                setStringCell(
-                    document = document,
-                    sheetData = sheetData,
-                    cellReference = "$column${baseRow + 5}",
-                    value = entry.workType
-                )
-                setNumericCell(
-                    document = document,
-                    sheetData = sheetData,
-                    cellReference = "$column${baseRow + 6}",
-                    numericValue = (entry.kilometres.toLongOrNull() ?: 0L).toString()
-                )
+        }
+    }
+
+    fun applySectionBodyStyles(document: Document, sheetData: Element, spec: SectionBodyStyleSpec) {
+        val rowCache = mutableMapOf<Int, Element>()
+        for (rowNumber in spec.rowRange) {
+            val row = getOrCreateRowCached(document, sheetData, rowNumber, rowCache)
+            getOrCreateCellInRow(document, row, buildCellReference(spec.labelColumnIndex, rowNumber), PLAIN_TEXT_STYLE)
+            for (columnIndex in spec.valueColumnRange) {
+                getOrCreateCellInRow(document, row, buildCellReference(columnIndex, rowNumber), spec.valueStyle)
             }
         }
     }
 
-    private fun insertBlankRowRange(
-        sheetData: Element,
-        rowNumber: Int,
-        startColumn: Int,
-        endColumn: Int
-    ) {
+    fun insertBlankRowRange(sheetData: Element, rowNumber: Int, startColumn: Int, endColumn: Int) {
         val document = sheetData.ownerDocument
         val lastDefinedRow = sheetData.childElementSequence("row")
             .mapNotNull { row -> row.getAttribute("r").toIntOrNull() }
@@ -1066,134 +1109,18 @@ private object TimesheetSheetEditor {
         val newColumnIndex = extractColumnIndex(cell.getAttribute("r"))
         val nextCell = row.childElementSequence("c")
             .firstOrNull { extractColumnIndex(it.getAttribute("r")) > newColumnIndex }
-        if (nextCell != null) {
-            row.insertBefore(cell, nextCell)
-        } else {
-            row.appendChild(cell)
-        }
+        if (nextCell != null) row.insertBefore(cell, nextCell) else row.appendChild(cell)
     }
 
-    private fun dailyEntryBaseRow(entryIndex: Int): Int {
-        return DAILY_ENTRIES_START_ROW + (entryIndex * DAILY_ENTRY_ROW_HEIGHT)
-    }
-
-    private fun clearCell(sheetData: Element, cellReference: String) {
-        getCell(sheetData, cellReference)?.clearContents()
-    }
-
-    private fun setStringCell(
-        document: Document,
-        sheetData: Element,
-        cellReference: String,
-        value: String,
-        styleIndex: Int? = null
-    ) {
-        val cell = getOrCreateCell(document, sheetData, cellReference, styleIndex)
-        if (value.isBlank()) {
-            cell.clearContents()
-            return
-        }
-        cell.clearContents()
-        cell.setAttribute("t", "inlineStr")
-        val isElement = document.createElementNS(SPREADSHEET_NAMESPACE, "is")
-        val textElement = document.createElementNS(SPREADSHEET_NAMESPACE, "t")
-        if (value.firstOrNull()?.isWhitespace() == true || value.lastOrNull()?.isWhitespace() == true) {
-            textElement.setAttributeNS(XML_NAMESPACE, "xml:space", "preserve")
-        }
-        textElement.textContent = value
-        isElement.appendChild(textElement)
-        cell.appendChild(isElement)
-    }
-
-    private fun setNumericCell(
-        document: Document,
-        sheetData: Element,
-        cellReference: String,
-        numericValue: String,
-        styleIndex: Int? = null
-    ) {
-        val cell = getOrCreateCell(document, sheetData, cellReference, styleIndex)
-        cell.clearContents()
-        cell.removeAttribute("t")
-        val valueElement = document.createElementNS(SPREADSHEET_NAMESPACE, "v")
-        valueElement.textContent = numericValue
-        cell.appendChild(valueElement)
-    }
-
-    private fun setCellStyle(
-        document: Document,
-        sheetData: Element,
-        cellReference: String,
-        styleIndex: Int
-    ) {
-        getOrCreateCell(document, sheetData, cellReference, styleIndex)
-    }
-
-    private fun applySectionHeaderStyles(
-        document: Document,
-        sheetData: Element,
-        labelColumnIndex: Int,
-        startColumnIndex: Int,
-        endColumnIndex: Int
-    ) {
-        val rowCache = mutableMapOf<Int, Element>()
-        val headerRow = getOrCreateRowCached(document, sheetData, rowNumber = 1, rowCache = rowCache)
-        for (columnIndex in startColumnIndex..endColumnIndex) {
-            val firstRowStyle = if (columnIndex == labelColumnIndex) {
-                BOLD_TEXT_STYLE
-            } else {
-                PLAIN_TEXT_STYLE
-            }
-            getOrCreateCellInRow(
-                document = document,
-                row = headerRow,
-                cellReference = buildCellReference(columnIndex, 1),
-                styleIndex = firstRowStyle
-            )
-        }
-    }
-
-    private fun applySectionBodyStyles(
-        document: Document,
-        sheetData: Element,
-        spec: SectionBodyStyleSpec
-    ) {
-        val rowCache = mutableMapOf<Int, Element>()
-        for (rowNumber in spec.rowRange) {
-            val row = getOrCreateRowCached(
-                document = document,
-                sheetData = sheetData,
-                rowNumber = rowNumber,
-                rowCache = rowCache
-            )
-            getOrCreateCellInRow(
-                document = document,
-                row = row,
-                cellReference = buildCellReference(spec.labelColumnIndex, rowNumber),
-                styleIndex = PLAIN_TEXT_STYLE
-            )
-            for (columnIndex in spec.valueColumnRange) {
-                getOrCreateCellInRow(
-                    document = document,
-                    row = row,
-                    cellReference = buildCellReference(columnIndex, rowNumber),
-                    styleIndex = spec.valueStyle
-                )
-            }
-        }
-    }
-
-    private fun getCell(sheetData: Element, cellReference: String): Element? {
+    fun getCell(sheetData: Element, cellReference: String): Element? {
         val row = getRow(sheetData, extractRowNumber(cellReference)) ?: return null
         return row.childElementSequence("c").firstOrNull { it.getAttribute("r") == cellReference }
     }
 
-    private fun getRow(sheetData: Element, rowNumber: Int): Element? {
-        return sheetData.childElementSequence("row")
-            .firstOrNull { it.getAttribute("r") == rowNumber.toString() }
-    }
+    fun getRow(sheetData: Element, rowNumber: Int): Element? =
+        sheetData.childElementSequence("row").firstOrNull { it.getAttribute("r") == rowNumber.toString() }
 
-    private fun getOrCreateCell(
+    fun getOrCreateCell(
         document: Document,
         sheetData: Element,
         cellReference: String,
@@ -1204,51 +1131,39 @@ private object TimesheetSheetEditor {
         return getOrCreateCellInRow(document, row, cellReference, styleIndex)
     }
 
-    private fun getOrCreateCellInRow(
+    fun getOrCreateCellInRow(
         document: Document,
         row: Element,
         cellReference: String,
         styleIndex: Int?
     ): Element {
-        val existingCell = row.childElementSequence("c")
-            .firstOrNull { it.getAttribute("r") == cellReference }
+        val existingCell = row.childElementSequence("c").firstOrNull { it.getAttribute("r") == cellReference }
         if (existingCell != null) {
-            if (styleIndex != null) {
-                existingCell.setAttribute("s", styleIndex.toString())
-            }
+            if (styleIndex != null) existingCell.setAttribute("s", styleIndex.toString())
             return existingCell
         }
-
         val newCell = document.createElementNS(SPREADSHEET_NAMESPACE, "c")
         newCell.setAttribute("r", cellReference)
         styleIndex?.let { newCell.setAttribute("s", it.toString()) }
         val newColumnIndex = extractColumnIndex(cellReference)
         val nextCell = row.childElementSequence("c")
             .firstOrNull { extractColumnIndex(it.getAttribute("r")) > newColumnIndex }
-        if (nextCell != null) {
-            row.insertBefore(newCell, nextCell)
-        } else {
-            row.appendChild(newCell)
-        }
+        if (nextCell != null) row.insertBefore(newCell, nextCell) else row.appendChild(newCell)
         return newCell
     }
 
-    private fun getOrCreateRow(document: Document, sheetData: Element, rowNumber: Int): Element {
+    fun getOrCreateRow(document: Document, sheetData: Element, rowNumber: Int): Element {
         getRow(sheetData, rowNumber)?.let { return it }
         val newRow = document.createElementNS(SPREADSHEET_NAMESPACE, "row")
         newRow.setAttribute("r", rowNumber.toString())
         newRow.setAttribute("spans", "1:32")
         val nextRow = sheetData.childElementSequence("row")
             .firstOrNull { it.getAttribute("r").toInt() > rowNumber }
-        if (nextRow != null) {
-            sheetData.insertBefore(newRow, nextRow)
-        } else {
-            sheetData.appendChild(newRow)
-        }
+        if (nextRow != null) sheetData.insertBefore(newRow, nextRow) else sheetData.appendChild(newRow)
         return newRow
     }
 
-    private fun getOrCreateRowCached(
+    fun getOrCreateRowCached(
         document: Document,
         sheetData: Element,
         rowNumber: Int,
@@ -1256,44 +1171,6 @@ private object TimesheetSheetEditor {
     ): Element {
         rowCache[rowNumber]?.let { return it }
         return getOrCreateRow(document, sheetData, rowNumber).also { rowCache[rowNumber] = it }
-    }
-
-    /**
-     * Scans sheetData to find the row containing day-of-month markers (1-31).
-     * The day-of-month row is identified by having numeric cell values 1-31.
-     * Searches all rows below row 2 (to allow for header area) since row shifts can occur.
-     */
-    private fun findDayOfMonthRow(sheetData: Element): Int? {
-        val rows = sheetData.childElementSequence("row").toList()
-        var bestRow: Int? = null
-        var bestCount = 0
-
-        for (row in rows) {
-            val rowNumber = row.getAttribute("r").toIntOrNull() ?: continue
-            // Skip very early rows (header area) and rows far beyond where daily entries should start
-            if (rowNumber < 2 || rowNumber > DAILY_ENTRIES_START_ROW + 50) continue
-
-            val cells = row.childElementSequence("c").toList()
-            var dayCount = 0
-
-            // Count numeric values 1-31 in this row
-            for (cell in cells) {
-                val vElement = cell.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "v").item(0)
-                val value = vElement?.textContent?.toIntOrNull()
-                if (value != null && value in 1..31) {
-                    dayCount++
-                }
-            }
-
-            // Track the row with the most day markers (should be the day-of-month row)
-            if (dayCount > bestCount) {
-                bestCount = dayCount
-                bestRow = rowNumber
-            }
-        }
-
-        // Return the row if we found at least 15 day markers (more than half)
-        return if (bestCount >= 15) bestRow else null
     }
 }
 
@@ -1328,12 +1205,12 @@ internal object TimesheetWorkbookEditor {
 
     private fun localizeSharedStrings(sharedStringsXml: ByteArray, ctx: Context): ByteArray {
         val labelMappings = mapOf(
-             0 to ctx.safeString(R.string.timesheet_day_of_month, "Day of Month"),
-             1 to ctx.safeString(R.string.project_name, "Project name"),
-             2 to ctx.safeString(R.string.work_time_by_date, "Work time by date"),
-             3 to ctx.safeString(R.string.allowance, "Allowance"),
-             4 to ctx.safeString(R.string.work_type, "Work type"),
-             5 to ctx.safeString(R.string.kilometres, "Kilometres"),
+            0 to ctx.safeString(R.string.timesheet_day_of_month, "Day of Month"),
+            1 to ctx.safeString(R.string.project_name, "Project name"),
+            2 to ctx.safeString(R.string.work_time_by_date, "Work time by date"),
+            3 to ctx.safeString(R.string.allowance, "Allowance"),
+            4 to ctx.safeString(R.string.work_type, "Work type"),
+            5 to ctx.safeString(R.string.kilometres, "Kilometres"),
             6 to ctx.safeString(R.string.employer, "Employer"),
             7 to ctx.safeString(R.string.name, "Name"),
             14 to ctx.safeString(R.string.timesheet_work_time_total, "Work time total"),
@@ -1354,10 +1231,11 @@ internal object TimesheetWorkbookEditor {
     private fun normalizeStyleReferences(sheetXml: ByteArray, stylesXml: ByteArray): ByteArray {
         val stylesDocument = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(stylesXml))
-        val xfCount = (stylesDocument.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "cellXfs")
-            .item(0) as? Element)
-            ?.childElementSequence("xf")
-            ?.count()
+        val xfCount = (
+                stylesDocument.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "cellXfs")
+                    .item(0) as? Element)
+                    ?.childElementSequence("xf")
+                    ?.count()
         if (xfCount == null || xfCount <= 0) {
             return sheetXml
         }

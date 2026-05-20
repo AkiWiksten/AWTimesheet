@@ -214,7 +214,6 @@ internal fun UnsavedChangesDialog(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {

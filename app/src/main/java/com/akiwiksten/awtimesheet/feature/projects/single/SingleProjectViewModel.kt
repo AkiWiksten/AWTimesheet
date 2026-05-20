@@ -133,4 +133,3 @@ private fun calculateWorkTimeByDateChange(previousProjectTime: String, newProjec
         addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$previousProjectTime")
     )
 }
-

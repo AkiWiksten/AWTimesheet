@@ -388,7 +388,7 @@ private object TimesheetSheetEditor {
         populateHeader(document, sheetData, exportData)
         populateDayOfMonthRow(document, sheetData)
         populateDailyEntryLabels(document, sheetData, exportData, ctx)
-        populateDailyEntries(document, sheetData, exportData, 0)
+        populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
         populateProjectSummary(document, sheetData, exportData)
         populateAllowanceSummary(document, sheetData, exportData, ctx)
         populateWorkTypeSummary(document, sheetData, exportData, ctx)
@@ -476,10 +476,10 @@ private object TimesheetSheetEditor {
         val pane = (sheetView.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "pane").item(0) as? Element)
             ?: return
 
-        pane.setAttribute("xSplit", "1")
+        pane.setAttribute("xSplit", "2")
         val ySplit = pane.getAttribute("ySplit").toIntOrNull() ?: 0
         val firstScrollableRow = if (ySplit > 0) ySplit + 1 else 1
-        val topLeftCell = "B$firstScrollableRow"
+        val topLeftCell = "C$firstScrollableRow"
         val targetPane = if (ySplit > 0) "bottomRight" else "topRight"
 
         pane.setAttribute("topLeftCell", topLeftCell)
@@ -533,10 +533,19 @@ private object TimesheetSheetEditor {
             return
         }
 
-        for (day in 1..31) {
-            val column = dayToColumn(day)
-            for (rowNumber in DAILY_ENTRIES_START_ROW..clearEndRow) {
-                clearCell(sheetData, "$column$rowNumber")
+        // Clear only existing B..AF daily-entry cells to avoid repeated lookup work.
+        val startColumnIndex = 2
+        val endColumnIndex = 32
+        sheetData.childElementSequence("row").forEach { row ->
+            val rowNumber = row.getAttribute("r").toIntOrNull() ?: return@forEach
+            if (rowNumber !in DAILY_ENTRIES_START_ROW..clearEndRow) {
+                return@forEach
+            }
+            row.childElementSequence("c").forEach { cell ->
+                val columnIndex = extractColumnIndex(cell.getAttribute("r"))
+                if (columnIndex in startColumnIndex..endColumnIndex) {
+                    cell.clearContents()
+                }
             }
         }
     }
@@ -697,6 +706,8 @@ private object TimesheetSheetEditor {
         val dailyEntryLabels = listOf(
             ctx.safeString(R.string.project_name, "Project name"),
             ctx.safeString(R.string.project_time, "Project time"),
+            ctx.safeString(R.string.allowance, "Allowance"),
+            ctx.safeString(R.string.work_type, "Work type"),
             ctx.safeString(R.string.kilometres, "Kilometres")
         )
 
@@ -970,9 +981,7 @@ private object TimesheetSheetEditor {
     ) {
         exportData.displayedEntriesByDay.forEach { (day, dayEntries) ->
             val column = dayToColumn(day)
-            // Insert blank row once per day at first entry position
             val firstEntryBaseRow = dailyEntryBaseRow(0) + dailyEntriesRowOffset
-            //insertBlankRowRange(sheetData, firstEntryBaseRow, 2, 32) // columns B:AF
             val dailyTotalMinutes = dayEntries.sumOf { it.projectTime.toMinutesOrNull() ?: 0L }
             setStringCell(
                 document = document,
@@ -1127,13 +1136,20 @@ private object TimesheetSheetEditor {
         startColumnIndex: Int,
         endColumnIndex: Int
     ) {
+        val rowCache = mutableMapOf<Int, Element>()
+        val headerRow = getOrCreateRowCached(document, sheetData, rowNumber = 1, rowCache = rowCache)
         for (columnIndex in startColumnIndex..endColumnIndex) {
             val firstRowStyle = if (columnIndex == labelColumnIndex) {
                 BOLD_TEXT_STYLE
             } else {
                 PLAIN_TEXT_STYLE
             }
-            setCellStyle(document, sheetData, buildCellReference(columnIndex, 1), firstRowStyle)
+            getOrCreateCellInRow(
+                document = document,
+                row = headerRow,
+                cellReference = buildCellReference(columnIndex, 1),
+                styleIndex = firstRowStyle
+            )
         }
     }
 
@@ -1142,19 +1158,26 @@ private object TimesheetSheetEditor {
         sheetData: Element,
         spec: SectionBodyStyleSpec
     ) {
+        val rowCache = mutableMapOf<Int, Element>()
         for (rowNumber in spec.rowRange) {
-            setCellStyle(
-                document,
-                sheetData,
-                buildCellReference(spec.labelColumnIndex, rowNumber),
-                PLAIN_TEXT_STYLE
+            val row = getOrCreateRowCached(
+                document = document,
+                sheetData = sheetData,
+                rowNumber = rowNumber,
+                rowCache = rowCache
+            )
+            getOrCreateCellInRow(
+                document = document,
+                row = row,
+                cellReference = buildCellReference(spec.labelColumnIndex, rowNumber),
+                styleIndex = PLAIN_TEXT_STYLE
             )
             for (columnIndex in spec.valueColumnRange) {
-                setCellStyle(
-                    document,
-                    sheetData,
-                    buildCellReference(columnIndex, rowNumber),
-                    spec.valueStyle
+                getOrCreateCellInRow(
+                    document = document,
+                    row = row,
+                    cellReference = buildCellReference(columnIndex, rowNumber),
+                    styleIndex = spec.valueStyle
                 )
             }
         }
@@ -1178,6 +1201,15 @@ private object TimesheetSheetEditor {
     ): Element {
         val rowNumber = extractRowNumber(cellReference)
         val row = getOrCreateRow(document, sheetData, rowNumber)
+        return getOrCreateCellInRow(document, row, cellReference, styleIndex)
+    }
+
+    private fun getOrCreateCellInRow(
+        document: Document,
+        row: Element,
+        cellReference: String,
+        styleIndex: Int?
+    ): Element {
         val existingCell = row.childElementSequence("c")
             .firstOrNull { it.getAttribute("r") == cellReference }
         if (existingCell != null) {
@@ -1214,6 +1246,16 @@ private object TimesheetSheetEditor {
             sheetData.appendChild(newRow)
         }
         return newRow
+    }
+
+    private fun getOrCreateRowCached(
+        document: Document,
+        sheetData: Element,
+        rowNumber: Int,
+        rowCache: MutableMap<Int, Element>
+    ): Element {
+        rowCache[rowNumber]?.let { return it }
+        return getOrCreateRow(document, sheetData, rowNumber).also { rowCache[rowNumber] = it }
     }
 
     /**
@@ -1339,42 +1381,6 @@ internal object TimesheetWorkbookEditor {
         return sheetDocument.toByteArray()
     }
 
-    private fun ensureTimeFormatInStyles(stylesXml: ByteArray): ByteArray {
-        val stylesDocument = createDocumentBuilderFactory().newDocumentBuilder()
-            .parse(ByteArrayInputStream(stylesXml))
-
-        val styleSheet = stylesDocument.documentElement
-
-        // Find existing time format in numFmts (typically ID 14 or similar in Excel templates)
-        val numFmts = (styleSheet.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "numFmts").item(0) as? Element)
-        var timeFormatId = 14 // Default Excel time format ID (h:mm)
-
-        if (numFmts != null) {
-            // Look for an existing time format
-            val existingTimeFormat = numFmts.childElementSequence("numFmt")
-                .firstOrNull {
-                    val formatCode = it.getAttribute("formatCode")
-                    formatCode.contains("hh:mm") || formatCode.contains("h:mm")
-                }
-            if (existingTimeFormat != null) {
-                timeFormatId = existingTimeFormat.getAttribute("numFmtId").toIntOrNull() ?: 14
-            }
-        }
-
-        // Update cellXfs to apply time format to style index 18 (PLAIN_TIME_STYLE)
-        val cellXfs = (styleSheet.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "cellXfs").item(0) as? Element)
-        if (cellXfs != null) {
-            val xfElements = cellXfs.childElementSequence("xf").toList()
-            // Only update style 18 if it exists
-            val xfElement = xfElements.getOrNull(18)
-            if (xfElement != null) {
-                xfElement.setAttribute("numFmtId", timeFormatId.toString())
-                xfElement.setAttribute("applyNumberFormat", "1")
-            }
-        }
-
-        return stylesDocument.toByteArray()
-    }
 
     private fun ensureLeftAlignmentInStyles(stylesXml: ByteArray): ByteArray {
         val stylesDocument = createDocumentBuilderFactory().newDocumentBuilder()

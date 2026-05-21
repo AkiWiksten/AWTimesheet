@@ -57,6 +57,7 @@ class WorkdayViewModelTest {
         )
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office")
+            calculatedFlexTimeTotal = "-05:00"
         }
         val dateRepository = DateRepository()
         dateRepository.updateDate("2026-04-10")
@@ -77,7 +78,7 @@ class WorkdayViewModelTest {
         Assert.assertEquals("07:30", state.workTimeByDateEstimate)
         Assert.assertEquals("-05:00", state.flexTimeByDate)
         Assert.assertEquals("+01:45", state.initialFlexTimeTotal)
-        Assert.assertEquals("-03:15", state.calculatedFlexTimeTotal)
+        Assert.assertEquals("-03:15", state.flexTimeTotal)
         Assert.assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
         Assert.assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
     }
@@ -235,7 +236,9 @@ class WorkdayViewModelTest {
                 )
             )
         }
-        val settingsRepository = FakeSettingsRepository()
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = "01:00"
+        }
         val dateRepository = DateRepository().apply {
             updateDate("2026-04-10")
             updateWorkTimeByDateChange("01:00")
@@ -259,6 +262,57 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         Assert.assertEquals("-01:30", dateRepository.workTimeByDateChange.value)
+        Assert.assertEquals("-01:30", settingsRepository.calculatedFlexTimeTotal)
+    }
+
+    @Test
+    fun reconcileFlexTimeTotalAfterProjectEditorReturn_addsFlexDeltaToPersistedCalculatedTotal() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                SingleProjectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:30"
+                )
+            )
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = SettingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = "01:00"
+        }
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        projectRepository.projectsByDateRange = listOf(
+            SingleProjectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "04:30"
+            )
+        )
+
+        viewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(oldFlexTimeByDate = "-05:00")
+        advanceUntilIdle()
+
+        Assert.assertEquals("03:00", settingsRepository.calculatedFlexTimeTotal)
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("03:00", state.flexTimeTotal)
     }
 
     @Test
@@ -514,6 +568,7 @@ class WorkdayViewModelTest {
         var workTypes: List<String> = emptyList()
         var settings: SettingsState? = null
         var effectiveSettings: SettingsState? = null
+        var calculatedFlexTimeTotal: String = ZERO_TIME
 
         override suspend fun getSettings(): SettingsState? = settings
 
@@ -530,5 +585,11 @@ class WorkdayViewModelTest {
         override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun deleteAllWorkTypes() = Unit
+
+        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
+            calculatedFlexTimeTotal = flexTime
+        }
     }
 }

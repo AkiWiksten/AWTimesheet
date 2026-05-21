@@ -3,7 +3,6 @@ package com.akiwiksten.awtimesheet.data.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.akiwiksten.awtimesheet.core.CALCULATED_FLEX_TIME_TOTAL
 import com.akiwiksten.awtimesheet.core.DAILY_LUNCH_TIME_ESTIMATE
 import com.akiwiksten.awtimesheet.core.DAILY_WORK_TIME_ESTIMATE
 import com.akiwiksten.awtimesheet.core.EMPLOYER

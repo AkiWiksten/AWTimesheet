@@ -107,6 +107,7 @@ class UpdateSettingsUseCaseTest {
     private class FakeSettingsRepository : SettingsRepository {
         var settings: SettingsState? = null
         var insertCalls: Int = 0
+        var calculatedFlexTimeTotal: String = ZERO_TIME
 
         override suspend fun getSettings(): SettingsState? = settings
 
@@ -124,6 +125,12 @@ class UpdateSettingsUseCaseTest {
         override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun deleteAllWorkTypes() = Unit
+
+        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
+            calculatedFlexTimeTotal = flexTime
+        }
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {

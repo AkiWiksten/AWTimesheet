@@ -6,9 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.akiwiksten.awtimesheet.core.CALCULATED_FLEXTIME_TOTAL_TABLE
 import com.akiwiksten.awtimesheet.core.ID
-import com.akiwiksten.awtimesheet.core.SETTINGS_TABLE
 import com.akiwiksten.awtimesheet.data.database.entity.CalculatedFlextimeTotalEntity
-import com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity
 
 @Dao
 interface CalculatedFlexTimeTotalDao {
@@ -17,5 +15,5 @@ interface CalculatedFlexTimeTotalDao {
     suspend fun insertCalculatedFlextimeTotal(flexTime: CalculatedFlextimeTotalEntity)
 
     @Query("SELECT * FROM $CALCULATED_FLEXTIME_TOTAL_TABLE WHERE $ID = 1")
-    suspend fun loadCalculatedFlextimeTotal(): CalculatedFlextimeTotalEntity
+    suspend fun loadCalculatedFlextimeTotal(): CalculatedFlextimeTotalEntity?
 }

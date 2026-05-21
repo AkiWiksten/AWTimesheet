@@ -180,6 +180,7 @@ class SettingsViewModelTest {
         var workTypes: MutableList<String> = mutableListOf()
         val insertedWorkTypes = mutableListOf<String>()
         var insertedSettings: SettingsState? = null
+        var calculatedFlexTimeTotal: String = ZERO_TIME
 
         override suspend fun getSettings(): SettingsState? = settings
 
@@ -202,6 +203,12 @@ class SettingsViewModelTest {
 
         override suspend fun deleteAllWorkTypes() {
             workTypes.clear()
+        }
+
+        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
+            calculatedFlexTimeTotal = flexTime
         }
     }
 

@@ -19,7 +19,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
     workTimeByDateEstimate = "07:30",
     flexTimeByDate = "+01:45",
     initialFlexTimeTotal = "+08:00",
-    calculatedFlexTimeTotal = "+09:45",
+    flexTimeTotal = "+09:45",
     projects = listOf(
         SingleProjectState(
             index = 0,
@@ -50,6 +50,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
 
 private val PreviewActions = WorkdayActions(
     onSelectedItemIndexChange = {},
+    onTrackProjectEditorLaunch = { _, _ -> },
     onNavigateToSingleProject = {},
     onRetry = {},
     onSaveSettings = { _, _ -> },

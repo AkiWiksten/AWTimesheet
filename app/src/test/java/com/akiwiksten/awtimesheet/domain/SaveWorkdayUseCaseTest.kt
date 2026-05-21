@@ -146,6 +146,10 @@ class SaveWorkdayUseCaseTest {
         override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun deleteAllWorkTypes() = Unit
+
+        override suspend fun getCalculatedFlextimeTotal(): String = ZERO_TIME
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) = Unit
     }
 
     private class FakeWorkdayRepository : WorkdayRepository {

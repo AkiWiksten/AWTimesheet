@@ -9,7 +9,7 @@ class WorkdayStateSectionsTest {
     fun calculateDisplayedCalculatedFlexTimeTotal_usesPersistedInitialFlexTimeTotal() {
         val result = calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",
-            persistedCalculatedFlexTimeTotal = "+03:30",
+            persistedDisplayedFlexTimeTotal = "+03:30",
             persistedFlexTimeByDate = "+00:30",
             editedFlexTimeByDate = "+00:30"
         )
@@ -21,7 +21,7 @@ class WorkdayStateSectionsTest {
     fun calculateDisplayedCalculatedFlexTimeTotal_keepsZeroTimeOnCleanStart() {
         val result = calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "00:00",
-            persistedCalculatedFlexTimeTotal = "00:00",
+            persistedDisplayedFlexTimeTotal = "00:00",
             persistedFlexTimeByDate = "00:00",
             editedFlexTimeByDate = "00:00"
         )
@@ -33,7 +33,7 @@ class WorkdayStateSectionsTest {
     fun calculateDisplayedCalculatedFlexTimeTotal_updatesWhenEstimateChangesflexTimeByDate() {
         val result = calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",
-            persistedCalculatedFlexTimeTotal = "+03:30",
+            persistedDisplayedFlexTimeTotal = "+03:30",
             persistedFlexTimeByDate = "+00:30",
             editedFlexTimeByDate = "-00:30"
         )

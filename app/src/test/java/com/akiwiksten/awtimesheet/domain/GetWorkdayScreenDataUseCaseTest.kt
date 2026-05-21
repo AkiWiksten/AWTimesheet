@@ -29,6 +29,7 @@ class GetWorkdayScreenDataUseCaseTest {
             workTypes = listOf("Office", "Remote")
             globalSettings = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = "+04:15")
             effectiveSettings = globalSettings
+            calculatedFlexTimeTotal = "-00:30"
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -47,7 +48,7 @@ class GetWorkdayScreenDataUseCaseTest {
         assertEquals("07:30", result.workTimeByDate)
         assertEquals("07:30", result.workTimeByDateEstimate)
         assertEquals("+04:15", result.initialFlexTimeTotal)
-        assertEquals("03:45", result.calculatedFlexTimeTotal)
+        assertEquals("03:45", result.flexTimeTotal)
         assertEquals(2, result.projects.size)
         assertEquals(3, result.projectNames.size)
     }
@@ -62,6 +63,7 @@ class GetWorkdayScreenDataUseCaseTest {
         val settingsRepository = FakeSettingsRepository().apply {
             globalSettings = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
             effectiveSettings = globalSettings
+            calculatedFlexTimeTotal = "00:30"
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -76,7 +78,7 @@ class GetWorkdayScreenDataUseCaseTest {
 
         val result = useCase("2026-04-10")
 
-        assertEquals("00:30", result.calculatedFlexTimeTotal)
+        assertEquals("00:30", result.flexTimeTotal)
     }
 
     @Test
@@ -90,6 +92,7 @@ class GetWorkdayScreenDataUseCaseTest {
         val settingsRepository = FakeSettingsRepository().apply {
             globalSettings = SettingsState(dailyWorkTimeEstimate = "07:30", initialFlexTimeTotal = ZERO_TIME)
             effectiveSettings = globalSettings
+            calculatedFlexTimeTotal = "00:30"
         }
         val workdayRepository = FakeWorkdayRepository().apply {
             workdayStatsRows = listOf(
@@ -105,7 +108,7 @@ class GetWorkdayScreenDataUseCaseTest {
         val result = useCase("2026-04-10")
 
         assertEquals("08:00", result.workTimeByDate)
-        assertEquals("00:30", result.calculatedFlexTimeTotal)
+        assertEquals("00:30", result.flexTimeTotal)
     }
 
     @Test
@@ -121,7 +124,7 @@ class GetWorkdayScreenDataUseCaseTest {
         assertEquals(ZERO_TIME, result.workTimeByDate)
         assertEquals("07:30", result.workTimeByDateEstimate)
         assertEquals(ZERO_TIME, result.initialFlexTimeTotal)
-        assertEquals(ZERO_TIME, result.calculatedFlexTimeTotal)
+        assertEquals(ZERO_TIME, result.flexTimeTotal)
     }
 
     @Test
@@ -185,6 +188,7 @@ class GetWorkdayScreenDataUseCaseTest {
                 initialFlexTimeTotal = ZERO_TIME
             )
         var effectiveSettings: SettingsState? = globalSettings
+        var calculatedFlexTimeTotal: String = ZERO_TIME
 
         override suspend fun getSettings(): SettingsState? = globalSettings
 
@@ -199,6 +203,12 @@ class GetWorkdayScreenDataUseCaseTest {
         override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun deleteAllWorkTypes() = Unit
+
+        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
+            calculatedFlexTimeTotal = flexTime
+        }
     }
     private class FakeWorkdayRepository : WorkdayRepository {
         var workdayStatsRows: List<WorkdayStatsRow> = emptyList()

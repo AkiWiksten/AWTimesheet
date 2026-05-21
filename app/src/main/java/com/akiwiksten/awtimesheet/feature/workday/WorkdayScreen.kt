@@ -32,8 +32,23 @@ fun WorkdayScreen(
     onNavigateToSingleProject: (SingleProjectState) -> Unit,
     workdayViewModel: WorkdayViewModel = hiltViewModel(),
 ) {
+    val pendingOldFlexTimeByDateState = rememberSaveable { mutableStateOf<String?>(value = null) }
+    val pendingOldDisplayedFlexTimeTotalState = rememberSaveable { mutableStateOf<String?>(value = null) }
+
     LifecycleResumeEffect(Unit) {
-        workdayViewModel.retryLoad()
+        val oldFlexTimeByDate = pendingOldFlexTimeByDateState.value
+        val oldDisplayedFlexTimeTotal = pendingOldDisplayedFlexTimeTotalState.value
+
+        if (oldFlexTimeByDate != null && oldDisplayedFlexTimeTotal != null) {
+            workdayViewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(
+                oldFlexTimeByDate = oldFlexTimeByDate
+            )
+            pendingOldFlexTimeByDateState.value = null
+            pendingOldDisplayedFlexTimeTotalState.value = null
+        } else {
+            workdayViewModel.retryLoad()
+        }
+
         onPauseOrDispose { }
     }
 
@@ -51,6 +66,10 @@ fun WorkdayScreen(
         scrollState = scrollState,
         actions = WorkdayActions(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
+            onTrackProjectEditorLaunch = { oldFlexTimeByDate, oldDisplayedFlexTimeTotal ->
+                pendingOldFlexTimeByDateState.value = oldFlexTimeByDate
+                pendingOldDisplayedFlexTimeTotalState.value = oldDisplayedFlexTimeTotal
+            },
             onNavigateToSingleProject = onNavigateToSingleProject,
             onRetry = workdayViewModel::retryLoad,
             onSaveSettings = workdayViewModel::updateSettings,

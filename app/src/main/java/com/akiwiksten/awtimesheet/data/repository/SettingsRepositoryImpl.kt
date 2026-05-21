@@ -54,10 +54,10 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCalculatedFlextimeTotal(): String =
-        calculatedFlextimeTotalDao.loadCalculatedFlextimeTotal().toCalculatedFlextimeTotal()
+        calculatedFlextimeTotalDao.loadCalculatedFlextimeTotal()?.toCalculatedFlextimeTotal() ?: ZERO_TIME
 
     override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
-        flexTime.toCalculatedFlextimeTotalEntity()
+        calculatedFlextimeTotalDao.insertCalculatedFlextimeTotal(flexTime.toCalculatedFlextimeTotalEntity())
     }
 
     override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? {

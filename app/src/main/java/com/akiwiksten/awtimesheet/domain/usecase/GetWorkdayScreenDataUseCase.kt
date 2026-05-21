@@ -29,7 +29,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
             settings?.dailyWorkTimeEstimate?.ifEmpty { globalDailyWorkTimeEstimate }
                 ?: globalDailyWorkTimeEstimate
         val initialFlexTimeTotal = settings?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
-        val calculatedFlexTimeTotal = settingsRepository.getCalculatedFlextimeTotal()
+        val persistedFlexTimeDeltaTotal = settingsRepository.getCalculatedFlextimeTotal()
 
         return WorkdayScreenData(
             workTimeByDate = workTimeByDate,
@@ -37,7 +37,7 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
             initialFlexTimeTotal = initialFlexTimeTotal,
             flexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                 initialTime = initialFlexTimeTotal,
-                addedTime = calculatedFlexTimeTotal
+                addedTime = persistedFlexTimeDeltaTotal
             ),
             projects = projects,
             projectNames = projectNames

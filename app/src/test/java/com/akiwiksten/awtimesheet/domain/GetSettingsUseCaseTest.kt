@@ -62,6 +62,7 @@ class GetSettingsUseCaseTest {
         var settings: SettingsState? = null
         var effectiveSettings: SettingsState? = null
         var workTypes: List<String> = emptyList()
+        var calculatedFlexTimeTotal: String = ZERO_TIME
 
         override suspend fun getSettings(): SettingsState? = settings
 
@@ -76,5 +77,11 @@ class GetSettingsUseCaseTest {
         override suspend fun deleteWorkType(workType: String) = Unit
 
         override suspend fun deleteAllWorkTypes() = Unit
+
+        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
+            calculatedFlexTimeTotal = flexTime
+        }
     }
 }

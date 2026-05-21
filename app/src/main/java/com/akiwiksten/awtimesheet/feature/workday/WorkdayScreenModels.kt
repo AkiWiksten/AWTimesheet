@@ -4,6 +4,7 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
 data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
+    val onTrackProjectEditorLaunch: (oldFlexTimeByDate: String, oldDisplayedFlexTimeTotal: String) -> Unit,
     val onNavigateToSingleProject: (SingleProjectState) -> Unit,
     val onRetry: () -> Unit,
     val onSaveSettings: (String, Boolean) -> Unit,

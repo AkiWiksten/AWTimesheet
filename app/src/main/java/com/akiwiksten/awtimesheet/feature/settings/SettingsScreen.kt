@@ -50,6 +50,8 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.SCREEN_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.hasChanges
+import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.core.ui.AddTextFieldDialog
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
@@ -57,8 +59,6 @@ import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.core.hasChanges
-import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import kotlinx.coroutines.flow.collectLatest

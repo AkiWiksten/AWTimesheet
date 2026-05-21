@@ -93,12 +93,14 @@ internal fun WorkdaySuccessContent(
         items = state.projects,
         selectedIndex = selectedItemIndex,
         onAddClick = {
+            actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.flexTimeTotal)
             actions.onNavigateToSingleProject(
                 SingleProjectState(index = -1, date = state.date)
             )
         },
         onEditClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let { selectedProject ->
+                actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.flexTimeTotal)
                 actions.onNavigateToSingleProject(
                     selectedProject.copy(date = selectedProject.date.ifBlank { state.date })
                 )
@@ -139,7 +141,7 @@ private fun rememberWorkdayDisplayState(
     ) {
         calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
-            persistedCalculatedFlexTimeTotal = state.flexTimeTotal,
+            persistedDisplayedFlexTimeTotal = state.flexTimeTotal,
             persistedFlexTimeByDate = state.flexTimeByDate,
             editedFlexTimeByDate = displayedFlexTimeByDate
         )
@@ -160,12 +162,12 @@ private fun rememberWorkdayDisplayState(
 
 internal fun calculateDisplayedCalculatedFlexTimeTotal(
     persistedInitialFlexTimeTotal: String,
-    persistedCalculatedFlexTimeTotal: String,
+    persistedDisplayedFlexTimeTotal: String,
     persistedFlexTimeByDate: String,
     editedFlexTimeByDate: String
 ): String {
-    val calculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-        initialTime = persistedCalculatedFlexTimeTotal,
+    val persistedCalculatedFlexDeltaTotal = WorkTimeCalculator.calculateFlexTime(
+        initialTime = persistedDisplayedFlexTimeTotal,
         addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$persistedInitialFlexTimeTotal")
     )
 
@@ -174,14 +176,14 @@ internal fun calculateDisplayedCalculatedFlexTimeTotal(
         addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$persistedFlexTimeByDate")
     )
 
-    val recalculatedOnlyFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
-        initialTime = calculatedOnlyFlexTimeTotal,
+    val recalculatedFlexDeltaTotal = WorkTimeCalculator.calculateFlexTime(
+        initialTime = persistedCalculatedFlexDeltaTotal,
         addedTime = flexTimeByDateDelta
     )
 
     return WorkTimeCalculator.calculateFlexTime(
         initialTime = persistedInitialFlexTimeTotal,
-        addedTime = recalculatedOnlyFlexTimeTotal
+        addedTime = recalculatedFlexDeltaTotal
     )
 }
 

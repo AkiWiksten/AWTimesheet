@@ -94,6 +94,7 @@ private fun WorkdayPreviewContent(
             scrollState = scrollState,
             actions = WorkdayActions(
                 onSelectedItemIndexChange = {},
+                onTrackProjectEditorLaunch = { _, _ -> },
                 onNavigateToSingleProject = {},
                 onRetry = {},
                 onSaveSettings = { _, _ -> },

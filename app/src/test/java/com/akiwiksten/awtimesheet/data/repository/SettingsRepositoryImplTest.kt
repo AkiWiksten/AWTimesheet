@@ -1,8 +1,11 @@
 package com.akiwiksten.awtimesheet.data.repository
 
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
+import com.akiwiksten.awtimesheet.data.database.entity.CalculatedFlextimeTotalEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
 import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
 import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
@@ -15,7 +18,13 @@ class SettingsRepositoryImplTest {
     private val settingsDao = FakeSettingsDao()
     private val workdayDao = FakeWorkdayDao()
     private val workTypeDao = FakeWorkTypeDao()
-    private val repository = SettingsRepositoryImpl(settingsDao, workdayDao, workTypeDao)
+    private val calculatedFlexTimeTotalDao = FakeCalculatedFlexTimeTotalDao()
+    private val repository = SettingsRepositoryImpl(
+        settingsDao = settingsDao,
+        workdayDao = workdayDao,
+        workTypeDao = workTypeDao,
+        calculatedFlextimeTotalDao = calculatedFlexTimeTotalDao
+    )
 
     @Test
     fun getSettings_returnsDataFromDao() = runBlocking {
@@ -69,6 +78,18 @@ class SettingsRepositoryImplTest {
         repository.deleteAllWorkTypes()
 
         assertEquals(1, workTypeDao.deleteAllCallCount)
+    }
+
+    @Test
+    fun getCalculatedFlextimeTotal_withoutStoredRow_returnsZeroTime() = runBlocking {
+        assertEquals(ZERO_TIME, repository.getCalculatedFlextimeTotal())
+    }
+
+    @Test
+    fun insertCalculatedFlextimeTotal_callsDaoInsert() = runBlocking {
+        repository.insertCalculatedFlextimeTotal("01:30")
+
+        assertEquals("01:30", calculatedFlexTimeTotalDao.insertedFlexTime)
     }
 
     @Test
@@ -162,5 +183,17 @@ class SettingsRepositoryImplTest {
             start: String,
             end: String
         ): List<com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity> = emptyList()
+    }
+
+    private class FakeCalculatedFlexTimeTotalDao : CalculatedFlexTimeTotalDao {
+        var storedEntity: CalculatedFlextimeTotalEntity? = null
+        var insertedFlexTime: String? = null
+
+        override suspend fun insertCalculatedFlextimeTotal(flexTime: CalculatedFlextimeTotalEntity) {
+            insertedFlexTime = flexTime.calculatedFlexTimeTotal
+            storedEntity = flexTime
+        }
+
+        override suspend fun loadCalculatedFlextimeTotal(): CalculatedFlextimeTotalEntity? = storedEntity
     }
 }

@@ -59,6 +59,8 @@ This is called feature-based packaging.
   + Check test coverage and add tests
   + Warnings on build
   + more modules
+  + button press animations
+  + Refactor tests
 + Constants
   + Regroup
 + Repositories

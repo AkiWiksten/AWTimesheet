@@ -133,13 +133,13 @@ private fun rememberWorkdayDisplayState(
 
     val displayedCalculatedFlexTimeTotal = remember(
         state.initialFlexTimeTotal,
-        state.calculatedFlexTimeTotal,
+        state.flexTimeTotal,
         state.flexTimeByDate,
         displayedFlexTimeByDate
     ) {
         calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
-            persistedCalculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+            persistedCalculatedFlexTimeTotal = state.flexTimeTotal,
             persistedFlexTimeByDate = state.flexTimeByDate,
             editedFlexTimeByDate = displayedFlexTimeByDate
         )

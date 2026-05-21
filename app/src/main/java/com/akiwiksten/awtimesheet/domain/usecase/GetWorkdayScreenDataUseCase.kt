@@ -29,36 +29,19 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
             settings?.dailyWorkTimeEstimate?.ifEmpty { globalDailyWorkTimeEstimate }
                 ?: globalDailyWorkTimeEstimate
         val initialFlexTimeTotal = settings?.initialFlexTimeTotal?.ifEmpty { ZERO_TIME } ?: ZERO_TIME
-        var calculatedFlexTimeFromAllWorkdays = ZERO_TIME
-        val workdayRows = workdayRepository.getWorkdaysByDateRange(ALL_DATES_START, ALL_DATES_END)
-        for (row in workdayRows) {
-            val workedTime = projectRepository.getWorkTimeByDate(row.date)
-            val flexTimeByDate = WorkTimeCalculator.calculateFlexTime(
-                initialTime = workedTime,
-                addedTime = "-${row.workTimeByDateEstimate}"
-            )
-            calculatedFlexTimeFromAllWorkdays = WorkTimeCalculator.calculateFlexTime(
-                calculatedFlexTimeFromAllWorkdays,
-                flexTimeByDate
-            )
-        }
+        val calculatedFlexTimeTotal = settingsRepository.getCalculatedFlextimeTotal()
 
         return WorkdayScreenData(
             workTimeByDate = workTimeByDate,
             workTimeByDateEstimate = workTimeByDateEstimate,
             initialFlexTimeTotal = initialFlexTimeTotal,
-            calculatedFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+            flexTimeTotal = WorkTimeCalculator.calculateFlexTime(
                 initialTime = initialFlexTimeTotal,
-                addedTime = calculatedFlexTimeFromAllWorkdays
+                addedTime = calculatedFlexTimeTotal
             ),
             projects = projects,
             projectNames = projectNames
         )
-    }
-
-    private companion object {
-        const val ALL_DATES_START = "0000-01-01"
-        const val ALL_DATES_END = "9999-12-31"
     }
 }
 
@@ -66,7 +49,7 @@ data class WorkdayScreenData(
     val workTimeByDate: String,
     val workTimeByDateEstimate: String,
     val initialFlexTimeTotal: String,
-    val calculatedFlexTimeTotal: String,
+    val flexTimeTotal: String,
     val projects: List<SingleProjectState>,
     val projectNames: List<String>
 )

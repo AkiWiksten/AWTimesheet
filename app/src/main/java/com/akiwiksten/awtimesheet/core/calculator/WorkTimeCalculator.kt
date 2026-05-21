@@ -116,7 +116,7 @@ object WorkTimeCalculator {
         val dailyLunchTimeEstimate: LocalTime,
         val projectTime: LocalTime,
         val oldStartTime: LocalTime,
-        val isNewDay: Boolean
+        val isNewDayForProject: Boolean
     )
 
     data class EndTimeUpdateParams(

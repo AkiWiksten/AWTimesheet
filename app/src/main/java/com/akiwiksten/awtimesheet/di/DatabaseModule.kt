@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.di
 import android.content.Context
 import androidx.room.Room
 import com.akiwiksten.awtimesheet.data.database.AppDatabase
+import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
@@ -76,5 +77,9 @@ abstract class DatabaseModule {
 
         @Provides
         fun provideWorkTypeDao(database: AppDatabase): WorkTypeDao = database.workTypeDao()
+
+        @Provides
+        fun provideCalculatedFlexTimeTotalDao(database: AppDatabase): CalculatedFlexTimeTotalDao =
+            database.calculatedFlexTimeTotalDao()
     }
 }

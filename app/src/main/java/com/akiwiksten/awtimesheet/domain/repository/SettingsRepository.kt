@@ -10,4 +10,6 @@ interface SettingsRepository {
     suspend fun insertWorkType(workType: String)
     suspend fun deleteWorkType(workType: String)
     suspend fun deleteAllWorkTypes()
+    suspend fun getCalculatedFlextimeTotal(): String
+    suspend fun insertCalculatedFlextimeTotal(flexTime: String)
 }

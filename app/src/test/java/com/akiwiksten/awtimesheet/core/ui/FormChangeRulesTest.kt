@@ -1,5 +1,7 @@
 package com.akiwiksten.awtimesheet.core.ui
 
+import com.akiwiksten.awtimesheet.core.hasChanges
+import com.akiwiksten.awtimesheet.core.isActionEnabled
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

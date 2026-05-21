@@ -10,7 +10,7 @@ object ProjectDetailsTimeUpdateCalculator {
     fun calculateStartTimeUpdate(
         params: WorkTimeCalculator.StartTimeUpdateParams
     ): WorkTimeCalculator.TimeUpdateResult {
-        return if (params.isNewDay) {
+        return if (params.isNewDayForProject) {
             val end = params.start.add(params.dailyWorkTimeEstimate).add(params.dailyLunchTimeEstimate)
             val lunchStart = calculateHalfTime(params.start, params.dailyWorkTimeEstimate)
             WorkTimeCalculator.TimeUpdateResult(
@@ -43,9 +43,9 @@ object ProjectDetailsTimeUpdateCalculator {
         dailyWorkTimeEstimate: LocalTime,
         projectTime: LocalTime,
         oldDailyWorkTimeEstimate: LocalTime,
-        isNewDay: Boolean
+        isNewDayForProject: Boolean
     ): WorkTimeCalculator.TimeUpdateResult {
-        return if (!isNewDay && projectTime == LocalTime.MIDNIGHT) {
+        return if (!isNewDayForProject && projectTime == LocalTime.MIDNIGHT) {
             val newEnd = end.subtract(oldDailyWorkTimeEstimate).add(dailyWorkTimeEstimate)
             WorkTimeCalculator.TimeUpdateResult(end = newEnd.toString())
         } else {

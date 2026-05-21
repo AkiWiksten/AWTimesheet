@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.core.ui
+package com.akiwiksten.awtimesheet.core
 
 /** Shared helpers for save/confirm button enablement decisions. */
 fun <T> hasChanges(current: T, baseline: T): Boolean = current != baseline

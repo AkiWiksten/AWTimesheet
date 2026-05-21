@@ -123,7 +123,7 @@ class ProjectDetailsViewModel @Inject constructor(
                     ),
                     projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
                     oldStartTime = oldStart,
-                    isNewDay = successState.details.isNewDayForProject()
+                    isNewDayForProject = successState.details.isNewDayForProject()
                 )
             )
             val nextState = successState.copy(

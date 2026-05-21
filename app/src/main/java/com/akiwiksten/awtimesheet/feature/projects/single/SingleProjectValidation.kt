@@ -1,6 +1,6 @@
 package com.akiwiksten.awtimesheet.feature.projects.single
 
-import com.akiwiksten.awtimesheet.core.ui.isActionEnabled
+import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
 internal fun isDuplicateProjectName(

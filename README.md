@@ -56,12 +56,13 @@ This is called feature-based packaging.
   + Test implemented backup & sync (android:allowBackup="true")
   + Better orientation support
   + Dark theme
-  + FormChangeRules outside ui package
   + Check test coverage and add tests
   + Warnings on build
-  + isNewDay -> isNewDayOrProject
+  + more modules
 + Constants
   + Regroup
++ Repositories
+  + CalendarRepository: Add interface also
 + SingleProjectScreen
   + Project name edit and validation
   + Kilometres validation. 0050 not valid.
@@ -90,6 +91,7 @@ This is called feature-based packaging.
   + App localization selection
   + Ask to save does not work
   + Create Excel report also, or export to Excel, CSV or similar
+  + Split into sections
 + PDF
   + Use Intent to ask user where to save pdf and 
   + show the pdf instantly on screen

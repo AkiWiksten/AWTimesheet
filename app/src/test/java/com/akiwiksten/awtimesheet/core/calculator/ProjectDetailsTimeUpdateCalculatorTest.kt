@@ -20,7 +20,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
                 dailyLunchTimeEstimate = LocalTime.of(0, 30),
                 projectTime = LocalTime.MIDNIGHT,
                 oldStartTime = LocalTime.of(8, 0),
-                isNewDay = true
+                isNewDayForProject = true
             )
         )
 
@@ -42,7 +42,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
                 dailyLunchTimeEstimate = LocalTime.of(0, 30),
                 projectTime = LocalTime.of(8, 0),
                 oldStartTime = LocalTime.of(8, 0),
-                isNewDay = false
+                isNewDayForProject = false
             )
         )
 
@@ -59,7 +59,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
                 dailyLunchTimeEstimate = LocalTime.of(0, 30),
                 projectTime = LocalTime.MIDNIGHT,
                 oldStartTime = LocalTime.of(8, 0),
-                isNewDay = false
+                isNewDayForProject = false
             )
         )
 
@@ -109,7 +109,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
             dailyWorkTimeEstimate = LocalTime.of(8, 0),
             projectTime = LocalTime.MIDNIGHT,
             oldDailyWorkTimeEstimate = LocalTime.of(7, 30),
-            isNewDay = false
+            isNewDayForProject = false
         )
 
         assertEquals("16:30", result.end)
@@ -122,7 +122,7 @@ class ProjectDetailsTimeUpdateCalculatorTest {
             dailyWorkTimeEstimate = LocalTime.of(8, 0),
             projectTime = LocalTime.MIDNIGHT,
             oldDailyWorkTimeEstimate = LocalTime.of(7, 30),
-            isNewDay = true
+            isNewDayForProject = true
         )
 
         assertEquals(WorkTimeCalculator.TimeUpdateResult(), result)

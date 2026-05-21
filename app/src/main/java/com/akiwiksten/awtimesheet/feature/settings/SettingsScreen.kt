@@ -57,8 +57,8 @@ import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.core.ui.hasChanges
-import com.akiwiksten.awtimesheet.core.ui.isActionEnabled
+import com.akiwiksten.awtimesheet.core.hasChanges
+import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import kotlinx.coroutines.flow.collectLatest

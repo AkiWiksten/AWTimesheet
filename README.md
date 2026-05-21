@@ -94,14 +94,8 @@ This is called feature-based packaging.
   + Ask to save does not work
   + Create Excel report also, or export to Excel, CSV or similar
   + Split into sections
-+ PDF
-  + Use Intent to ask user where to save pdf and 
-  + show the pdf instantly on screen
-  + make pdf dynamic?
-  + Project time sum, Half-allowance and Full-allowance kilometre sum for each project
 + Excel
   + Handle monthly, weekly and biweekly reports, by selecting start date
-  + 
 ## What to test constantly
 + Thorough testing of all features in all screens
     + Intro, 

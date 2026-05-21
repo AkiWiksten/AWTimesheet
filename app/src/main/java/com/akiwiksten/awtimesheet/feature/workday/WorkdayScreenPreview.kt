@@ -89,7 +89,6 @@ private fun WorkdayPreviewContent(
     AWTimesheetTheme(dynamicColor = false) {
         WorkdayContent(
             workdayUiState = uiState,
-            workTimeByDateChange = "00:00",
             selectedItemIndex = selectedItemIndex,
             scrollState = scrollState,
             actions = WorkdayActions(

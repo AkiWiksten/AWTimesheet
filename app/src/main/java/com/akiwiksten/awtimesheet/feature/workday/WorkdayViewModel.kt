@@ -50,9 +50,6 @@ class WorkdayViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
-
-    val workTimeByDateChange: StateFlow<String> = dateRepository.workTimeByDateChange
-
     private val refreshTrigger = MutableStateFlow(value = 0)
 
     val uiState: StateFlow<WorkdayUiState> = refreshTrigger
@@ -103,10 +100,13 @@ class WorkdayViewModel @Inject constructor(
         refreshTrigger.value += 1
     }
 
-    fun reconcileFlexTimeTotalAfterProjectEditorReturn(oldFlexTimeByDate: String) {
+    fun reconcileFlexTimeTotalAfterProjectEditorReturn(oldFlexTimeByDate: String, oldWorkTimeByDate: String) {
         viewModelScope.launch {
             try {
-                reconcileFlexTimeTotal(oldFlexTimeByDate = oldFlexTimeByDate)
+                reconcileFlexTimeTotal(
+                    oldFlexTimeByDate = oldFlexTimeByDate,
+                    oldWorkTimeByDate = oldWorkTimeByDate
+                )
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "reconcileFlexTimeTotalAfterProjectEditorReturn: ", e)
             } catch (e: IllegalStateException) {
@@ -121,12 +121,16 @@ class WorkdayViewModel @Inject constructor(
                 val currentState = uiState.value as? WorkdayUiState.Success ?: return@launch
                 val date = currentState.date
                 val oldFlexTimeByDate = currentState.flexTimeByDate
+                val oldWorkTimeByDate = currentState.workTimeByDate
 
                 deleteProjectUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
                 if (state.projectTime != ZERO_TIME) {
                     dateRepository.addWorkTimeByDateChange("-${state.projectTime}")
                 }
-                reconcileFlexTimeTotal(oldFlexTimeByDate = oldFlexTimeByDate)
+                reconcileFlexTimeTotal(
+                    oldFlexTimeByDate = oldFlexTimeByDate,
+                    oldWorkTimeByDate = oldWorkTimeByDate
+                )
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "deleteProject: ", e)
             } catch (e: IllegalStateException) {
@@ -162,7 +166,7 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    private suspend fun reconcileFlexTimeTotal(oldFlexTimeByDate: String) {
+    private suspend fun reconcileFlexTimeTotal(oldFlexTimeByDate: String, oldWorkTimeByDate: String) {
         val date = dateRepository.selectedDate.value
         if (date.isBlank()) {
             requestReload()
@@ -174,9 +178,17 @@ class WorkdayViewModel @Inject constructor(
             workTimeByDate = latestData.workTimeByDate,
             workTimeByDateEstimate = latestData.workTimeByDateEstimate
         )
+        val oldFlexContribution = resolveFlexContribution(
+            flexTimeByDate = oldFlexTimeByDate,
+            workTimeByDate = oldWorkTimeByDate
+        )
+        val newFlexContribution = resolveFlexContribution(
+            flexTimeByDate = newFlexTimeByDate,
+            workTimeByDate = latestData.workTimeByDate
+        )
         val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
-            initialTime = newFlexTimeByDate,
-            addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$oldFlexTimeByDate")
+            initialTime = newFlexContribution,
+            addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$oldFlexContribution")
         )
 
         if (flexTimeByDateDelta != ZERO_TIME) {
@@ -202,3 +214,12 @@ private fun calculateFlexTimeByDate(workTimeByDate: String, workTimeByDateEstima
         addedTime = "-$workTimeByDateEstimate"
     )
 }
+
+internal fun resolveFlexContribution(flexTimeByDate: String, workTimeByDate: String): String {
+    return if (workTimeByDate == ZERO_TIME) {
+        ZERO_TIME
+    } else {
+        flexTimeByDate
+    }
+}
+

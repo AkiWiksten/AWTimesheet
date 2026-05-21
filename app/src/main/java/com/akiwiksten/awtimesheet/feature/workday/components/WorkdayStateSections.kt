@@ -35,7 +35,6 @@ import com.akiwiksten.awtimesheet.feature.workday.WorkdayUiState
 internal fun WorkdayLoadingContent(
     showLoadingIndicator: Boolean,
     cachedState: WorkdayUiState.Success?,
-    workTimeByDateChange: String,
     selectedItemIndex: Int,
     actions: WorkdayActions
 ) {
@@ -47,7 +46,6 @@ internal fun WorkdayLoadingContent(
     cachedState?.let {
         WorkdaySuccessContent(
             state = it,
-            workTimeByDateChange = workTimeByDateChange,
             selectedItemIndex = selectedItemIndex,
             actions = actions
         )
@@ -57,7 +55,6 @@ internal fun WorkdayLoadingContent(
 @Composable
 internal fun WorkdaySuccessContent(
     state: WorkdayUiState.Success,
-    workTimeByDateChange: String,
     selectedItemIndex: Int,
     actions: WorkdayActions
 ) {
@@ -76,7 +73,6 @@ internal fun WorkdaySuccessContent(
             workTime = state.workTimeByDate,
             flexTimeByDate = displayState.displayedFlexTimeByDate,
             calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
-            workTimeByDateChange = workTimeByDateChange,
             settingsEditorState = displayState.settingsEditorState
         ),
         headerActions = displayState.headerActions
@@ -93,14 +89,14 @@ internal fun WorkdaySuccessContent(
         items = state.projects,
         selectedIndex = selectedItemIndex,
         onAddClick = {
-            actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.flexTimeTotal)
+            actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.workTimeByDate)
             actions.onNavigateToSingleProject(
                 SingleProjectState(index = -1, date = state.date)
             )
         },
         onEditClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let { selectedProject ->
-                actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.flexTimeTotal)
+                actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.workTimeByDate)
                 actions.onNavigateToSingleProject(
                     selectedProject.copy(date = selectedProject.date.ifBlank { state.date })
                 )

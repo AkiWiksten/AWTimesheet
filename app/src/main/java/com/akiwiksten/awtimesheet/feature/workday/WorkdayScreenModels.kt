@@ -4,7 +4,7 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
 data class WorkdayActions(
     val onSelectedItemIndexChange: (Int) -> Unit,
-    val onTrackProjectEditorLaunch: (oldFlexTimeByDate: String, oldDisplayedFlexTimeTotal: String) -> Unit,
+    val onTrackProjectEditorLaunch: (oldFlexTimeByDate: String, oldWorkTimeByDate: String) -> Unit,
     val onNavigateToSingleProject: (SingleProjectState) -> Unit,
     val onRetry: () -> Unit,
     val onSaveSettings: (String, Boolean) -> Unit,
@@ -21,3 +21,4 @@ internal data class WorkdayHeaderActions(
 )
 
 internal val WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+

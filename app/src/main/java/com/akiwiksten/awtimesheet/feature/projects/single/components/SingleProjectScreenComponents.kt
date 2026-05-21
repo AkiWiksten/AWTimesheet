@@ -53,7 +53,7 @@ import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
 @Composable
-fun HeaderSection(date: String, workTimeByDate: String) {
+fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
         modifier = Modifier.fillMaxWidth()
@@ -114,7 +114,7 @@ fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun ProjectTimePickerDialog(
+fun SingleProjectTimePickerDialogSection(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmation: (String) -> Unit,
@@ -131,7 +131,7 @@ fun ProjectTimePickerDialog(
 }
 
 @Composable
-internal fun DialogMainFields(
+internal fun SingleProjectUpperFieldsSection(
     state: SingleProjectState,
     isAddMode: Boolean,
     isDuplicateProjectName: Boolean,
@@ -284,14 +284,14 @@ private fun ProjectTimeActionsColumn(
 }
 
 @Composable
-internal fun TimeSelectionSection(
+internal fun SingleProjectTimeSelectionSection(
     state: SingleProjectState,
     onOpenProjectDetails: () -> Unit,
     onStateChange: (SingleProjectState) -> Unit
 ) {
     val openTimePickerDialogState = remember { mutableStateOf(false) }
 
-    ProjectTimePickerDialog(
+    SingleProjectTimePickerDialogSection(
         showDialog = openTimePickerDialogState.value,
         onDismissRequest = { openTimePickerDialogState.value = false },
         onConfirmation = { time ->
@@ -310,7 +310,7 @@ internal fun TimeSelectionSection(
 }
 
 @Composable
-internal fun DialogDropdownFields(
+internal fun SingleProjectDialogDropdownFieldsSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
     onStateChange: (SingleProjectState) -> Unit

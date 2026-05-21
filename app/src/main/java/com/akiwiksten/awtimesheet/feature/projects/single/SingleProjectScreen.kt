@@ -48,11 +48,11 @@ import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.projects.single.components.DialogDropdownFields
-import com.akiwiksten.awtimesheet.feature.projects.single.components.DialogMainFields
-import com.akiwiksten.awtimesheet.feature.projects.single.components.HeaderSection
+import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectDialogDropdownFieldsSection
+import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectHeaderSection
 import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTopBar
-import com.akiwiksten.awtimesheet.feature.projects.single.components.TimeSelectionSection
+import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTimeSelectionSection
+import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectUpperFieldsSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -381,7 +381,7 @@ private fun SingleProjectContent(
             .padding(all = 24.dp),
         verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
     ) {
-        HeaderSection(
+        SingleProjectHeaderSection(
             date = screenState.date,
             workTimeByDate = workTimeByDate
         )
@@ -412,20 +412,20 @@ private fun SingleProjectFormFields(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        DialogMainFields(
+        SingleProjectUpperFieldsSection(
             state = screenState.state,
             isAddMode = screenState.isAddMode,
             isDuplicateProjectName = screenState.isDuplicateProjectName,
             onStateChange = actions.onStateChange
         )
 
-        TimeSelectionSection(
+        SingleProjectTimeSelectionSection(
             state = screenState.state,
             onOpenProjectDetails = actions.onOpenProjectDetails,
             onStateChange = actions.onStateChange
         )
 
-        DialogDropdownFields(
+        SingleProjectDialogDropdownFieldsSection(
             state = screenState.state,
             workTypeDropDownList = workTypes,
             onStateChange = actions.onStateChange

@@ -28,7 +28,7 @@ import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDet
 import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsSuccessState
 import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsTopBar
-import com.akiwiksten.awtimesheet.feature.projects.details.components.UnsavedChangesDialog
+import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsUnsavedChangesDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +70,7 @@ fun ProjectDetailsScreen(
 
     BackHandler(onBack = guardedNavigateBack)
 
-    UnsavedChangesDialog(
+    ProjectDetailsUnsavedChangesDialog(
         showState = showUnsavedDialogState,
         uiState = uiState,
         unsavedMessage = unsavedMessage,

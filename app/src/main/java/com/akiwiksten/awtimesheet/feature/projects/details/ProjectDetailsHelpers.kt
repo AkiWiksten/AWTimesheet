@@ -55,35 +55,35 @@ fun createProjectDetailsScreenActions(
         onClearDetails = viewModel.clearDetails,
         onConfirm = onConfirm,
         fieldActions = ProjectDetailsFieldActions(
-            startTime = TimeFieldAction(
+            startTime = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentStartTime,
                 onSet = viewModel.setStartTime
             ),
-            lunchTime = TimeFieldAction(
+            lunchTime = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentLunchTime,
                 onSet = viewModel.setLunchTime
             ),
-            endTime = TimeFieldAction(
+            endTime = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentEndTime,
                 onSet = viewModel.setEndTime
             ),
-            projectTime = TimeFieldAction(
+            projectTime = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentProjectTime,
                 onSet = viewModel.setProjectTime
             ),
-            lunchStart = TimeFieldAction(
+            lunchStart = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentLunchStart,
                 onSet = viewModel.setLunchStart
             ),
-            lunchEnd = TimeFieldAction(
+            lunchEnd = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentLunchEnd,
                 onSet = viewModel.setLunchEnd
             ),
-            breakStart = TimeFieldAction(
+            breakStart = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentBreakStart,
                 onSet = viewModel.setBreakStart
             ),
-            breakEnd = TimeFieldAction(
+            breakEnd = ProjectDetailsTimeFieldAction(
                 onCurrent = viewModel.currentBreakEnd,
                 onSet = viewModel.setBreakEnd
             )

@@ -33,19 +33,19 @@ import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
+import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog as CoreUnsavedChangesDialog
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
-import com.akiwiksten.awtimesheet.feature.projects.details.TimeRowLabels
+import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsTimeRowLabels
 
 @Composable
-internal fun AddTimeRow(
+internal fun ProjectDetailsTimeRow(
     textFieldValue: String,
     stringId: Int,
     currentTime: () -> Unit,
     onConfirmation: (time: String) -> Unit,
-    labels: TimeRowLabels = TimeRowLabels(),
+    labels: ProjectDetailsTimeRowLabels = ProjectDetailsTimeRowLabels(),
 ) {
     val currentTimeLabelId = labels.currentTimeLabelId
     val timePickerLabelId = labels.timePickerLabelId
@@ -168,7 +168,7 @@ private fun LabeledIconAction(
 }
 
 @Composable
-internal fun ProjectNameField(name: String) {
+internal fun ProjectDetailsNameField(name: String) {
     OutlinedTextField(
         value = name,
         onValueChange = {},
@@ -190,7 +190,7 @@ internal fun ProjectNameField(name: String) {
 }
 
 @Composable
-internal fun UnsavedChangesDialog(
+internal fun ProjectDetailsUnsavedChangesDialog(
     showState: MutableState<Boolean>,
     uiState: ProjectDetailsUiState,
     unsavedMessage: String,
@@ -199,7 +199,7 @@ internal fun UnsavedChangesDialog(
 ) {
     if (!showState.value) return
     val successState = uiState as? ProjectDetailsUiState.Success
-    UnsavedChangesDialog(
+    CoreUnsavedChangesDialog(
         onDismiss = { showState.value = false },
         onDiscard = onNavigateBack,
         onSave = successState?.let {

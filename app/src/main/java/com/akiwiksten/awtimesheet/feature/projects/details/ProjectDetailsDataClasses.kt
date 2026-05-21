@@ -1,19 +1,19 @@
 package com.akiwiksten.awtimesheet.feature.projects.details
 
-data class TimeFieldAction(
+data class ProjectDetailsTimeFieldAction(
     val onCurrent: () -> Unit = {},
     val onSet: (String) -> Unit = {}
 )
 
 data class ProjectDetailsFieldActions(
-    val startTime: TimeFieldAction = TimeFieldAction(),
-    val lunchTime: TimeFieldAction = TimeFieldAction(),
-    val endTime: TimeFieldAction = TimeFieldAction(),
-    val projectTime: TimeFieldAction = TimeFieldAction(),
-    val lunchStart: TimeFieldAction = TimeFieldAction(),
-    val lunchEnd: TimeFieldAction = TimeFieldAction(),
-    val breakStart: TimeFieldAction = TimeFieldAction(),
-    val breakEnd: TimeFieldAction = TimeFieldAction(),
+    val startTime: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val lunchTime: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val endTime: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val projectTime: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val lunchStart: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val lunchEnd: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val breakStart: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
+    val breakEnd: ProjectDetailsTimeFieldAction = ProjectDetailsTimeFieldAction(),
 )
 
 data class ProjectDetailsScreenActions(
@@ -22,7 +22,7 @@ data class ProjectDetailsScreenActions(
     val fieldActions: ProjectDetailsFieldActions = ProjectDetailsFieldActions()
 )
 
-data class TimeRowLabels(
+data class ProjectDetailsTimeRowLabels(
     val currentTimeLabelId: Int? = null,
     val timePickerLabelId: Int? = null,
 )

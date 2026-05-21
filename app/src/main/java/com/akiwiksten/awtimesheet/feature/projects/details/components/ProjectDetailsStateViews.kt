@@ -62,7 +62,7 @@ internal fun ProjectDetailsSuccessState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = 20.dp)
     ) {
-        HeaderSection(
+        ProjectDetailsHeaderSection(
             date = uiState.details.date,
             projectName = uiState.details.projectName,
             helperTextResId = helperTextResId,
@@ -70,11 +70,11 @@ internal fun ProjectDetailsSuccessState(
         )
 
         if (uiState.details.isNewDayForProject()) {
-            NewDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
+            ProjectDetailsNewDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
         } else {
-            ExistingDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
+            ProjectDetailsExistingDayForProjectSection(uiState = uiState, actions = actions.fieldActions)
         }
 
-        FooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
+        ProjectDetailsFooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
     }
 }

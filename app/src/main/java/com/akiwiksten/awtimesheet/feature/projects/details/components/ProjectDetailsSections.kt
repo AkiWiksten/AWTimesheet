@@ -27,11 +27,11 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsFieldActions
+import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsTimeRowLabels
 import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
-import com.akiwiksten.awtimesheet.feature.projects.details.TimeRowLabels
 
 @Composable
-fun HeaderSection(
+internal fun ProjectDetailsHeaderSection(
     date: String,
     onClearDetails: () -> Unit,
     projectName: String?,
@@ -66,7 +66,7 @@ fun HeaderSection(
             ) {
                 Text(text = stringResource(id = R.string.clear_details))
             }
-            ProjectNameField(name = projectName.orEmpty())
+            ProjectDetailsNameField(name = projectName.orEmpty())
 
             helperTextResId?.let { textResId ->
                 Text(
@@ -81,7 +81,10 @@ fun HeaderSection(
 }
 
 @Composable
-fun NewDayForProjectSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+internal fun ProjectDetailsNewDayForProjectSection(
+    uiState: ProjectDetailsUiState.Success,
+    actions: ProjectDetailsFieldActions
+) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
@@ -91,23 +94,23 @@ fun NewDayForProjectSection(uiState: ProjectDetailsUiState.Success, actions: Pro
                 modifier = Modifier.padding(all = FORM_GROUP_PADDING),
                 verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
             ) {
-                AddTimeRow(
+                ProjectDetailsTimeRow(
                     textFieldValue = uiState.details.startTime,
                     stringId = R.string.start_time,
                     currentTime = actions.startTime.onCurrent,
                     onConfirmation = actions.startTime.onSet,
-                    labels = TimeRowLabels(
+                    labels = ProjectDetailsTimeRowLabels(
                         currentTimeLabelId = R.string.now,
                         timePickerLabelId = R.string.pick
                     )
                 )
-                AddTimeRow(
+                ProjectDetailsTimeRow(
                     textFieldValue = uiState.details.lunchTimeEstimate,
                     stringId = R.string.lunch_time,
                     currentTime = actions.lunchTime.onCurrent,
                     onConfirmation = actions.lunchTime.onSet
                 )
-                AddTimeRow(
+                ProjectDetailsTimeRow(
                     textFieldValue = uiState.details.projectTime,
                     stringId = R.string.project_time,
                     currentTime = actions.projectTime.onCurrent,
@@ -119,7 +122,10 @@ fun NewDayForProjectSection(uiState: ProjectDetailsUiState.Success, actions: Pro
 }
 
 @Composable
-fun ExistingDayForProjectSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
+internal fun ProjectDetailsExistingDayForProjectSection(
+    uiState: ProjectDetailsUiState.Success,
+    actions: ProjectDetailsFieldActions
+) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
         MainWorkTimeSection(uiState = uiState, actions = actions)
 
@@ -145,20 +151,23 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
             modifier = Modifier.padding(all = FORM_GROUP_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.startTime,
                 stringId = R.string.start_time,
                 currentTime = actions.startTime.onCurrent,
                 onConfirmation = actions.startTime.onSet,
-                labels = TimeRowLabels(currentTimeLabelId = R.string.now, timePickerLabelId = R.string.pick)
+                labels = ProjectDetailsTimeRowLabels(
+                    currentTimeLabelId = R.string.now,
+                    timePickerLabelId = R.string.pick
+                )
             )
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.endTime,
                 stringId = endTimeLabelId,
                 currentTime = actions.endTime.onCurrent,
                 onConfirmation = actions.endTime.onSet
             )
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.projectTime,
                 stringId = R.string.project_time,
                 currentTime = actions.projectTime.onCurrent,
@@ -178,25 +187,25 @@ private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions
             modifier = Modifier.padding(all = FORM_GROUP_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.lunchStart,
                 stringId = R.string.lunch_start,
                 currentTime = actions.lunchStart.onCurrent,
                 onConfirmation = actions.lunchStart.onSet
             )
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.lunchEnd,
                 stringId = R.string.lunch_end,
                 currentTime = actions.lunchEnd.onCurrent,
                 onConfirmation = actions.lunchEnd.onSet
             )
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.breakStart,
                 stringId = R.string.break_start,
                 currentTime = actions.breakStart.onCurrent,
                 onConfirmation = actions.breakStart.onSet
             )
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.breakEnd,
                 stringId = R.string.break_end,
                 currentTime = actions.breakEnd.onCurrent,
@@ -216,7 +225,7 @@ private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions:
             modifier = Modifier.padding(all = FORM_GROUP_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
-            AddTimeRow(
+            ProjectDetailsTimeRow(
                 textFieldValue = uiState.details.lunchTimeEstimate,
                 stringId = R.string.lunch_time,
                 currentTime = actions.lunchTime.onCurrent,
@@ -227,7 +236,7 @@ private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions:
 }
 
 @Composable
-fun FooterSection(onConfirm: () -> Unit, isConfirmEnabled: Boolean) {
+internal fun ProjectDetailsFooterSection(onConfirm: () -> Unit, isConfirmEnabled: Boolean) {
     Button(
         onClick = onConfirm,
         enabled = isConfirmEnabled,

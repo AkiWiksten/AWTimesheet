@@ -11,7 +11,7 @@ data class WorkdayActions(
     val onDeleteProject: (SingleProjectState) -> Unit
 )
 
-internal data class SettingsEditorState(
+internal data class WorkdaySettingsEditorState(
     val workTimeByDateEstimate: String,
     val isWorkTimeByDateEstimateError: Boolean
 )

@@ -34,13 +34,13 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.feature.workday.SettingsEditorState
+import com.akiwiksten.awtimesheet.feature.workday.WorkdaySettingsEditorState
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
 
 @Composable
-internal fun WorkdayHeader(
+internal fun WorkdayHeaderSection(
     date: String
 ) {
     Column(
@@ -84,7 +84,7 @@ internal fun WorkdayStatsCard(
                 headerActions.onWorkTimeByDateEstimateChange(time)
                 openWorkTimeByDateEstimatePicker.value = false
             },
-            time = state.settingsEditorState.workTimeByDateEstimate,
+            time = state.editorState.workTimeByDateEstimate,
             titleId = R.string.work_time_by_date_estimate
         )
     }
@@ -94,7 +94,7 @@ internal fun WorkdayStatsCard(
             workTime = state.workTime,
             flexTimeByDate = state.flexTimeByDate,
             calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-            settingsEditorState = state.settingsEditorState,
+            editorState = state.editorState,
             onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
     )
@@ -104,7 +104,7 @@ internal data class WorkdayStatsCardState(
     val workTime: String,
     val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
-    val settingsEditorState: SettingsEditorState
+    val editorState: WorkdaySettingsEditorState
 )
 
 @Composable
@@ -129,8 +129,8 @@ private fun WorkdayStatsCardContent(
                 calculatedFlexTimeTotal = params.calculatedFlexTimeTotal
             )
             WorkTimeByDateEstimatePickerRow(
-                workTimeByDateEstimate = params.settingsEditorState.workTimeByDateEstimate,
-                isError = params.settingsEditorState.isWorkTimeByDateEstimateError,
+                workTimeByDateEstimate = params.editorState.workTimeByDateEstimate,
+                isError = params.editorState.isWorkTimeByDateEstimateError,
                 onPickerClick = params.onWorkTimeByDateEstimatePickerClick
             )
         }
@@ -174,7 +174,7 @@ private data class WorkdayStatsCardContentParams(
     val workTime: String,
     val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
-    val settingsEditorState: SettingsEditorState,
+    val editorState: WorkdaySettingsEditorState,
     val onWorkTimeByDateEstimatePickerClick: () -> Unit
 )
 

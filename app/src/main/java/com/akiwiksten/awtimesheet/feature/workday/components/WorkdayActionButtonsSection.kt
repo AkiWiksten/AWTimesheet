@@ -26,7 +26,7 @@ import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
 @Composable
-internal fun WorkdayActionButtons(
+internal fun WorkdayActionButtonsSection(
     items: List<SingleProjectState>,
     selectedIndex: Int,
     onAddClick: () -> Unit,

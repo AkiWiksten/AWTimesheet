@@ -349,3 +349,4 @@ private fun resolveDayCellTextColor(isSelected: Boolean, isToday: Boolean, hasWo
     hasWork -> workDayRed
     else -> MaterialTheme.colorScheme.onSurface
 }
+

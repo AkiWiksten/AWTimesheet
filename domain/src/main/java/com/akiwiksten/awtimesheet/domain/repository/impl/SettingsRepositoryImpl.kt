@@ -1,15 +1,15 @@
-package com.akiwiksten.awtimesheet.data.repository
+package com.akiwiksten.awtimesheet.domain.repository.impl
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
-import com.akiwiksten.awtimesheet.data.database.mapper.toCalculatedFlextimeTotal
-import com.akiwiksten.awtimesheet.data.database.mapper.toCalculatedFlextimeTotalEntity
-import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
-import com.akiwiksten.awtimesheet.data.database.mapper.toWorkTypeEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toCalculatedFlextimeTotaDomain
+import com.akiwiksten.awtimesheet.domain.mapper.toCalculatedFlextimeTotalEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toDomain
+import com.akiwiksten.awtimesheet.domain.mapper.toEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toWorkTypeEntity
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import javax.inject.Inject
@@ -54,7 +54,7 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCalculatedFlextimeTotal(): String =
-        calculatedFlextimeTotalDao.loadCalculatedFlextimeTotal()?.toCalculatedFlextimeTotal() ?: ZERO_TIME
+        calculatedFlextimeTotalDao.loadCalculatedFlextimeTotal()?.toCalculatedFlextimeTotaDomain() ?: ZERO_TIME
 
     override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
         calculatedFlextimeTotalDao.insertCalculatedFlextimeTotal(flexTime.toCalculatedFlextimeTotalEntity())

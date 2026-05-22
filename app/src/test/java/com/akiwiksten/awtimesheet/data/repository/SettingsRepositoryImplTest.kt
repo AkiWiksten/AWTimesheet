@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.data.repository
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
+import com.akiwiksten.awtimesheet.domain.repository.impl.SettingsRepositoryImpl
 import com.akiwiksten.awtimesheet.test.FakeCalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.test.FakeSettingsDao
 import com.akiwiksten.awtimesheet.test.FakeWorkTypeDao

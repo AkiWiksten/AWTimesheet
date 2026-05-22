@@ -1,8 +1,8 @@
-package com.akiwiksten.awtimesheet.data.repository
+package com.akiwiksten.awtimesheet.domain.repository.impl
 
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDetailsDao
-import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toDomain
+import com.akiwiksten.awtimesheet.domain.mapper.toEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import javax.inject.Inject

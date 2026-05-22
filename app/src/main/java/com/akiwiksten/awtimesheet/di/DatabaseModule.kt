@@ -10,10 +10,10 @@ import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
-import com.akiwiksten.awtimesheet.data.repository.ProjectDetailsRepositoryImpl
-import com.akiwiksten.awtimesheet.data.repository.ProjectRepositoryImpl
-import com.akiwiksten.awtimesheet.data.repository.SettingsRepositoryImpl
-import com.akiwiksten.awtimesheet.data.repository.WorkdayRepositoryImpl
+import com.akiwiksten.awtimesheet.domain.repository.impl.ProjectDetailsRepositoryImpl
+import com.akiwiksten.awtimesheet.domain.repository.impl.ProjectRepositoryImpl
+import com.akiwiksten.awtimesheet.domain.repository.impl.SettingsRepositoryImpl
+import com.akiwiksten.awtimesheet.domain.repository.impl.WorkdayRepositoryImpl
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository

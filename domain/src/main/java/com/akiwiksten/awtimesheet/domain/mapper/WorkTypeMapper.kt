@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.data.database.mapper
+package com.akiwiksten.awtimesheet.domain.mapper
 
 import com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity
 

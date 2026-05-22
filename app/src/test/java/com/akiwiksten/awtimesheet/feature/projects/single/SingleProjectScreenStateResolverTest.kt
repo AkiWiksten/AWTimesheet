@@ -1,5 +1,9 @@
 package com.akiwiksten.awtimesheet.feature.projects.single
 
+import com.akiwiksten.awtimesheet.feature.single_project.SingleProjectUiState
+import com.akiwiksten.awtimesheet.feature.single_project.isDuplicateProjectName
+import com.akiwiksten.awtimesheet.feature.single_project.isSingleProjectConfirmEnabled
+import com.akiwiksten.awtimesheet.feature.single_project.resolveInitialSingleProjectState
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.projectState
 import com.akiwiksten.awtimesheet.test.settingsState
@@ -76,17 +80,27 @@ class SingleProjectScreenStateResolverTest {
         val existingAlpha = projectState(index = 0, projectName = "Alpha")
         val existingBeta = projectState(index = 1, projectName = "Beta")
 
-        assertEquals(true, isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha))
-        assertEquals(true, isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta))
-        assertEquals(false, isDuplicateProjectName("Gamma", currentIndex = -1, singleProjectState = existingAlpha))
+        assertEquals(true,
+            isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha)
+        )
+        assertEquals(true,
+            isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta)
+        )
+        assertEquals(false,
+            isDuplicateProjectName("Gamma", currentIndex = -1, singleProjectState = existingAlpha)
+        )
     }
 
     @Test
     fun isDuplicate_editMode_ignoresOwnIndex() {
         val existing = projectState(index = 0, projectName = "Alpha")
 
-        assertEquals(false, isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing))
-        assertEquals(false, isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing))
+        assertEquals(false,
+            isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing)
+        )
+        assertEquals(false,
+            isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing)
+        )
     }
 
     @Test
@@ -117,7 +131,8 @@ class SingleProjectScreenStateResolverTest {
             workTypes = emptyList()
         )
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, null, singleProjectUiState)
+        val resolved =
+            resolveInitialSingleProjectState(initialState, null, null, singleProjectUiState)
 
         assertEquals("Alpha", resolved.projectName)
         assertEquals("02:10", resolved.projectTime)
@@ -127,7 +142,8 @@ class SingleProjectScreenStateResolverTest {
     fun addMode_returnsInitialState() {
         val initialState = projectState(index = -1, projectName = "New", projectTime = "00:30")
 
-        val resolved = resolveInitialSingleProjectState(initialState, null, null, SingleProjectUiState.Loading)
+        val resolved =
+            resolveInitialSingleProjectState(initialState, null, null, SingleProjectUiState.Loading)
 
         assertEquals(initialState, resolved)
     }

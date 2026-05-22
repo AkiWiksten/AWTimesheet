@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details
+package com.akiwiksten.awtimesheet.feature.project_details
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.projects.single
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.awtimesheet.feature.single_project.SingleProjectViewModel
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository

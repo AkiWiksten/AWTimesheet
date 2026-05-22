@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.single_project
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview

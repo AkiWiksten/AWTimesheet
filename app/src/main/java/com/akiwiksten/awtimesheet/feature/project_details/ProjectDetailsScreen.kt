@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details
+package com.akiwiksten.awtimesheet.feature.project_details
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -24,11 +24,11 @@ import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsErrorState
-import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsLoadingState
-import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsSuccessState
-import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsTopBar
-import com.akiwiksten.awtimesheet.feature.projects.details.components.ProjectDetailsUnsavedChangesDialog
+import com.akiwiksten.awtimesheet.feature.project_details.components.ProjectDetailsErrorState
+import com.akiwiksten.awtimesheet.feature.project_details.components.ProjectDetailsLoadingState
+import com.akiwiksten.awtimesheet.feature.project_details.components.ProjectDetailsSuccessState
+import com.akiwiksten.awtimesheet.feature.project_details.components.ProjectDetailsTopBar
+import com.akiwiksten.awtimesheet.feature.project_details.components.ProjectDetailsUnsavedChangesDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

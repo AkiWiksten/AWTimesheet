@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details
+package com.akiwiksten.awtimesheet.feature.project_details
 
 data class ProjectDetailsTimeFieldAction(
     val onCurrent: () -> Unit = {},

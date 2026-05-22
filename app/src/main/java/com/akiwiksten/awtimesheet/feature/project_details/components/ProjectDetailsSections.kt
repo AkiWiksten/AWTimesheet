@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details.components
+package com.akiwiksten.awtimesheet.feature.project_details.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,9 +26,9 @@ import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsFieldActions
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsTimeRowLabels
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsFieldActions
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsTimeRowLabels
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsUiState
 
 @Composable
 internal fun ProjectDetailsHeaderSection(

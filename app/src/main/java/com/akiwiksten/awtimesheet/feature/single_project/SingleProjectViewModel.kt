@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.single_project
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

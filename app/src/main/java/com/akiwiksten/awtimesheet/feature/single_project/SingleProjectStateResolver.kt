@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.single_project
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState

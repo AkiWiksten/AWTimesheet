@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.single_project
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -48,11 +48,11 @@ import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectDialogDropdownFieldsSection
-import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectHeaderSection
-import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTimeSelectionSection
-import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTopBar
-import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectUpperFieldsSection
+import com.akiwiksten.awtimesheet.feature.single_project.components.SingleProjectDialogDropdownFieldsSection
+import com.akiwiksten.awtimesheet.feature.single_project.components.SingleProjectHeaderSection
+import com.akiwiksten.awtimesheet.feature.single_project.components.SingleProjectTimeSelectionSection
+import com.akiwiksten.awtimesheet.feature.single_project.components.SingleProjectTopBar
+import com.akiwiksten.awtimesheet.feature.single_project.components.SingleProjectUpperFieldsSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

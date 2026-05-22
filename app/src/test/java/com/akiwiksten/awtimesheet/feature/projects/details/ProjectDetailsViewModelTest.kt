@@ -3,6 +3,8 @@ package com.akiwiksten.awtimesheet.feature.projects.details
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsViewModel
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
@@ -276,7 +278,8 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel =
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
 
         viewModel.observeDateRepository(
             projectDetailsState(date = "2026-04-10", projectName = "Alpha", projectTime = "01:00")
@@ -311,7 +314,8 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+        val viewModel =
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.loadProjectDetails(
             date = "2026-04-10",
@@ -351,7 +355,8 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+        val viewModel =
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.loadProjectDetails(
             date = "2026-04-10",
@@ -389,7 +394,8 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel =
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
 
         viewModel.observeDateRepository(projectDetailsState(date = "2026-04-10", projectName = "Alpha"))
         advanceUntilIdle()
@@ -423,7 +429,8 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+        val viewModel =
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
 
         viewModel.loadProjectDetails(date = "2026-04-10", projectName = "Alpha")
         advanceUntilIdle()
@@ -458,7 +465,8 @@ class ProjectDetailsViewModelTest {
                 initialFlexTimeTotal = "01:00"
             )
         }
-        val viewModel = ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
+        val viewModel =
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, dateRepository)
 
         viewModel.observeDateRepository(projectDetailsState(date = "2026-04-10", projectName = "Alpha"))
         advanceUntilIdle()

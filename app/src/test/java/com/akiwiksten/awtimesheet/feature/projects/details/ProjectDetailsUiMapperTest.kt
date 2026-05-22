@@ -1,6 +1,8 @@
 package com.akiwiksten.awtimesheet.feature.projects.details
 
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsUiMapper
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.settingsState
 import org.junit.Assert.assertEquals

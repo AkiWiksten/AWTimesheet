@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details.components
+package com.akiwiksten.awtimesheet.feature.project_details.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,8 +15,8 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsScreenActions
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsScreenActions
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsUiState
 
 @Composable
 internal fun ProjectDetailsLoadingState(padding: PaddingValues) {

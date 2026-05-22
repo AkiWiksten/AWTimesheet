@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details.components
+package com.akiwiksten.awtimesheet.feature.project_details.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,8 +35,8 @@ import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsTimeRowLabels
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsTimeRowLabels
+import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog as CoreUnsavedChangesDialog
 
 @Composable

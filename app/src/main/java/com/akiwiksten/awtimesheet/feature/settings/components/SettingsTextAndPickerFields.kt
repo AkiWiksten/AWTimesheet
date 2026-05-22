@@ -115,5 +115,3 @@ internal fun SettingsDailyLunchTimeEstimatePickerRow(
         }
     }
 }
-
-

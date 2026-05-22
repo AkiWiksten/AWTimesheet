@@ -37,5 +37,3 @@ internal fun SettingsGlobalDefaultsCard(state: SettingsContentBodyState) {
         )
     }
 }
-
-

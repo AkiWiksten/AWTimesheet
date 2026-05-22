@@ -1,9 +1,8 @@
 package com.akiwiksten.awtimesheet.domain
 
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase
+import com.akiwiksten.awtimesheet.test.FakeProjectRepository
+import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -14,9 +13,9 @@ class GetCalendarDataUseCaseTest {
     fun invoke_usesMonthlyDataForWeek_whenWeekInsideMonth() = runBlocking {
         val projectRepository = FakeProjectRepository().apply {
             projectsByRange["2026-04-01|2026-04-30"] = listOf(
-                SingleProjectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00"),
-                SingleProjectState(date = "2026-04-15", projectName = "Alpha", projectTime = "05:00"),
-                SingleProjectState(date = "2026-04-16", projectName = "Beta", projectTime = "03:00")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00"),
+                projectState(date = "2026-04-15", projectName = "Alpha", projectTime = "05:00"),
+                projectState(date = "2026-04-16", projectName = "Beta", projectTime = "03:00")
             )
         }
         val useCase = GetCalendarDataUseCase(projectRepository)
@@ -34,7 +33,7 @@ class GetCalendarDataUseCaseTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByRange["2026-08-01|2026-08-31"] = emptyList()
             projectsByRange["2026-07-27|2026-08-02"] = listOf(
-                SingleProjectState(date = "2026-07-30", projectName = "Alpha", projectTime = "02:00")
+                projectState(date = "2026-07-30", projectName = "Alpha", projectTime = "02:00")
             )
         }
         val useCase = GetCalendarDataUseCase(projectRepository)
@@ -45,34 +44,5 @@ class GetCalendarDataUseCaseTest {
         assertEquals("02:00", result.timePerWeek)
         assertEquals("00:00", result.timePerDay)
         assertEquals(listOf("2026-08-01|2026-08-31", "2026-07-27|2026-08-02"), projectRepository.requestedRanges)
-    }
-
-    private class FakeProjectRepository : ProjectRepository {
-        val projectsByRange = mutableMapOf<String, List<SingleProjectState>>()
-        val requestedRanges = mutableListOf<String>()
-
-        override suspend fun anyRecords(): Boolean = false
-
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
-            val key = "$start|$end"
-            requestedRanges += key
-            return projectsByRange[key] ?: emptyList()
-        }
-
-        override suspend fun insertProject(project: SingleProjectState) = Unit
-
-        override suspend fun deleteProject(project: SingleProjectState) = Unit
-
-        override suspend fun getProjectNames(): List<String> = emptyList()
-
-        override suspend fun insertProjectName(projectName: String) = Unit
-
-        override suspend fun deleteProjectName(projectName: String) = Unit
-
-        override suspend fun isProjectNameUsed(projectName: String): Boolean = false
-
-        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
-
-        override suspend fun getWorkTimeByDate(date: String): String = ZERO_TIME
     }
 }

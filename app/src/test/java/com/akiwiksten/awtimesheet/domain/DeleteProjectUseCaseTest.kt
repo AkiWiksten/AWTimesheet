@@ -1,12 +1,12 @@
 package com.akiwiksten.awtimesheet.domain
 
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
-import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
+import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
+import com.akiwiksten.awtimesheet.test.FakeProjectRepository
+import com.akiwiksten.awtimesheet.test.projectDetailsState
+import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -28,12 +28,12 @@ class DeleteProjectUseCaseTest {
         useCase(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")
 
         assertEquals(
-            listOf(SingleProjectState(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")),
+            listOf(projectState(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")),
             projectRepository.deletedProjects
         )
         assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
         assertEquals(
-            listOf(ProjectDetailsState(date = "2026-04-10", projectName = "Beta")),
+            listOf(projectDetailsState(date = "2026-04-10", projectName = "Beta")),
             projectDetailsRepository.deletedProjectDetails
         )
     }
@@ -72,59 +72,5 @@ class DeleteProjectUseCaseTest {
         useCase(date = "2026-04-10", projectName = "Beta", projectTime = "01:00")
 
         assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
-    }
-
-    private class FakeProjectRepository : ProjectRepository {
-        override suspend fun anyRecords(): Boolean = false
-
-        val deletedProjects = mutableListOf<SingleProjectState>()
-        val deletedProjectNames = mutableListOf<String>()
-        val isProjectNameUsedByName = mutableMapOf<String, Boolean>()
-        val projectsByDateRange = mutableMapOf<String, List<SingleProjectState>>()
-
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
-            return projectsByDateRange[start] ?: emptyList()
-        }
-
-        override suspend fun insertProject(project: SingleProjectState) = Unit
-
-        override suspend fun deleteProject(project: SingleProjectState) {
-            deletedProjects += project
-        }
-
-        override suspend fun getProjectNames(): List<String> = emptyList()
-
-        override suspend fun insertProjectName(projectName: String) = Unit
-
-        override suspend fun deleteProjectName(projectName: String) {
-            deletedProjectNames += projectName
-        }
-
-        override suspend fun isProjectNameUsed(projectName: String): Boolean =
-            isProjectNameUsedByName[projectName] ?: false
-
-        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
-
-        override suspend fun getWorkTimeByDate(date: String): String =
-            (projectsByDateRange[date] ?: emptyList()).fold(ZERO_TIME) { acc, p ->
-                WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
-            }
-    }
-
-    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        val deletedProjectDetails = mutableListOf<ProjectDetailsState>()
-
-        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? = null
-
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) = Unit
-
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) {
-            deletedProjectDetails += projectDetails
-        }
-
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = emptyList()
     }
 }

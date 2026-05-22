@@ -1,9 +1,9 @@
 package com.akiwiksten.awtimesheet.domain
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
+import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
+import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -13,14 +13,14 @@ class GetSettingsUseCaseTest {
     @Test
     fun invoke_returnsMappedValuesAndSortedWorkTypes() = runBlocking {
         val repository = FakeSettingsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 name = "Aki",
                 employer = "WorkTime",
                 dailyWorkTimeEstimate = "08:00",
                 dailyLunchTimeEstimate = "00:45",
                 initialFlexTimeTotal = "+01:30"
             )
-            effectiveSettings = SettingsState(
+            effectiveSettings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "01:00"
@@ -56,32 +56,5 @@ class GetSettingsUseCaseTest {
         assertEquals(ZERO_TIME, result.dailyLunchTimeEstimate)
         assertEquals(ZERO_TIME, result.initialFlexTimeTotal)
         assertEquals(listOf("Field"), result.workTypes)
-    }
-
-    private class FakeSettingsRepository : SettingsRepository {
-        var settings: SettingsState? = null
-        var effectiveSettings: SettingsState? = null
-        var workTypes: List<String> = emptyList()
-        var calculatedFlexTimeTotal: String = ZERO_TIME
-
-        override suspend fun getSettings(): SettingsState? = settings
-
-        override suspend fun insertSettings(settings: SettingsState) = Unit
-
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = effectiveSettings
-
-        override suspend fun getWorkTypes(): List<String> = workTypes
-
-        override suspend fun insertWorkType(workType: String) = Unit
-
-        override suspend fun deleteWorkType(workType: String) = Unit
-
-        override suspend fun deleteAllWorkTypes() = Unit
-
-        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
-
-        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
-            calculatedFlexTimeTotal = flexTime
-        }
     }
 }

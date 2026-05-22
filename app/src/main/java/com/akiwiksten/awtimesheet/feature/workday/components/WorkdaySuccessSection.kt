@@ -231,6 +231,3 @@ private data class WorkdayDisplayState(
     val editorState: WorkdaySettingsEditorState,
     val headerActions: WorkdayHeaderActions
 )
-
-
-

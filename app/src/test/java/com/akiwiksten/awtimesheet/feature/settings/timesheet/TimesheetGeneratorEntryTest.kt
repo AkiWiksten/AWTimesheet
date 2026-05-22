@@ -5,6 +5,7 @@ import com.akiwiksten.awtimesheet.feature.settings.timesheet.build.TimesheetExpo
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.GenerateTimesheetParams
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.TimesheetWorkbookEditor
+import com.akiwiksten.awtimesheet.test.projectState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -401,7 +402,7 @@ class TimesheetGeneratorEntryTest {
         totalFlexTimeTotal = "00:00"
     )
 
-    private fun sampleProject(spec: ProjectSpec) = SingleProjectState(
+    private fun sampleProject(spec: ProjectSpec) = projectState(
         index = spec.index,
         date = spec.date,
         projectName = spec.name,
@@ -522,7 +523,7 @@ class TimesheetGeneratorEntryExcelInspectionTest {
         val exportData = TimesheetExportDataBuilder.build(
             params = createParams(
                 startProjects.map { spec ->
-                    SingleProjectState(
+                    projectState(
                         index = spec.index,
                         date = spec.date,
                         projectName = spec.name,

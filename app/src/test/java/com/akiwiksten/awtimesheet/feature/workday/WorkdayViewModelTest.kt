@@ -1,20 +1,19 @@
 package com.akiwiksten.awtimesheet.feature.workday
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
-import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
-import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
-import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
-import com.akiwiksten.awtimesheet.domain.repository.WorkdayStatsRow
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.UpdateSettingsUseCase
+import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
+import com.akiwiksten.awtimesheet.test.FakeProjectRepository
+import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
+import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
+import com.akiwiksten.awtimesheet.test.projectDetailsState
+import com.akiwiksten.awtimesheet.test.projectState
+import com.akiwiksten.awtimesheet.test.settingsState
+import com.akiwiksten.awtimesheet.test.workdayStatsRow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -33,7 +32,7 @@ class WorkdayViewModelTest {
     fun selectedDate_loadsProjectsAsSuccessState() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
-                SingleProjectState(
+                projectState(
                     date = "2026-04-10",
                     projectName = "Beta",
                     projectTime = "02:30"
@@ -42,18 +41,18 @@ class WorkdayViewModelTest {
             projectNames = listOf("Beta", "Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository()
-        projectDetailsRepository.settings = SettingsState(
+        projectDetailsRepository.settings = settingsState(
             dailyWorkTimeEstimate = "07:30",
             initialFlexTimeTotal = "+01:45"
         )
         projectDetailsRepository.workdayStatsRows = listOf(
-            WorkdayStatsRow(
+            workdayStatsRow(
                 date = "2026-04-10",
                 workTimeByDateEstimate = "07:30"
             )
         )
         projectDetailsRepository.projectDetailsByDateRange = listOf(
-            ProjectDetailsState(date = "2026-04-10", projectName = "Beta")
+            projectDetailsState(date = "2026-04-10", projectName = "Beta")
         )
         val settingsRepository = FakeSettingsRepository().apply {
             workTypes = listOf("Office")
@@ -87,7 +86,7 @@ class WorkdayViewModelTest {
     fun updateSettings_currentDayWithZeroWorkTime_updatesDailyAndBalanceValues() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -118,7 +117,7 @@ class WorkdayViewModelTest {
         val today = LocalDate.now().toString()
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
-                SingleProjectState(
+                projectState(
                     date = today,
                     projectName = "Alpha",
                     projectTime = "01:00"
@@ -126,7 +125,7 @@ class WorkdayViewModelTest {
             )
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -156,7 +155,7 @@ class WorkdayViewModelTest {
     fun updateSettings_nonCurrentDayWithZeroWorkTime_keepsExistingDailyWorkTime() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -185,7 +184,7 @@ class WorkdayViewModelTest {
     @Test
     fun updateSettings_invalidInput_doesNotPersist() = runTest {
         val projectRepository = FakeProjectRepository()
-        val initialStats = SettingsState(
+        val initialStats = settingsState(
             dailyWorkTimeEstimate = "07:30",
             dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:45"
@@ -215,7 +214,7 @@ class WorkdayViewModelTest {
     fun deleteProject_subtractsDeletedProjectTimeFromTrackedChange() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
-                SingleProjectState(
+                projectState(
                     date = "2026-04-10",
                     projectName = "Alpha",
                     projectTime = "02:30"
@@ -224,13 +223,13 @@ class WorkdayViewModelTest {
             projectNames = listOf("Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
             )
             workdayStatsRows = listOf(
-                WorkdayStatsRow(
+                workdayStatsRow(
                     date = "2026-04-10",
                     workTimeByDateEstimate = "07:30"
                 )
@@ -253,7 +252,7 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         viewModel.deleteProject(
-            SingleProjectState(
+            projectState(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 projectTime = "02:30"
@@ -269,7 +268,7 @@ class WorkdayViewModelTest {
     fun reconcileFlexTimeTotalAfterProjectEditorReturn_addsFlexDeltaToPersistedCalculatedTotal() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
-                SingleProjectState(
+                projectState(
                     date = "2026-04-10",
                     projectName = "Alpha",
                     projectTime = "02:30"
@@ -278,7 +277,7 @@ class WorkdayViewModelTest {
             projectNames = listOf("Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
@@ -300,7 +299,7 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         projectRepository.projectsByDateRange = listOf(
-            SingleProjectState(
+            projectState(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 projectTime = "04:30"
@@ -325,7 +324,7 @@ class WorkdayViewModelTest {
             projectNames = listOf("Alpha")
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
@@ -347,7 +346,7 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         projectRepository.projectsByDateRange = listOf(
-            SingleProjectState(
+            projectState(
                 date = "2026-04-10",
                 projectName = "Alpha",
                 projectTime = "01:30"
@@ -369,7 +368,7 @@ class WorkdayViewModelTest {
     fun newDateWithoutWorkdayRow_usesGlobalDailyEstimateForworkTimeByDateEstimate() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "08:00",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
@@ -399,14 +398,14 @@ class WorkdayViewModelTest {
     fun dateWithEffectiveOverride_usesPerDayEstimateInsteadOfGlobal() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "08:00",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
             )
         }
         val settingsRepository = FakeSettingsRepository().apply {
-            effectiveSettings = SettingsState(
+            effectiveSettings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = ZERO_TIME
@@ -433,7 +432,7 @@ class WorkdayViewModelTest {
     fun updateSettings_saveGlobally_whenLocalUpdateBlocked_updatesGlobalEstimate() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
-                SingleProjectState(
+                projectState(
                     date = "2000-01-01",
                     projectName = "Alpha",
                     projectTime = "01:00"
@@ -441,7 +440,7 @@ class WorkdayViewModelTest {
             )
         }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
-            settings = SettingsState(
+            settings = settingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
                 initialFlexTimeTotal = "+01:45"
@@ -482,8 +481,7 @@ class WorkdayViewModelTest {
         return WorkdayViewModel(
             getWorkdayScreenDataUseCase = GetWorkdayScreenDataUseCase(
                 projectRepository = projectRepository,
-                settingsRepository = settingsRepository,
-                workdayRepository = workdayRepository
+                settingsRepository = settingsRepository
             ),
             deleteProjectUseCase = DeleteProjectUseCase(
                 projectRepository = projectRepository,
@@ -496,150 +494,5 @@ class WorkdayViewModelTest {
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
         )
-    }
-
-    private class FakeProjectRepository : ProjectRepository {
-        var projectsByDateRange: List<SingleProjectState> = emptyList()
-        var projectNames: List<String> = emptyList()
-        val insertedProjects = mutableListOf<SingleProjectState>()
-        val deletedProjects = mutableListOf<SingleProjectState>()
-
-        override suspend fun anyRecords(): Boolean = false
-
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
-            return projectsByDateRange.filter { it.date in start..end }
-        }
-
-        override suspend fun insertProject(project: SingleProjectState) {
-            insertedProjects += project
-            projectsByDateRange = projectsByDateRange.filterNot {
-                it.date == project.date && it.projectName == project.projectName
-            } + project
-        }
-
-        override suspend fun deleteProject(project: SingleProjectState) {
-            deletedProjects += project
-            projectsByDateRange = projectsByDateRange.filterNot {
-                it.date == project.date && it.projectName == project.projectName
-            }
-        }
-
-        override suspend fun getProjectNames(): List<String> = projectNames
-
-        override suspend fun insertProjectName(projectName: String) {
-            if (this.projectNames.none { it == projectName }) {
-                this.projectNames += projectName
-            }
-        }
-
-        override suspend fun deleteProjectName(projectName: String) {
-            this.projectNames = this.projectNames.filterNot { it == projectName }
-        }
-
-        override suspend fun isProjectNameUsed(projectName: String): Boolean {
-            return projectsByDateRange.any { it.projectName == projectName }
-        }
-
-        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
-
-        override suspend fun getWorkTimeByDate(date: String): String =
-            projectsByDateRange.filter { it.date == date }.fold(ZERO_TIME) { acc, p ->
-                WorkTimeCalculator.calculateFlexTime(acc, p.projectTime)
-            }
-    }
-
-    private class FakeProjectDetailsRepository : ProjectDetailsRepository {
-        var settings: SettingsState? = null
-        var projectDetailsByDateRange: List<ProjectDetailsState> = emptyList()
-        var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
-        val insertedProjectDetails = mutableListOf<ProjectDetailsState>()
-
-        override suspend fun getProjectDetails(date: String, projectName: String): ProjectDetailsState? {
-            val state = insertedProjectDetails.firstOrNull { it.date == date && it.projectName == projectName }
-            return state?.let {
-                ProjectDetailsState(
-                    date = it.date,
-                    projectName = it.projectName,
-                    startTime = it.startTime,
-                    endTime = it.endTime,
-                    lunchStart = it.lunchStart,
-                    lunchEnd = it.lunchEnd,
-                    breakStart = it.breakStart,
-                    breakEnd = it.breakEnd,
-                    projectTime = it.projectTime
-                )
-            }
-        }
-
-        override suspend fun insertProjectDetails(projectDetails: ProjectDetailsState) {
-            insertedProjectDetails += projectDetails
-        }
-
-        override suspend fun deleteProjectDetails(projectDetails: ProjectDetailsState) {
-            insertedProjectDetails
-                .removeIf {
-                    it.date == projectDetails.date && it.projectName == projectDetails.projectName
-                }
-        }
-
-        override suspend fun getProjectDetailsByDateRange(
-            start: String,
-            end: String
-        ): List<ProjectDetailsState> = projectDetailsByDateRange
-    }
-
-    private class FakeWorkdayRepository(
-        private val projectDetailsRepository: FakeProjectDetailsRepository? = null
-    ) : WorkdayRepository {
-        var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
-
-        override suspend fun loadWorkday(date: String): String? = null
-
-        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) {
-            val updatedRow = WorkdayStatsRow(
-                date = date,
-                workTimeByDateEstimate = workTimeByDateEstimate
-            )
-            workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + updatedRow
-            projectDetailsRepository?.let { repository ->
-                repository.workdayStatsRows = workdayStatsRows
-                repository.settings = (repository.settings ?: SettingsState()).copy(
-                    dailyWorkTimeEstimate = workTimeByDateEstimate
-                )
-            }
-        }
-
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {
-            return workdayStatsRows.filter { it.date in start..end }
-        }
-    }
-
-    private class FakeSettingsRepository : SettingsRepository {
-        var workTypes: List<String> = emptyList()
-        var settings: SettingsState? = null
-        var effectiveSettings: SettingsState? = null
-        var calculatedFlexTimeTotal: String = ZERO_TIME
-
-        override suspend fun getSettings(): SettingsState? = settings
-
-        override suspend fun insertSettings(settings: SettingsState) {
-            this.settings = settings
-        }
-
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = effectiveSettings ?: settings
-
-        override suspend fun getWorkTypes(): List<String> = workTypes
-
-        override suspend fun insertWorkType(workType: String) = Unit
-
-        override suspend fun deleteWorkType(workType: String) = Unit
-
-        override suspend fun deleteAllWorkTypes() = Unit
-
-        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
-
-        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
-            calculatedFlexTimeTotal = flexTime
-        }
     }
 }

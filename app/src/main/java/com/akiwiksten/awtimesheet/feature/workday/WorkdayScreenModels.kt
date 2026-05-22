@@ -21,4 +21,3 @@ internal data class WorkdayHeaderActions(
 )
 
 internal val WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
-

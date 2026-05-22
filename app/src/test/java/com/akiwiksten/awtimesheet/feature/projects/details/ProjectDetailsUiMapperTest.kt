@@ -1,8 +1,8 @@
 package com.akiwiksten.awtimesheet.feature.projects.details
 
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
+import com.akiwiksten.awtimesheet.test.projectDetailsState
+import com.akiwiksten.awtimesheet.test.settingsState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -14,10 +14,10 @@ class ProjectDetailsUiMapperTest {
     fun mapEntitiesToUiState_withNoProjectDetails_usesSettingsLunchTimeEstimate() {
         val result = ProjectDetailsUiMapper.mapEntitiesToUiState(
             baseState = ProjectDetailsUiState.Success(
-                details = ProjectDetailsState(date = "2026-05-05", projectName = "Alpha")
+                details = projectDetailsState(date = "2026-05-05", projectName = "Alpha")
             ),
             projectDetails = null,
-            settings = SettingsState(dailyLunchTimeEstimate = "00:45")
+            settings = settingsState(dailyLunchTimeEstimate = "00:45")
         )
 
         assertTrue(result.details.isNewDayForProject())
@@ -27,12 +27,12 @@ class ProjectDetailsUiMapperTest {
     @Test
     fun mapEntitiesToUiState_withNewDayProjectDetails_usesSettingsLunchTimeEstimate() {
         val result = ProjectDetailsUiMapper.mapEntitiesToUiState(
-            baseState = ProjectDetailsUiState.Success(details = ProjectDetailsState()),
-            projectDetails = ProjectDetailsState(
+            baseState = ProjectDetailsUiState.Success(details = projectDetailsState()),
+            projectDetails = projectDetailsState(
                 date = "2026-05-05",
                 projectName = "Alpha"
             ),
-            settings = SettingsState(dailyLunchTimeEstimate = "00:45")
+            settings = settingsState(dailyLunchTimeEstimate = "00:45")
         )
 
         assertTrue(result.details.isNewDayForProject())
@@ -42,8 +42,8 @@ class ProjectDetailsUiMapperTest {
     @Test
     fun mapEntitiesToUiState_withExistingDayProjectDetails_preservesProjectLunchTimeEstimate() {
         val result = ProjectDetailsUiMapper.mapEntitiesToUiState(
-            baseState = ProjectDetailsUiState.Success(details = ProjectDetailsState()),
-            projectDetails = ProjectDetailsState(
+            baseState = ProjectDetailsUiState.Success(details = projectDetailsState()),
+            projectDetails = projectDetailsState(
                 date = "2026-05-05",
                 projectName = "Alpha",
                 startTime = "08:00",
@@ -51,7 +51,7 @@ class ProjectDetailsUiMapperTest {
                 projectTime = "08:00",
                 lunchTimeEstimate = "00:15"
             ),
-            settings = SettingsState(dailyLunchTimeEstimate = "00:45")
+            settings = settingsState(dailyLunchTimeEstimate = "00:45")
         )
 
         assertFalse(result.details.isNewDayForProject())

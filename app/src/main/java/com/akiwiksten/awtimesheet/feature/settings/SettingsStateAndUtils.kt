@@ -185,4 +185,3 @@ internal fun rememberSettingsSaveUi(
 }
 
 private val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
-

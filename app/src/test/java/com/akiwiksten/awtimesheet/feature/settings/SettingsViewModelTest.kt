@@ -1,18 +1,15 @@
 package com.akiwiksten.awtimesheet.feature.settings
 
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
-import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
-import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
-import com.akiwiksten.awtimesheet.domain.repository.WorkdayStatsRow
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
+import com.akiwiksten.awtimesheet.test.FakeProjectRepository
+import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
+import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
+import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -30,7 +27,7 @@ class SettingsViewModelTest {
     @Test
     fun loadSettings_updatesSuccessState() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsState(name = "Aki", employer = "Company")
+            settings = settingsState(name = "Aki", employer = "Company")
             workTypes = mutableListOf("Remote", "Office")
         }
         val projectRepository = FakeProjectRepository()
@@ -49,12 +46,12 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun requestMonthlyReport_preservesLoadedSettingsState() = runTest {
+    fun requestMonthlyReport_preservesLoadedsettingsState() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsState(name = "Aki", employer = "Company")
+            settings = settingsState(name = "Aki", employer = "Company")
         }
         val projectRepository = FakeProjectRepository().apply {
-            projectsByRange["2026-04-01|2026-04-30"] = listOf(
+            dataByRange["2026-04-01|2026-04-30"] = listOf(
                 ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
         }
@@ -92,13 +89,13 @@ class SettingsViewModelTest {
     @Test
     fun selectedDateChange_updatesSelectedDateWithoutOverwritingUnsavedSettings() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsState(name = "Aki", employer = "Company")
+            settings = settingsState(name = "Aki", employer = "Company")
         }
         val projectRepository = FakeProjectRepository().apply {
-            projectsByRange["2026-04-01|2026-04-30"] = listOf(
+            dataByRange["2026-04-01|2026-04-30"] = listOf(
                 ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
-            projectsByRange["2026-05-01|2026-05-31"] = listOf(
+            dataByRange["2026-05-01|2026-05-31"] = listOf(
                 ProjectEntity(date = "2026-05-10", projectName = "Beta", projectTime = "04:00")
             )
         }
@@ -136,7 +133,7 @@ class SettingsViewModelTest {
     @Test
     fun saveSettings_persistsCurrentValues() = runTest {
         val settingsRepository = FakeSettingsRepository().apply {
-            settings = SettingsState(name = "Aki", employer = "Company")
+            settings = settingsState(name = "Aki", employer = "Company")
         }
         val viewModel = createViewModel(settingsRepository, FakeProjectRepository())
 
@@ -173,85 +170,5 @@ class SettingsViewModelTest {
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
         )
-    }
-
-    private class FakeSettingsRepository : SettingsRepository {
-        var settings: SettingsState? = null
-        var workTypes: MutableList<String> = mutableListOf()
-        val insertedWorkTypes = mutableListOf<String>()
-        var insertedSettings: SettingsState? = null
-        var calculatedFlexTimeTotal: String = ZERO_TIME
-
-        override suspend fun getSettings(): SettingsState? = settings
-
-        override suspend fun insertSettings(settings: SettingsState) {
-            insertedSettings = settings
-        }
-
-        override suspend fun getEffectiveSettingsForDate(date: String): SettingsState? = null
-
-        override suspend fun getWorkTypes(): List<String> = workTypes
-
-        override suspend fun insertWorkType(workType: String) {
-            insertedWorkTypes += workType
-            workTypes += workType
-        }
-
-        override suspend fun deleteWorkType(workType: String) {
-            workTypes = workTypes.filterNot { it == workType }.toMutableList()
-        }
-
-        override suspend fun deleteAllWorkTypes() {
-            workTypes.clear()
-        }
-
-        override suspend fun getCalculatedFlextimeTotal(): String = calculatedFlexTimeTotal
-
-        override suspend fun insertCalculatedFlextimeTotal(flexTime: String) {
-            calculatedFlexTimeTotal = flexTime
-        }
-    }
-
-    private class FakeProjectRepository : ProjectRepository {
-        val projectsByRange = mutableMapOf<String, List<ProjectEntity>>()
-
-        override suspend fun anyRecords(): Boolean = false
-
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
-            return (projectsByRange["$start|$end"] ?: emptyList()).map { entity ->
-                SingleProjectState(
-                    date = entity.date,
-                    projectName = entity.projectName,
-                    projectTime = entity.projectTime,
-                    kilometres = entity.kilometres.toString(),
-                    allowance = entity.allowance,
-                    workType = entity.workType
-                )
-            }
-        }
-
-        override suspend fun insertProject(project: SingleProjectState) = Unit
-
-        override suspend fun deleteProject(project: SingleProjectState) = Unit
-
-        override suspend fun getProjectNames(): List<String> = emptyList()
-
-        override suspend fun insertProjectName(projectName: String) = Unit
-
-        override suspend fun deleteProjectName(projectName: String) = Unit
-
-        override suspend fun isProjectNameUsed(projectName: String): Boolean = false
-
-        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
-
-        override suspend fun getWorkTimeByDate(date: String): String = ZERO_TIME
-    }
-
-    private class FakeWorkdayRepository : WorkdayRepository {
-        override suspend fun loadWorkday(date: String): String? = null
-
-        override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) = Unit
-
-        override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> = emptyList()
     }
 }

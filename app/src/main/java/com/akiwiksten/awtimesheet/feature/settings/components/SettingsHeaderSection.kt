@@ -47,4 +47,3 @@ internal fun SettingsHeaderSection(date: String) {
         }
     }
 }
-

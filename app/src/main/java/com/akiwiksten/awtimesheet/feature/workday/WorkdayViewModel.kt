@@ -222,4 +222,3 @@ internal fun resolveFlexContribution(flexTimeByDate: String, workTimeByDate: Str
         flexTimeByDate
     }
 }
-

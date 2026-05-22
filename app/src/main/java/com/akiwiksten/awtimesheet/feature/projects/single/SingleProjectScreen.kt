@@ -50,8 +50,8 @@ import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectDialogDropdownFieldsSection
 import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectHeaderSection
-import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTimeSelectionSection
+import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.projects.single.components.SingleProjectUpperFieldsSection
 
 @OptIn(ExperimentalMaterial3Api::class)

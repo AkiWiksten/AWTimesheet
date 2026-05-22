@@ -44,4 +44,3 @@ internal fun SettingsCard(title: String? = null, content: @Composable () -> Unit
         }
     }
 }
-

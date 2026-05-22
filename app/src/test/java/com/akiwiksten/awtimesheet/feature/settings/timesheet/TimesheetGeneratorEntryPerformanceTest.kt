@@ -4,6 +4,7 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.build.TimesheetExportDataBuilder
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.GenerateTimesheetParams
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.TimesheetWorkbookEditor
+import com.akiwiksten.awtimesheet.test.projectState
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -77,7 +78,7 @@ class TimesheetGeneratorEntryPerformanceTest {
                 val workType = arrayOf("Other", "Design", "Consulting")[dayIndex % 3]
 
                 projects.add(
-                    SingleProjectState(
+                    projectState(
                         index = projIndex,
                         date = date,
                         projectName = projectName,

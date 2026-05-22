@@ -52,5 +52,3 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
         }
     }
 }
-
-

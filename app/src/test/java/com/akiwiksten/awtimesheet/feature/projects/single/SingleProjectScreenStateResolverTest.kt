@@ -1,8 +1,8 @@
 package com.akiwiksten.awtimesheet.feature.projects.single
 
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.test.projectDetailsState
+import com.akiwiksten.awtimesheet.test.projectState
+import com.akiwiksten.awtimesheet.test.settingsState
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -10,7 +10,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_withFilledProjectName_andBlankKilometres_enablesConfirm() {
-        val initialState = SingleProjectState(index = -1)
+        val initialState = projectState(index = -1)
         val editedState = initialState.copy(projectName = "Alpha", kilometres = "")
 
         val isEnabled = isSingleProjectConfirmEnabled(
@@ -25,7 +25,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withProjectNameAndTime_withoutChanges_enablesConfirm() {
-        val initialState = SingleProjectState(
+        val initialState = projectState(
             index = 0,
             projectName = "Alpha",
             projectTime = "01:00",
@@ -44,7 +44,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withChanges_andValidFields_enablesConfirm() {
-        val initialState = SingleProjectState(index = 0, projectName = "Alpha", kilometres = "12")
+        val initialState = projectState(index = 0, projectName = "Alpha", kilometres = "12")
         val editedState = initialState.copy(projectTime = "01:00")
 
         val isEnabled = isSingleProjectConfirmEnabled(
@@ -59,7 +59,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_withDuplicateProjectName_disablesConfirm() {
-        val state = SingleProjectState(index = -1, projectName = "Alpha", projectTime = "01:00")
+        val state = projectState(index = -1, projectName = "Alpha", projectTime = "01:00")
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = state,
@@ -73,8 +73,8 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun isDuplicate_addMode_matchesCaseInsensitive() {
-        val existingAlpha = SingleProjectState(index = 0, projectName = "Alpha")
-        val existingBeta = SingleProjectState(index = 1, projectName = "Beta")
+        val existingAlpha = projectState(index = 0, projectName = "Alpha")
+        val existingBeta = projectState(index = 1, projectName = "Beta")
 
         assertEquals(true, isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha))
         assertEquals(true, isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta))
@@ -83,30 +83,24 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun isDuplicate_editMode_ignoresOwnIndex() {
-        val existing = SingleProjectState(index = 0, projectName = "Alpha")
+        val existing = projectState(index = 0, projectName = "Alpha")
 
-        // Editing index 0 with its own name → not a duplicate (edit mode bypasses check)
         assertEquals(false, isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing))
-        // Editing index 0 but checking against different project → still not duplicate (edit mode ignores)
         assertEquals(false, isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing))
     }
 
     @Test
     fun editMode_withNavigationProjectTime_prefersNavigationState() {
-        val initialState = SingleProjectState(
-            index = 0,
-            projectName = "Alpha",
-            projectTime = "01:45"
-        )
+        val initialState = projectState(index = 0, projectName = "Alpha", projectTime = "01:45")
         val singleProjectUiState = SingleProjectUiState.Success(
-            data = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "00:00"),
+            data = projectState(index = 0, projectName = "Alpha", projectTime = "00:00"),
             workTimeByDate = "00:00",
             workTypes = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
-            initialProjectDetails = ProjectDetailsState(projectTime = "01:45"),
+            initialProjectDetails = projectDetailsState(projectTime = "01:45"),
             initialSettings = null,
             singleProjectUiState = singleProjectUiState
         )
@@ -116,9 +110,9 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withoutNavigationPayload_usesCurrentProjectsState() {
-        val initialState = SingleProjectState(index = 0)
+        val initialState = projectState(index = 0)
         val singleProjectUiState = SingleProjectUiState.Success(
-            data = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
+            data = projectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
             workTypes = emptyList()
         )
@@ -131,7 +125,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_returnsInitialState() {
-        val initialState = SingleProjectState(index = -1, projectName = "New", projectTime = "00:30")
+        val initialState = projectState(index = -1, projectName = "New", projectTime = "00:30")
 
         val resolved = resolveInitialSingleProjectState(initialState, null, null, SingleProjectUiState.Loading)
 
@@ -140,9 +134,9 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withNavigationSettings_prefersNavigationState() {
-        val initialState = SingleProjectState(index = 0)
+        val initialState = projectState(index = 0)
         val singleProjectUiState = SingleProjectUiState.Success(
-            data = SingleProjectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
+            data = projectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
             workTypes = emptyList()
         )
@@ -150,7 +144,7 @@ class SingleProjectScreenStateResolverTest {
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
             initialProjectDetails = null,
-            initialSettings = SettingsState(dailyWorkTimeEstimate = "07:30"),
+            initialSettings = settingsState(dailyWorkTimeEstimate = "07:30"),
             singleProjectUiState = singleProjectUiState
         )
 

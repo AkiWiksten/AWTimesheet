@@ -26,4 +26,3 @@ class WorkdayFlexContributionTest {
         assertEquals("-06:00", contribution)
     }
 }
-

@@ -1,15 +1,12 @@
 package com.akiwiksten.awtimesheet.data.repository
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
-import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
-import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
-import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
-import com.akiwiksten.awtimesheet.data.database.entity.CalculatedFlextimeTotalEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
-import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.test.FakeCalculatedFlexTimeTotalDao
+import com.akiwiksten.awtimesheet.test.FakeSettingsDao
+import com.akiwiksten.awtimesheet.test.FakeWorkTypeDao
+import com.akiwiksten.awtimesheet.test.FakeWorkdayDao
+import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -28,7 +25,7 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun getSettings_returnsDataFromDao() = runBlocking {
-        val expected = SettingsState(name = "Aki", employer = "Company")
+        val expected = settingsState(name = "Aki", employer = "Company")
         settingsDao.settingsResult = expected
 
         val result = repository.getSettings()
@@ -38,7 +35,7 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun insertSettings_callsDaoInsert() = runBlocking {
-        val settings = SettingsState(name = "Aki", employer = "Company")
+        val settings = settingsState(name = "Aki", employer = "Company")
 
         repository.insertSettings(settings)
 
@@ -94,7 +91,7 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun getEffectiveSettingsForDate_withoutWorkday_returnsGlobalSettings() = runBlocking {
-        settingsDao.settingsResult = SettingsState(
+        settingsDao.settingsResult = settingsState(
             dailyWorkTimeEstimate = "08:00",
             dailyLunchTimeEstimate = "00:30",
             initialFlexTimeTotal = "+01:00"
@@ -110,7 +107,7 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun getEffectiveSettingsForDate_withWorkdayOverride_returnsPerDayEstimate() = runBlocking {
-        settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
+        settingsDao.settingsResult = settingsState(dailyWorkTimeEstimate = "08:00")
         workdayDao.workdayResult = WorkdayEntity(
             date = "2026-04-10",
             workTimeByDateEstimate = "07:45"
@@ -123,7 +120,7 @@ class SettingsRepositoryImplTest {
 
     @Test
     fun getEffectiveSettingsForDate_withEmptyWorkdayEstimate_fallsBackToGlobalEstimate() = runBlocking {
-        settingsDao.settingsResult = SettingsState(dailyWorkTimeEstimate = "08:00")
+        settingsDao.settingsResult = settingsState(dailyWorkTimeEstimate = "08:00")
         workdayDao.workdayResult = WorkdayEntity(
             date = "2026-04-10",
             workTimeByDateEstimate = ""
@@ -132,68 +129,5 @@ class SettingsRepositoryImplTest {
         val result = repository.getEffectiveSettingsForDate("2026-04-10")
 
         assertEquals("08:00", result?.dailyWorkTimeEstimate)
-    }
-
-    private class FakeSettingsDao : SettingsDao {
-        var settingsResult: SettingsState? = null
-        var insertedSettings: SettingsState? = null
-
-        override suspend fun anyRecord(): Boolean = false
-
-        override suspend fun insertSettings(settings: com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity) {
-            insertedSettings = settings.toDomain()
-        }
-
-        override suspend fun loadSettings(): com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity? =
-            settingsResult?.toEntity()
-    }
-
-    private class FakeWorkTypeDao : WorkTypeDao {
-        var workTypesResult: List<String> = emptyList()
-        var insertedWorkType: String? = null
-        var deletedWorkType: String? = null
-        var deleteAllCallCount: Int = 0
-
-        override suspend fun anyRecords(): Boolean = false
-
-        override suspend fun insertWorkType(workType: com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity) {
-            insertedWorkType = workType.workType
-        }
-
-        override suspend fun loadWorkTypes(): List<com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity> =
-            workTypesResult.map { com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity(workType = it) }
-
-        override suspend fun delete(workType: com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity) {
-            deletedWorkType = workType.workType
-        }
-
-        override suspend fun deleteAllWorkTypes() {
-            deleteAllCallCount += 1
-        }
-    }
-
-    private class FakeWorkdayDao : WorkdayDao {
-        var workdayResult: WorkdayEntity? = null
-
-        override suspend fun loadWorkday(date: String): WorkdayEntity? = workdayResult
-
-        override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
-
-        override suspend fun getWorkdaysByDateRange(
-            start: String,
-            end: String
-        ): List<com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity> = emptyList()
-    }
-
-    private class FakeCalculatedFlexTimeTotalDao : CalculatedFlexTimeTotalDao {
-        var storedEntity: CalculatedFlextimeTotalEntity? = null
-        var insertedFlexTime: String? = null
-
-        override suspend fun insertCalculatedFlextimeTotal(flexTime: CalculatedFlextimeTotalEntity) {
-            insertedFlexTime = flexTime.calculatedFlexTimeTotal
-            storedEntity = flexTime
-        }
-
-        override suspend fun loadCalculatedFlextimeTotal(): CalculatedFlextimeTotalEntity? = storedEntity
     }
 }

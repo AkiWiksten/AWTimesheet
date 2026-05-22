@@ -33,11 +33,11 @@ import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog as CoreUnsavedChangesDialog
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsTimeRowLabels
+import com.akiwiksten.awtimesheet.feature.projects.details.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog as CoreUnsavedChangesDialog
 
 @Composable
 internal fun ProjectDetailsTimeRow(

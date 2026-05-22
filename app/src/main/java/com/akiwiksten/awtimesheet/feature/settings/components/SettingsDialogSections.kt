@@ -74,5 +74,3 @@ internal fun SettingsAddWorkTypeDialogSection(
         )
     }
 }
-
-

@@ -2,13 +2,11 @@ package com.akiwiksten.awtimesheet.feature.calendar
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase
+import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -181,44 +179,5 @@ class CalendarViewModelTest {
         val result = viewModel.convertMillisToDate(millis)
 
         assertEquals("2026-04-10", result)
-    }
-
-    private open class FakeProjectRepository : ProjectRepository {
-        val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
-        var readDelayMillis: Long = 0
-
-        override suspend fun anyRecords(): Boolean = false
-
-        override suspend fun getProjectsByDateRange(start: String, end: String): List<SingleProjectState> {
-            if (readDelayMillis > 0) {
-                delay(readDelayMillis)
-            }
-            return (dataByRange["$start|$end"] ?: emptyList()).map { entity ->
-                SingleProjectState(
-                    date = entity.date,
-                    projectName = entity.projectName,
-                    projectTime = entity.projectTime,
-                    kilometres = entity.kilometres.toString(),
-                    allowance = entity.allowance,
-                    workType = entity.workType
-                )
-            }
-        }
-
-        override suspend fun insertProject(project: SingleProjectState) = Unit
-
-        override suspend fun deleteProject(project: SingleProjectState) = Unit
-
-        override suspend fun getProjectNames(): List<String> = emptyList()
-
-        override suspend fun insertProjectName(projectName: String) = Unit
-
-        override suspend fun deleteProjectName(projectName: String) = Unit
-
-        override suspend fun isProjectNameUsed(projectName: String): Boolean = false
-
-        override suspend fun getProject(date: String, projectName: String): SingleProjectState? = null
-
-        override suspend fun getWorkTimeByDate(date: String): String = ZERO_TIME
     }
 }

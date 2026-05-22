@@ -27,3 +27,4 @@ rootProject.name = "AWTimesheet"
 include(":app")
 include(":core")
 include(":data")
+include(":domain")

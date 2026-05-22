@@ -183,7 +183,7 @@ class SettingsViewModel @Inject constructor(
                             endOfMonthDate = monthlyResult.endOfMonth,
                             name = name,
                             employer = employer,
-                            totalFlexTimeTotal = monthlyResult.totalFlexTimeTotal
+                            totalFlexTimeTotal = monthlyResult.flexTimeTotal
                         )
                     )
                 }

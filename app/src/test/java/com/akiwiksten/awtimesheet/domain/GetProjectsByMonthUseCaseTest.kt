@@ -3,7 +3,6 @@ package com.akiwiksten.awtimesheet.domain
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
-import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
 import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -18,8 +17,7 @@ class GetProjectsByMonthUseCaseTest {
         }
         val useCase = GetProjectsByMonthUseCase(
             projectRepository = repository,
-            settingsRepository = FakeSettingsRepository(),
-            workdayRepository = FakeWorkdayRepository()
+            settingsRepository = FakeSettingsRepository()
         )
 
         val result = useCase("2026-04-10")
@@ -35,8 +33,7 @@ class GetProjectsByMonthUseCaseTest {
         val repository = FakeProjectRepository()
         val useCase = GetProjectsByMonthUseCase(
             projectRepository = repository,
-            settingsRepository = FakeSettingsRepository(),
-            workdayRepository = FakeWorkdayRepository()
+            settingsRepository = FakeSettingsRepository()
         )
 
         val result = useCase("2024-02-15")

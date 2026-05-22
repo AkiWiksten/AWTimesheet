@@ -67,8 +67,7 @@ class SettingsViewModelTest {
             ),
             getProjectsByMonthUseCase = GetProjectsByMonthUseCase(
                 projectRepository = projectRepository,
-                settingsRepository = settingsRepository,
-                workdayRepository = workdayRepository
+                settingsRepository = settingsRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
@@ -111,8 +110,7 @@ class SettingsViewModelTest {
             ),
             getProjectsByMonthUseCase = GetProjectsByMonthUseCase(
                 projectRepository = projectRepository,
-                settingsRepository = settingsRepository,
-                workdayRepository = workdayRepository
+                settingsRepository = settingsRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
@@ -164,8 +162,7 @@ class SettingsViewModelTest {
             ),
             getProjectsByMonthUseCase = GetProjectsByMonthUseCase(
                 projectRepository = projectRepository,
-                settingsRepository = settingsRepository,
-                workdayRepository = workdayRepository
+                settingsRepository = settingsRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository

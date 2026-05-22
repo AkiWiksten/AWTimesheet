@@ -25,4 +25,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AWTimesheet"
 include(":app")
- 
+include(":core")

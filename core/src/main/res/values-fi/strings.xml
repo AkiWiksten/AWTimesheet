@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="allowance">Päiväraha</string>
+    <string name="dismiss">Peruuta</string>
+    <string name="confirm">Hyväksy</string>
+    <string name="unsaved_data_title">Tallentamatonta dataa!</string>
+    <string name="save">Tallenna</string>
+    <string name="discard">Hylkää</string>
+    <string name="stay">Jää</string>
+</resources>

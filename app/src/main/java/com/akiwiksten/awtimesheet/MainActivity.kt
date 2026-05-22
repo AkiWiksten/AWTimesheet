@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.core.ui
+package com.akiwiksten.awtimesheet
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

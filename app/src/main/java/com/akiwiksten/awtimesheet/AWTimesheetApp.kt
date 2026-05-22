@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.core
+package com.akiwiksten.awtimesheet
 
 import android.app.Application
 import com.akiwiksten.awtimesheet.domain.usecase.EnsureDefaultSettingsUseCase

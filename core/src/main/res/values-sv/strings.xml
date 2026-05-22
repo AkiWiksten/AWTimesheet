@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="allowance">Traktamente</string>
+    <string name="dismiss">Avbryt</string>
+    <string name="confirm">Bekräfta</string>
+    <string name="unsaved_data_title">Osparad data!</string>
+    <string name="save">Spara</string>
+    <string name="discard">Förkasta</string>
+    <string name="stay">Stanna</string>
+</resources>

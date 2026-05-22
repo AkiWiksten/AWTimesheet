@@ -63,6 +63,7 @@ detekt {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":data"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -32,3 +32,4 @@ class IntroViewModel @Inject constructor(
         _uiState.value = IntroUiState.Success(appName = appNameStr)
     }
 }
+

@@ -45,7 +45,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 
 private const val ANIMATION_DURATION = 3000
@@ -290,3 +289,4 @@ private fun StrokeText(text: String, modifier: Modifier = Modifier) {
         drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
     }
 }
+

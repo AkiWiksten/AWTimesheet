@@ -26,6 +26,8 @@ dependencies {
 
     testFixturesImplementation(libs.junit)
     testFixturesImplementation(libs.kotlinx.coroutines.test)
+    testFixturesImplementation(platform(libs.androidx.compose.bom))
+    testFixturesImplementation(libs.androidx.compose.ui)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)

@@ -1,11 +1,11 @@
 package com.akiwiksten.awtimesheet.feature.calendar
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
+import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -27,7 +27,7 @@ class CalendarViewModelTest {
     fun onDateSelected_updatesUiStateWithCalculatedSums() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00", 0, "", "")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
             )
         }
         val viewModel = CalendarViewModel(
@@ -54,7 +54,7 @@ class CalendarViewModelTest {
         }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00", 0, "", "")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
             )
         }
 
@@ -79,7 +79,7 @@ class CalendarViewModelTest {
         }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00", 0, "", "")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
             )
         }
 
@@ -130,10 +130,10 @@ class CalendarViewModelTest {
         val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00", 0, "", "")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
             )
             dataByRange["2026-05-01|2026-05-31"] = listOf(
-                ProjectEntity(date = "2026-05-10", projectName = "Beta", projectTime = "03:00", 0, "", "")
+                projectState(date = "2026-05-10", projectName = "Beta", projectTime = "03:00")
             )
         }
         val viewModel = CalendarViewModel(

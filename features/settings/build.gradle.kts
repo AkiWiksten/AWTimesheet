@@ -13,7 +13,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    testImplementation(project(":data"))
     testImplementation(testFixtures(project(":domain")))
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinx.coroutines.test)

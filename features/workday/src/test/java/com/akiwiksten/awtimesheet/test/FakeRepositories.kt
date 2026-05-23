@@ -1,8 +1,7 @@
-package com.akiwiksten.awtimesheet.test
+﻿package com.akiwiksten.awtimesheet.test
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
-import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -20,7 +19,7 @@ class FakeProjectRepository : ProjectRepository {
     var projects: List<SingleProjectState> = emptyList()
     var projectsResult: List<SingleProjectState> = emptyList()
     val projectsByRange = mutableMapOf<String, List<SingleProjectState>>()
-    val dataByRange = mutableMapOf<String, List<ProjectEntity>>()
+    val dataByRange = mutableMapOf<String, List<SingleProjectState>>()
     val requestedRanges = mutableListOf<String>()
     var lastStart: String? = null
     var lastEnd: String? = null
@@ -52,7 +51,7 @@ class FakeProjectRepository : ProjectRepository {
 
         return when {
             projectsByRange[key] != null -> projectsByRange.getValue(key)
-            dataByRange[key] != null -> dataByRange.getValue(key).map(::mapEntityToState)
+            dataByRange[key] != null -> dataByRange.getValue(key)
             storedProjects.isNotEmpty() -> storedProjects.values.filter { it.date in start..end }
             projectsResult.isNotEmpty() -> projectsResult.filter { it.date in start..end }
             projects.isNotEmpty() -> projects.filter { it.date in start..end }
@@ -129,17 +128,6 @@ class FakeProjectRepository : ProjectRepository {
         project: SingleProjectState,
     ): List<SingleProjectState> {
         return source.filterNot { it.date == project.date && it.projectName == project.projectName } + project
-    }
-
-    private fun mapEntityToState(entity: ProjectEntity): SingleProjectState {
-        return SingleProjectState(
-            date = entity.date,
-            projectName = entity.projectName,
-            projectTime = entity.projectTime,
-            kilometres = entity.kilometres.toString(),
-            allowance = entity.allowance,
-            workType = entity.workType
-        )
     }
 }
 
@@ -280,3 +268,4 @@ class FakeWorkdayRepository(
         return workdayStatsRows.filter { it.date in start..end }
     }
 }
+

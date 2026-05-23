@@ -1,6 +1,5 @@
 package com.akiwiksten.awtimesheet.feature.settings
 
-import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
@@ -9,6 +8,7 @@ import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
+import com.akiwiksten.awtimesheet.test.projectState
 import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -52,7 +52,7 @@ class SettingsViewModelTest {
         }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
         }
         val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
@@ -92,10 +92,10 @@ class SettingsViewModelTest {
         }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
-                ProjectEntity(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
             dataByRange["2026-05-01|2026-05-31"] = listOf(
-                ProjectEntity(date = "2026-05-10", projectName = "Beta", projectTime = "04:00")
+                projectState(date = "2026-05-10", projectName = "Beta", projectTime = "04:00")
             )
         }
         val dateRepository = DateRepository().apply { updateDate("2026-04-10") }

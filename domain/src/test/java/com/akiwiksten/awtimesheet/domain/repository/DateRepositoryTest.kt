@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.data.repository
+package com.akiwiksten.awtimesheet.domain.repository
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import org.junit.Assert.assertEquals

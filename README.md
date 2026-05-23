@@ -1,4 +1,4 @@
-# AWTimesheet
+﻿# AWTimesheet
 ## Purpose
 + An app for work time management
 ## Branches
@@ -55,7 +55,8 @@ See `build-logic/README.md` for details and usage examples.
 4. (If needed, run androidTest (DAO tests))
 5. `.\gradlew.bat detekt`
 6. `.\gradlew.bat lint`
-7. Run SonarCube
+7. `.\gradlew.bat --no-configuration-cache verifyModuleBoundaries`
+8. Run SonarCube
 
 ## Features to be implemented still
 + General
@@ -85,7 +86,7 @@ See `build-logic/README.md` for details and usage examples.
   + Add flexTimeTotal into SettingsEntity
     + Update it, when projects by date update
 + ProjectDetailsScreen
-  + "Lunch time estimate" → Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
+  + "Lunch time estimate" â†’ Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
   + "Note! Automatic calculations for most fields in this app."
   + Better scalability
@@ -93,7 +94,7 @@ See `build-logic/README.md` for details and usage examples.
       + Calculate workdaysByMonth (month, year, workdaytime) and weekSum + monthSum from that
     + Update workdaysByMonth when returning from WorkdayScreen
       + Update weekSum + monthSum
-    + When changing month, fetch projects and add to workdaysByMonth and so on…
+    + When changing month, fetch projects and add to workdaysByMonth and so onâ€¦
 + SettingsScreen
   + Translate fed "Work type"
   + App localization selection
@@ -111,3 +112,4 @@ See `build-logic/README.md` for details and usage examples.
     + Project Details, 
     + Settings R
       + PDF creation R
+

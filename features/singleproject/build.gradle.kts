@@ -12,7 +12,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    testImplementation(project(":data"))
     testImplementation(testFixtures(project(":domain")))
     testImplementation(libs.kotlinx.coroutines.test)
 }

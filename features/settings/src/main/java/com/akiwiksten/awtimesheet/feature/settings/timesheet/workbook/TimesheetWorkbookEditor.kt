@@ -3,7 +3,7 @@
 package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
 import android.content.Context
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.CONTENT_TYPES_NAMESPACE
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.RELATIONSHIPS_NAMESPACE

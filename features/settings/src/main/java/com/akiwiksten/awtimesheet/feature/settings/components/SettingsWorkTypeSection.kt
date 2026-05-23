@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.feature.settings.SettingsWorkTypeSectionState

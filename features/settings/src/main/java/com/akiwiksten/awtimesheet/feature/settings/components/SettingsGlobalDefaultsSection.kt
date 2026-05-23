@@ -6,7 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.SettingsContentBodyState
 
 @Composable

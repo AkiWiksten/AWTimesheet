@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 

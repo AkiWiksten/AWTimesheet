@@ -2,7 +2,7 @@ package com.akiwiksten.awtimesheet.feature.settings.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.ui.AddTextFieldDialog
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.feature.settings.SettingsTimePickerDialogConfig

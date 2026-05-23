@@ -3,7 +3,7 @@
 package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
 import android.content.Context
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_HEADER_STYLE
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_PROJECT_VALUE_STYLES
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_TOTAL_HEADER_STYLE

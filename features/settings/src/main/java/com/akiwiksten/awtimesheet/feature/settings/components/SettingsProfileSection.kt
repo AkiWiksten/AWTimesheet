@@ -3,7 +3,7 @@ package com.akiwiksten.awtimesheet.feature.settings.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 
 @Composable

@@ -19,8 +19,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +33,7 @@ class SettingsWorkTypeTest {
 
     @Test
     fun settingsContent_showsOtherAsDefaultWorkType() {
-        val otherText = composeRule.activity.getString(R.string.other)
+        val otherText = "Other"
 
         composeRule.setContent {
             MaterialTheme {
@@ -50,7 +50,7 @@ class SettingsWorkTypeTest {
 
     @Test
     fun settingsContent_changesWorkTypeOnlyAfterManualSelection() {
-        val otherText = composeRule.activity.getString(R.string.other)
+        val otherText = "Other"
         val supportText = "Support"
 
         composeRule.setContent {
@@ -74,8 +74,8 @@ class SettingsWorkTypeTest {
 
     @Test
     fun settingsContent_addingWorkType_selectsAddedWorkType() {
-        val otherText = composeRule.activity.getString(R.string.other)
-        val workTypeLabel = composeRule.activity.getString(R.string.work_type)
+        val otherText = "Other"
+        val workTypeLabel = "Work type"
         val addedWorkType = "Installation"
 
         composeRule.setContent {
@@ -95,9 +95,9 @@ class SettingsWorkTypeTest {
         }
 
         composeRule.onNodeWithText(otherText).assertIsDisplayed()
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.add)).performClick()
+        composeRule.onNodeWithText("Add").performClick()
         composeRule.onNode(hasText(workTypeLabel) and hasSetTextAction()).performTextInput(addedWorkType)
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.confirm)).performClick()
+        composeRule.onNodeWithText("Confirm").performClick()
 
         composeRule.onNodeWithText(addedWorkType).assertIsDisplayed()
     }
@@ -136,4 +136,3 @@ class SettingsWorkTypeTest {
     private fun rememberSettingsUiStateForTest(initialWorkTypes: List<String>) =
         remember { mutableStateOf(settingsUiState(initialWorkTypes)) }
 }
-

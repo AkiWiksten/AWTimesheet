@@ -1,13 +1,17 @@
 package com.akiwiksten.awtimesheet.feature.calendar
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
-import com.akiwiksten.awtimesheet.navigation.PortraitWidthContainer
 import com.android.tools.screenshot.PreviewTest
 import java.time.YearMonth
 
@@ -49,6 +53,22 @@ private fun CalendarContentConstrainedPreviewContent() {
                     onVisibleMonthChanged = {}
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PortraitWidthContainer(
+    portraitWidth: Dp,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Box(modifier = Modifier.width(width = portraitWidth)) {
+            content()
         }
     }
 }

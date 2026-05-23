@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
@@ -36,6 +35,7 @@ import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.awtimesheet.feature.workday.WorkdaySettingsEditorState
+import com.akiwiksten.awtimesheet.feature.workday.R
 
 private val STATS_CARD_MAX_HEIGHT = 200.dp
 

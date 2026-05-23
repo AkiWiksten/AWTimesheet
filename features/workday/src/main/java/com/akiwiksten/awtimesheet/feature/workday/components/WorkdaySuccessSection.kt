@@ -8,9 +8,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.workday.R
 import com.akiwiksten.awtimesheet.feature.workday.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayActions
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions

@@ -70,6 +70,7 @@ dependencies {
     implementation(project(":features:project_details"))
     implementation(project(":features:settings"))
     implementation(project(":features:single_project"))
+    implementation(project(":features:workday"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

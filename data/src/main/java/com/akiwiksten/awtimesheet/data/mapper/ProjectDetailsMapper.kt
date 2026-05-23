@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.domain.mapper
+package com.akiwiksten.awtimesheet.data.mapper
 
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
@@ -32,3 +32,4 @@ fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
         lunchTimeEstimate = lunchTimeEstimate,
     )
 }
+

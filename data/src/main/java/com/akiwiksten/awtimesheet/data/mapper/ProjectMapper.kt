@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.domain.mapper
+package com.akiwiksten.awtimesheet.data.mapper
 
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -25,3 +25,4 @@ fun SingleProjectState.toEntity(): ProjectEntity {
         workType = workType,
     )
 }
+

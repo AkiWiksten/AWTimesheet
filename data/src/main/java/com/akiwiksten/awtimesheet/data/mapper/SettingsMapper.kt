@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.domain.mapper
+package com.akiwiksten.awtimesheet.data.mapper
 
 import com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
@@ -22,3 +22,4 @@ fun SettingsState.toEntity(): SettingsEntity {
         initialFlexTimeTotal = initialFlexTimeTotal,
     )
 }
+

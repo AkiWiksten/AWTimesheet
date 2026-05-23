@@ -1,8 +1,8 @@
-package com.akiwiksten.awtimesheet.domain.repository.impl
+package com.akiwiksten.awtimesheet.data.repository
 
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
-import com.akiwiksten.awtimesheet.domain.mapper.toWorkTimeByDateEstimate
-import com.akiwiksten.awtimesheet.domain.mapper.toWorkdayEntity
+import com.akiwiksten.awtimesheet.data.mapper.toWorkTimeByDateEstimate
+import com.akiwiksten.awtimesheet.data.mapper.toWorkdayEntity
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayStatsRow
 import javax.inject.Inject
@@ -27,3 +27,4 @@ class WorkdayRepositoryImpl @Inject constructor(
             )
         }
 }
+

@@ -16,9 +16,9 @@ import com.akiwiksten.awtimesheet.data.database.entity.ProjectNameEntity
 import com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity
-import com.akiwiksten.awtimesheet.domain.mapper.toDomain
-import com.akiwiksten.awtimesheet.domain.mapper.toEntity
-import com.akiwiksten.awtimesheet.domain.mapper.toProjectNameEntity
+import com.akiwiksten.awtimesheet.data.mapper.toDomain
+import com.akiwiksten.awtimesheet.data.mapper.toEntity
+import com.akiwiksten.awtimesheet.data.mapper.toProjectNameEntity
 
 class FakeProjectDao : ProjectDao {
     var projectsByDateRangeResult: List<ProjectEntity> = emptyList()
@@ -167,3 +167,4 @@ class FakeCalculatedFlexTimeTotalDao : CalculatedFlexTimeTotalDao {
 
     override suspend fun loadCalculatedFlextimeTotal(): CalculatedFlextimeTotalEntity? = storedEntity
 }
+

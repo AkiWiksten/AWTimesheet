@@ -1,15 +1,15 @@
-package com.akiwiksten.awtimesheet.domain.repository.impl
+package com.akiwiksten.awtimesheet.data.repository
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
-import com.akiwiksten.awtimesheet.domain.mapper.toCalculatedFlextimeTotaDomain
-import com.akiwiksten.awtimesheet.domain.mapper.toCalculatedFlextimeTotalEntity
-import com.akiwiksten.awtimesheet.domain.mapper.toDomain
-import com.akiwiksten.awtimesheet.domain.mapper.toEntity
-import com.akiwiksten.awtimesheet.domain.mapper.toWorkTypeEntity
+import com.akiwiksten.awtimesheet.data.mapper.toCalculatedFlextimeTotaDomain
+import com.akiwiksten.awtimesheet.data.mapper.toCalculatedFlextimeTotalEntity
+import com.akiwiksten.awtimesheet.data.mapper.toDomain
+import com.akiwiksten.awtimesheet.data.mapper.toEntity
+import com.akiwiksten.awtimesheet.data.mapper.toWorkTypeEntity
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import javax.inject.Inject
@@ -80,3 +80,4 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun deleteWorkType(workType: String) = workTypeDao.delete(workType.toWorkTypeEntity())
     override suspend fun deleteAllWorkTypes() = workTypeDao.deleteAllWorkTypes()
 }
+

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.library")
+    alias(libs.plugins.android.library)
     kotlin("plugin.parcelize")
 }
 
@@ -27,13 +27,12 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":data"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("javax.inject:javax.inject:1")
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.javax.inject)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(project(":data"))
 }
-
 

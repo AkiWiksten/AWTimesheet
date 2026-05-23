@@ -1,12 +1,12 @@
-package com.akiwiksten.awtimesheet.domain.repository.impl
+package com.akiwiksten.awtimesheet.data.repository
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
-import com.akiwiksten.awtimesheet.domain.mapper.toDomain
-import com.akiwiksten.awtimesheet.domain.mapper.toEntity
-import com.akiwiksten.awtimesheet.domain.mapper.toProjectNameEntity
+import com.akiwiksten.awtimesheet.data.mapper.toDomain
+import com.akiwiksten.awtimesheet.data.mapper.toEntity
+import com.akiwiksten.awtimesheet.data.mapper.toProjectNameEntity
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import javax.inject.Inject
@@ -47,3 +47,4 @@ class ProjectRepositoryImpl @Inject constructor(
             WorkTimeCalculator.calculateFlexTime(acc, time)
         }
 }
+

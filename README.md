@@ -18,24 +18,18 @@
 ### Hilt
 ### Structure (Compose + MVVM), based on Clean Architecture
     
-A clean, scalable example of this is:
-+ app/
-    + core/                 # shared utilities, theme, base classes
-    + data/                 # repositories, API, database
-    + domain/               # use cases, business logic
-    + feature/
-        + home/
-            + HomeScreen.kt
-            + HomeViewModel.kt
-            + HomeUiState.kt
-            + components/
-        + profile/
-            + ProfileScreen.kt
-            + ProfileViewModel.kt
-            + components/
-        + login/
-    + navigation/
-        + NavGraph.kt
+A clean, scalable example of this project is:
++ app/                      # android application module (wiring, nav host, DI entry points)
++ core/                     # shared utilities, common UI/theme, helpers
++ data/                     # database/entities/dao and data sources
++ domain/                   # use cases and domain models/repository contracts
++ features/
+    + intro/
+    + calendar/
+    + workday/
+    + singleproject/
+    + projectdetails/
+    + settings/
 + Unit tests
 + Instrumented Integration Tests (DAO tests, AndroidJUnit4)
 + Screenshot tests
@@ -43,12 +37,12 @@ A clean, scalable example of this is:
 This is called feature-based packaging.
 
 ## Code analysis and testing
-1. Run unit tests (.\gradlew testDebugUnitTest or gradlew :{module}:test{Variant}UnitTest)
-2. Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
-3. (If needed, run official Compose screenshot baseline update: ./gradlew updateScreenshotTest) "Compose Preview Screenshot Testing"
+1. Run unit tests (`.\gradlew.bat testDebugUnitTest` or `.\gradlew.bat :{module}:test{Variant}UnitTest`)
+2. Run official Compose screenshot validation: `.\gradlew.bat validateScreenshotTest` (`.\gradlew.bat :{module}:validate{Variant}ScreenshotTest`)
+3. (If needed, run official Compose screenshot baseline update: `.\gradlew.bat updateScreenshotTest`) "Compose Preview Screenshot Testing"
 4. (If needed, run androidTest (DAO tests))
-5. ./gradlew detekt
-6. ./gradlew lint
+5. `.\gradlew.bat detekt`
+6. `.\gradlew.bat lint`
 7. Run SonarCube
 
 ## Features to be implemented still

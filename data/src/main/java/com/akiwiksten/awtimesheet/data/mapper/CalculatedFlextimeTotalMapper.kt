@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.domain.mapper
+package com.akiwiksten.awtimesheet.data.mapper
 
 import com.akiwiksten.awtimesheet.data.database.entity.CalculatedFlextimeTotalEntity
 
@@ -12,3 +12,4 @@ fun String.toCalculatedFlextimeTotalEntity(): CalculatedFlextimeTotalEntity {
         calculatedFlexTimeTotal = this
     )
 }
+

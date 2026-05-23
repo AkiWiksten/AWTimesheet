@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.domain.mapper
+package com.akiwiksten.awtimesheet.data.mapper
 
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectNameEntity
 
@@ -11,3 +11,4 @@ fun String.toProjectNameEntity(): ProjectNameEntity {
         name = this
     )
 }
+

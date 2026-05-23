@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.di
+package com.akiwiksten.awtimesheet.data.di
 
 import android.content.Context
 import androidx.room.Room
@@ -83,3 +83,4 @@ abstract class DatabaseModule {
             database.calculatedFlexTimeTotalDao()
     }
 }
+

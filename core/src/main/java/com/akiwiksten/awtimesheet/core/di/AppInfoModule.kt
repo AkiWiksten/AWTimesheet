@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.di
+package com.akiwiksten.awtimesheet.core.di
 
 import android.content.Context
 import com.akiwiksten.awtimesheet.core.APP_NAME_QUALIFIER
@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object AppInfoModule {
 
     @Provides
     @Singleton
@@ -26,3 +26,4 @@ object AppModule {
         }
     }
 }
+

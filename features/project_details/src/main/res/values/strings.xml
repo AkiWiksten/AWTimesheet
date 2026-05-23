@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="project_details">Project details</string>
+    <string name="project_name">Project name</string>
+    <string name="clear_details">Clear details</string>
+    <string name="confirm">Confirm</string>
+    <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
+    <string name="add_new_project_details">New project of the day! I recommend setting the start of the project first! That opens other options.</string>
+    <string name="select_end_time">When you want to end your workday, select the end time. That calculates the project time for today.</string>
+    <string name="done_project">Now you are done with this project for today.</string>
+    <string name="start_time">Start time</string>
+    <string name="end_time">End time</string>
+    <string name="estimated_end_time">ESTIMATED end time</string>
+    <string name="lunch_time">Lunch time estimate</string>
+    <string name="lunch_start">Lunch start</string>
+    <string name="lunch_end">Lunch end</string>
+    <string name="break_start">Break start</string>
+    <string name="break_end">Break end</string>
+    <string name="project_time">Project time</string>
+    <string name="now">Now</string>
+    <string name="pick">Pick</string>
+</resources>
+

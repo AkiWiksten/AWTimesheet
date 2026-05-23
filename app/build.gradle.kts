@@ -67,6 +67,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":features:calendar"))
     implementation(project(":features:intro"))
+    implementation(project(":features:project_details"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

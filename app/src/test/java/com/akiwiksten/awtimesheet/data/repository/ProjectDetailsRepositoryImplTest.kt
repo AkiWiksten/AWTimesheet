@@ -2,7 +2,7 @@
 
 package com.akiwiksten.awtimesheet.data.repository
 
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.repository.impl.ProjectDetailsRepositoryImpl
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsDao

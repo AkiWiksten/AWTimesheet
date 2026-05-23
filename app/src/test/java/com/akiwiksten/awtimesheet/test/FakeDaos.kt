@@ -16,9 +16,9 @@ import com.akiwiksten.awtimesheet.data.database.entity.ProjectNameEntity
 import com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity
-import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
-import com.akiwiksten.awtimesheet.data.database.mapper.toProjectNameEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toDomain
+import com.akiwiksten.awtimesheet.domain.mapper.toEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toProjectNameEntity
 
 class FakeProjectDao : ProjectDao {
     var projectsByDateRangeResult: List<ProjectEntity> = emptyList()

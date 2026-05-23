@@ -38,7 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.feature.single_project.R
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING

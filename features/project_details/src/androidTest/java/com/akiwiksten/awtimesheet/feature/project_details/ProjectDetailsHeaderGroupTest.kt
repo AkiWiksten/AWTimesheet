@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.details
+package com.akiwiksten.awtimesheet.feature.project_details
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
@@ -7,8 +7,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.akiwiksten.awtimesheet.R
-import com.akiwiksten.awtimesheet.feature.projects.details.components.HeaderSection
+import com.akiwiksten.awtimesheet.feature.project_details.R
+import com.akiwiksten.awtimesheet.feature.project_details.components.ProjectDetailsHeaderSection
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,7 +24,7 @@ class ProjectDetailsHeaderGroupTest {
         val helperText = composeRule.activity.getString(R.string.add_new_project_details)
 
         composeRule.setContent {
-            HeaderSection(
+            ProjectDetailsHeaderSection(
                 date = "2026-05-05",
                 projectName = "Alpha",
                 helperTextResId = R.string.add_new_project_details,
@@ -40,7 +40,7 @@ class ProjectDetailsHeaderGroupTest {
         val helperText = composeRule.activity.getString(R.string.select_end_time)
 
         composeRule.setContent {
-            HeaderSection(
+            ProjectDetailsHeaderSection(
                 date = "2026-05-05",
                 projectName = "Alpha",
                 helperTextResId = R.string.select_end_time,
@@ -57,7 +57,7 @@ class ProjectDetailsHeaderGroupTest {
         val selectEndTimeText = composeRule.activity.getString(R.string.select_end_time)
 
         composeRule.setContent {
-            HeaderSection(
+            ProjectDetailsHeaderSection(
                 date = "2026-05-05",
                 projectName = "Alpha",
                 helperTextResId = null,

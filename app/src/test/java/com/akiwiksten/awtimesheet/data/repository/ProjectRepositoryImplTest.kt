@@ -1,8 +1,8 @@
 package com.akiwiksten.awtimesheet.data.repository
 
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
-import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toDomain
+import com.akiwiksten.awtimesheet.domain.mapper.toEntity
 import com.akiwiksten.awtimesheet.domain.repository.impl.ProjectRepositoryImpl
 import com.akiwiksten.awtimesheet.test.FakeProjectDao
 import com.akiwiksten.awtimesheet.test.FakeProjectNameDao

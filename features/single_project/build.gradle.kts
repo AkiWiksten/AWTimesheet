@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.akiwiksten.awtimesheet.feature.project_details"
+    namespace = "com.akiwiksten.awtimesheet.feature.single_project"
     compileSdk = 37
 
     defaultConfig {
@@ -55,15 +55,11 @@ dependencies {
     screenshotTestImplementation(libs.screenshot.validation.api)
     screenshotTestImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    testImplementation(project(":data"))
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
-
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.activity.compose)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
+
 

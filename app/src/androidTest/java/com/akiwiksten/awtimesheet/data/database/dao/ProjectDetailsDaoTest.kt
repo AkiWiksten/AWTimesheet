@@ -4,8 +4,8 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.akiwiksten.awtimesheet.data.database.AppDatabase
-import com.akiwiksten.awtimesheet.data.database.mapper.toDomain
-import com.akiwiksten.awtimesheet.data.database.mapper.toEntity
+import com.akiwiksten.awtimesheet.domain.mapper.toDomain
+import com.akiwiksten.awtimesheet.domain.mapper.toEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import kotlinx.coroutines.runBlocking
 import org.junit.After

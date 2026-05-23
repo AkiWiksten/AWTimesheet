@@ -8,6 +8,9 @@ plugins {
 
 android {
     namespace = "com.akiwiksten.awtimesheet.core"
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
@@ -20,6 +23,9 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)

@@ -1,13 +1,9 @@
-﻿package com.akiwiksten.awtimesheet.feature.projects.details
+package com.akiwiksten.awtimesheet.feature.projectdetails
 
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
-import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiMapper
-import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.settingsState
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Test
 
 class ProjectDetailsUiMapperTest {
@@ -22,8 +18,8 @@ class ProjectDetailsUiMapperTest {
             settings = settingsState(dailyLunchTimeEstimate = "00:45")
         )
 
-        assertTrue(result.details.isNewDayForProject())
-        assertEquals("00:45", result.details.lunchTimeEstimate)
+        Assert.assertTrue(result.details.isNewDayForProject())
+        Assert.assertEquals("00:45", result.details.lunchTimeEstimate)
     }
 
     @Test
@@ -37,8 +33,8 @@ class ProjectDetailsUiMapperTest {
             settings = settingsState(dailyLunchTimeEstimate = "00:45")
         )
 
-        assertTrue(result.details.isNewDayForProject())
-        assertEquals("00:45", result.details.lunchTimeEstimate)
+        Assert.assertTrue(result.details.isNewDayForProject())
+        Assert.assertEquals("00:45", result.details.lunchTimeEstimate)
     }
 
     @Test
@@ -56,8 +52,7 @@ class ProjectDetailsUiMapperTest {
             settings = settingsState(dailyLunchTimeEstimate = "00:45")
         )
 
-        assertFalse(result.details.isNewDayForProject())
-        assertEquals("00:15", result.details.lunchTimeEstimate)
+        Assert.assertFalse(result.details.isNewDayForProject())
+        Assert.assertEquals("00:15", result.details.lunchTimeEstimate)
     }
 }
-

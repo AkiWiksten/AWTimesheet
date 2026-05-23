@@ -1,26 +1,23 @@
-package com.akiwiksten.awtimesheet.core.ui
+package com.akiwiksten.awtimesheet.core
 
-import com.akiwiksten.awtimesheet.core.hasChanges
-import com.akiwiksten.awtimesheet.core.isActionEnabled
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Test
 
 class FormChangeRulesTest {
 
     @Test
     fun hasChanges_returnsFalse_forEqualValues() {
-        assertFalse(hasChanges(current = "A", baseline = "A"))
+        Assert.assertFalse(hasChanges(current = "A", baseline = "A"))
     }
 
     @Test
     fun hasChanges_returnsTrue_forDifferentValues() {
-        assertTrue(hasChanges(current = "A", baseline = "B"))
+        Assert.assertTrue(hasChanges(current = "A", baseline = "B"))
     }
 
     @Test
     fun isActionEnabled_returnsTrue_whenRequiredFieldsValid_andHasChanges() {
-        assertTrue(
+        Assert.assertTrue(
             isActionEnabled(
                 hasRequiredFields = true,
                 hasUnsavedChanges = true
@@ -30,7 +27,7 @@ class FormChangeRulesTest {
 
     @Test
     fun isActionEnabled_returnsTrue_whenAddModeAllowsUnchanged() {
-        assertTrue(
+        Assert.assertTrue(
             isActionEnabled(
                 hasRequiredFields = true,
                 hasUnsavedChanges = false,
@@ -41,7 +38,7 @@ class FormChangeRulesTest {
 
     @Test
     fun isActionEnabled_returnsFalse_whenRequiredFieldsInvalid() {
-        assertFalse(
+        Assert.assertFalse(
             isActionEnabled(
                 hasRequiredFields = false,
                 hasUnsavedChanges = true,

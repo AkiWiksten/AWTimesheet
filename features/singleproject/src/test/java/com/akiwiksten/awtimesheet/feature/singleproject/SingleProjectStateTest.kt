@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.test.projectState

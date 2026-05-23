@@ -1,8 +1,7 @@
-﻿package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectViewModel
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
@@ -12,7 +11,7 @@ import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -42,7 +41,7 @@ class SingleProjectViewModelTest {
         )
         advanceUntilIdle()
 
-        assertEquals("02:30", dateRepository.workTimeByDateChange.value)
+        Assert.assertEquals("02:30", dateRepository.workTimeByDateChange.value)
     }
 
     @Test
@@ -78,7 +77,7 @@ class SingleProjectViewModelTest {
         )
         advanceUntilIdle()
 
-        assertEquals("03:30", dateRepository.workTimeByDateChange.value)
+        Assert.assertEquals("03:30", dateRepository.workTimeByDateChange.value)
     }
 
     private fun createViewModel(
@@ -99,4 +98,3 @@ class SingleProjectViewModelTest {
         )
     }
 }
-

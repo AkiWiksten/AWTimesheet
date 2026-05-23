@@ -1,7 +1,6 @@
-package com.akiwiksten.awtimesheet.core.calculator
+package com.akiwiksten.awtimesheet.core
 
-import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Test
 import java.time.LocalTime
 
@@ -11,14 +10,14 @@ class WorkTimeCalculatorTest {
     fun `extractDayOfMonth returns day for iso date`() {
         val result = WorkTimeCalculator.extractDayOfMonth("2026-04-10")
 
-        assertEquals("10", result)
+        Assert.assertEquals("10", result)
     }
 
     @Test
     fun `stringToLocalTime parses hours and minutes`() {
         val result = WorkTimeCalculator.stringToLocalTime("08:30")
 
-        assertEquals(LocalTime.of(8, 30), result)
+        Assert.assertEquals(LocalTime.of(8, 30), result)
     }
 
     @Test
@@ -30,7 +29,7 @@ class WorkTimeCalculatorTest {
             isAddedTimeNegative = false
         )
 
-        assertEquals("10:15", result)
+        Assert.assertEquals("10:15", result)
     }
 
     @Test
@@ -42,7 +41,7 @@ class WorkTimeCalculatorTest {
             isAddedTimeNegative = true
         )
 
-        assertEquals("-00:45", result)
+        Assert.assertEquals("-00:45", result)
     }
 
     @Test
@@ -52,7 +51,7 @@ class WorkTimeCalculatorTest {
             addedTime = "00:45"
         )
 
-        assertEquals("-00:45", result)
+        Assert.assertEquals("-00:45", result)
     }
 
     @Test
@@ -62,7 +61,7 @@ class WorkTimeCalculatorTest {
             addedTime = "-00:45"
         )
 
-        assertEquals("00:45", result)
+        Assert.assertEquals("00:45", result)
     }
 
     @Test
@@ -72,20 +71,20 @@ class WorkTimeCalculatorTest {
             addedTime = "-00:45"
         )
 
-        assertEquals("-02:15", result)
+        Assert.assertEquals("-02:15", result)
     }
 
     @Test
     fun `normalizeDuplicateMinus removes duplicate minus sign`() {
         val result = WorkTimeCalculator.normalizeDuplicateMinus("--08:00")
 
-        assertEquals("08:00", result)
+        Assert.assertEquals("08:00", result)
     }
 
     @Test
     fun `normalizeDuplicateMinus leaves normal values unchanged`() {
         val result = WorkTimeCalculator.normalizeDuplicateMinus("-08:00")
 
-        assertEquals("-08:00", result)
+        Assert.assertEquals("-08:00", result)
     }
 }

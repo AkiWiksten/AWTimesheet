@@ -26,6 +26,7 @@ class AwtimesheetFeatureDependenciesConventionPlugin : Plugin<Project> {
 
         dependencies.add("testImplementation", libs.findLibrary("junit").get())
         dependencies.add("testImplementation", libs.findLibrary("kotlin-test").get())
+        dependencies.add("testImplementation", dependencies.testFixtures(project(":core")))
         }
     }
 }

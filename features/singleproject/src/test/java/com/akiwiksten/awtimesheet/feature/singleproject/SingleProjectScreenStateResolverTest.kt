@@ -1,13 +1,9 @@
-﻿package com.akiwiksten.awtimesheet.feature.projects.single
+package com.akiwiksten.awtimesheet.feature.singleproject
 
-import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectUiState
-import com.akiwiksten.awtimesheet.feature.singleproject.isDuplicateProjectName
-import com.akiwiksten.awtimesheet.feature.singleproject.isSingleProjectConfirmEnabled
-import com.akiwiksten.awtimesheet.feature.singleproject.resolveInitialSingleProjectState
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.projectState
 import com.akiwiksten.awtimesheet.test.settingsState
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Test
 
 class SingleProjectScreenStateResolverTest {
@@ -24,7 +20,7 @@ class SingleProjectScreenStateResolverTest {
             isAddMode = true
         )
 
-        assertEquals(true, isEnabled)
+        Assert.assertEquals(true, isEnabled)
     }
 
     @Test
@@ -43,7 +39,7 @@ class SingleProjectScreenStateResolverTest {
             isAddMode = false
         )
 
-        assertEquals(true, isEnabled)
+        Assert.assertEquals(true, isEnabled)
     }
 
     @Test
@@ -58,7 +54,7 @@ class SingleProjectScreenStateResolverTest {
             isAddMode = false
         )
 
-        assertEquals(true, isEnabled)
+        Assert.assertEquals(true, isEnabled)
     }
 
     @Test
@@ -72,7 +68,7 @@ class SingleProjectScreenStateResolverTest {
             isAddMode = true
         )
 
-        assertEquals(false, isEnabled)
+        Assert.assertEquals(false, isEnabled)
     }
 
     @Test
@@ -80,13 +76,16 @@ class SingleProjectScreenStateResolverTest {
         val existingAlpha = projectState(index = 0, projectName = "Alpha")
         val existingBeta = projectState(index = 1, projectName = "Beta")
 
-        assertEquals(true,
+        Assert.assertEquals(
+            true,
             isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha)
         )
-        assertEquals(true,
+        Assert.assertEquals(
+            true,
             isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta)
         )
-        assertEquals(false,
+        Assert.assertEquals(
+            false,
             isDuplicateProjectName("Gamma", currentIndex = -1, singleProjectState = existingAlpha)
         )
     }
@@ -95,10 +94,12 @@ class SingleProjectScreenStateResolverTest {
     fun isDuplicate_editMode_ignoresOwnIndex() {
         val existing = projectState(index = 0, projectName = "Alpha")
 
-        assertEquals(false,
+        Assert.assertEquals(
+            false,
             isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing)
         )
-        assertEquals(false,
+        Assert.assertEquals(
+            false,
             isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing)
         )
     }
@@ -119,7 +120,7 @@ class SingleProjectScreenStateResolverTest {
             singleProjectUiState = singleProjectUiState
         )
 
-        assertEquals("01:45", resolved.projectTime)
+        Assert.assertEquals("01:45", resolved.projectTime)
     }
 
     @Test
@@ -134,8 +135,8 @@ class SingleProjectScreenStateResolverTest {
         val resolved =
             resolveInitialSingleProjectState(initialState, null, null, singleProjectUiState)
 
-        assertEquals("Alpha", resolved.projectName)
-        assertEquals("02:10", resolved.projectTime)
+        Assert.assertEquals("Alpha", resolved.projectName)
+        Assert.assertEquals("02:10", resolved.projectTime)
     }
 
     @Test
@@ -145,7 +146,7 @@ class SingleProjectScreenStateResolverTest {
         val resolved =
             resolveInitialSingleProjectState(initialState, null, null, SingleProjectUiState.Loading)
 
-        assertEquals(initialState, resolved)
+        Assert.assertEquals(initialState, resolved)
     }
 
     @Test
@@ -164,7 +165,6 @@ class SingleProjectScreenStateResolverTest {
             singleProjectUiState = singleProjectUiState
         )
 
-        assertEquals(initialState, resolved)
+        Assert.assertEquals(initialState, resolved)
     }
 }
-

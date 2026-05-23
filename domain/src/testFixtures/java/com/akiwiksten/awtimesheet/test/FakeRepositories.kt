@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.awtimesheet.test
+package com.akiwiksten.awtimesheet.test
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator

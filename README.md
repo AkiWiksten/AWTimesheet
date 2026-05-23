@@ -23,6 +23,7 @@ A clean, scalable example of this project is:
 + core/                     # shared utilities, common UI/theme, helpers
 + data/                     # database/entities/dao and data sources
 + domain/                   # use cases and domain models/repository contracts
++ build-logic/              # Gradle convention plugins shared by all modules
 + features/
     + intro/
     + calendar/
@@ -35,6 +36,17 @@ A clean, scalable example of this project is:
 + Screenshot tests
 
 This is called feature-based packaging.
+
+### Build conventions
+
+Project build configuration is centralized with convention plugins in `build-logic/`.
+
+- `awtimesheet.android.base`
+- `awtimesheet.android.compose.app`
+- `awtimesheet.android.compose.feature`
+- `awtimesheet.feature.dependencies`
+
+See `build-logic/README.md` for details and usage examples.
 
 ## Code analysis and testing
 1. Run unit tests (`.\gradlew.bat testDebugUnitTest` or `.\gradlew.bat :{module}:test{Variant}UnitTest`)

@@ -1,6 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
+    id("awtimesheet.android.base")
     alias(libs.plugins.android.library)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
@@ -8,22 +7,6 @@ plugins {
 
 android {
     namespace = "com.akiwiksten.awtimesheet.data"
-    compileSdk = 37
-
-    defaultConfig {
-        minSdk = 29
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
-    }
 }
 
 dependencies {
@@ -41,5 +24,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
+    testImplementation(testFixtures(project(":domain")))
 }
 

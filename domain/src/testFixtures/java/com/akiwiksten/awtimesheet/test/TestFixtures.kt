@@ -82,3 +82,4 @@ fun workdayStatsRow(
         workTimeByDateEstimate = workTimeByDateEstimate,
     )
 }
+

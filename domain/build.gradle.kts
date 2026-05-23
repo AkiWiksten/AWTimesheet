@@ -1,27 +1,13 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
+    id("awtimesheet.android.base")
     alias(libs.plugins.android.library)
     kotlin("plugin.parcelize")
 }
 
 android {
     namespace = "com.akiwiksten.awtimesheet.domain"
-    compileSdk = 37
-
-    defaultConfig {
-        minSdk = 29
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
+    testFixtures {
+        enable = true
     }
 }
 

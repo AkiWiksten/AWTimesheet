@@ -1,4 +1,4 @@
-pluginManagement {
+﻿pluginManagement {
     repositories {
         google {
             content {
@@ -30,7 +30,8 @@ include(":data")
 include(":domain")
 include(":features:calendar")
 include(":features:intro")
-include(":features:project_details")
+include(":features:projectdetails")
 include(":features:settings")
-include(":features:single_project")
+include(":features:singleproject")
 include(":features:workday")
+

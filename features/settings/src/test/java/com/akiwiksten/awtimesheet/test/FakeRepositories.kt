@@ -1,7 +1,7 @@
 package com.akiwiksten.awtimesheet.test
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState

@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+﻿import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -67,9 +67,9 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":features:calendar"))
     implementation(project(":features:intro"))
-    implementation(project(":features:project_details"))
+    implementation(project(":features:projectdetails"))
     implementation(project(":features:settings"))
-    implementation(project(":features:single_project"))
+    implementation(project(":features:singleproject"))
     implementation(project(":features:workday"))
 
     implementation(libs.androidx.core.ktx)
@@ -117,3 +117,4 @@ dependencies {
 
     detektPlugins(libs.detekt.formatting)
 }
+

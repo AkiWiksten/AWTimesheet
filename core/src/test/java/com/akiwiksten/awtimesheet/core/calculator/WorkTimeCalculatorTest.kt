@@ -1,5 +1,6 @@
 package com.akiwiksten.awtimesheet.core.calculator
 
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalTime

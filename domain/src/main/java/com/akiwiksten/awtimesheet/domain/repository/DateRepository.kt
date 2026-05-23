@@ -2,7 +2,7 @@ package com.akiwiksten.awtimesheet.domain.repository
 
 import com.akiwiksten.awtimesheet.core.DATE_FORMAT
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

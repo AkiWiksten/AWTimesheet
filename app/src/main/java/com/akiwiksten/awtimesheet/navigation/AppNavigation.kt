@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.navigation
+﻿package com.akiwiksten.awtimesheet.navigation
 
 import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
@@ -29,10 +29,10 @@ import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
-import com.akiwiksten.awtimesheet.feature.project_details.ProjectDetailsScreen
-import com.akiwiksten.awtimesheet.feature.single_project.SingleProjectNavigationActions
-import com.akiwiksten.awtimesheet.feature.single_project.SingleProjectScreen
-import com.akiwiksten.awtimesheet.feature.single_project.SingleProjectScreenArgs
+import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
+import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectNavigationActions
+import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
+import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreenArgs
 import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
 import kotlinx.parcelize.Parcelize
@@ -248,3 +248,4 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
         )
     }
 }
+

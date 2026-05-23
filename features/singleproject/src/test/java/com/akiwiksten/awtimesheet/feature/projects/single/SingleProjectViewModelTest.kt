@@ -1,0 +1,102 @@
+﻿package com.akiwiksten.awtimesheet.feature.projects.single
+
+import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectViewModel
+import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
+import com.akiwiksten.awtimesheet.test.FakeProjectRepository
+import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
+import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
+import com.akiwiksten.awtimesheet.test.MainDispatcherRule
+import com.akiwiksten.awtimesheet.test.projectState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class SingleProjectViewModelTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun saveProject_newProject_addsProjectTimeToTrackedChange() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val projectRepository = FakeProjectRepository()
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
+
+        viewModel.initializeState(projectState())
+        advanceUntilIdle()
+
+        viewModel.saveProject(
+            state = projectState(
+                projectName = "Alpha",
+                projectTime = "02:30"
+            )
+        )
+        advanceUntilIdle()
+
+        assertEquals("02:30", dateRepository.workTimeByDateChange.value)
+    }
+
+    @Test
+    fun saveProject_existingProject_tracksOnlyProjectTimeDifference() = runTest {
+        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val projectRepository = FakeProjectRepository().apply {
+            insertProject(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:00"
+                )
+            )
+        }
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
+
+        viewModel.initializeState(
+            projectState(
+                projectName = "Alpha",
+                date = "2026-04-10"
+            )
+        )
+        advanceUntilIdle()
+
+        viewModel.saveProject(
+            state = projectState(
+                projectName = "Alpha",
+                projectTime = "05:30"
+            )
+        )
+        advanceUntilIdle()
+
+        assertEquals("03:30", dateRepository.workTimeByDateChange.value)
+    }
+
+    private fun createViewModel(
+        projectRepository: FakeProjectRepository,
+        dateRepository: DateRepository
+    ): SingleProjectViewModel {
+        val settingsRepository = FakeSettingsRepository()
+        return SingleProjectViewModel(
+            projectRepository = projectRepository,
+            saveWorkdayUseCase = SaveWorkdayUseCase(
+                projectRepository = projectRepository,
+                projectDetailsRepository = FakeProjectDetailsRepository(),
+                settingsRepository = settingsRepository,
+                workdayRepository = FakeWorkdayRepository()
+            ),
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+    }
+}
+

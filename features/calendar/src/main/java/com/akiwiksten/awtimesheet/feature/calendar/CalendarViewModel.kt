@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.DATE_FORMAT
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.CalendarData
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase

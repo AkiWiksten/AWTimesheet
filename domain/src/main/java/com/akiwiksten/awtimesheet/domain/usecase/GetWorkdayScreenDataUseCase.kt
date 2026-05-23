@@ -2,7 +2,7 @@ package com.akiwiksten.awtimesheet.domain.usecase
 
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository

@@ -1,7 +1,7 @@
 package com.akiwiksten.awtimesheet.domain.repository.impl
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
 import com.akiwiksten.awtimesheet.domain.mapper.toDomain

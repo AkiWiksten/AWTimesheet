@@ -1,5 +1,6 @@
-package com.akiwiksten.awtimesheet.core.calculator
+package com.akiwiksten.awtimesheet.feature.project_details.calculator
 
+import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
 import org.junit.Assert.assertEquals

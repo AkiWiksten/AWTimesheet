@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.TIME_FORMAT
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.calculator.ProjectDetailsTimeUpdateCalculator
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator.StartTimeUpdateParams
+import com.akiwiksten.awtimesheet.feature.project_details.calculator.ProjectDetailsTimeUpdateCalculator
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.hasOnlyProjectTime

@@ -1,12 +1,13 @@
-package com.akiwiksten.awtimesheet.core.calculator
+package com.akiwiksten.awtimesheet.feature.project_details.calculator
 
 import com.akiwiksten.awtimesheet.core.MINUTES_IN_HOUR
+import com.akiwiksten.awtimesheet.core.calculator.WorkTimeCalculator
 import java.time.LocalTime
 
 /**
  * Calculates dependent time-field updates for Project Details form edits.
  */
-object ProjectDetailsTimeUpdateCalculator {
+internal object ProjectDetailsTimeUpdateCalculator {
     fun calculateStartTimeUpdate(
         params: WorkTimeCalculator.StartTimeUpdateParams
     ): WorkTimeCalculator.TimeUpdateResult {

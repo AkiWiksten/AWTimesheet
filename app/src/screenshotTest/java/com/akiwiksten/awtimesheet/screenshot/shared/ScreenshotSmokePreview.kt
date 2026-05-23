@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet
+package com.akiwiksten.awtimesheet.screenshot.shared
 
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text

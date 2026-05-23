@@ -16,12 +16,18 @@ internal fun ByteArray.readWorksheetXml(entryPath: String): org.w3c.dom.Document
 }
 
 internal fun loadTemplateBytes(): ByteArray {
-    val templatePathCandidates = listOf(
+    val localCandidates = listOf(
         Paths.get("src", "main", "assets", "timesheet_template.xlsx"),
         Paths.get("app", "src", "main", "assets", "timesheet_template.xlsx")
     )
-    val templatePath = templatePathCandidates.firstOrNull(Files::exists)
-        ?: error("timesheet_template.xlsx not found in known asset paths")
+    val templatePath = localCandidates.firstOrNull(Files::exists) ?: run {
+        // Gradle test tasks can run with module directories as CWD.
+        // Walk upwards and try to resolve app/src/main/assets from each level.
+        val start = Paths.get("").toAbsolutePath().normalize()
+        generateSequence(start) { current -> current.parent }
+            .map { it.resolve(Paths.get("app", "src", "main", "assets", "timesheet_template.xlsx")) }
+            .firstOrNull(Files::exists)
+    } ?: error("timesheet_template.xlsx not found in known asset paths")
     return Files.readAllBytes(templatePath)
 }
 

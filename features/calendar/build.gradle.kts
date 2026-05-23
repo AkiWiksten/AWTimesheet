@@ -56,6 +56,8 @@ dependencies {
     screenshotTestImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    testImplementation(project(":data"))
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

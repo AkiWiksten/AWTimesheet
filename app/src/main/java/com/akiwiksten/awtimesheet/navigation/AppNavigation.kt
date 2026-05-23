@@ -30,10 +30,10 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
+import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectNavigationActions
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreenArgs
-import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
 import kotlinx.parcelize.Parcelize
 import kotlin.math.min
@@ -248,4 +248,3 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
         )
     }
 }
-

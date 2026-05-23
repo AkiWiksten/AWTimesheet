@@ -43,7 +43,7 @@ A clean, scalable example of this is:
 This is called feature-based packaging.
 
 ## Code analysis and testing
-1. Run unit tests
+1. Run unit tests (.\gradlew testDebugUnitTest or gradlew :{module}:test{Variant}UnitTest)
 2. Run official Compose screenshot validation: ./gradlew validateScreenshotTest (gradlew :{module}:validate{Variant}ScreenshotTest)
 3. (If needed, run official Compose screenshot baseline update: ./gradlew updateScreenshotTest) "Compose Preview Screenshot Testing"
 4. (If needed, run androidTest (DAO tests))

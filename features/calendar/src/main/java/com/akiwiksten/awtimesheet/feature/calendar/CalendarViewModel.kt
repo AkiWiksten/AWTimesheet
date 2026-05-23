@@ -180,4 +180,3 @@ sealed class CalendarUiState {
 
     data class Error(val message: String) : CalendarUiState()
 }
-

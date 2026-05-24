@@ -128,30 +128,50 @@ def derive_metric(metric_name: str, runs: list[float]) -> tuple[str, float | Non
     return "", None
 
 
+def supports_unicode_output() -> bool:
+    encoding = (sys.stdout.encoding or "").lower()
+    if not encoding:
+        return False
+    try:
+        "✓⚠❌".encode(encoding)
+        return True
+    except UnicodeEncodeError:
+        return False
+
+
+def status_symbols() -> dict[str, str]:
+    if supports_unicode_output():
+        return {"ok": "✓", "warn": "⚠", "fail": "❌", "unknown": " "}
+    return {"ok": "OK", "warn": "!", "fail": "X", "unknown": " "}
+
+
+STATUS_SYMBOLS = status_symbols()
+
+
 def get_status_indicator(metric_name: str, value: float) -> str:
-    """Return a status indicator (✓, ⚠, ❌) based on metric value and thresholds."""
+    """Return a status indicator based on metric value and thresholds."""
     if metric_name == "frameOverrunMs":  # jank percentage
         if value < 5.0:
-            return "✓"
+            return STATUS_SYMBOLS["ok"]
         elif value < 10.0:
-            return "⚠"
+            return STATUS_SYMBOLS["warn"]
         else:
-            return "❌"
+            return STATUS_SYMBOLS["fail"]
     elif metric_name == "frameDurationCpuMs":  # long frames percentage
         if value < 10.0:
-            return "✓"
+            return STATUS_SYMBOLS["ok"]
         elif value < 20.0:
-            return "⚠"
+            return STATUS_SYMBOLS["warn"]
         else:
-            return "❌"
+            return STATUS_SYMBOLS["fail"]
     elif metric_name == "timeToInitialDisplayMs":  # startup milliseconds
         if value < 300.0:
-            return "✓"
+            return STATUS_SYMBOLS["ok"]
         elif value < 500.0:
-            return "⚠"
+            return STATUS_SYMBOLS["warn"]
         else:
-            return "❌"
-    return " "
+            return STATUS_SYMBOLS["fail"]
+    return STATUS_SYMBOLS["unknown"]
 
 
 def print_summary(records: list[dict[str, Any]]) -> dict[str, list[tuple[str, float]]]:
@@ -391,6 +411,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-

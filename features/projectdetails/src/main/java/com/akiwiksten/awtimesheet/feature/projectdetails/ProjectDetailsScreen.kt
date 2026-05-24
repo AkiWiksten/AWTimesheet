@@ -53,16 +53,19 @@ fun ProjectDetailsScreen(
         projectDetails = projectDetails
     )
 
-    val hasUnsavedChanges = baselineData != null &&
-        (uiState as? ProjectDetailsUiState.Success)?.details?.let { current ->
-            hasChanges(current = current, baseline = baselineData)
-        } == true
+    val hasUnsavedChanges = remember(baselineData, uiState) {
+        baselineData != null &&
+            (uiState as? ProjectDetailsUiState.Success)?.details?.let { current ->
+                hasChanges(current = current, baseline = baselineData)
+            } == true
+    }
 
-    val shouldEnableConfirmForInitialProjectTime =
+    val shouldEnableConfirmForInitialProjectTime = remember(uiState) {
         (uiState as? ProjectDetailsUiState.Success)
             ?.details
             ?.projectTime
             ?.let { it.isNotBlank() && it != ZERO_TIME } == true
+    }
 
     val guardedNavigateBack = {
         if (hasUnsavedChanges) showUnsavedDialogState.value = true else onNavigateBack()
@@ -81,7 +84,7 @@ fun ProjectDetailsScreen(
     Scaffold(
         topBar = { ProjectDetailsTopBar(onNavigateBack = guardedNavigateBack) }
     ) { padding ->
-        val actions = remember(viewModel, onConfirm, uiState) {
+        val actions = remember(viewModel, onConfirm) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
                 onConfirm(

@@ -6,11 +6,24 @@ package com.akiwiksten.awtimesheet.macrobenchmark
  */
 object BenchmarkConfig {
     /**
-     * Number of iterations each benchmark runs.
-     * Each iteration performs the benchmark measurement once.
-     * Higher values (3+) provide more data but take longer.
-     * Recommended: 2-3 for consistent results on most devices.
+     * Target package name for benchmarks (benchmark variant with .benchmark suffix).
+     * The app automatically bypasses the intro screen when this package name is used.
+     */
+    const val TARGET_PACKAGE = "com.akiwiksten.awtimesheet.benchmark"
+
+    /**
+     * Number of iterations for scroll/recomposition benchmarks.
+     * Kept low for fast local feedback.
      */
     const val ITERATIONS = 2
-}
 
+    /**
+     * Default number of iterations for startup benchmarks when running locally.
+     */
+    const val STARTUP_ITERATIONS_LOCAL = 8
+
+    /**
+     * Default number of iterations for startup benchmarks in CI profile.
+     */
+    const val STARTUP_ITERATIONS_CI = 12
+}

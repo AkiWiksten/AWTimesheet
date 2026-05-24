@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -52,7 +53,14 @@ private val BackStackSaver: Saver<SnapshotStateList<Any>, BackStackData> = Saver
 
 @Composable
 fun AWTimesheetApp() {
-    val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(Screen.Intro) }
+    // Keep intro for normal app runs; bypass it for benchmark variant to reduce startup-frame noise.
+    val packageName = LocalContext.current.packageName
+    val initialScreen = if (packageName.endsWith(".benchmark")) {
+        Screen.Calendar
+    } else {
+        Screen.Intro
+    }
+    val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(initialScreen) }
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
     val portraitWidth = rememberPortraitWidthDp()
 

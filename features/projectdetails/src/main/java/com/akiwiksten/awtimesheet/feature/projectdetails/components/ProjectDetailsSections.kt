@@ -12,6 +12,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -94,28 +95,34 @@ internal fun ProjectDetailsNewDayForProjectSection(
                 modifier = Modifier.padding(all = FORM_GROUP_PADDING),
                 verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
             ) {
-                ProjectDetailsTimeRow(
-                    textFieldValue = uiState.details.startTime,
-                    stringId = R.string.start_time,
-                    currentTime = actions.startTime.onCurrent,
-                    onConfirmation = actions.startTime.onSet,
-                    labels = ProjectDetailsTimeRowLabels(
-                        currentTimeLabelId = R.string.now,
-                        timePickerLabelId = R.string.pick
+                key("startTime") {
+                    ProjectDetailsTimeRow(
+                        textFieldValue = uiState.details.startTime,
+                        stringId = R.string.start_time,
+                        currentTime = actions.startTime.onCurrent,
+                        onConfirmation = actions.startTime.onSet,
+                        labels = ProjectDetailsTimeRowLabels(
+                            currentTimeLabelId = R.string.now,
+                            timePickerLabelId = R.string.pick
+                        )
                     )
-                )
-                ProjectDetailsTimeRow(
-                    textFieldValue = uiState.details.lunchTimeEstimate,
-                    stringId = R.string.lunch_time,
-                    currentTime = actions.lunchTime.onCurrent,
-                    onConfirmation = actions.lunchTime.onSet
-                )
-                ProjectDetailsTimeRow(
-                    textFieldValue = uiState.details.projectTime,
-                    stringId = R.string.project_time,
-                    currentTime = actions.projectTime.onCurrent,
-                    onConfirmation = actions.projectTime.onSet
-                )
+                }
+                key("lunchTimeEstimate") {
+                    ProjectDetailsTimeRow(
+                        textFieldValue = uiState.details.lunchTimeEstimate,
+                        stringId = R.string.lunch_time,
+                        currentTime = actions.lunchTime.onCurrent,
+                        onConfirmation = actions.lunchTime.onSet
+                    )
+                }
+                key("projectTime") {
+                    ProjectDetailsTimeRow(
+                        textFieldValue = uiState.details.projectTime,
+                        stringId = R.string.project_time,
+                        currentTime = actions.projectTime.onCurrent,
+                        onConfirmation = actions.projectTime.onSet
+                    )
+                }
             }
         }
     }
@@ -151,28 +158,34 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
             modifier = Modifier.padding(all = FORM_GROUP_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.startTime,
-                stringId = R.string.start_time,
-                currentTime = actions.startTime.onCurrent,
-                onConfirmation = actions.startTime.onSet,
-                labels = ProjectDetailsTimeRowLabels(
-                    currentTimeLabelId = R.string.now,
-                    timePickerLabelId = R.string.pick
+            key("startTime") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.startTime,
+                    stringId = R.string.start_time,
+                    currentTime = actions.startTime.onCurrent,
+                    onConfirmation = actions.startTime.onSet,
+                    labels = ProjectDetailsTimeRowLabels(
+                        currentTimeLabelId = R.string.now,
+                        timePickerLabelId = R.string.pick
+                    )
                 )
-            )
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.endTime,
-                stringId = endTimeLabelId,
-                currentTime = actions.endTime.onCurrent,
-                onConfirmation = actions.endTime.onSet
-            )
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.projectTime,
-                stringId = R.string.project_time,
-                currentTime = actions.projectTime.onCurrent,
-                onConfirmation = actions.projectTime.onSet
-            )
+            }
+            key("endTime") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.endTime,
+                    stringId = endTimeLabelId,
+                    currentTime = actions.endTime.onCurrent,
+                    onConfirmation = actions.endTime.onSet
+                )
+            }
+            key("projectTime") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.projectTime,
+                    stringId = R.string.project_time,
+                    currentTime = actions.projectTime.onCurrent,
+                    onConfirmation = actions.projectTime.onSet
+                )
+            }
         }
     }
 }
@@ -187,30 +200,38 @@ private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions
             modifier = Modifier.padding(all = FORM_GROUP_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.lunchStart,
-                stringId = R.string.lunch_start,
-                currentTime = actions.lunchStart.onCurrent,
-                onConfirmation = actions.lunchStart.onSet
-            )
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.lunchEnd,
-                stringId = R.string.lunch_end,
-                currentTime = actions.lunchEnd.onCurrent,
-                onConfirmation = actions.lunchEnd.onSet
-            )
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.breakStart,
-                stringId = R.string.break_start,
-                currentTime = actions.breakStart.onCurrent,
-                onConfirmation = actions.breakStart.onSet
-            )
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.breakEnd,
-                stringId = R.string.break_end,
-                currentTime = actions.breakEnd.onCurrent,
-                onConfirmation = actions.breakEnd.onSet
-            )
+            key("lunchStart") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.lunchStart,
+                    stringId = R.string.lunch_start,
+                    currentTime = actions.lunchStart.onCurrent,
+                    onConfirmation = actions.lunchStart.onSet
+                )
+            }
+            key("lunchEnd") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.lunchEnd,
+                    stringId = R.string.lunch_end,
+                    currentTime = actions.lunchEnd.onCurrent,
+                    onConfirmation = actions.lunchEnd.onSet
+                )
+            }
+            key("breakStart") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.breakStart,
+                    stringId = R.string.break_start,
+                    currentTime = actions.breakStart.onCurrent,
+                    onConfirmation = actions.breakStart.onSet
+                )
+            }
+            key("breakEnd") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.breakEnd,
+                    stringId = R.string.break_end,
+                    currentTime = actions.breakEnd.onCurrent,
+                    onConfirmation = actions.breakEnd.onSet
+                )
+            }
         }
     }
 }
@@ -225,12 +246,14 @@ private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions:
             modifier = Modifier.padding(all = FORM_GROUP_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
         ) {
-            ProjectDetailsTimeRow(
-                textFieldValue = uiState.details.lunchTimeEstimate,
-                stringId = R.string.lunch_time,
-                currentTime = actions.lunchTime.onCurrent,
-                onConfirmation = actions.lunchTime.onSet
-            )
+            key("lunchTimeEstimate") {
+                ProjectDetailsTimeRow(
+                    textFieldValue = uiState.details.lunchTimeEstimate,
+                    stringId = R.string.lunch_time,
+                    currentTime = actions.lunchTime.onCurrent,
+                    onConfirmation = actions.lunchTime.onSet
+                )
+            }
         }
     }
 }

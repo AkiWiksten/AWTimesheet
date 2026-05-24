@@ -20,6 +20,10 @@ private const val CONTENT_CLICK_RETRIES = 5
 private const val FIELD_INTERACTION_RETRIES = 4
 private const val CLICK_RETRY_COUNT = 5
 private const val CLICK_RETRY_WAIT_MS = 250L
+private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
+private const val TAB_CALENDAR = "Calendar"
+private const val TAB_WORKDAY = "Workday"
+private const val TAB_SETTINGS = "Settings"
 
 /**
  * Benchmark that measures recomposition counts during common user interactions.
@@ -40,7 +44,7 @@ class RecompositionBenchmark {
     @Test
     fun calendarScreenRecompositions() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
@@ -48,7 +52,6 @@ class RecompositionBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                dismissIntroScreenIfVisible()
             }
         ) {
             // Engage with calendar to trigger recompositions
@@ -65,7 +68,7 @@ class RecompositionBenchmark {
     @Test
     fun workdayScreenRecompositions() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
@@ -73,7 +76,6 @@ class RecompositionBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                dismissIntroScreenIfVisible()
                 openBottomNavTab(label = "Workday")
             }
         ) {
@@ -89,7 +91,7 @@ class RecompositionBenchmark {
     @Test
     fun settingsScreenRecompositions() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
@@ -97,7 +99,6 @@ class RecompositionBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                dismissIntroScreenIfVisible()
                 openBottomNavTab(label = "Settings")
             }
         ) {
@@ -114,7 +115,7 @@ class RecompositionBenchmark {
     @Test
     fun projectDetailsScreenRecompositions() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
@@ -122,7 +123,6 @@ class RecompositionBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                dismissIntroScreenIfVisible()
                 // Navigate to a project's details screen
                 navigateToProjectDetailsScreen()
             }
@@ -136,12 +136,13 @@ class RecompositionBenchmark {
 
     /**
      * Measures recompositions during single project screen interactions.
-     * This includes editing a single project's work entry details.
+     * This includes editing a single project's work entry details (project name, time, km, allowance, work type).
+     * NOTE: This tests SingleProjectScreen, NOT ProjectDetailsScreen. Keep isolated to SingleProjectScreen only.
      */
     @Test
     fun singleProjectScreenRecompositions() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
@@ -149,12 +150,12 @@ class RecompositionBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                dismissIntroScreenIfVisible()
                 // Navigate to single project editing screen
                 navigateToSingleProjectScreen()
             }
         ) {
             // Engage with editable fields to guarantee frame-producing updates.
+            // This tests SingleProjectScreen only (projectName, projectTime, kilometres, allowance, workType)
             exerciseSingleProjectScreen()
         }
     }
@@ -164,19 +165,111 @@ class RecompositionBenchmark {
  * Helper to open a navigation tab by label.
  */
 private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
-    clickObjectWithRetry(selector = By.text(label), description = "bottom nav tab '$label'")
-    device.waitForIdle()
+    // Primary path: label text lookup.
+    val textTab = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
+    if (textTab != null) {
+        textTab.click()
+        device.waitForIdle()
+        return
+    }
+
+    // Fallback path: select a bottom-nav item by stable order.
+    val targetIndex = when (label) {
+        TAB_CALENDAR -> 0
+        TAB_WORKDAY -> 1
+        TAB_SETTINGS -> 2
+        else -> null
+    }
+
+    if (targetIndex != null) {
+        repeat(CLICK_RETRY_COUNT) {
+            val bottomNavCandidates = device.findObjects(By.clickable(true))
+                .asSequence()
+                .mapNotNull { node ->
+                    try {
+                        val bounds = node.visibleBounds
+                        val centerY = bounds.centerY()
+                        if (centerY >= (device.displayHeight * BOTTOM_NAV_MIN_Y_RATIO).toInt()) {
+                            bounds.centerX() to centerY
+                        } else {
+                            null
+                        }
+                    } catch (_: StaleObjectException) {
+                        null
+                    }
+                }
+                .sortedBy { it.first }
+                .toList()
+
+            if (bottomNavCandidates.size >= 3) {
+                val (x, y) = bottomNavCandidates[targetIndex]
+                if (device.click(x, y)) {
+                    device.waitForIdle()
+                    return
+                }
+            }
+
+            device.waitForIdle()
+        }
+    }
+
+    error("Could not find bottom nav tab '$label'.")
 }
 
 /**
- * Navigates to the Project Details screen by clicking on the first project item.
- * Assumes the calendar or workday screen has project entries to click.
+ * Navigates to the Project Details screen by opening a workday project entry,
+ * then opening details from the SingleProject screen.
  */
 private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
-    clickFirstContentItem(itemDescription = "project item on calendar screen")
-    // Additional click might be needed to open details (depends on UI)
-    clickObjectWithRetry(selector = By.desc("Edit project"), description = "Edit project button", required = false)
+    openBottomNavTab(label = TAB_WORKDAY)
     device.waitForIdle()
+
+    clickFirstContentItem(itemDescription = "project entry on workday screen")
+    device.waitForIdle()
+
+    openProjectDetailsFromSingleProjectScreen()
+    device.waitForIdle()
+}
+
+private fun MacrobenchmarkScope.openProjectDetailsFromSingleProjectScreen() {
+    // Primary path: text-based lookup (works in matching locale).
+    val detailsByText = device.wait(Until.findObject(By.text("Details")), NAVIGATION_WAIT_MS)
+    if (detailsByText != null) {
+        detailsByText.click()
+        device.waitForIdle()
+        return
+    }
+
+    // Fallback path: pick a likely details action button from mid-content area.
+    repeat(CLICK_RETRY_COUNT) {
+        val midButtons = device.findObjects(By.clazz("android.widget.Button"))
+            .asSequence()
+            .mapNotNull { node ->
+                try {
+                    val bounds = node.visibleBounds
+                    val centerX = bounds.centerX()
+                    val centerY = bounds.centerY()
+                    val isInMidContent =
+                        centerY in (device.displayHeight * 0.25f).toInt()..(device.displayHeight * 0.78f).toInt()
+                    if (isInMidContent) centerX to centerY else null
+                } catch (_: StaleObjectException) {
+                    null
+                }
+            }
+            .sortedWith(compareByDescending<Pair<Int, Int>> { it.first }.thenBy { it.second })
+            .toList()
+
+        // Prefer right-side action column button over bottom confirm/back controls.
+        val candidate = midButtons.firstOrNull()
+        if (candidate != null && device.click(candidate.first, candidate.second)) {
+            device.waitForIdle()
+            return
+        }
+
+        device.waitForIdle()
+    }
+
+    error("Could not open Project Details from SingleProject screen")
 }
 
 /**
@@ -242,7 +335,7 @@ private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
 }
 
 private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
-    repeat(FIELD_INTERACTION_RETRIES) {
+    repeat(FIELD_INTERACTION_RETRIES) { attempt ->
         val fieldPoint = device.findObjects(By.focusable(true))
             .asSequence()
             .mapNotNull { node ->
@@ -252,7 +345,12 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
                     val centerY = bounds.centerY()
                     val isInContentArea =
                         centerY in (device.displayHeight * 0.18f).toInt()..(device.displayHeight * 0.86f).toInt()
-                    if (isInContentArea) centerX to centerY else null
+
+                    // Skip navigation buttons that would leave SingleProjectScreen
+                    val nodeText = node.text?.lowercase() ?: ""
+                    val shouldSkip = nodeText.contains("details") || nodeText.contains("pick") || nodeText.contains("edit")
+
+                    if (isInContentArea && !shouldSkip) centerX to centerY else null
                 } catch (_: StaleObjectException) {
                     null
                 }
@@ -266,6 +364,10 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
             device.pressKeyCode(KeyEvent.KEYCODE_DEL)
             device.waitForIdle()
             return true
+        }
+
+        if (attempt < FIELD_INTERACTION_RETRIES - 1) {
+            device.waitForIdle()
         }
     }
     return false
@@ -290,8 +392,11 @@ private fun MacrobenchmarkScope.performVerticalStressScroll() {
 }
 
 private fun MacrobenchmarkScope.ensureTargetAppInForeground() {
-    val hasTargetPackage = device.wait(Until.hasObject(By.pkg(TARGET_PACKAGE)), NAVIGATION_WAIT_MS)
-    check(hasTargetPackage) { "Target package '$TARGET_PACKAGE' is not visible after launch." }
+    val hasTargetPackage =
+        device.wait(Until.hasObject(By.pkg(BenchmarkConfig.TARGET_PACKAGE)), NAVIGATION_WAIT_MS)
+    check(hasTargetPackage) {
+        "Target package '${BenchmarkConfig.TARGET_PACKAGE}' is not visible after launch."
+    }
     device.waitForIdle()
 }
 
@@ -321,4 +426,3 @@ private fun MacrobenchmarkScope.clickObjectWithRetry(
         error("Could not click $description")
     }
 }
-

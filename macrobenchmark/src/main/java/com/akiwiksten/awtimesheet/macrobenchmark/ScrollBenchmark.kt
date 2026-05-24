@@ -1,6 +1,5 @@
 package com.akiwiksten.awtimesheet.macrobenchmark
 
-import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
@@ -16,6 +15,8 @@ import org.junit.runner.RunWith
 private const val NAVIGATION_WAIT_MS = 2_000L
 private const val SWIPE_STEPS = 24
 private const val SWIPE_REPEATS = 6
+private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
+private const val TAB_CALENDAR = "Calendar"
 private const val TAB_WORKDAY = "Workday"
 private const val TAB_SETTINGS = "Settings"
 
@@ -28,14 +29,13 @@ class ScrollBenchmark {
     @Test
     fun calendarScrollFrameTiming() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
-                dismissIntroScreenIfVisible()
             }
         ) {
             performVerticalStressScroll()
@@ -45,14 +45,13 @@ class ScrollBenchmark {
     @Test
     fun workdayScrollFrameTiming() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
-                dismissIntroScreenIfVisible()
                 openBottomNavTab(label = TAB_WORKDAY)
             }
         ) {
@@ -63,14 +62,13 @@ class ScrollBenchmark {
     @Test
     fun settingsScrollFrameTiming() {
         benchmarkRule.measureRepeated(
-            packageName = TARGET_PACKAGE,
+            packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
-                dismissIntroScreenIfVisible()
                 openBottomNavTab(label = TAB_SETTINGS)
             }
         ) {
@@ -96,11 +94,53 @@ private fun MacrobenchmarkScope.performVerticalStressScroll() {
 }
 
 private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
-    val tab = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
-        ?: error("Could not find bottom nav tab '$label'.")
-    tab.click()
     device.waitForIdle()
+
+    // Primary path: use label text when locale matches benchmark constants.
+    val tab = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
+    if (tab != null) {
+        tab.click()
+        device.waitForIdle()
+        return
+    }
+
+    // Fallback path: pick a bottom-nav item by its stable order (Calendar, Workday, Settings).
+    val targetIndex = when (label) {
+        TAB_CALENDAR -> 0
+        TAB_WORKDAY -> 1
+        TAB_SETTINGS -> 2
+        else -> null
+    }
+
+    if (targetIndex != null) {
+        repeat(3) {
+            val bottomNavCandidates = device.findObjects(By.clickable(true))
+                .asSequence()
+                .mapNotNull { node ->
+                    runCatching {
+                        val bounds = node.visibleBounds
+                        val centerY = bounds.centerY()
+                        if (centerY >= (device.displayHeight * BOTTOM_NAV_MIN_Y_RATIO).toInt()) {
+                            bounds.centerX() to centerY
+                        } else {
+                            null
+                        }
+                    }.getOrNull()
+                }
+                .sortedBy { it.first }
+                .toList()
+
+            if (bottomNavCandidates.size >= 3) {
+                val (x, y) = bottomNavCandidates[targetIndex]
+                if (device.click(x, y)) {
+                    device.waitForIdle()
+                    return
+                }
+            }
+
+            device.waitForIdle()
+        }
+    }
+
+    error("Could not find bottom nav tab '$label'.")
 }
-
-
-

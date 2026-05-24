@@ -36,4 +36,5 @@ include(":features:settings")
 include(":features:singleproject")
 include(":features:timesheet")
 include(":features:workday")
+include(":macrobenchmark")
 

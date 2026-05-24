@@ -13,7 +13,9 @@ plugins {
     alias(libs.plugins.screenshot) apply false
 }
 
-val verifyModuleBoundaries = tasks.register("verifyModuleBoundaries") {
+tasks.register("verifyModuleBoundaries") {
+    group = "verification"
+    description = "Checks forbidden cross-module project dependencies."
     notCompatibleWithConfigurationCache("Inspects cross-project dependencies at execution time")
 
     doLast {
@@ -46,6 +48,18 @@ val verifyModuleBoundaries = tasks.register("verifyModuleBoundaries") {
             )
         }
     }
+}
+
+tasks.register("summarizePerf") {
+    group = "verification"
+    description = "Alias for :macrobenchmark:summarizePerf"
+    dependsOn(":macrobenchmark:summarizePerf")
+}
+
+tasks.register("verifyPerf") {
+    group = "verification"
+    description = "Alias for :macrobenchmark:verifyPerf"
+    dependsOn(":macrobenchmark:verifyPerf")
 }
 
 

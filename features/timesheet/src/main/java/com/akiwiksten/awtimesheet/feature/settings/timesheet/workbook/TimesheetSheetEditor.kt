@@ -2,7 +2,6 @@
 
 package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
-import android.content.Context
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_HEADER_CELLS
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_LABEL_CELLS
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
@@ -29,7 +28,7 @@ import org.w3c.dom.Element
 import java.io.ByteArrayInputStream
 
 internal object TimesheetSheetEditor {
-    fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData, ctx: Context): ByteArray {
+    fun updateSheet(sheetXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val document = createDocumentBuilderFactory().newDocumentBuilder()
             .parse(ByteArrayInputStream(sheetXml))
         val sheetData = document.getElementsByTagNameNS(SPREADSHEET_NAMESPACE, "sheetData")
@@ -41,11 +40,11 @@ internal object TimesheetSheetEditor {
         clearTopSummaryArea(sheetData)
         TimesheetSectionWriter.populateHeader(document, sheetData, exportData)
         TimesheetSectionWriter.populateDayOfMonthRow(document, sheetData)
-        TimesheetSectionWriter.populateDailyEntryLabels(document, sheetData, exportData, ctx)
+        TimesheetSectionWriter.populateDailyEntryLabels(document, sheetData, exportData)
         TimesheetSectionWriter.populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
         TimesheetSectionWriter.populateProjectSummary(document, sheetData, exportData)
-        TimesheetSectionWriter.populateAllowanceSummary(document, sheetData, exportData, ctx)
-        TimesheetSectionWriter.populateWorkTypeSummary(document, sheetData, exportData, ctx)
+        TimesheetSectionWriter.populateAllowanceSummary(document, sheetData, exportData)
+        TimesheetSectionWriter.populateWorkTypeSummary(document, sheetData, exportData)
         TimesheetFreezePaneEditor.ensureTopRowFrozen(document, sheetData)
         TimesheetFreezePaneEditor.ensureFirstColumnFrozen(document)
 

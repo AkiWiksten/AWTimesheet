@@ -3,7 +3,6 @@
 package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
 import android.content.Context
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.CONTENT_TYPES_NAMESPACE
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.RELATIONSHIPS_NAMESPACE
@@ -11,7 +10,6 @@ import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.SPREAD
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.childElementSequence
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.createDocumentBuilderFactory
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.replaceSharedStrings
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.safeString
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.toByteArray
 import org.w3c.dom.Element
 import java.io.ByteArrayInputStream
@@ -23,11 +21,15 @@ import java.util.zip.ZipOutputStream
 private const val STYLES_XML_ENTRY = "xl/styles.xml"
 
 internal object TimesheetWorkbookEditor {
-    fun createWorkbook(templateBytes: ByteArray, exportData: TimesheetExportData, ctx: Context): ByteArray {
+    fun createWorkbook(
+        templateBytes: ByteArray,
+        exportData: TimesheetExportData,
+        @Suppress("UNUSED_PARAMETER") ctx: Context? = null
+    ): ByteArray {
         val zipEntries = unzipEntries(templateBytes)
         zipEntries["xl/sharedStrings.xml"] = localizeSharedStrings(
             sharedStringsXml = zipEntries.getValue("xl/sharedStrings.xml"),
-            ctx = ctx
+            exportData = exportData
         )
         zipEntries["[Content_Types].xml"] = removeCalcChainContentType(
             zipEntries.getValue("[Content_Types].xml")
@@ -41,8 +43,7 @@ internal object TimesheetWorkbookEditor {
         )
         val updatedSheetXml = TimesheetSheetEditor.updateSheet(
             sheetXml = zipEntries.getValue("xl/worksheets/sheet1.xml"),
-            exportData = exportData,
-            ctx = ctx
+            exportData = exportData
         )
         zipEntries["xl/worksheets/sheet1.xml"] = normalizeStyleReferences(
             sheetXml = updatedSheetXml,
@@ -51,27 +52,27 @@ internal object TimesheetWorkbookEditor {
         return zipEntries(zipEntries)
     }
 
-    private fun localizeSharedStrings(sharedStringsXml: ByteArray, ctx: Context): ByteArray {
+    private fun localizeSharedStrings(sharedStringsXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val labelMappings = mapOf(
-            0 to ctx.safeString(R.string.timesheet_day_of_month, "Day of Month"),
-            1 to ctx.safeString(R.string.project_name, "Project name"),
-            2 to ctx.safeString(R.string.work_time_by_date, "Work time by date"),
-            3 to ctx.safeString(R.string.allowance, "Allowance"),
-            4 to ctx.safeString(R.string.work_type, "Work type"),
-            5 to ctx.safeString(R.string.kilometres, "Kilometres"),
-            6 to ctx.safeString(R.string.employer, "Employer"),
-            7 to ctx.safeString(R.string.name, "Name"),
-            14 to ctx.safeString(R.string.timesheet_work_time_total, "Work time total"),
-            16 to ctx.safeString(R.string.total_sum, "Sum"),
-            17 to ctx.safeString(R.string.timesheet_no_allowance_short, "No"),
-            18 to ctx.safeString(R.string.timesheet_half_day_allowance_short, "Half-day"),
-            19 to ctx.safeString(R.string.timesheet_full_allowance_short, "Full"),
-            20 to ctx.safeString(R.string.timesheet_start_date, "Start date"),
-            21 to ctx.safeString(R.string.timesheet_title, "Timesheet"),
-            22 to ctx.safeString(R.string.timesheet_end_date, "End date"),
-            23 to ctx.safeString(R.string.timesheet_general, "General"),
-            24 to ctx.safeString(R.string.timesheet_flex_time_total, "Flex time total"),
-            25 to ctx.safeString(R.string.project_time, "Project time")
+            0 to exportData.dayOfMonthLabel,
+            1 to exportData.projectNameLabel,
+            2 to exportData.workTimeByDateLabel,
+            3 to exportData.allowanceLabel,
+            4 to exportData.workTypeLabel,
+            5 to exportData.kilometresLabel,
+            6 to exportData.employerLabel,
+            7 to exportData.nameLabel,
+            14 to exportData.workTimeTotalLabel,
+            16 to exportData.totalSumLabel,
+            17 to exportData.allowanceRows[0].label,
+            18 to exportData.allowanceRows[1].label,
+            19 to exportData.allowanceRows[2].label,
+            20 to exportData.startDateLabel,
+            21 to exportData.titleLabel,
+            22 to exportData.endDateLabel,
+            23 to exportData.generalLabel,
+            24 to exportData.flexTimeTotalLabel,
+            25 to exportData.projectTimeLabel
         )
         return replaceSharedStrings(sharedStringsXml, labelMappings)
     }

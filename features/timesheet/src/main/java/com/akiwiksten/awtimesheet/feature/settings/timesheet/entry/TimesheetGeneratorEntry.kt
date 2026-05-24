@@ -83,8 +83,7 @@ object TimesheetGeneratorEntry {
             val templateBytes = params.ctx.assets.open(TEMPLATE_ASSET_NAME).use { it.readBytes() }
             val workbookBytes = TimesheetWorkbookEditor.createWorkbook(
                 templateBytes = templateBytes,
-                exportData = exportData,
-                ctx = params.ctx
+                exportData = exportData
             )
 
             TimesheetStorage.saveXlsx(
@@ -118,6 +117,18 @@ data class GenerateTimesheetParams(
     val noAllowanceExportLabel: String,
     val halfDayAllowanceExportLabel: String,
     val fullAllowanceExportLabel: String,
+    val dayOfMonthLabel: String = "Day of Month",
+    val projectNameLabel: String = "Project name",
+    val workTimeByDateLabel: String = "Work time by date",
+    val allowanceLabel: String = "Allowance",
+    val workTypeLabel: String = "Work type",
+    val employerLabel: String = "Employer",
+    val nameLabel: String = "Name",
+    val totalSumLabel: String = "TOTAL SUM",
+    val startDateLabel: String = "Start date",
+    val titleLabel: String = "Timesheet",
+    val endDateLabel: String = "End date",
+    val projectTimeLabel: String = "Project time",
     val totalLabel: String,
     val generalLabel: String,
     val workTimeTotalLabel: String,

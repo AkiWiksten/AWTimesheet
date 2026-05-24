@@ -180,7 +180,19 @@ internal fun GenerateTimesheetParams.toTimesheetLabels() = TimesheetLabels(
     fullAllowanceSourceLabel = fullAllowanceSourceLabel,
     noAllowanceExportLabel = noAllowanceExportLabel,
     halfDayAllowanceExportLabel = halfDayAllowanceExportLabel,
-    fullAllowanceExportLabel = fullAllowanceExportLabel
+    fullAllowanceExportLabel = fullAllowanceExportLabel,
+    dayOfMonthLabel = dayOfMonthLabel,
+    projectNameLabel = projectNameLabel,
+    workTimeByDateLabel = workTimeByDateLabel,
+    allowanceLabel = allowanceLabel,
+    workTypeLabel = workTypeLabel,
+    employerLabel = employerLabel,
+    nameLabel = nameLabel,
+    totalSumLabel = totalSumLabel,
+    startDateLabel = startDateLabel,
+    titleLabel = titleLabel,
+    endDateLabel = endDateLabel,
+    projectTimeLabel = projectTimeLabel
 )
 
 internal fun buildAllowanceRows(

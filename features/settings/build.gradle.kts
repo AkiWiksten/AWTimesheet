@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":features:timesheet"))
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

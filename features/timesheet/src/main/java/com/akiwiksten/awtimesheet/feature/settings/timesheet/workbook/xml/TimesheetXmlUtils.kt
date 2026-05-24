@@ -1,6 +1,5 @@
 package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml
 
-import android.content.Context
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -53,9 +52,6 @@ private fun updateXmlSpaceAttribute(textNode: Element, preserveXmlSpace: Boolean
     }
 }
 
-internal fun Context.safeString(resId: Int, fallback: String): String {
-    return runCatching { getString(resId) }.getOrDefault(fallback)
-}
 
 internal fun createDocumentBuilderFactory(): DocumentBuilderFactory {
     return DocumentBuilderFactory.newInstance().apply {

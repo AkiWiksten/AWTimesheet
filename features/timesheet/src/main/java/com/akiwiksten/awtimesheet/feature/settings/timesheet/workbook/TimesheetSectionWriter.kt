@@ -2,8 +2,6 @@
 
 package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
 
-import android.content.Context
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_HEADER_STYLE
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_PROJECT_VALUE_STYLES
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_TOTAL_HEADER_STYLE
@@ -33,7 +31,6 @@ import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.SectionBodySt
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.WorkTypeSectionContext
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.TimesheetXmlHelper
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.safeString
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 
@@ -75,17 +72,16 @@ internal object TimesheetSectionWriter {
     fun populateDailyEntryLabels(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData,
-        ctx: Context
+        exportData: TimesheetExportData
     ) {
         val maxEntriesOnAnyDay = exportData.displayedEntriesByDay.values.maxOfOrNull { it.size } ?: 0
         val blockCount = maxEntriesOnAnyDay.coerceAtLeast(TEMPLATE_DAILY_ENTRY_BLOCKS)
         val dailyEntryLabels = listOf(
-            ctx.safeString(R.string.project_name, "Project name"),
-            ctx.safeString(R.string.project_time, "Project time"),
-            ctx.safeString(R.string.allowance, "Allowance"),
-            ctx.safeString(R.string.work_type, "Work type"),
-            ctx.safeString(R.string.kilometres, "Kilometres")
+            exportData.projectNameLabel,
+            exportData.projectTimeLabel,
+            exportData.allowanceLabel,
+            exportData.workTypeLabel,
+            exportData.kilometresLabel
         )
 
         for (entryIndex in 0 until blockCount) {
@@ -191,8 +187,7 @@ internal object TimesheetSectionWriter {
     fun populateAllowanceSummary(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData,
-        ctx: Context
+        exportData: TimesheetExportData
     ) {
         val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
         val startColumnIndex = allowanceStartColumnIndex(allProjectNames.size)
@@ -206,7 +201,7 @@ internal object TimesheetSectionWriter {
             totalColumnIndex = startColumnIndex + allProjectNames.size
         )
 
-        writeAllowanceHeader(context, ctx)
+        writeAllowanceHeader(context)
         writeAllowanceRows(context)
 
         TimesheetXmlHelper.applySectionHeaderStyles(
@@ -231,8 +226,7 @@ internal object TimesheetSectionWriter {
     fun populateWorkTypeSummary(
         document: Document,
         sheetData: Element,
-        exportData: TimesheetExportData,
-        ctx: Context
+        exportData: TimesheetExportData
     ) {
         val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
         val startColumnIndex = workTypeLabelColumnIndex(allProjectNames.size) + 1
@@ -246,7 +240,7 @@ internal object TimesheetSectionWriter {
             totalColumnIndex = startColumnIndex + allProjectNames.size
         )
 
-        writeWorkTypeHeader(context, ctx)
+        writeWorkTypeHeader(context)
         writeWorkTypeRows(context, sheetData)
 
         TimesheetXmlHelper.applySectionHeaderStyles(
@@ -385,12 +379,12 @@ internal object TimesheetSectionWriter {
         )
     }
 
-    private fun writeAllowanceHeader(context: AllowanceSectionContext, ctx: Context) {
+    private fun writeAllowanceHeader(context: AllowanceSectionContext) {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
             cellReference = buildCellReference(context.labelColumnIndex, 1),
-            value = ctx.safeString(R.string.allowance, "Allowance"),
+            value = context.exportData.allowanceLabel,
             styleIndex = BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
@@ -441,12 +435,12 @@ internal object TimesheetSectionWriter {
         }
     }
 
-    private fun writeWorkTypeHeader(context: WorkTypeSectionContext, ctx: Context) {
+    private fun writeWorkTypeHeader(context: WorkTypeSectionContext) {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
             cellReference = buildCellReference(context.labelColumnIndex, 1),
-            value = ctx.safeString(R.string.work_type, "Work type"),
+            value = context.exportData.workTypeLabel,
             styleIndex = BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->

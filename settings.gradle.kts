@@ -34,5 +34,6 @@ include(":features:intro")
 include(":features:projectdetails")
 include(":features:settings")
 include(":features:singleproject")
+include(":features:timesheet")
 include(":features:workday")
 

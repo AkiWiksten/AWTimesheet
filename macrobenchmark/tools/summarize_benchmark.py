@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Summarize AndroidX Benchmark JSON output for startup and frame timing metrics."""
+"""
+Summarize AndroidX Benchmark JSON output for startup, scroll jank, and recomposition metrics.
+
+Organizes results by benchmark class (Startup, Scroll, Recomposition) with visual indicators.
+"""
 
 from __future__ import annotations
 
@@ -14,8 +18,23 @@ KNOWN_METRICS = (
     "startupMs",
     "frameDurationCpuMs",
     "frameOverrunMs",
+    "recompositionCount",
 )
 PERCENTILE_KEYS = ("P50", "p50", "median", "P90", "p90", "P95", "p95", "max")
+
+# Benchmark metadata for organization and interpretation
+BENCHMARK_METADATA = {
+    "startupCold": {"class": "Startup", "metric": "timeToInitialDisplayMs", "target": "< 500 ms", "description": "App launch from cold start (process killed)"},
+    "startupWarm": {"class": "Startup", "metric": "timeToInitialDisplayMs", "target": "< 150 ms", "description": "App resume from warm start (backgrounded)"},
+    "calendarScrollFrameTiming": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Calendar list scroll jank"},
+    "workdayScrollFrameTiming": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Workday list scroll jank"},
+    "settingsScrollFrameTiming": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Settings list scroll jank"},
+    "calendarScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Calendar screen composition efficiency"},
+    "workdayScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Workday screen composition efficiency"},
+    "settingsScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Settings screen composition efficiency"},
+    "projectDetailsScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Project details editing composition efficiency"},
+    "singleProjectScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Single project editing composition efficiency"},
+}
 
 
 def iter_benchmark_records(root: Path) -> Iterable[dict[str, Any]]:
@@ -50,8 +69,15 @@ def find_percentiles(metric: Any) -> dict[str, float]:
 
 def find_runs(metric: Any) -> list[float]:
     if isinstance(metric, dict) and isinstance(metric.get("runs"), list):
-        values = [as_float(v) for v in metric["runs"]]
-        return [v for v in values if v is not None]
+        values = metric["runs"]
+        # Handle nested lists (sampledMetrics case where runs is [[...], [...]])
+        flat_values = []
+        for v in values:
+            if isinstance(v, list):
+                flat_values.extend([as_float(item) for item in v])
+            else:
+                flat_values.append(as_float(v))
+        return [v for v in flat_values if v is not None]
     if isinstance(metric, list):
         values = [as_float(v) for v in metric]
         return [v for v in values if v is not None]
@@ -59,13 +85,34 @@ def find_runs(metric: Any) -> list[float]:
 
 
 def iter_known_metrics(record: dict[str, Any]) -> Iterable[tuple[str, Any]]:
+    result = []
     metrics = record.get("metrics")
-    if not isinstance(metrics, dict):
-        return []
-    return [(metric_name, metrics.get(metric_name)) for metric_name in KNOWN_METRICS]
+    if isinstance(metrics, dict):
+        for metric_name in KNOWN_METRICS:
+            value = metrics.get(metric_name)
+            if value is not None:
+                result.append((metric_name, value))
+
+    # Also check sampledMetrics for metrics not found in metrics
+    sampled_metrics = record.get("sampledMetrics")
+    if isinstance(sampled_metrics, dict):
+        for metric_name in KNOWN_METRICS:
+            # Only add if not already found in metrics
+            if not any(m[0] == metric_name for m in result):
+                value = sampled_metrics.get(metric_name)
+                if value is not None:
+                    result.append((metric_name, value))
+
+    return result
 
 
 def derive_metric(metric_name: str, runs: list[float]) -> tuple[str, float | None]:
+    if metric_name == "timeToInitialDisplayMs" and runs:
+        avg = sum(runs) / len(runs)
+        return f"avg={avg:.1f}ms", avg
+    if metric_name == "startupMs" and runs:
+        avg = sum(runs) / len(runs)
+        return f"avg={avg:.1f}ms", avg
     if metric_name == "frameOverrunMs" and runs:
         jank = (sum(1 for v in runs if v > 0.0) / len(runs)) * 100.0
         missed = sum(1 for v in runs if v > 0.0)
@@ -74,47 +121,141 @@ def derive_metric(metric_name: str, runs: list[float]) -> tuple[str, float | Non
         long_frames = sum(1 for v in runs if v > 16.0)
         pct = (long_frames / len(runs)) * 100.0
         return f"longFrames>16ms%={pct:.2f};count={long_frames}", pct
+    if metric_name == "recompositionCount" and runs:
+        avg = sum(runs) / len(runs) if runs else 0.0
+        max_val = max(runs) if runs else 0.0
+        return f"avg={avg:.1f};max={max_val:.0f}", max_val
     return "", None
+
+
+def get_status_indicator(metric_name: str, value: float) -> str:
+    """Return a status indicator (✓, ⚠, ❌) based on metric value and thresholds."""
+    if metric_name == "frameOverrunMs":  # jank percentage
+        if value < 5.0:
+            return "✓"
+        elif value < 10.0:
+            return "⚠"
+        else:
+            return "❌"
+    elif metric_name == "frameDurationCpuMs":  # long frames percentage
+        if value < 10.0:
+            return "✓"
+        elif value < 20.0:
+            return "⚠"
+        else:
+            return "❌"
+    elif metric_name == "timeToInitialDisplayMs":  # startup milliseconds
+        if value < 300.0:
+            return "✓"
+        elif value < 500.0:
+            return "⚠"
+        else:
+            return "❌"
+    return " "
 
 
 def print_summary(records: list[dict[str, Any]]) -> dict[str, list[tuple[str, float]]]:
     if not records:
         print("No benchmark JSON records found.")
-        return {"jank": [], "long_frames": []}
+        return {"jank": [], "long_frames": [], "recompositions": []}
 
-    print("benchmark,metric,p50,p90,p95,max,derived")
-    derived_values: dict[str, list[tuple[str, float]]] = {"jank": [], "long_frames": []}
+    print("=" * 80)
+    print("BENCHMARK RESULTS SUMMARY")
+    print("=" * 80)
+    print()
 
+    # Organize results by benchmark class
+    results_by_class: dict[str, list[dict[str, Any]]] = {
+        "Startup": [],
+        "Scroll": [],
+        "Recomposition": [],
+    }
+
+    derived_values: dict[str, list[tuple[str, float]]] = {"jank": [], "long_frames": [], "recompositions": []}
+
+    # Collect and group results
     for record in records:
         name = str(record.get("name", "<unknown>"))
-        for metric_name, metric_value in iter_known_metrics(record):
-            if metric_value is None:
-                continue
+        metadata = BENCHMARK_METADATA.get(name, {"class": "Unknown", "description": ""})
+        benchmark_class = metadata.get("class", "Unknown")
 
-            p = find_percentiles(metric_value)
-            runs = find_runs(metric_value)
+        if benchmark_class in results_by_class:
+            record["_class"] = benchmark_class
+            record["_metadata"] = metadata
+            results_by_class[benchmark_class].append(record)
 
-            derived, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
-            store_derived_value(
-                derived_values=derived_values,
-                benchmark_name=name,
-                metric_name=metric_name,
-                value=derived_percent,
-            )
+            # Extract metrics
+            for metric_name, metric_value in iter_known_metrics(record):
+                if metric_value is None:
+                    continue
 
-            print(
-                ",".join(
-                    [
-                        name,
-                        metric_name,
-                        str(p.get("P50") or p.get("p50") or p.get("median") or ""),
-                        str(p.get("P90") or p.get("p90") or ""),
-                        str(p.get("P95") or p.get("p95") or ""),
-                        str(p.get("max") or ""),
-                        derived,
-                    ]
+                runs = find_runs(metric_value)
+                derived, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
+                store_derived_value(
+                    derived_values=derived_values,
+                    benchmark_name=name,
+                    metric_name=metric_name,
+                    value=derived_percent,
                 )
-            )
+
+    # Print organized by class
+    print("benchmark,metric,p50,p90,p95,max,derived,description")
+    for benchmark_class in ["Startup", "Scroll", "Recomposition"]:
+        for record in results_by_class[benchmark_class]:
+            name = str(record.get("name", "<unknown>"))
+            metadata = record.get("_metadata", {})
+            description = metadata.get("description", "")
+
+            for metric_name, metric_value in iter_known_metrics(record):
+                if metric_value is None:
+                    continue
+
+                p = find_percentiles(metric_value)
+                runs = find_runs(metric_value)
+                derived, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
+
+                print(
+                    ",".join(
+                        [
+                            name,
+                            metric_name,
+                            str(p.get("P50") or p.get("p50") or p.get("median") or ""),
+                            str(p.get("P90") or p.get("p90") or ""),
+                            str(p.get("P95") or p.get("p95") or ""),
+                            str(p.get("max") or ""),
+                            derived,
+                            description,
+                        ]
+                    )
+                )
+
+    # Print summary by class with status
+    print()
+    print("=" * 80)
+    print("SUMMARY BY CLASS")
+    print("=" * 80)
+    for benchmark_class in ["Startup", "Scroll", "Recomposition"]:
+        print(f"\n{benchmark_class.upper()}")
+        if results_by_class[benchmark_class]:
+            for record in results_by_class[benchmark_class]:
+                name = str(record.get("name", "<unknown>"))
+                metadata = record.get("_metadata", {})
+                target = metadata.get("target", "N/A")
+                
+                # Extract the most relevant value for status
+                status = " "
+                for metric_name, metric_value in iter_known_metrics(record):
+                    if metric_value is None:
+                        continue
+                    runs = find_runs(metric_value)
+                    _, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
+                    if derived_percent is not None:
+                        status = get_status_indicator(metric_name, derived_percent)
+                        break
+                
+                print(f"  {status} {name:40} Target: {target}")
+        else:
+            print(f"  (no tests)")
 
     return derived_values
 
@@ -131,6 +272,8 @@ def store_derived_value(
         derived_values["jank"].append((benchmark_name, value))
     elif metric_name == "frameDurationCpuMs":
         derived_values["long_frames"].append((benchmark_name, value))
+    elif metric_name == "recompositionCount":
+        derived_values["recompositions"].append((benchmark_name, value))
 
 
 def evaluate_single_threshold(
@@ -156,6 +299,7 @@ def evaluate_thresholds(
     derived_values: dict[str, list[tuple[str, float]]],
     max_jank_percent: float | None,
     max_long_frames_percent: float | None,
+    max_recompositions: float | None,
     fail_on_missing_runs: bool,
 ) -> int:
     failures = evaluate_single_threshold(
@@ -174,6 +318,15 @@ def evaluate_thresholds(
             fail_on_missing_runs=fail_on_missing_runs,
         )
     )
+    failures.extend(
+        evaluate_single_threshold(
+            values=derived_values.get("recompositions", []),
+            limit=max_recompositions,
+            metric_label="recompositions",
+            missing_message="No recompositionCount runs found while --fail-on-missing-runs is enabled.",
+            fail_on_missing_runs=fail_on_missing_runs,
+        )
+    )
 
     if failures:
         print("\nTHRESHOLD CHECK: FAILED")
@@ -181,7 +334,7 @@ def evaluate_thresholds(
             print(f"- {failure}")
         return 1
 
-    if max_jank_percent is not None or max_long_frames_percent is not None:
+    if max_jank_percent is not None or max_long_frames_percent is not None or max_recompositions is not None:
         print("\nTHRESHOLD CHECK: PASSED")
     return 0
 
@@ -207,6 +360,12 @@ def main() -> None:
         help="Fail if any benchmark long-frames (>16ms) percentage exceeds this value.",
     )
     parser.add_argument(
+        "--max-recompositions",
+        type=float,
+        default=None,
+        help="Fail if any benchmark recomposition count exceeds this value.",
+    )
+    parser.add_argument(
         "--fail-on-missing-runs",
         action="store_true",
         help="Fail when threshold checks are requested but run arrays are missing.",
@@ -224,6 +383,7 @@ def main() -> None:
         derived_values=derived_values,
         max_jank_percent=args.max_jank_percent,
         max_long_frames_percent=args.max_long_frames_percent,
+        max_recompositions=args.max_recompositions,
         fail_on_missing_runs=args.fail_on_missing_runs,
     )
     sys.exit(exit_code)

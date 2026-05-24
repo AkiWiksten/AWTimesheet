@@ -32,7 +32,7 @@ class ScrollBenchmark {
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
-            iterations = 2,
+            iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
                 dismissIntroScreenIfVisible()
@@ -49,7 +49,7 @@ class ScrollBenchmark {
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
-            iterations = 2,
+            iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
                 dismissIntroScreenIfVisible()
@@ -67,7 +67,7 @@ class ScrollBenchmark {
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.Partial(),
             startupMode = StartupMode.WARM,
-            iterations = 2,
+            iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
                 dismissIntroScreenIfVisible()

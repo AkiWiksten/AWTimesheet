@@ -35,7 +35,7 @@ class StartupBenchmark {
             ),
             compilationMode = CompilationMode.Partial(),
             startupMode = startupMode,
-            iterations = 2,
+            iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 pressHome()
             }

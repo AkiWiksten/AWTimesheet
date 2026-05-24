@@ -39,6 +39,7 @@ dependencies {
 val pythonExecutable = providers.gradleProperty("perf.pythonExecutable").orElse("python")
 val maxJankPercent = providers.gradleProperty("perf.maxJankPercent")
 val maxLongFramesPercent = providers.gradleProperty("perf.maxLongFramesPercent")
+val maxRecompositions = providers.gradleProperty("perf.maxRecompositions")
 val benchmarkBuildDir = layout.buildDirectory.get().asFile.absolutePath
 
 tasks.register<Exec>("summarizePerf") {
@@ -67,6 +68,8 @@ tasks.register<Exec>("verifyPerf") {
         maxJankPercent.get(),
         "--max-long-frames-percent",
         maxLongFramesPercent.get(),
+        "--max-recompositions",
+        maxRecompositions.orElse("0").get(),
         "--fail-on-missing-runs"
     )
 }

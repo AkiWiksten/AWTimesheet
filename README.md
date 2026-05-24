@@ -57,53 +57,50 @@ See `build-logic/README.md` for details and usage examples.
 6. `.\gradlew.bat lint`
 7. `.\gradlew.bat --no-configuration-cache verifyModuleBoundaries`
 8. SonarCube runs automatically on new code
+9. Run MacroBenchmark .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest
 
 ## Macrobenchmark
 
-Macrobenchmark tests live in `macrobenchmark/` and focus on:
-- startup timing (`timeToInitialDisplayMs` and first frame)
-- cold vs warm startup
-- frame timing during scrolling (`FrameTimingMetric`)
-- calendar, workday, and settings scroll stress cases
+**10 comprehensive performance benchmarks** covering startup timing, scroll jank, and Compose recomposition efficiency:
+
+- **Startup** (2 tests): cold/warm app launch timing
+- **Scroll** (3 tests): jank detection on calendar, workday, settings lists
+- **Recomposition** (5 tests): composition efficiency on calendar, workday, settings, project details, single project screens
 
 Run benchmarks on a connected device (recommended) or emulator:
 
 `.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest`
 
-AndroidX Benchmark output includes values that help track:
-- missed frames / jank (`frameOverrunMs` percentiles)
-- long frames over 16 ms (`frameDurationCpuMs` percentiles)
-- regressions during LazyColumn scrolling and expensive recompositions
+Quick reference:
 
-Summarize benchmark output quickly:
+`macrobenchmark/BENCHMARK_QUICK_START.md` ← **Start here** for 30-second overview and common commands
+
+`macrobenchmark/README.md` ← Full benchmark matrix, workflows, troubleshooting
+
+Summarize benchmark output:
 
 `python -u .\macrobenchmark\tools\summarize_benchmark.py`
 
-See `macrobenchmark/README.md` for per-class execution options.
-
-Example CI gate:
+Example CI gate (fails on jank > 5%, long frames > 10%):
 
 `python -u .\macrobenchmark\tools\summarize_benchmark.py .\macrobenchmark\build --max-jank-percent 5 --max-long-frames-percent 10 --fail-on-missing-runs`
 
-Or use Gradle task wrapper:
+Or use Gradle wrapper:
 
 `.\gradlew.bat :macrobenchmark:verifyPerf`
 
-Root-level aliases are also available:
+Root-level aliases:
 
-`.\gradlew.bat verifyPerf`
+`.\gradlew.bat verifyPerf` or `.\gradlew.bat summarizePerf`
 
-`.\gradlew.bat summarizePerf`
+Performance gate defaults (in `gradle.properties`):
 
-Performance gate defaults are centralized in `gradle.properties`:
-
-- `perf.pythonExecutable=python`
 - `perf.maxJankPercent=5`
 - `perf.maxLongFramesPercent=10`
 
-Override per run when needed:
+Override per run:
 
-`.\gradlew.bat verifyPerf -Pperf.maxJankPercent=4 -Pperf.maxLongFramesPercent=8 -Pperf.pythonExecutable=python`
+`.\gradlew.bat verifyPerf -Pperf.maxJankPercent=4 -Pperf.maxLongFramesPercent=8`
 
 ## Features to be implemented still
 + General

@@ -17,7 +17,6 @@ import org.junit.runner.RunWith
 
 private const val NAVIGATION_WAIT_MS = 2_000L
 private const val WORKDAY_READY_TEXT = "Add"
-private const val CONTENT_CLICK_RETRIES = 5
 private const val FIELD_INTERACTION_RETRIES = 4
 private const val CLICK_RETRY_COUNT = 5
 private const val CLICK_RETRY_WAIT_MS = 250L
@@ -219,21 +218,32 @@ private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
 }
 
 /**
- * Navigates to the Project Details screen by opening a workday project entry,
+ * Navigates to the Project Details screen by adding a new project (via "Add" button),
  * then opening details from the SingleProject screen.
+ *
+ * If the workday has no projects, we add one via the "Add" button which opens
+ * SingleProjectScreen directly with an empty project. Then we click "Details"
+ * to reach ProjectDetailsScreen.
  */
 private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
     openBottomNavTab(label = TAB_WORKDAY)
     waitForWorkdayScreenReady()
     device.waitForIdle()
 
-    clickFirstContentItem(itemDescription = "project entry on workday screen")
+    // Click "Add" button to create a new project entry and open SingleProjectScreen
+    clickObjectWithRetry(
+        selector = By.text("Add"),
+        description = "Add button on WorkdayScreen",
+        required = true
+    )
     device.waitForIdle()
 
+    // Now we're on SingleProjectScreen; navigate to ProjectDetailsScreen
     openProjectDetailsFromSingleProjectScreen()
     device.waitForIdle()
     requireLikelyProjectDetailsScreen(context = "after opening Project Details")
 }
+
 
 private fun MacrobenchmarkScope.openProjectDetailsFromSingleProjectScreen() {
     // Primary path: text-based lookup (works in matching locale).
@@ -277,48 +287,22 @@ private fun MacrobenchmarkScope.openProjectDetailsFromSingleProjectScreen() {
 }
 
 /**
- * Navigates to the Single Project screen by finding and clicking a project entry.
- * Then interacts with the single project editing form.
+ * Navigates to the Single Project screen via Workday's Add action.
+ *
+ * Using generic content clicks on Workday can hit the stats-card clock picker.
+ * The Add button is deterministic and opens SingleProjectScreen directly.
  */
 private fun MacrobenchmarkScope.navigateToSingleProjectScreen() {
-    // Workday screen typically has project entries that can be clicked to edit
-    openBottomNavTab(label = "Workday")
+    openBottomNavTab(label = TAB_WORKDAY)
     waitForWorkdayScreenReady()
     device.waitForIdle()
 
-    clickFirstContentItem(itemDescription = "project entry on workday screen")
+    clickObjectWithRetry(
+        selector = By.text("Add"),
+        description = "Add button on WorkdayScreen",
+        required = true
+    )
     device.waitForIdle()
-}
-
-private fun MacrobenchmarkScope.clickFirstContentItem(itemDescription: String) {
-    repeat(CONTENT_CLICK_RETRIES) { attempt ->
-        val contentPoint = device.findObjects(By.clickable(true))
-            .asSequence()
-            .mapNotNull { node ->
-                try {
-                    val bounds = node.visibleBounds
-                    val centerX = bounds.centerX()
-                    val centerY = bounds.centerY()
-                    val isInScrollableContentArea =
-                        centerY in (device.displayHeight * 0.18f).toInt()..(device.displayHeight * 0.82f).toInt()
-                    if (isInScrollableContentArea) centerX to centerY else null
-                } catch (_: StaleObjectException) {
-                    null
-                }
-            }
-            .firstOrNull()
-
-        if (contentPoint != null && device.click(contentPoint.first, contentPoint.second)) {
-            device.waitForIdle()
-            return
-        }
-
-        if (attempt < CONTENT_CLICK_RETRIES - 1) {
-            device.waitForIdle()
-        }
-    }
-
-    error("Could not find a stable clickable $itemDescription")
 }
 
 private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
@@ -343,9 +327,15 @@ private fun MacrobenchmarkScope.exerciseWorkdayFlow() {
     // Workday content interaction.
     performVerticalStressScroll()
 
-    // Open an editable flow from Workday without relying on localized button labels.
-    clickFirstContentItem(itemDescription = "workday editable entry")
+    // Deterministic path: open editor from Workday action row instead of tapping generic content.
+    clickObjectWithRetry(
+        selector = By.text("Add"),
+        description = "Add button on WorkdayScreen",
+        required = true
+    )
+    device.waitForIdle()
 
+    // Interact on SingleProject screen to generate recomposition-worthy UI activity.
     if (!interactWithFirstFocusableField()) {
         performVerticalStressScroll()
         device.click(device.displayWidth / 2, device.displayHeight / 2)
@@ -541,4 +531,3 @@ private fun MacrobenchmarkScope.waitForWorkdayScreenReady() {
     }
     device.waitForIdle()
 }
-

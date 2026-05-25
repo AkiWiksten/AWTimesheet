@@ -22,6 +22,11 @@ private const val FIELD_INTERACTION_RETRIES = 4
 private const val CLICK_RETRY_COUNT = 5
 private const val CLICK_RETRY_WAIT_MS = 250L
 private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
+private const val CONTENT_AREA_MIN_Y_RATIO = 0.18f
+private const val CONTENT_AREA_MAX_Y_RATIO = 0.86f
+private const val MIN_EXPECTED_DETAILS_FOCUSABLES = 2
+private const val MAX_DEBUG_TEXT_TOKENS = 8
+private val TRANSIENT_DIALOG_ACTION_TEXTS = listOf("Dismiss", "Cancel", "OK", "Confirm")
 private const val TAB_CALENDAR = "Calendar"
 private const val TAB_WORKDAY = "Workday"
 private const val TAB_SETTINGS = "Settings"
@@ -127,10 +132,7 @@ class RecompBm {
                 navigateToProjectDetailsScreen()
             }
         ) {
-            // Engage with project details form to trigger recompositions
-            performVerticalStressScroll()
-            device.click(device.displayWidth / 2, device.displayHeight / 2)
-            device.waitForIdle()
+            exerciseProjectDetailsFlow()
         }
     }
 
@@ -230,6 +232,7 @@ private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
 
     openProjectDetailsFromSingleProjectScreen()
     device.waitForIdle()
+    requireLikelyProjectDetailsScreen(context = "after opening Project Details")
 }
 
 private fun MacrobenchmarkScope.openProjectDetailsFromSingleProjectScreen() {
@@ -357,6 +360,86 @@ private fun MacrobenchmarkScope.exerciseWorkdayFlow() {
     performVerticalStressScroll()
 }
 
+private fun MacrobenchmarkScope.exerciseProjectDetailsFlow() {
+    ensureTargetAppInForeground()
+
+    // Stay on ProjectDetails and drive deterministic form interactions in-place.
+    requireLikelyProjectDetailsScreen(context = "during measured project-details flow")
+
+    if (!interactWithFirstFocusableField()) {
+        // Fallback interaction when no focusable input is currently visible.
+        val centerX = device.displayWidth / 2
+        val topY = (device.displayHeight * 0.30f).toInt()
+        val bottomY = (device.displayHeight * 0.70f).toInt()
+        device.swipe(centerX, bottomY, centerX, topY, 30)
+        device.waitForIdle()
+        device.click(centerX, (device.displayHeight * 0.50f).toInt())
+        device.waitForIdle()
+    }
+
+    closeTransientDialogIfPresent()
+
+    performVerticalStressScroll()
+}
+
+private fun MacrobenchmarkScope.requireLikelyProjectDetailsScreen(context: String) {
+    val minContentY = (device.displayHeight * CONTENT_AREA_MIN_Y_RATIO).toInt()
+    val maxContentY = (device.displayHeight * CONTENT_AREA_MAX_Y_RATIO).toInt()
+
+    fun countContentFocusableNodes(): Int =
+        device.findObjects(By.focusable(true))
+            .asSequence()
+            .count { node ->
+                try {
+                    val centerY = node.visibleBounds.centerY()
+                    centerY in minContentY..maxContentY
+                } catch (_: StaleObjectException) {
+                    false
+                }
+            }
+
+    var contentFocusableCount = countContentFocusableNodes()
+
+    // Dialogs (time/date pickers) can temporarily hide focusable fields on ProjectDetails.
+    if (contentFocusableCount < MIN_EXPECTED_DETAILS_FOCUSABLES && closeTransientDialogIfPresent()) {
+        device.waitForIdle()
+        contentFocusableCount = countContentFocusableNodes()
+    }
+
+    if (contentFocusableCount >= MIN_EXPECTED_DETAILS_FOCUSABLES) {
+        return
+    }
+
+    val textSnapshot = device.findObjects(By.clazz("android.widget.TextView"))
+        .asSequence()
+        .mapNotNull { node ->
+            runCatching { node.text?.trim() }
+                .getOrNull()
+                ?.takeIf { it.isNotEmpty() }
+        }
+        .distinct()
+        .take(MAX_DEBUG_TEXT_TOKENS)
+        .joinToString(separator = " | ")
+
+    error(
+        "Expected ProjectDetails-like screen $context, but found only " +
+            "$contentFocusableCount content focusable nodes. " +
+            "Visible texts snapshot: [$textSnapshot]"
+    )
+}
+
+private fun MacrobenchmarkScope.closeTransientDialogIfPresent(): Boolean {
+    TRANSIENT_DIALOG_ACTION_TEXTS.forEach { actionText ->
+        val action = device.wait(Until.findObject(By.text(actionText)), CLICK_RETRY_WAIT_MS)
+        if (action != null) {
+            action.click()
+            device.waitForIdle()
+            return true
+        }
+    }
+    return false
+}
+
 private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
     repeat(FIELD_INTERACTION_RETRIES) { attempt ->
         val fieldPoint = device.findObjects(By.focusable(true))
@@ -367,7 +450,8 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
                     val centerX = bounds.centerX()
                     val centerY = bounds.centerY()
                     val isInContentArea =
-                        centerY in (device.displayHeight * 0.18f).toInt()..(device.displayHeight * 0.86f).toInt()
+                        centerY in (device.displayHeight * CONTENT_AREA_MIN_Y_RATIO).toInt()..
+                            (device.displayHeight * CONTENT_AREA_MAX_Y_RATIO).toInt()
 
                     // Skip navigation buttons that would leave SingleProjectScreen
                     val nodeText = node.text?.lowercase() ?: ""

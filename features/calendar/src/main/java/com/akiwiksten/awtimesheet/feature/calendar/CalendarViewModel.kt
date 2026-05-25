@@ -29,15 +29,35 @@ class CalendarViewModel @Inject constructor(
     private val dateRepository: DateRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Loading)
-    val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
-
     private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+    private val today = LocalDate.now().format(dateFormatter)
+
+    // Show placeholder state immediately on startup (no Loading spinner)
+    private val initialPlaceholder = CalendarUiState.Success(
+        date = today,
+        timePerDay = "0:00",
+        timePerWeek = "0:00",
+        timePerMonth = "0:00",
+        datesWithWork = emptySet(),
+        visibleMonth = YearMonth.now()
+    )
+
+    private val _uiState = MutableStateFlow<CalendarUiState>(initialPlaceholder)
+    val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     // Cache for CalendarData to avoid re-fetching when returning to the screen
     private val calendarDataCache = mutableMapOf<String, CalendarData>()
 
+    private val _isInitialLoadComplete = MutableStateFlow(false)
+    val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
+
     init {
+        // OPTIMIZATION: Defer date collection to LaunchedEffect in Composable.
+        // This allows first frame to render without blocking on DB queries.
+        // See CalendarScreen for the LaunchedEffect that resumes collection.
+    }
+
+    fun startAutoReload() {
         viewModelScope.launch {
             dateRepository.selectedDate.collect { date ->
                 if (date.isNotEmpty()) {

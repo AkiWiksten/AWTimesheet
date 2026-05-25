@@ -29,20 +29,20 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 ## Included benchmarks
 
 ### Startup Benchmarks
-- `StartupBenchmark.startupCold` - Startup timing with process kill (most realistic real-world scenario)
-- `StartupBenchmark.startupWarm` - Startup timing with app in memory (faster, common after backgrounding)
+- `StartupBenchmark#startupCold` - Startup timing with process kill (most realistic real-world scenario)
+- `StartupBenchmark#startupWarm` - Startup timing with app in memory (faster, common after backgrounding)
 
 ### Scroll & Frame Timing Benchmarks
-- `ScrollBenchmark.calScroll` - Jank detection during calendar list scrolling
-- `ScrollBenchmark.workdayScroll` - Jank detection during workday list scrolling  
-- `ScrollBenchmark.settingsScroll` - Jank detection during settings list scrolling
+- `ScrollBenchmark#calScroll` - Jank detection during calendar list scrolling
+- `ScrollBenchmark#workdayScroll` - Jank detection during workday list scrolling  
+- `ScrollBenchmark#settingsScroll` - Jank detection during settings list scrolling
 
 ### Recomposition Efficiency Benchmarks
-- `RecompBm.calRecomp` - Composition performance on calendar screen interactions
-- `RecompBm.workdayRecomp` - Composition performance on workday screen interactions
-- `RecompBm.settingsRecomp` - Composition performance on settings screen interactions
-- `RecompBm.projDetailsRecomp` - Composition performance when editing project details
-- `RecompBm.singleProjRecomp` - Composition performance when editing single project entry
+- `RecompBm#calRecomp` - Composition performance on calendar screen interactions
+- `RecompBm#workdayRecomp` - Composition performance on workday screen interactions
+- `RecompBm#settingsRecomp` - Composition performance on settings screen interactions
+- `RecompBm#projDetailsRecomp` - Composition performance when editing project details
+- `RecompBm#singleProjRecomp` - Composition performance when editing single project entry
 
 ## Common Commands
 
@@ -55,7 +55,7 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 
 **Startup only** (2 tests, profile-dependent runtime):
 ```powershell
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupCold"
 ```
 
 **Startup profiles and overrides**

@@ -15,6 +15,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,6 +44,13 @@ fun CalendarScreen(
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    // OPTIMIZATION: Start auto-reload AFTER first frame is drawn.
+    // This defers database queries off the critical startup path, reducing jank.
+    // Placeholder state ensures UI renders instantly without "Loading" spinner.
+    LaunchedEffect(Unit) {
+        calendarViewModel.startAutoReload()
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->

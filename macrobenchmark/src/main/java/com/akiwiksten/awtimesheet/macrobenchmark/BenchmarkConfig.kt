@@ -25,5 +25,5 @@ object BenchmarkConfig {
     /**
      * Default number of iterations for startup benchmarks in CI profile.
      */
-    const val STARTUP_ITERATIONS_CI = 12
+    const val STARTUP_ITERATIONS_CI = 1
 }

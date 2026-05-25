@@ -71,6 +71,7 @@ class ScrollBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_SETTINGS)
+                device.waitForIdle()
             }
         ) {
             performVerticalStressScroll()

@@ -23,18 +23,28 @@ KNOWN_METRICS = (
 PERCENTILE_KEYS = ("P50", "p50", "median", "P90", "p90", "P95", "p95", "max")
 
 # Benchmark metadata for organization and interpretation
-BENCHMARK_METADATA = {
+LEGACY_AND_CURRENT_BENCHMARKS = {
     "startupCold": {"class": "Startup", "metric": "timeToInitialDisplayMs", "target": "< 500 ms", "description": "App launch from cold start (process killed)"},
     "startupWarm": {"class": "Startup", "metric": "timeToInitialDisplayMs", "target": "< 150 ms", "description": "App resume from warm start (backgrounded)"},
     "calendarScrollFrameTiming": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Calendar list scroll jank"},
+    "calScroll": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Calendar list scroll jank"},
     "workdayScrollFrameTiming": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Workday list scroll jank"},
+    "workdayScroll": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Workday list scroll jank"},
     "settingsScrollFrameTiming": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Settings list scroll jank"},
+    "settingsScroll": {"class": "Scroll", "metric": "frameOverrunMs", "target": "jank < 5%", "description": "Settings list scroll jank"},
     "calendarScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Calendar screen composition efficiency"},
+    "calRecomp": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Calendar screen composition efficiency"},
     "workdayScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Workday screen composition efficiency"},
+    "workdayRecomp": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Workday screen composition efficiency"},
     "settingsScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Settings screen composition efficiency"},
+    "settingsRecomp": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Settings screen composition efficiency"},
     "projectDetailsScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Project details editing composition efficiency"},
+    "projDetailsRecomp": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Project details editing composition efficiency"},
     "singleProjectScreenRecompositions": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Single project editing composition efficiency"},
+    "singleProjRecomp": {"class": "Recomposition", "metric": "frameDurationCpuMs", "target": "longFrames < 10%", "description": "Single project editing composition efficiency"},
 }
+
+BENCHMARK_METADATA = LEGACY_AND_CURRENT_BENCHMARKS
 
 
 def iter_benchmark_records(root: Path) -> Iterable[dict[str, Any]]:

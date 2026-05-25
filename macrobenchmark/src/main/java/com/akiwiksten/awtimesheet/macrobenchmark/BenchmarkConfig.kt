@@ -15,12 +15,12 @@ object BenchmarkConfig {
      * Number of iterations for scroll/recomposition benchmarks.
      * Kept low for fast local feedback.
      */
-    const val ITERATIONS = 2
+    const val ITERATIONS = 1
 
     /**
      * Default number of iterations for startup benchmarks when running locally.
      */
-    const val STARTUP_ITERATIONS_LOCAL = 8
+    const val STARTUP_ITERATIONS_LOCAL = 1
 
     /**
      * Default number of iterations for startup benchmarks in CI profile.

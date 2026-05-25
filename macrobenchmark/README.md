@@ -15,14 +15,14 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 |-------|------|----------|-----------|--------|
 | **Startup** | `startupCold` | Time from process kill to first draw | `timeToInitialDisplayMs` (p50) | < 500 ms |
 | | `startupWarm` | Time from backgrounded to first draw | `timeToInitialDisplayMs` (p50) | < 150 ms |
-| **Scroll** | `calendarScrollFrameTiming` | Jank during calendar list scroll | `frameOverrunMs` jank % | < 5% |
-| | `workdayScrollFrameTiming` | Jank during workday list scroll | `frameOverrunMs` jank % | < 5% |
-| | `settingsScrollFrameTiming` | Jank during settings list scroll | `frameOverrunMs` jank % | < 5% |
-| **Recomposition** | `calendarScreenRecompositions` | Compose recompositions on calendar | `frameDurationCpuMs` >16ms % | < 10% |
-| | `workdayScreenRecompositions` | Compose recompositions on workday | `frameDurationCpuMs` >16ms % | < 10% |
-| | `settingsScreenRecompositions` | Compose recompositions on settings | `frameDurationCpuMs` >16ms % | < 10% |
-| | `projectDetailsScreenRecompositions` | Compose recompositions when editing details | `frameDurationCpuMs` >16ms % | < 10% |
-| | `singleProjectScreenRecompositions` | Compose recompositions when editing single project | `frameDurationCpuMs` >16ms % | < 10% |
+| **Scroll** | `calScroll` | Jank during calendar list scroll | `frameOverrunMs` jank % | < 5% |
+| | `workdayScroll` | Jank during workday list scroll | `frameOverrunMs` jank % | < 5% |
+| | `settingsScroll` | Jank during settings list scroll | `frameOverrunMs` jank % | < 5% |
+| **Recomposition** | `calRecomp` | Compose recompositions on calendar | `frameDurationCpuMs` >16ms % | < 10% |
+| | `workdayRecomp` | Compose recompositions on workday | `frameDurationCpuMs` >16ms % | < 10% |
+| | `settingsRecomp` | Compose recompositions on settings | `frameDurationCpuMs` >16ms % | < 10% |
+| | `projDetailsRecomp` | Compose recompositions when editing details | `frameDurationCpuMs` >16ms % | < 10% |
+| | `singleProjRecomp` | Compose recompositions when editing single project | `frameDurationCpuMs` >16ms % | < 10% |
 
 ---
 
@@ -33,16 +33,16 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 - `StartupBenchmark.startupWarm` - Startup timing with app in memory (faster, common after backgrounding)
 
 ### Scroll & Frame Timing Benchmarks
-- `ScrollBenchmark.calendarScrollFrameTiming` - Jank detection during calendar list scrolling
-- `ScrollBenchmark.workdayScrollFrameTiming` - Jank detection during workday list scrolling  
-- `ScrollBenchmark.settingsScrollFrameTiming` - Jank detection during settings list scrolling
+- `ScrollBenchmark.calScroll` - Jank detection during calendar list scrolling
+- `ScrollBenchmark.workdayScroll` - Jank detection during workday list scrolling  
+- `ScrollBenchmark.settingsScroll` - Jank detection during settings list scrolling
 
 ### Recomposition Efficiency Benchmarks
-- `RecompositionBenchmark.calendarScreenRecompositions` - Composition performance on calendar screen interactions
-- `RecompositionBenchmark.workdayScreenRecompositions` - Composition performance on workday screen interactions
-- `RecompositionBenchmark.settingsScreenRecompositions` - Composition performance on settings screen interactions
-- `RecompositionBenchmark.projectDetailsScreenRecompositions` - Composition performance when editing project details
-- `RecompositionBenchmark.singleProjectScreenRecompositions` - Composition performance when editing single project entry
+- `RecompBm.calRecomp` - Composition performance on calendar screen interactions
+- `RecompBm.workdayRecomp` - Composition performance on workday screen interactions
+- `RecompBm.settingsRecomp` - Composition performance on settings screen interactions
+- `RecompBm.projDetailsRecomp` - Composition performance when editing project details
+- `RecompBm.singleProjRecomp` - Composition performance when editing single project entry
 
 ## Common Commands
 
@@ -82,7 +82,7 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 
 **Recomposition only** (5 tests, ~10 minutes):
 ```powershell
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm"
 ```
 
 ### Run Single Test (PowerShell)
@@ -98,10 +98,10 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupWarm"
 
 # Scroll
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.ScrollBenchmark#calendarScrollFrameTiming"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.ScrollBenchmark#calScroll"
 
 # Recomposition
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#singleProjectScreenRecompositions"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#singleProjRecomp"
 ```
 
 ## Interpret Results
@@ -117,7 +117,7 @@ startupWarm,timeToInitialDisplayMs,92.0
 
 ### Jank Metrics (Scroll Benchmarks)
 ```
-calendarScrollFrameTiming,frameOverrunMs,jank%=2.50;missedFrames=5
+ calScroll,frameOverrunMs,jank%=2.50;missedFrames=5
 ```
 - **Jank < 5%**: ✓ Smooth scrolling
 - **Jank 5–10%**: ⚠ Occasional stutter
@@ -125,7 +125,7 @@ calendarScrollFrameTiming,frameOverrunMs,jank%=2.50;missedFrames=5
 
 ### Long Frame Metrics (Recomposition Benchmarks)
 ```
-calendarScreenRecompositions,frameDurationCpuMs,longFrames>16ms%=8.0;count=16
+ calRecomp,frameDurationCpuMs,longFrames>16ms%=8.0;count=16
 ```
 - **Long frames < 10%**: ✓ Composition efficient
 - **Long frames 10–20%**: ⚠ Recompositions causing drops
@@ -150,7 +150,7 @@ val selectedDateState = derivedStateOf { selectedDate.value }
 
 ### 3. Retest Same Benchmark
 ```powershell
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#calendarScreenRecompositions"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#calRecomp"
 python -u .\macrobenchmark\tools\summarize_benchmark.py
 ```
 

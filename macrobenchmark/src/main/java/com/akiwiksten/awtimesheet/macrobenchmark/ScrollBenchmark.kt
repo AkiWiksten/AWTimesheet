@@ -13,6 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 private const val NAVIGATION_WAIT_MS = 2_000L
+private const val CALENDAR_READY_WAIT_MS = 4_000L
 private const val SWIPE_STEPS = 24
 private const val SWIPE_REPEATS = 6
 private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
@@ -36,6 +37,8 @@ class ScrollBenchmark {
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
+                waitForCalendarScreenReady()
+                device.waitForIdle()
             }
         ) {
             performVerticalStressScroll()
@@ -92,6 +95,14 @@ private fun MacrobenchmarkScope.performVerticalStressScroll() {
     repeat(SWIPE_REPEATS) {
         device.swipe(centerX, topY, centerX, bottomY, SWIPE_STEPS)
         device.waitForIdle()
+    }
+}
+
+private fun MacrobenchmarkScope.waitForCalendarScreenReady() {
+    // Calendar success state renders a read-only text field; wait for it before measuring scroll.
+    val ready = device.wait(Until.hasObject(By.clazz("android.widget.EditText")), CALENDAR_READY_WAIT_MS)
+    check(ready) {
+        "Calendar screen did not reach ready state before scroll measurement."
     }
 }
 

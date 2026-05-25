@@ -30,19 +30,8 @@ class CalendarViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
-    private val today = LocalDate.now().format(dateFormatter)
-
-    // Show placeholder state immediately on startup (no Loading spinner)
-    private val initialPlaceholder = CalendarUiState.Success(
-        date = today,
-        timePerDay = "0:00",
-        timePerWeek = "0:00",
-        timePerMonth = "0:00",
-        datesWithWork = emptySet(),
-        visibleMonth = YearMonth.now()
-    )
-
-    private val _uiState = MutableStateFlow<CalendarUiState>(initialPlaceholder)
+    // Keep startup UI minimal to reduce first-draw cost.
+    private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Initial)
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     // Cache for CalendarData to avoid re-fetching when returning to the screen
@@ -166,6 +155,7 @@ class CalendarViewModel @Inject constructor(
                 datesWithWork = dataToDisplay.datesWithWork,
                 visibleMonth = month
             )
+            _isInitialLoadComplete.value = true
 
             if (workTimeByDateChange != ZERO_TIME) {
                 dateRepository.updateWorkTimeByDateChange(ZERO_TIME)
@@ -187,6 +177,7 @@ class CalendarViewModel @Inject constructor(
 }
 
 sealed class CalendarUiState {
+    object Initial : CalendarUiState()
     object Loading : CalendarUiState()
 
     data class Success(

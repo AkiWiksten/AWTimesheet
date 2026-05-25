@@ -18,6 +18,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,18 +45,22 @@ fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
+    val isInitialLoadComplete by calendarViewModel.isInitialLoadComplete.collectAsState()
+    val latestIsInitialLoadComplete by rememberUpdatedState(isInitialLoadComplete)
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // OPTIMIZATION: Start auto-reload AFTER first frame is drawn.
     // This defers database queries off the critical startup path, reducing jank.
-    // Placeholder state ensures UI renders instantly without "Loading" spinner.
+    // Wait two frames to avoid immediate contention right after first draw.
     LaunchedEffect(Unit) {
+        withFrameNanos { }
+        withFrameNanos { }
         calendarViewModel.startAutoReload()
     }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
+            if (event == Lifecycle.Event.ON_START && latestIsInitialLoadComplete) {
                 calendarViewModel.refresh()
             }
         }
@@ -89,6 +95,7 @@ internal fun CalendarContent(
         verticalArrangement = Arrangement.spacedBy(space = 20.dp)
     ) {
         when (uiState) {
+            is CalendarUiState.Initial -> CenteredLoadingBox(modifier = Modifier.fillMaxWidth(), fillMaxSize = false)
             is CalendarUiState.Loading -> CenteredLoadingBox(modifier = Modifier.fillMaxWidth(), fillMaxSize = false)
             is CalendarUiState.Success -> {
                 CalendarHeaderSection(selectedDate = uiState.date)

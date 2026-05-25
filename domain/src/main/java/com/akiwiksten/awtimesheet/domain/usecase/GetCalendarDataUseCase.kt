@@ -24,30 +24,41 @@ class GetCalendarDataUseCase @Inject constructor(
         val startOfWeek = initial.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val endOfWeek = startOfWeek.plusDays(6)
 
-        // Optimization: Fetch all needed data for the month in one go
+        // Fetch month data once and derive day/week/month summaries from it.
         val projectTimesMonth = projectRepository.getProjectsByDateRange(startMonth, endMonth)
+        val startOfWeekStr = startOfWeek.toString()
+        val endOfWeekStr = endOfWeek.toString()
 
-        val timePerMonth = calculateTotalTime(projectTimesMonth)
-
-        // Filter for week from already fetched monthly data if possible, else fetch
+        // If the week crosses month boundaries, fetch exact week range once.
         val projectTimesWeek = if (
             startOfWeek.toString() >= startMonth &&
             endOfWeek.toString() <= endMonth
         ) {
-            val startStr = startOfWeek.toString()
-            val endStr = endOfWeek.toString()
-            projectTimesMonth.filter { it.date in startStr..endStr }
+            null
         } else {
-            projectRepository.getProjectsByDateRange(startOfWeek.toString(), endOfWeek.toString())
+            projectRepository.getProjectsByDateRange(startOfWeekStr, endOfWeekStr)
         }
 
-        val timePerWeek = calculateTotalTime(projectTimesWeek)
+        var timePerMonth = ZERO_TIME
+        var timePerWeekFromMonth = ZERO_TIME
+        var timePerDay = ZERO_TIME
+        val datesWithWork = mutableSetOf<String>()
 
-        val timePerDay = calculateTotalTime(
-            projectTimesMonth.filter { it.date == date }
-        )
+        for (project in projectTimesMonth) {
+            val projectDate = project.date
+            val projectTime = project.projectTime
+            datesWithWork += projectDate
+            timePerMonth = WorkTimeCalculator.calculateFlexTime(timePerMonth, projectTime)
 
-        val datesWithWork = projectTimesMonth.map { it.date }.toSet()
+            if (projectDate in startOfWeekStr..endOfWeekStr) {
+                timePerWeekFromMonth = WorkTimeCalculator.calculateFlexTime(timePerWeekFromMonth, projectTime)
+            }
+            if (projectDate == date) {
+                timePerDay = WorkTimeCalculator.calculateFlexTime(timePerDay, projectTime)
+            }
+        }
+
+        val timePerWeek = projectTimesWeek?.let(::calculateTotalTime) ?: timePerWeekFromMonth
 
         return CalendarData(
             timePerMonth = timePerMonth,

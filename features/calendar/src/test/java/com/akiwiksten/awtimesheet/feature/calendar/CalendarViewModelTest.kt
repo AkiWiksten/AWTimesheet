@@ -35,6 +35,9 @@ class CalendarViewModelTest {
             dateRepository = DateRepository()
         )
 
+        viewModel.startAutoReload()
+        advanceUntilIdle()
+
         viewModel.onDateSelected("2026-04-10")
         advanceUntilIdle()
 
@@ -63,6 +66,8 @@ class CalendarViewModelTest {
             dateRepository = dateRepository
         )
 
+        viewModel.startAutoReload()
+
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as CalendarUiState.Success
@@ -88,6 +93,8 @@ class CalendarViewModelTest {
             dateRepository = dateRepository
         )
 
+        viewModel.startAutoReload()
+
         advanceUntilIdle()
 
         dateRepository.updateWorkTimeByDateChange("02:30")
@@ -110,7 +117,7 @@ class CalendarViewModelTest {
     }
 
     @Test
-    fun init_startsLoadingAndEmitsInitialDate() = runTest {
+    fun startAutoReload_emitsInitialDate() = runTest {
         val dateRepository = DateRepository().apply { updateDate("2026-01-01") }
         val projectRepository = FakeProjectRepository()
 
@@ -118,6 +125,8 @@ class CalendarViewModelTest {
             getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
             dateRepository = dateRepository
         )
+
+        viewModel.startAutoReload()
 
         advanceUntilIdle()
         val state = viewModel.uiState.value
@@ -140,6 +149,9 @@ class CalendarViewModelTest {
             getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
             dateRepository = dateRepository
         )
+
+        viewModel.startAutoReload()
+
         val emissions = mutableListOf<CalendarUiState>()
         val job = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { emissions += it }

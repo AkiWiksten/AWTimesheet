@@ -9,12 +9,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import org.junit.Rule
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
 private const val NAVIGATION_WAIT_MS = 2_000L
-private const val WORKDAY_READY_TEXT = "Add"
 private const val SWIPE_STEPS = 24
 private const val SWIPE_REPEATS = 6
 private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
@@ -45,7 +43,6 @@ class ScrollBenchmark {
     }
 
     @Test
-    @Ignore("Workday scroll is not a stable FrameTiming target on the current benchmark dataset; calendar and settings cover scroll jank.")
     fun workdayScroll() {
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
@@ -55,10 +52,11 @@ class ScrollBenchmark {
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
-                navigateToSingleProjectScreen()
+                openBottomNavTab(label = TAB_WORKDAY)
+                device.waitForIdle()
             }
         ) {
-            performVerticalStressScroll()
+            exerciseWorkdayScrollFlow()
         }
     }
 
@@ -148,11 +146,26 @@ private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     error("Could not find bottom nav tab '$label'.")
 }
 
-private fun MacrobenchmarkScope.navigateToSingleProjectScreen() {
+private fun MacrobenchmarkScope.exerciseWorkdayScrollFlow() {
+    // First measure real workday scrolling.
+    performVerticalStressScroll()
+
+    // Open one editable item if present to guarantee frame-producing updates.
+    val openedEditor = runCatching {
+        clickFirstContentItem(itemDescription = "workday editable item")
+        true
+    }.getOrDefault(false)
+
+    if (openedEditor) {
+        performVerticalStressScroll()
+        device.pressBack()
+        device.waitForIdle()
+    }
+
+    // End on workday and scroll again to keep metric anchored to this screen.
     openBottomNavTab(label = TAB_WORKDAY)
-    waitForWorkdayScreenReady()
-    clickFirstContentItem(itemDescription = "project entry on workday screen")
     device.waitForIdle()
+    performVerticalStressScroll()
 }
 
 private fun MacrobenchmarkScope.clickFirstContentItem(itemDescription: String) {
@@ -183,12 +196,3 @@ private fun MacrobenchmarkScope.clickFirstContentItem(itemDescription: String) {
 
     error("Could not find a stable clickable $itemDescription")
 }
-
-private fun MacrobenchmarkScope.waitForWorkdayScreenReady() {
-    val ready = device.wait(Until.hasObject(By.text(WORKDAY_READY_TEXT)), NAVIGATION_WAIT_MS)
-    check(ready) {
-        "Workday screen did not reach a ready state (missing '$WORKDAY_READY_TEXT' text)."
-    }
-    device.waitForIdle()
-}
-

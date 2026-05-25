@@ -12,7 +12,6 @@ import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.Until
 import org.junit.Rule
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -68,7 +67,6 @@ class RecompBm {
      * This includes scrolling through work entries.
      */
     @Test
-    @Ignore("Workday recomposition is not stable on the current benchmark dataset; projectDetails and singleProject cover the editable workday flow.")
     fun workdayRecomp() {
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
@@ -79,10 +77,11 @@ class RecompBm {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                navigateToSingleProjectScreen()
+                openBottomNavTab(label = TAB_WORKDAY)
+                device.waitForIdle()
             }
         ) {
-            exerciseSingleProjectScreen()
+            exerciseWorkdayFlow()
         }
     }
 
@@ -335,6 +334,27 @@ private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
     val bottomY = (device.displayHeight * 0.70f).toInt()
     device.swipe(centerX, bottomY, centerX, topY, 30)
     device.waitForIdle()
+}
+
+private fun MacrobenchmarkScope.exerciseWorkdayFlow() {
+    // Workday content interaction.
+    performVerticalStressScroll()
+
+    // Open an editable flow from Workday without relying on localized button labels.
+    clickFirstContentItem(itemDescription = "workday editable entry")
+
+    if (!interactWithFirstFocusableField()) {
+        performVerticalStressScroll()
+        device.click(device.displayWidth / 2, device.displayHeight / 2)
+        device.waitForIdle()
+    }
+
+    // Return to Workday and scroll again to keep the measured segment tied to Workday flow.
+    device.pressBack()
+    device.waitForIdle()
+    openBottomNavTab(label = TAB_WORKDAY)
+    device.waitForIdle()
+    performVerticalStressScroll()
 }
 
 private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {

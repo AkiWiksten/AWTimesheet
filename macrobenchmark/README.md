@@ -63,6 +63,7 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 - `local` profile (default): `STARTUP_ITERATIONS_LOCAL` in `BenchmarkConfig.kt`
 - `ci` profile: `STARTUP_ITERATIONS_CI` in `BenchmarkConfig.kt`
 - Explicit `startupIterations` override always wins
+- `startupIncludeFrameTiming` (optional): `true`/`false`, default `false`
 
 ```powershell
 # Startup with explicit local profile
@@ -73,6 +74,9 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 
 # Startup with explicit iteration override (highest priority)
 .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark" "-Pandroid.testInstrumentationRunnerArguments.startupIterations=10"
+
+# Startup with frame timing diagnostics enabled (off by default)
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupCold" "-Pandroid.testInstrumentationRunnerArguments.startupIncludeFrameTiming=true"
 ```
 
 **Scroll/Jank only** (3 tests, ~7 minutes):
@@ -249,5 +253,7 @@ The summary highlights:
 - frame overrun metrics (jank and missed frames estimate)
 - long frames over 16 ms (`frameDurationCpuMs` based estimate)
 - recomposition events during interactions (when available)
+
+
 
 

@@ -15,6 +15,7 @@ import org.junit.runner.RunWith
 private const val STARTUP_BENCHMARK_TAG = "StartupBenchmark"
 private const val STARTUP_PROFILE_ARG = "startupProfile"
 private const val STARTUP_ITERATIONS_ARG = "startupIterations"
+private const val STARTUP_INCLUDE_FRAME_TIMING_ARG = "startupIncludeFrameTiming"
 
 @RunWith(AndroidJUnit4::class)
 class StartupBenchmark {
@@ -31,19 +32,18 @@ class StartupBenchmark {
     private fun benchmarkStartup(startupMode: StartupMode) {
         val startupIterations = resolveStartupIterations()
         val startupProfile = resolveStartupProfile()
+        val includeFrameTiming = resolveIncludeFrameTiming()
 
         logStartupBenchmarkContext(
             startupMode = startupMode,
             startupIterations = startupIterations,
-            startupProfile = startupProfile
+            startupProfile = startupProfile,
+            includeFrameTiming = includeFrameTiming
         )
 
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
-            metrics = listOf(
-                StartupTimingMetric(),
-                FrameTimingMetric()
-            ),
+            metrics = startupMetrics(includeFrameTiming = includeFrameTiming),
             compilationMode = CompilationMode.Partial(),
             startupMode = startupMode,
             iterations = startupIterations,
@@ -53,6 +53,22 @@ class StartupBenchmark {
         ) {
             startActivityAndWait()
         }
+    }
+
+    private fun startupMetrics(includeFrameTiming: Boolean) = buildList {
+        add(StartupTimingMetric())
+        if (includeFrameTiming) {
+            add(FrameTimingMetric())
+        }
+    }
+
+    private fun resolveIncludeFrameTiming(): Boolean {
+        val args = InstrumentationRegistry.getArguments()
+        return args.getString(STARTUP_INCLUDE_FRAME_TIMING_ARG)
+            ?.trim()
+            ?.lowercase()
+            ?.let { value -> value == "1" || value == "true" || value == "yes" }
+            ?: false
     }
 
     private fun resolveStartupProfile(): String {
@@ -80,12 +96,14 @@ class StartupBenchmark {
         startupMode: StartupMode,
         startupIterations: Int,
         startupProfile: String,
+        includeFrameTiming: Boolean,
     ) {
         val introBypassExpected = BenchmarkConfig.TARGET_PACKAGE.endsWith(".benchmark")
         val message = listOf(
             "startupMode=$startupMode",
             "profile=$startupProfile",
             "iterations=$startupIterations",
+            "includeFrameTiming=$includeFrameTiming",
             "targetPackage=${BenchmarkConfig.TARGET_PACKAGE}",
             "introBypassExpected=$introBypassExpected"
         ).joinToString(" ")
@@ -94,4 +112,3 @@ class StartupBenchmark {
         println("[$STARTUP_BENCHMARK_TAG] $message")
     }
 }
-

@@ -20,6 +20,8 @@ private const val WORKDAY_READY_TEXT = "Add"
 private const val FIELD_INTERACTION_RETRIES = 4
 private const val CLICK_RETRY_COUNT = 5
 private const val CLICK_RETRY_WAIT_MS = 250L
+private const val INTRO_DISMISS_TAPS = 3
+private const val INTRO_DISMISS_WAIT_MS = 1_200L
 private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
 private const val CONTENT_AREA_MIN_Y_RATIO = 0.18f
 private const val CONTENT_AREA_MAX_Y_RATIO = 0.86f
@@ -174,6 +176,16 @@ private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
         return
     }
 
+    // Intro-first builds can start on a full-screen clickable splash/intro.
+    // Dismiss it and retry tab lookup before using coordinate fallback.
+    dismissIntroIfPresent()
+    val textTabAfterIntro = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
+    if (textTabAfterIntro != null) {
+        textTabAfterIntro.click()
+        device.waitForIdle()
+        return
+    }
+
     // Fallback path: select a bottom-nav item by stable order.
     val targetIndex = when (label) {
         TAB_CALENDAR -> 0
@@ -215,6 +227,33 @@ private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     }
 
     error("Could not find bottom nav tab '$label'.")
+}
+
+private fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
+    // If any known bottom-nav tab is visible, intro is not blocking navigation.
+    if (device.hasObject(By.text(TAB_CALENDAR)) ||
+        device.hasObject(By.text(TAB_WORKDAY)) ||
+        device.hasObject(By.text(TAB_SETTINGS))
+    ) {
+        return false
+    }
+
+    val centerX = device.displayWidth / 2
+    val centerY = device.displayHeight / 2
+
+    repeat(INTRO_DISMISS_TAPS) {
+        device.click(centerX, centerY)
+        device.waitForIdle()
+
+        val tabsVisible = device.wait(Until.hasObject(By.text(TAB_WORKDAY)), INTRO_DISMISS_WAIT_MS) ||
+            device.hasObject(By.text(TAB_CALENDAR)) ||
+            device.hasObject(By.text(TAB_SETTINGS))
+        if (tabsVisible) {
+            return true
+        }
+    }
+
+    return false
 }
 
 /**

@@ -14,6 +14,8 @@ import org.junit.runner.RunWith
 
 private const val NAVIGATION_WAIT_MS = 2_000L
 private const val CALENDAR_READY_WAIT_MS = 4_000L
+private const val INTRO_DISMISS_TAPS = 3
+private const val INTRO_DISMISS_WAIT_MS = 1_200L
 private const val SWIPE_STEPS = 24
 private const val SWIPE_REPEATS = 6
 private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
@@ -37,6 +39,7 @@ class ScrollBenchmark {
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
+                openBottomNavTab(label = TAB_CALENDAR)
                 waitForCalendarScreenReady()
                 device.waitForIdle()
             }
@@ -56,6 +59,7 @@ class ScrollBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_WORKDAY)
+                waitForWorkdayScreenReady()
                 device.waitForIdle()
             }
         ) {
@@ -74,6 +78,7 @@ class ScrollBenchmark {
             setupBlock = {
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_SETTINGS)
+                waitForSettingsScreenReady()
                 device.waitForIdle()
             }
         ) {
@@ -106,6 +111,21 @@ private fun MacrobenchmarkScope.waitForCalendarScreenReady() {
     }
 }
 
+private fun MacrobenchmarkScope.waitForWorkdayScreenReady() {
+    val ready = device.wait(Until.hasObject(By.text("Add")), NAVIGATION_WAIT_MS)
+    check(ready) {
+        "Workday screen did not reach a ready state before scroll measurement."
+    }
+}
+
+private fun MacrobenchmarkScope.waitForSettingsScreenReady() {
+    val ready = device.wait(Until.hasObject(By.text("Save")), NAVIGATION_WAIT_MS) ||
+        device.wait(Until.hasObject(By.text("Settings")), NAVIGATION_WAIT_MS)
+    check(ready) {
+        "Settings screen did not reach a ready state before scroll measurement."
+    }
+}
+
 private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     device.waitForIdle()
 
@@ -113,6 +133,16 @@ private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     val tab = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
     if (tab != null) {
         tab.click()
+        device.waitForIdle()
+        return
+    }
+
+    // Intro-first builds can start on a full-screen clickable intro.
+    // Dismiss intro and retry text lookup before coordinate fallback.
+    dismissIntroIfPresent()
+    val tabAfterIntro = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
+    if (tabAfterIntro != null) {
+        tabAfterIntro.click()
         device.waitForIdle()
         return
     }
@@ -156,6 +186,33 @@ private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     }
 
     error("Could not find bottom nav tab '$label'.")
+}
+
+private fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
+    // If any known bottom-nav tab is visible, intro is not currently blocking.
+    if (device.hasObject(By.text(TAB_CALENDAR)) ||
+        device.hasObject(By.text(TAB_WORKDAY)) ||
+        device.hasObject(By.text(TAB_SETTINGS))
+    ) {
+        return false
+    }
+
+    val centerX = device.displayWidth / 2
+    val centerY = device.displayHeight / 2
+
+    repeat(INTRO_DISMISS_TAPS) {
+        device.click(centerX, centerY)
+        device.waitForIdle()
+
+        val tabsVisible = device.wait(Until.hasObject(By.text(TAB_WORKDAY)), INTRO_DISMISS_WAIT_MS) ||
+            device.hasObject(By.text(TAB_CALENDAR)) ||
+            device.hasObject(By.text(TAB_SETTINGS))
+        if (tabsVisible) {
+            return true
+        }
+    }
+
+    return false
 }
 
 private fun MacrobenchmarkScope.exerciseWorkdayScrollFlow() {

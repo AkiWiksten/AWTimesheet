@@ -8,7 +8,6 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.Until
 import org.junit.Rule
@@ -266,24 +265,10 @@ private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
 }
 
 private fun MacrobenchmarkScope.exerciseWorkdayFlow() {
-    // Workday content interaction.
+    // Keep measured actions on Workday only; avoid route transitions that can
+    // inflate frame-overrun without reflecting Workday recomposition cost.
     performVerticalStressScroll()
-
-    // Deterministic path: open editor from Workday action row instead of tapping generic content.
-    clickWorkdayAddButton()
-    device.waitForIdle()
-
-    // Interact on SingleProject screen to generate recomposition-worthy UI activity.
-    if (!interactWithFirstFocusableField()) {
-        performVerticalStressScroll()
-        device.click(device.displayWidth / 2, device.displayHeight / 2)
-        device.waitForIdle()
-    }
-
-    // Return to Workday and scroll again to keep the measured segment tied to Workday flow.
-    device.pressBack()
-    device.waitForIdle()
-    openBottomNavTab(label = TAB_WORKDAY)
+    device.click(device.displayWidth / 2, (device.displayHeight * 0.45f).toInt())
     device.waitForIdle()
     performVerticalStressScroll()
 }
@@ -417,33 +402,6 @@ private fun MacrobenchmarkScope.ensureTargetAppInForeground() {
         "Target package '${BenchmarkConfig.TARGET_PACKAGE}' is not visible after launch."
     }
     device.waitForIdle()
-}
-
-private fun MacrobenchmarkScope.clickObjectWithRetry(
-    selector: BySelector,
-    description: String,
-    required: Boolean = true,
-) {
-    repeat(CLICK_RETRY_COUNT) { attempt ->
-        val node = device.wait(Until.findObject(selector), CLICK_RETRY_WAIT_MS)
-        if (node != null) {
-            try {
-                node.click()
-                device.waitForIdle()
-                return
-            } catch (_: StaleObjectException) {
-                // Retry with a fresh node lookup when hierarchy updates during tap.
-            }
-        }
-
-        if (attempt < CLICK_RETRY_COUNT - 1) {
-            device.waitForIdle()
-        }
-    }
-
-    if (required) {
-        error("Could not click $description")
-    }
 }
 
 /**

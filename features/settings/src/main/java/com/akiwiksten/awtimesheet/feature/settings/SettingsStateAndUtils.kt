@@ -21,7 +21,11 @@ data class SettingsActions(
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
     val onSave: () -> Unit,
-    val onGenerateXlsx: () -> Unit
+    val onGenerateXlsx: () -> Unit,
+    val onGenerateWorkdaysForMonth: () -> Unit,
+    val onGenerateWorkdaysForYear: () -> Unit,
+    val onRefreshWorkdaysForMonth: () -> Unit,
+    val onRefreshWorkdaysForYear: () -> Unit
 )
 
 internal data class SettingsWorkTypeDialogState(

@@ -22,6 +22,10 @@ import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
 internal fun SettingsActionButtonsSection(
     onSave: () -> Unit,
     onGenerateXlsx: () -> Unit,
+    onGenerateWorkdaysForMonth: () -> Unit,
+    onGenerateWorkdaysForYear: () -> Unit,
+    onRefreshWorkdaysForMonth: () -> Unit,
+    onRefreshWorkdaysForYear: () -> Unit,
     isReportEnabled: Boolean,
     isSaveEnabled: Boolean
 ) {
@@ -46,6 +50,38 @@ internal fun SettingsActionButtonsSection(
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
             Text(text = stringResource(id = R.string.generate_xlsx), fontSize = ACTION_BUTTON_FONT_SIZE)
+        }
+        Button(
+            onClick = onGenerateWorkdaysForMonth,
+            enabled = isReportEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(text = stringResource(id = R.string.generate_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
+        }
+        Button(
+            onClick = onGenerateWorkdaysForYear,
+            enabled = isReportEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
+        }
+        Button(
+            onClick = onRefreshWorkdaysForMonth,
+            enabled = isReportEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(text = stringResource(id = R.string.refresh_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
+        }
+        Button(
+            onClick = onRefreshWorkdaysForYear,
+            enabled = isReportEnabled,
+            modifier = Modifier.fillMaxWidth(),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        ) {
+            Text(text = stringResource(id = R.string.refresh_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         if (isReportEnabled) {
             Text(

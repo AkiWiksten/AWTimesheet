@@ -16,6 +16,9 @@ interface WorkdayDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorkday(workday: WorkdayEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertWorkdayIfMissing(workday: WorkdayEntity): Long
+
     @Query("SELECT * FROM $WORKDAY_TABLE WHERE $DATE BETWEEN :start AND :end ORDER BY $DATE")
     suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity>
 }

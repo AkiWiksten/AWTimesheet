@@ -49,6 +49,32 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 ### Run All Benchmarks (10 tests, ~15–20 minutes on real device)
 ```powershell
 .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest
+.\gradlew.bat sequentialBenchmarks <- USE THIS
+.\gradlew.bat sequentialBenchmarksContinue
+.\gradlew.bat sequentialBenchmarksClean
+```
+
+### Run All Benchmarks Sequentially (one benchmark per invocation)
+
+Use this when running all 10 in one invocation causes device/ADB instability.
+The runner archives each benchmark's JSON output into a session folder and the
+final summary is generated from that full session (not just the latest test).
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1
+```
+
+Optional flags:
+
+```powershell
+# Continue with remaining benchmarks even if one fails
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -ContinueOnFailure
+
+# Print commands without executing them
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -DryRun
+
+# Show full Gradle task logs (disables quiet mode)
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -VerboseGradle
 ```
 
 ### Run by Category

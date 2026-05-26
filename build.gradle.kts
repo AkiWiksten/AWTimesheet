@@ -62,4 +62,37 @@ tasks.register("verifyPerf") {
     dependsOn(":macrobenchmark:verifyPerf")
 }
 
+tasks.register<Exec>("sequentialBenchmarks") {
+    group = "verification"
+    description = "Run all macrobenchmarks sequentially (one benchmark per invocation)."
+
+    commandLine(
+        "powershell",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1"
+    )
+}
+
+tasks.register<Exec>("sequentialBenchmarksContinue") {
+    group = "verification"
+    description = "Run all 10 macrobenchmarks sequentially and continue after individual failures."
+
+    commandLine(
+        "powershell",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
+        "-ContinueOnFailure"
+    )
+}
+
+tasks.register("sequentialBenchmarksClean") {
+    group = "verification"
+    description = "Clean macrobenchmark outputs, then run all macrobenchmarks sequentially."
+    dependsOn(":macrobenchmark:clean", "sequentialBenchmarks")
+}
+
 

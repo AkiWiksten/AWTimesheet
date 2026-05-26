@@ -22,6 +22,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
+import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -32,6 +33,9 @@ fun SettingsScreen(
     val ctx = LocalContext.current
     val defaultWorkType = stringResource(id = R.string.other)
     val noProjectsMessage = stringResource(id = R.string.no_projects_available)
+    val generationSuccessMessage = stringResource(id = R.string.workday_generation_success)
+    val refreshSuccessMessage = stringResource(id = R.string.workday_refresh_success)
+    val generationErrorMessage = stringResource(id = R.string.workday_generation_error)
 
     LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
@@ -43,7 +47,14 @@ fun SettingsScreen(
         }
     }
 
-    LaunchedEffect(settingsViewModel, ctx, noProjectsMessage) {
+    LaunchedEffect(
+        settingsViewModel,
+        ctx,
+        noProjectsMessage,
+        generationSuccessMessage,
+        refreshSuccessMessage,
+        generationErrorMessage
+    ) {
         settingsViewModel.events.collectLatest { event ->
             when (event) {
                 is SettingsEvent.TimesheetReportReady -> {
@@ -57,6 +68,29 @@ fun SettingsScreen(
                 }
                 is SettingsEvent.NoProjectsForMonth -> {
                     Toast.makeText(ctx, noProjectsMessage, Toast.LENGTH_SHORT).show()
+                }
+                is SettingsEvent.WorkdayGenerationSuccess -> {
+                    val text = when (event.mode) {
+                        WorkdayGenerationMode.INSERT_MISSING -> generationSuccessMessage.format(
+                            event.insertedCount,
+                            event.weekdayCandidates,
+                            event.startDate,
+                            event.endDate
+                        )
+
+                        WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS -> refreshSuccessMessage.format(
+                            event.weekdayCandidates,
+                            event.updatedCount,
+                            event.insertedCount,
+                            event.startDate,
+                            event.endDate
+                        )
+                    }
+                    Toast.makeText(ctx, text, Toast.LENGTH_SHORT).show()
+                }
+                is SettingsEvent.WorkdayGenerationError -> {
+                    val text = generationErrorMessage.format(event.message)
+                    Toast.makeText(ctx, text, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -92,7 +126,11 @@ private fun createSettingsActions(
                 name = successState.data.name,
                 employer = successState.data.employer
             )
-        }
+        },
+        onGenerateWorkdaysForMonth = settingsViewModel::generateWorkdaysForSelectedMonth,
+        onGenerateWorkdaysForYear = settingsViewModel::generateWorkdaysForSelectedYear,
+        onRefreshWorkdaysForMonth = settingsViewModel::refreshWorkdaysForSelectedMonth,
+        onRefreshWorkdaysForYear = settingsViewModel::refreshWorkdaysForSelectedYear
     )
 }
 

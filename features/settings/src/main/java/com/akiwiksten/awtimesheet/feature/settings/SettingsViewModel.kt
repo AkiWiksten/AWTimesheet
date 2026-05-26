@@ -8,8 +8,11 @@ import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.GenerateWorkdaysUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.ProjectsByMonthResult
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
+import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +46,17 @@ sealed class SettingsEvent {
     object NoProjectsForMonth : SettingsEvent()
 
     data class MonthlyReportError(val message: String) : SettingsEvent()
+
+    data class WorkdayGenerationSuccess(
+        val mode: WorkdayGenerationMode,
+        val insertedCount: Int,
+        val updatedCount: Int,
+        val weekdayCandidates: Int,
+        val startDate: String,
+        val endDate: String
+    ) : SettingsEvent()
+
+    data class WorkdayGenerationError(val message: String) : SettingsEvent()
 }
 
 @HiltViewModel
@@ -50,6 +64,7 @@ class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val saveSettingsUseCase: SaveSettingsUseCase,
     private val getProjectsByMonthUseCase: GetProjectsByMonthUseCase,
+    private val generateWorkdaysUseCase: GenerateWorkdaysUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -191,6 +206,65 @@ class SettingsViewModel @Inject constructor(
                 _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
             } catch (e: IllegalStateException) {
                 _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
+            }
+        }
+    }
+
+    fun generateWorkdaysForSelectedMonth() {
+        generateWorkdays(
+            scope = WorkdayGenerationScope.MONTH,
+            mode = WorkdayGenerationMode.INSERT_MISSING
+        )
+    }
+
+    fun generateWorkdaysForSelectedYear() {
+        generateWorkdays(
+            scope = WorkdayGenerationScope.YEAR,
+            mode = WorkdayGenerationMode.INSERT_MISSING
+        )
+    }
+
+    fun refreshWorkdaysForSelectedMonth() {
+        generateWorkdays(
+            scope = WorkdayGenerationScope.MONTH,
+            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS
+        )
+    }
+
+    fun refreshWorkdaysForSelectedYear() {
+        generateWorkdays(
+            scope = WorkdayGenerationScope.YEAR,
+            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS
+        )
+    }
+
+    private fun generateWorkdays(scope: WorkdayGenerationScope, mode: WorkdayGenerationMode) {
+        viewModelScope.launch {
+            try {
+                val selectedDate = (_uiState.value as? SettingsUiState.Success)?.selectedDate
+                    ?.takeIf { it.isNotBlank() }
+                    ?: dateRepository.selectedDate.value
+
+                val result = generateWorkdaysUseCase(
+                    selectedDate = selectedDate,
+                    scope = scope,
+                    mode = mode
+                )
+
+                _events.emit(
+                    SettingsEvent.WorkdayGenerationSuccess(
+                        mode = mode,
+                        insertedCount = result.insertedWorkdays,
+                        updatedCount = result.updatedWorkdays,
+                        weekdayCandidates = result.weekdayCandidates,
+                        startDate = result.startDate,
+                        endDate = result.endDate
+                    )
+                )
+            } catch (e: IllegalArgumentException) {
+                _events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
+            } catch (e: IllegalStateException) {
+                _events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
             }
         }
     }

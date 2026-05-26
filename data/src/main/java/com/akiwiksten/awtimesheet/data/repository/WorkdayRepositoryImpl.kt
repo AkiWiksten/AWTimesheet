@@ -19,6 +19,11 @@ class WorkdayRepositoryImpl @Inject constructor(
         workdayDao.insertWorkday(workTimeByDateEstimate.toWorkdayEntity(date = date))
     }
 
+    override suspend fun ensureWorkdayStats(date: String, workTimeByDateEstimate: String): Boolean {
+        val inserted = workdayDao.insertWorkdayIfMissing(workTimeByDateEstimate.toWorkdayEntity(date = date))
+        return inserted != -1L
+    }
+
     override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> =
         workdayDao.getWorkdaysByDateRange(start, end).map { row ->
             WorkdayStatsRow(

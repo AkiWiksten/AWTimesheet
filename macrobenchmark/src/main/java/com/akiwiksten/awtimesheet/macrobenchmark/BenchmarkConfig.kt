@@ -7,13 +7,15 @@ package com.akiwiksten.awtimesheet.macrobenchmark
 object BenchmarkConfig {
     /**
      * Target package name for benchmarks (benchmark variant with .benchmark suffix).
-     * The app automatically bypasses the intro screen when this package name is used.
      */
     const val TARGET_PACKAGE = "com.akiwiksten.awtimesheet.benchmark"
 
     /**
      * Number of iterations for scroll/recomposition benchmarks.
-     * Kept low for fast local feedback.
+     * Kept low (3) for fast local feedback; raise to 10+ for stable CI baselines.
+     * At 3 iterations the frame pool is small (~57 frames per run), meaning a
+     * single extra missed frame shifts jank% by ~1.5–2 pp — prefer higher
+     * iteration counts when comparing before/after changes.
      */
     const val ITERATIONS = 3
 

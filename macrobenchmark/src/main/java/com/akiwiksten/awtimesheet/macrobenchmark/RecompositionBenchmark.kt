@@ -180,11 +180,7 @@ private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
     device.waitForIdle()
 
     // Click "Add" button to create a new project entry and open SingleProjectScreen
-    clickObjectWithRetry(
-        selector = By.text("Add"),
-        description = "Add button on WorkdayScreen",
-        required = true
-    )
+    clickWorkdayAddButton()
     device.waitForIdle()
 
     // Now we're on SingleProjectScreen; navigate to ProjectDetailsScreen
@@ -246,11 +242,7 @@ private fun MacrobenchmarkScope.navigateToSingleProjectScreen() {
     waitForWorkdayScreenReady()
     device.waitForIdle()
 
-    clickObjectWithRetry(
-        selector = By.text("Add"),
-        description = "Add button on WorkdayScreen",
-        required = true
-    )
+    clickWorkdayAddButton()
     device.waitForIdle()
     waitForSingleProjectScreenReady()
 }
@@ -278,11 +270,7 @@ private fun MacrobenchmarkScope.exerciseWorkdayFlow() {
     performVerticalStressScroll()
 
     // Deterministic path: open editor from Workday action row instead of tapping generic content.
-    clickObjectWithRetry(
-        selector = By.text("Add"),
-        description = "Add button on WorkdayScreen",
-        required = true
-    )
+    clickWorkdayAddButton()
     device.waitForIdle()
 
     // Interact on SingleProject screen to generate recomposition-worthy UI activity.
@@ -456,6 +444,32 @@ private fun MacrobenchmarkScope.clickObjectWithRetry(
     if (required) {
         error("Could not click $description")
     }
+}
+
+/**
+ * Clicks the Workday "Add" button using locale-aware text matching
+ * (English: "Add", Finnish: "Lisää", Swedish: "Lägg till").
+ */
+private fun MacrobenchmarkScope.clickWorkdayAddButton() {
+    repeat(CLICK_RETRY_COUNT) { attempt ->
+        val node = WORKDAY_READY_TEXTS
+            .firstNotNullOfOrNull { text ->
+                device.wait(Until.findObject(By.text(text)), CLICK_RETRY_WAIT_MS)
+            }
+        if (node != null) {
+            try {
+                node.click()
+                device.waitForIdle()
+                return
+            } catch (_: StaleObjectException) {
+                // Retry on stale hierarchy.
+            }
+        }
+        if (attempt < CLICK_RETRY_COUNT - 1) {
+            device.waitForIdle()
+        }
+    }
+    error("Could not click Add button on WorkdayScreen (tried: ${WORKDAY_READY_TEXTS.joinToString()})")
 }
 
 

@@ -9,8 +9,14 @@ import androidx.test.uiautomator.Until
 // ---------------------------------------------------------------------------
 internal const val NAVIGATION_WAIT_MS = 2_000L
 internal const val CALENDAR_READY_WAIT_MS = 4_000L
-internal const val INTRO_DISMISS_TAPS = 3
-internal const val INTRO_DISMISS_WAIT_MS = 1_200L
+internal const val INTRO_DISMISS_TAPS = 6
+internal const val INTRO_DISMISS_WAIT_MS = 1_500L
+
+// How long to wait for bottom-nav tabs to appear after the intro is dismissed.
+// Must cover the Compose navigation transition (typically < 500 ms) plus
+// the intro animation duration (3 000 ms) in the worst case where the first
+// tap fires before the animation finishes.
+internal const val POST_INTRO_TABS_WAIT_MS = 4_000L
 
 // ---------------------------------------------------------------------------
 // Shared layout constants
@@ -27,7 +33,12 @@ internal const val TAB_SETTINGS = "Settings"
 // ---------------------------------------------------------------------------
 // Ready-state text signals
 // ---------------------------------------------------------------------------
-internal const val WORKDAY_READY_TEXT = "Add"
+
+// "Add" button label across all supported locales (en / fi / sv).
+// The benchmark must match the device locale; checking all variants avoids
+// a hard dependency on the device being set to English.
+internal val WORKDAY_READY_TEXTS = listOf("Add", "Lisää", "Lägg till")
+
 
 // ---------------------------------------------------------------------------
 // Scroll constants (shared by both ScrollBenchmark and RecompositionBenchmark)
@@ -56,9 +67,10 @@ internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     }
 
     // Intro-first builds can start on a full-screen intro screen.
-    // Dismiss it and retry text lookup before falling back to coordinates.
+    // Dismiss it and wait long enough for the 3 s intro animation to
+    // finish and the Compose navigation transition to complete.
     dismissIntroIfPresent()
-    val textTabAfterIntro = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
+    val textTabAfterIntro = device.wait(Until.findObject(By.text(label)), POST_INTRO_TABS_WAIT_MS)
     if (textTabAfterIntro != null) {
         textTabAfterIntro.click()
         device.waitForIdle()
@@ -106,6 +118,12 @@ internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
 /**
  * Taps the centre of the screen up to [INTRO_DISMISS_TAPS] times until any
  * bottom-nav tab label becomes visible. Returns true if tabs appeared.
+ *
+ * The intro animation runs for ~3 s.  Taps fired before the animation
+ * finishes still register on the clickable intro content and trigger
+ * navigation, but the tab labels only appear after the Compose transition
+ * completes.  This function keeps tapping and checking with generous delays
+ * so the caller does not need to know the animation length.
  */
 internal fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
     if (device.hasObject(By.text(TAB_CALENDAR)) ||
@@ -140,10 +158,14 @@ internal fun MacrobenchmarkScope.waitForCalendarScreenReady() {
     device.waitForIdle()
 }
 
-/** Waits for the Workday screen's "Add" button. */
+/** Waits for the Workday screen's "Add" button (locale-aware). */
 internal fun MacrobenchmarkScope.waitForWorkdayScreenReady() {
-    val ready = device.wait(Until.hasObject(By.text(WORKDAY_READY_TEXT)), NAVIGATION_WAIT_MS)
-    check(ready) { "Workday screen did not reach a ready state (missing '$WORKDAY_READY_TEXT' text)." }
+    val ready = WORKDAY_READY_TEXTS.any { text ->
+        device.wait(Until.hasObject(By.text(text)), NAVIGATION_WAIT_MS / WORKDAY_READY_TEXTS.size)
+    }
+    check(ready) {
+        "Workday screen did not reach a ready state (missing Add / Lisää / Lägg till text)."
+    }
     device.waitForIdle()
 }
 
@@ -181,4 +203,3 @@ internal fun MacrobenchmarkScope.performVerticalStressScroll() {
         device.waitForIdle()
     }
 }
-

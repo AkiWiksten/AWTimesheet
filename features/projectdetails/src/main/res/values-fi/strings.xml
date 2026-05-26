@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="project_details">Projektin tiedot</string>
+    <string name="project_name">Projektin nimi</string>
+    <string name="clear_details">Tyhjennä tiedot</string>
+    <string name="confirm">Hyväksy</string>
+    <string name="unsaved_data_message">Sinulla on tallentamattomia muutoksia. Tallennetaanko ennen poistumista?</string>
+    <string name="add_new_project_details">Päivän ensimmäinen projekti! Suosittelen asettamaan ensin projektin aloitusajan. Se avaa muut vaihtoehdot.</string>
+    <string name="select_end_time">Kun haluat päättää työpäivän, valitse lopetusaika. Se laskee tämän päivän projektiajan.</string>
+    <string name="done_project">Tämän päivän osalta projekti on nyt valmis.</string>
+    <string name="start_time">Aloitusaika</string>
+    <string name="end_time">Lopetusaika</string>
+    <string name="estimated_end_time">ARVIOITU lopetusaika</string>
+    <string name="lunch_time">Lounasaika-arvio</string>
+    <string name="lunch_start">Lounaan alku</string>
+    <string name="lunch_end">Lounaan loppu</string>
+    <string name="break_start">Tauon alku</string>
+    <string name="break_end">Tauon loppu</string>
+    <string name="project_time">Projektin aika</string>
+    <string name="now">Nyt</string>
+    <string name="pick">Valitse</string>
+</resources>
+
+

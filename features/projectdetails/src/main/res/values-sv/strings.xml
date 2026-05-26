@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="project_details">Projektdetaljer</string>
+    <string name="project_name">Projektnamn</string>
+    <string name="clear_details">Rensa detaljer</string>
+    <string name="confirm">Bekräfta</string>
+    <string name="unsaved_data_message">Du har osparade ändringar. Spara innan du går tillbaka?</string>
+    <string name="add_new_project_details">Dagens nya projekt! Jag rekommenderar att du ställer in projektets starttid först. Då öppnas andra val.</string>
+    <string name="select_end_time">När du vill avsluta arbetsdagen, välj sluttid. Det beräknar dagens projekttid.</string>
+    <string name="done_project">Nu är du klar med det här projektet för idag.</string>
+    <string name="start_time">Starttid</string>
+    <string name="end_time">Sluttid</string>
+    <string name="estimated_end_time">BERÄKNAD sluttid</string>
+    <string name="lunch_time">Uppskattad lunchtid</string>
+    <string name="lunch_start">Lunchstart</string>
+    <string name="lunch_end">Lunchslut</string>
+    <string name="break_start">Raststart</string>
+    <string name="break_end">Rastslut</string>
+    <string name="project_time">Projekttid</string>
+    <string name="now">Nu</string>
+    <string name="pick">Välj</string>
+</resources>
+
+

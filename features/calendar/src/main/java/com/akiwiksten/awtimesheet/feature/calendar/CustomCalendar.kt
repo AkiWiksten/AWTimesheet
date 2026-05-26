@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -150,6 +151,11 @@ private fun MonthHeader(
     onMonthYearClick: () -> Unit
 ) {
     val monthLabel = displayedMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+    val monthYearLabel = stringResource(
+        id = R.string.month_year,
+        monthLabel,
+        displayedMonth.year
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,11 +166,11 @@ private fun MonthHeader(
         IconButton(onClick = onPrevious) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "Previous month"
+                contentDescription = stringResource(id = R.string.previous_month)
             )
         }
         Text(
-            text = "$monthLabel ${displayedMonth.year}",
+            text = monthYearLabel,
             modifier = Modifier.clickable { onMonthYearClick() },
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -173,7 +179,7 @@ private fun MonthHeader(
         IconButton(onClick = onNext) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "Next month"
+                contentDescription = stringResource(id = R.string.next_month)
             )
         }
     }
@@ -192,7 +198,7 @@ private fun YearPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Select year") },
+        title = { Text(text = stringResource(id = R.string.select_year)) },
         text = {
             LazyColumn(
                 state = listState,
@@ -214,7 +220,7 @@ private fun YearPickerDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Close")
+                Text(text = stringResource(id = R.string.close))
             }
         }
     )

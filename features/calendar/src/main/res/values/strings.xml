@@ -6,4 +6,9 @@
     <string name="selected_work_day">Selected work day</string>
     <string name="selected_work_week">Selected work week</string>
     <string name="selected_work_month">Selected work month</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="select_year">Select year</string>
+    <string name="close">Close</string>
+    <string name="month_year">%1$s %2$d</string>
 </resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="workday">Työpäivä</string>
+    <string name="work_time_by_date_estimate">Päivittäinen työaika-arvio</string>
+    <string name="work_time_by_date">Päivän työaika</string>
+    <string name="flex_time_by_date">Päivän liukuma</string>
+    <string name="flex_time_total_initial_calculated">Liukumasaldo (Alku+laskettu)</string>
+    <string name="add">Lisää</string>
+    <string name="edit">Muokkaa</string>
+    <string name="delete">Poista</string>
+    <string name="nullify">Nollaa</string>
+    <string name="no_projects_available">Ei projekteja saatavilla. Lisää sellainen napilla.</string>
+    <string name="retry">Yritä uudelleen</string>
+    <string name="save_work_time_estimate">Tallenna työaika-arvio</string>
+    <string name="save_work_time_estimate_message">Haluatko tallentaa tämän myös globaaliksi päivittäiseksi työaika-arvioksi, vai vain tänään?</string>
+    <string name="save_today">Tallenna tänään</string>
+    <string name="save_globally">Tallenna globaalisti</string>
+    <string name="saved_today">Tallennettu vain tänään!</string>
+    <string name="saved_globally">Tallennettu globaalisti!</string>
+</resources>
+

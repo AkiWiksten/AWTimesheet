@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="workday">Arbetsdag</string>
+    <string name="work_time_by_date_estimate">Daglig arbetstidsuppskattning</string>
+    <string name="work_time_by_date">Arbetstid per datum</string>
+    <string name="flex_time_by_date">Flex per datum</string>
+    <string name="flex_time_total_initial_calculated">Flextidssaldo (Initial+beräknad)</string>
+    <string name="add">Lägg till</string>
+    <string name="edit">Redigera</string>
+    <string name="delete">Ta bort</string>
+    <string name="nullify">Nollställ</string>
+    <string name="no_projects_available">Inga projekt tillgängliga. Lägg till ett med knappen.</string>
+    <string name="retry">Försök igen</string>
+    <string name="save_work_time_estimate">Spara arbetstidsuppskattning</string>
+    <string name="save_work_time_estimate_message">Vill du spara detta som den globala dagliga arbetstidsuppskattningen också, eller bara för idag?</string>
+    <string name="save_today">Spara idag</string>
+    <string name="save_globally">Spara globalt</string>
+    <string name="saved_today">Sparat för bara denna dag!</string>
+    <string name="saved_globally">Sparat globalt!</string>
+</resources>
+

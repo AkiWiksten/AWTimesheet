@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="select_work_day_date">Työpäivän päivämäärä</string>
+    <string name="selected_date">Valittu päivämäärä</string>
+    <string name="select_date">Valitse päivämäärä</string>
+    <string name="selected_work_day">Valittu työpäivä</string>
+    <string name="selected_work_week">Valittu työviikko</string>
+    <string name="selected_work_month">Valittu työkuukausi</string>
+    <string name="previous_month">Edellinen kuukausi</string>
+    <string name="next_month">Seuraava kuukausi</string>
+    <string name="select_year">Valitse vuosi</string>
+    <string name="close">Sulje</string>
+    <string name="month_year">%1$s %2$d</string>
+</resources>
+

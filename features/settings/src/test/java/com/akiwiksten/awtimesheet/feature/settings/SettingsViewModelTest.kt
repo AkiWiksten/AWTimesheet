@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.settings
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.domain.usecase.GenerateWorkdaysUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
@@ -69,6 +70,11 @@ class SettingsViewModelTest {
                 projectRepository = projectRepository,
                 settingsRepository = settingsRepository
             ),
+            generateWorkdaysUseCase = GenerateWorkdaysUseCase(
+                workdayRepository = workdayRepository,
+                settingsRepository = settingsRepository,
+                projectRepository = projectRepository
+            ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
         )
@@ -111,6 +117,11 @@ class SettingsViewModelTest {
             getProjectsByMonthUseCase = GetProjectsByMonthUseCase(
                 projectRepository = projectRepository,
                 settingsRepository = settingsRepository
+            ),
+            generateWorkdaysUseCase = GenerateWorkdaysUseCase(
+                workdayRepository = workdayRepository,
+                settingsRepository = settingsRepository,
+                projectRepository = projectRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository
@@ -163,6 +174,11 @@ class SettingsViewModelTest {
             getProjectsByMonthUseCase = GetProjectsByMonthUseCase(
                 projectRepository = projectRepository,
                 settingsRepository = settingsRepository
+            ),
+            generateWorkdaysUseCase = GenerateWorkdaysUseCase(
+                workdayRepository = workdayRepository,
+                settingsRepository = settingsRepository,
+                projectRepository = projectRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository

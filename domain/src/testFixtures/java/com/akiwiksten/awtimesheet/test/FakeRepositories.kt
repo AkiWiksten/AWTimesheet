@@ -238,20 +238,27 @@ class FakeProjectDetailsRepository : ProjectDetailsRepository {
 class FakeWorkdayRepository(
     private val linkedProjectDetailsRepository: FakeProjectDetailsRepository? = null
 ) : WorkdayRepository {
+    private val storedWorkdays = linkedMapOf<String, String>()
+
     var loadWorkdayResult: String? = null
+    val loadWorkdayByDate = mutableMapOf<String, String?>()
     var lastDate: String? = null
     var lastSaved: String? = null
     var upsertedWorkdayDate: String? = null
     var upsertedWorkTimeByDateEstimate: String? = null
     var workdayStatsRows: List<WorkdayStatsRow> = emptyList()
+    val ensuredWorkdayDates = mutableListOf<String>()
 
-    override suspend fun loadWorkday(date: String): String? = loadWorkdayResult
+    override suspend fun loadWorkday(date: String): String? {
+        return loadWorkdayByDate[date] ?: storedWorkdays[date] ?: loadWorkdayResult
+    }
 
     override suspend fun upsertWorkdayStats(date: String, workTimeByDateEstimate: String) {
         lastDate = date
         lastSaved = workTimeByDateEstimate
         upsertedWorkdayDate = date
         upsertedWorkTimeByDateEstimate = workTimeByDateEstimate
+        storedWorkdays[date] = workTimeByDateEstimate
         workdayStatsRows = workdayStatsRows.filterNot { it.date == date } + WorkdayStatsRow(
             date = date,
             workTimeByDateEstimate = workTimeByDateEstimate
@@ -262,6 +269,16 @@ class FakeWorkdayRepository(
                 dailyWorkTimeEstimate = workTimeByDateEstimate
             )
         }
+    }
+
+    override suspend fun ensureWorkdayStats(date: String, workTimeByDateEstimate: String): Boolean {
+        ensuredWorkdayDates += date
+        if (loadWorkday(date) != null) {
+            return false
+        }
+
+        upsertWorkdayStats(date = date, workTimeByDateEstimate = workTimeByDateEstimate)
+        return true
     }
 
     override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayStatsRow> {

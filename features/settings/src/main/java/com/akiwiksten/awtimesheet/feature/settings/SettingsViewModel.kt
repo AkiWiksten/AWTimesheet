@@ -9,6 +9,7 @@ import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GenerateWorkdaysUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
 import com.akiwiksten.awtimesheet.domain.usecase.ProjectsByMonthResult
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
@@ -210,35 +211,51 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun generateWorkdaysForSelectedMonth() {
+    fun generateWorkdaysForSelectedMonth(
+        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
+    ) {
         generateWorkdays(
             scope = WorkdayGenerationScope.MONTH,
-            mode = WorkdayGenerationMode.INSERT_MISSING
+            mode = WorkdayGenerationMode.INSERT_MISSING,
+            allowanceLabels = allowanceLabels
         )
     }
 
-    fun generateWorkdaysForSelectedYear() {
+    fun generateWorkdaysForSelectedYear(
+        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
+    ) {
         generateWorkdays(
             scope = WorkdayGenerationScope.YEAR,
-            mode = WorkdayGenerationMode.INSERT_MISSING
+            mode = WorkdayGenerationMode.INSERT_MISSING,
+            allowanceLabels = allowanceLabels
         )
     }
 
-    fun refreshWorkdaysForSelectedMonth() {
+    fun refreshWorkdaysForSelectedMonth(
+        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
+    ) {
         generateWorkdays(
             scope = WorkdayGenerationScope.MONTH,
-            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS
+            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS,
+            allowanceLabels = allowanceLabels
         )
     }
 
-    fun refreshWorkdaysForSelectedYear() {
+    fun refreshWorkdaysForSelectedYear(
+        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
+    ) {
         generateWorkdays(
             scope = WorkdayGenerationScope.YEAR,
-            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS
+            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS,
+            allowanceLabels = allowanceLabels
         )
     }
 
-    private fun generateWorkdays(scope: WorkdayGenerationScope, mode: WorkdayGenerationMode) {
+    private fun generateWorkdays(
+        scope: WorkdayGenerationScope,
+        mode: WorkdayGenerationMode,
+        allowanceLabels: GeneratedAllowanceLabels
+    ) {
         viewModelScope.launch {
             try {
                 val selectedDate = (_uiState.value as? SettingsUiState.Success)?.selectedDate
@@ -248,7 +265,8 @@ class SettingsViewModel @Inject constructor(
                 val result = generateWorkdaysUseCase(
                     selectedDate = selectedDate,
                     scope = scope,
-                    mode = mode
+                    mode = mode,
+                    allowanceLabels = allowanceLabels
                 )
 
                 _events.emit(
@@ -304,6 +322,14 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
+}
+
+private fun defaultGeneratedAllowanceLabels(): GeneratedAllowanceLabels {
+    return GeneratedAllowanceLabels(
+        noAllowance = "No allowance",
+        fullAllowance = "Full allowance",
+        halfDayAllowance = "Half-day allowance"
+    )
 }
 
 private fun MutableStateFlow<SettingsUiState>.updateSelectedDate(date: String) {

@@ -16,11 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
 import kotlinx.coroutines.flow.collectLatest
@@ -36,6 +36,16 @@ fun SettingsScreen(
     val generationSuccessMessage = stringResource(id = R.string.workday_generation_success)
     val refreshSuccessMessage = stringResource(id = R.string.workday_refresh_success)
     val generationErrorMessage = stringResource(id = R.string.workday_generation_error)
+    val noAllowance = stringResource(id = R.string.no_allowance)
+    val fullAllowance = stringResource(id = R.string.full_allowance)
+    val halfDayAllowance = stringResource(id = R.string.half_day_allowance)
+    val generatedAllowanceLabels = remember(noAllowance, fullAllowance, halfDayAllowance) {
+        GeneratedAllowanceLabels(
+            noAllowance = noAllowance,
+            fullAllowance = fullAllowance,
+            halfDayAllowance = halfDayAllowance
+        )
+    }
 
     LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
@@ -102,7 +112,8 @@ fun SettingsScreen(
         createActions = { successState ->
             createSettingsActions(
                 settingsViewModel = settingsViewModel,
-                successState = successState
+                successState = successState,
+                generatedAllowanceLabels = generatedAllowanceLabels
             )
         }
     )
@@ -110,7 +121,8 @@ fun SettingsScreen(
 
 private fun createSettingsActions(
     settingsViewModel: SettingsViewModel,
-    successState: SettingsUiState.Success
+    successState: SettingsUiState.Success,
+    generatedAllowanceLabels: GeneratedAllowanceLabels
 ): SettingsActions {
     return SettingsActions(
         onNameChange = settingsViewModel::setName,
@@ -127,10 +139,18 @@ private fun createSettingsActions(
                 employer = successState.data.employer
             )
         },
-        onGenerateWorkdaysForMonth = settingsViewModel::generateWorkdaysForSelectedMonth,
-        onGenerateWorkdaysForYear = settingsViewModel::generateWorkdaysForSelectedYear,
-        onRefreshWorkdaysForMonth = settingsViewModel::refreshWorkdaysForSelectedMonth,
-        onRefreshWorkdaysForYear = settingsViewModel::refreshWorkdaysForSelectedYear
+        onGenerateWorkdaysForMonth = {
+            settingsViewModel.generateWorkdaysForSelectedMonth(generatedAllowanceLabels)
+        },
+        onGenerateWorkdaysForYear = {
+            settingsViewModel.generateWorkdaysForSelectedYear(generatedAllowanceLabels)
+        },
+        onRefreshWorkdaysForMonth = {
+            settingsViewModel.refreshWorkdaysForSelectedMonth(generatedAllowanceLabels)
+        },
+        onRefreshWorkdaysForYear = {
+            settingsViewModel.refreshWorkdaysForSelectedYear(generatedAllowanceLabels)
+        }
     )
 }
 

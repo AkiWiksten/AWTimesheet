@@ -80,6 +80,23 @@ internal fun SettingsAddWorkTypeDialogSection(
 
 
 @Composable
+internal fun SettingsGenerateMonthConfirmDialogSection(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmed: () -> Unit
+) {
+    if (isVisible) {
+        MyAlertDialog(
+            onDismissRequest = onDismiss,
+            onConfirmation = onConfirmed,
+            titleAndText = stringResource(id = R.string.generate_workdays_month_confirm_title) to
+                stringResource(id = R.string.generate_workdays_month_confirm_message),
+            icon = Icons.Default.Warning
+        )
+    }
+}
+
+@Composable
 internal fun SettingsGenerateYearConfirmDialogSection(
     isVisible: Boolean,
     onDismiss: () -> Unit,

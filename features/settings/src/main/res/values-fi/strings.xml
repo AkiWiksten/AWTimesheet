@@ -16,7 +16,9 @@
     <string name="generate_xlsx">Luo kuukausittainen XLSX-raportti</string>
     <string name="generate_workdays_month">Luo työpäivät kuukaudelle</string>
     <string name="generate_workdays_year">Luo työpäivät vuodelle</string>
-    <string name="generate_workdays_year_confirm_title">Luodaanko puuttuvat arkipäivien työpäivät vuodelle?</string>
+    <string name="generate_workdays_month_confirm_title">TESTITOIMINTO: Luodaanko työpäivät valitulle kuukaudelle?</string>
+    <string name="generate_workdays_month_confirm_message">Tämä luo puuttuvat arkipäivien työpäivärivit valitulle kuukaudelle. Olemassa olevat rivit säilyvät ennallaan.</string>
+    <string name="generate_workdays_year_confirm_title">TESTITOIMINTO: Luodaanko työpäivät valitulle vuodelle?</string>
     <string name="generate_workdays_year_confirm_message">Tämä luo puuttuvat arkipäivien työpäivärivit valitulle vuodelle. Olemassa olevat rivit säilyvät ennallaan.</string>
     <string name="monthly_help_xlsx">Valitun päivän kuukausittainen XLSX-raportti tallennetaan kansioon "Lataukset/'app_name'".</string>
     <string name="workday_generation_success">Luotiin %1$d / %2$d arkipäivän työpäivää välillä %3$s - %4$s.</string>

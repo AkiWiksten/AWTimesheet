@@ -30,6 +30,7 @@ internal fun SettingsContent(
 ) {
     val showWorkTimePicker = remember { mutableStateOf(value = false) }
     val showLunchTimePicker = remember { mutableStateOf(value = false) }
+    val showGenerateMonthConfirm = remember { mutableStateOf(value = false) }
     val showGenerateYearConfirm = remember { mutableStateOf(value = false) }
     val workTypeUi = rememberSettingsWorkTypeUiState(
         workTypes = uiState.data.workTypes,
@@ -43,6 +44,7 @@ internal fun SettingsContent(
         onSave = actions.onSave
     )
     val guardedActions = actions.copy(
+        onGenerateWorkdaysForMonth = { showGenerateMonthConfirm.value = true },
         onGenerateWorkdaysForYear = { showGenerateYearConfirm.value = true }
     )
 
@@ -81,6 +83,15 @@ internal fun SettingsContent(
             settingsSaveUi = saveUi,
             defaultWorkType = defaultWorkType
         )
+    )
+
+    SettingsGenerateMonthConfirmDialogSection(
+        isVisible = showGenerateMonthConfirm.value,
+        onDismiss = { showGenerateMonthConfirm.value = false },
+        onConfirmed = {
+            showGenerateMonthConfirm.value = false
+            actions.onGenerateWorkdaysForMonth()
+        }
     )
 
     SettingsGenerateYearConfirmDialogSection(

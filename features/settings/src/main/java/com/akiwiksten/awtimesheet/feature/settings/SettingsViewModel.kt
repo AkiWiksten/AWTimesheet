@@ -231,25 +231,6 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    fun refreshWorkdaysForSelectedMonth(
-        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
-    ) {
-        generateWorkdays(
-            scope = WorkdayGenerationScope.MONTH,
-            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS,
-            allowanceLabels = allowanceLabels
-        )
-    }
-
-    fun refreshWorkdaysForSelectedYear(
-        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
-    ) {
-        generateWorkdays(
-            scope = WorkdayGenerationScope.YEAR,
-            mode = WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS,
-            allowanceLabels = allowanceLabels
-        )
-    }
 
     private fun generateWorkdays(
         scope: WorkdayGenerationScope,

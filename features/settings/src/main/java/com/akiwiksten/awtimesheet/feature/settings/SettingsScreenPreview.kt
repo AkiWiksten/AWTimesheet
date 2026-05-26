@@ -56,9 +56,7 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
                     onSave = {},
                     onGenerateXlsx = {},
                     onGenerateWorkdaysForMonth = {},
-                    onGenerateWorkdaysForYear = {},
-                    onRefreshWorkdaysForMonth = {},
-                    onRefreshWorkdaysForYear = {}
+                    onGenerateWorkdaysForYear = {}
                 )
             }
         )

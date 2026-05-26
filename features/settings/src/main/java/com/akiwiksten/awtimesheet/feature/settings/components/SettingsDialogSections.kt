@@ -78,22 +78,6 @@ internal fun SettingsAddWorkTypeDialogSection(
     }
 }
 
-@Composable
-internal fun SettingsRefreshYearConfirmDialogSection(
-    isVisible: Boolean,
-    onDismiss: () -> Unit,
-    onConfirmed: () -> Unit
-) {
-    if (isVisible) {
-        MyAlertDialog(
-            onDismissRequest = onDismiss,
-            onConfirmation = onConfirmed,
-            titleAndText = stringResource(id = R.string.refresh_workdays_year_confirm_title) to
-                stringResource(id = R.string.refresh_workdays_year_confirm_message),
-            icon = Icons.Default.Warning
-        )
-    }
-}
 
 @Composable
 internal fun SettingsGenerateYearConfirmDialogSection(

@@ -22,7 +22,6 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
-import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -34,7 +33,6 @@ fun SettingsScreen(
     val defaultWorkType = stringResource(id = R.string.other)
     val noProjectsMessage = stringResource(id = R.string.no_projects_available)
     val generationSuccessMessage = stringResource(id = R.string.workday_generation_success)
-    val refreshSuccessMessage = stringResource(id = R.string.workday_refresh_success)
     val generationErrorMessage = stringResource(id = R.string.workday_generation_error)
     val noAllowance = stringResource(id = R.string.no_allowance)
     val fullAllowance = stringResource(id = R.string.full_allowance)
@@ -62,7 +60,6 @@ fun SettingsScreen(
         ctx,
         noProjectsMessage,
         generationSuccessMessage,
-        refreshSuccessMessage,
         generationErrorMessage
     ) {
         settingsViewModel.events.collectLatest { event ->
@@ -80,22 +77,12 @@ fun SettingsScreen(
                     Toast.makeText(ctx, noProjectsMessage, Toast.LENGTH_SHORT).show()
                 }
                 is SettingsEvent.WorkdayGenerationSuccess -> {
-                    val text = when (event.mode) {
-                        WorkdayGenerationMode.INSERT_MISSING -> generationSuccessMessage.format(
-                            event.insertedCount,
-                            event.weekdayCandidates,
-                            event.startDate,
-                            event.endDate
-                        )
-
-                        WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS -> refreshSuccessMessage.format(
-                            event.weekdayCandidates,
-                            event.updatedCount,
-                            event.insertedCount,
-                            event.startDate,
-                            event.endDate
-                        )
-                    }
+                    val text = generationSuccessMessage.format(
+                        event.insertedCount,
+                        event.weekdayCandidates,
+                        event.startDate,
+                        event.endDate
+                    )
                     Toast.makeText(ctx, text, Toast.LENGTH_SHORT).show()
                 }
                 is SettingsEvent.WorkdayGenerationError -> {
@@ -144,12 +131,6 @@ private fun createSettingsActions(
         },
         onGenerateWorkdaysForYear = {
             settingsViewModel.generateWorkdaysForSelectedYear(generatedAllowanceLabels)
-        },
-        onRefreshWorkdaysForMonth = {
-            settingsViewModel.refreshWorkdaysForSelectedMonth(generatedAllowanceLabels)
-        },
-        onRefreshWorkdaysForYear = {
-            settingsViewModel.refreshWorkdaysForSelectedYear(generatedAllowanceLabels)
         }
     )
 }

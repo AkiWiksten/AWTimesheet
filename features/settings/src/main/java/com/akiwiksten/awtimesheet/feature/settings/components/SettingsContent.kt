@@ -31,7 +31,6 @@ internal fun SettingsContent(
     val showWorkTimePicker = remember { mutableStateOf(value = false) }
     val showLunchTimePicker = remember { mutableStateOf(value = false) }
     val showGenerateYearConfirm = remember { mutableStateOf(value = false) }
-    val showRefreshYearConfirm = remember { mutableStateOf(value = false) }
     val workTypeUi = rememberSettingsWorkTypeUiState(
         workTypes = uiState.data.workTypes,
         defaultWorkType = defaultWorkType,
@@ -44,8 +43,7 @@ internal fun SettingsContent(
         onSave = actions.onSave
     )
     val guardedActions = actions.copy(
-        onGenerateWorkdaysForYear = { showGenerateYearConfirm.value = true },
-        onRefreshWorkdaysForYear = { showRefreshYearConfirm.value = true }
+        onGenerateWorkdaysForYear = { showGenerateYearConfirm.value = true }
     )
 
     SettingsTimePickerDialogsSection(
@@ -83,15 +81,6 @@ internal fun SettingsContent(
             settingsSaveUi = saveUi,
             defaultWorkType = defaultWorkType
         )
-    )
-
-    SettingsRefreshYearConfirmDialogSection(
-        isVisible = showRefreshYearConfirm.value,
-        onDismiss = { showRefreshYearConfirm.value = false },
-        onConfirmed = {
-            showRefreshYearConfirm.value = false
-            actions.onRefreshWorkdaysForYear()
-        }
     )
 
     SettingsGenerateYearConfirmDialogSection(
@@ -145,8 +134,6 @@ private fun SettingsContentBody(
             onGenerateXlsx = state.actions.onGenerateXlsx,
             onGenerateWorkdaysForMonth = state.actions.onGenerateWorkdaysForMonth,
             onGenerateWorkdaysForYear = state.actions.onGenerateWorkdaysForYear,
-            onRefreshWorkdaysForMonth = state.actions.onRefreshWorkdaysForMonth,
-            onRefreshWorkdaysForYear = state.actions.onRefreshWorkdaysForYear,
             isReportEnabled = state.uiState.selectedDate.isNotBlank(),
             isSaveEnabled = state.settingsSaveUi.isSaveEnabled
         )

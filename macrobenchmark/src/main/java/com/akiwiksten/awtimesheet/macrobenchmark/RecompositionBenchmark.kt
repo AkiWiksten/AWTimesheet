@@ -15,22 +15,16 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private const val NAVIGATION_WAIT_MS = 2_000L
-private const val WORKDAY_READY_TEXT = "Add"
+// Shared constants (NAVIGATION_WAIT_MS, CALENDAR_READY_WAIT_MS, WORKDAY_READY_TEXT,
+// INTRO_DISMISS_TAPS/WAIT_MS, BOTTOM_NAV_MIN_Y_RATIO, TAB_*) live in BenchmarkHelpers.kt.
 private const val FIELD_INTERACTION_RETRIES = 4
 private const val CLICK_RETRY_COUNT = 5
 private const val CLICK_RETRY_WAIT_MS = 250L
-private const val INTRO_DISMISS_TAPS = 3
-private const val INTRO_DISMISS_WAIT_MS = 1_200L
-private const val BOTTOM_NAV_MIN_Y_RATIO = 0.82f
 private const val CONTENT_AREA_MIN_Y_RATIO = 0.18f
 private const val CONTENT_AREA_MAX_Y_RATIO = 0.86f
 private const val MIN_EXPECTED_DETAILS_FOCUSABLES = 2
 private const val MAX_DEBUG_TEXT_TOKENS = 8
 private val TRANSIENT_DIALOG_ACTION_TEXTS = listOf("Dismiss", "Cancel", "OK", "Confirm")
-private const val TAB_CALENDAR = "Calendar"
-private const val TAB_WORKDAY = "Workday"
-private const val TAB_SETTINGS = "Settings"
 
 /**
  * Benchmark that measures recomposition counts during common user interactions.
@@ -58,7 +52,9 @@ class RecompBm {
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
                 startActivityAndWait()
-                ensureTargetAppInForeground()
+                openBottomNavTab(label = TAB_CALENDAR)
+                waitForCalendarScreenReady()
+                device.waitForIdle()
             }
         ) {
             // Engage with calendar to trigger recompositions
@@ -84,6 +80,7 @@ class RecompBm {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
                 openBottomNavTab(label = TAB_WORKDAY)
+                waitForWorkdayScreenReady()
                 device.waitForIdle()
             }
         ) {
@@ -105,7 +102,9 @@ class RecompBm {
             setupBlock = {
                 startActivityAndWait()
                 ensureTargetAppInForeground()
-                openBottomNavTab(label = "Settings")
+                openBottomNavTab(label = TAB_SETTINGS)
+                waitForSettingsScreenReady()
+                device.waitForIdle()
             }
         ) {
             performVerticalStressScroll()
@@ -164,97 +163,8 @@ class RecompBm {
     }
 }
 
-/**
- * Helper to open a navigation tab by label.
- */
-private fun MacrobenchmarkScope.openBottomNavTab(label: String) {
-    // Primary path: label text lookup.
-    val textTab = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
-    if (textTab != null) {
-        textTab.click()
-        device.waitForIdle()
-        return
-    }
-
-    // Intro-first builds can start on a full-screen clickable splash/intro.
-    // Dismiss it and retry tab lookup before using coordinate fallback.
-    dismissIntroIfPresent()
-    val textTabAfterIntro = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
-    if (textTabAfterIntro != null) {
-        textTabAfterIntro.click()
-        device.waitForIdle()
-        return
-    }
-
-    // Fallback path: select a bottom-nav item by stable order.
-    val targetIndex = when (label) {
-        TAB_CALENDAR -> 0
-        TAB_WORKDAY -> 1
-        TAB_SETTINGS -> 2
-        else -> null
-    }
-
-    if (targetIndex != null) {
-        repeat(CLICK_RETRY_COUNT) {
-            val bottomNavCandidates = device.findObjects(By.clickable(true))
-                .asSequence()
-                .mapNotNull { node ->
-                    try {
-                        val bounds = node.visibleBounds
-                        val centerY = bounds.centerY()
-                        if (centerY >= (device.displayHeight * BOTTOM_NAV_MIN_Y_RATIO).toInt()) {
-                            bounds.centerX() to centerY
-                        } else {
-                            null
-                        }
-                    } catch (_: StaleObjectException) {
-                        null
-                    }
-                }
-                .sortedBy { it.first }
-                .toList()
-
-            if (bottomNavCandidates.size >= 3) {
-                val (x, y) = bottomNavCandidates[targetIndex]
-                if (device.click(x, y)) {
-                    device.waitForIdle()
-                    return
-                }
-            }
-
-            device.waitForIdle()
-        }
-    }
-
-    error("Could not find bottom nav tab '$label'.")
-}
-
-private fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
-    // If any known bottom-nav tab is visible, intro is not blocking navigation.
-    if (device.hasObject(By.text(TAB_CALENDAR)) ||
-        device.hasObject(By.text(TAB_WORKDAY)) ||
-        device.hasObject(By.text(TAB_SETTINGS))
-    ) {
-        return false
-    }
-
-    val centerX = device.displayWidth / 2
-    val centerY = device.displayHeight / 2
-
-    repeat(INTRO_DISMISS_TAPS) {
-        device.click(centerX, centerY)
-        device.waitForIdle()
-
-        val tabsVisible = device.wait(Until.hasObject(By.text(TAB_WORKDAY)), INTRO_DISMISS_WAIT_MS) ||
-            device.hasObject(By.text(TAB_CALENDAR)) ||
-            device.hasObject(By.text(TAB_SETTINGS))
-        if (tabsVisible) {
-            return true
-        }
-    }
-
-    return false
-}
+// openBottomNavTab, dismissIntroIfPresent, waitForXxxScreenReady, and
+// performVerticalStressScroll are defined in BenchmarkHelpers.kt.
 
 /**
  * Navigates to the Project Details screen by adding a new project (via "Add" button),
@@ -342,6 +252,7 @@ private fun MacrobenchmarkScope.navigateToSingleProjectScreen() {
         required = true
     )
     device.waitForIdle()
+    waitForSingleProjectScreenReady()
 }
 
 private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
@@ -484,7 +395,9 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
 
                     // Skip navigation buttons that would leave SingleProjectScreen
                     val nodeText = node.text?.lowercase() ?: ""
-                    val shouldSkip = nodeText.contains("details") || nodeText.contains("pick") || nodeText.contains("edit")
+                    val shouldSkip = nodeText.contains("details")
+                        || nodeText.contains("pick")
+                        || nodeText.contains("edit")
 
                     if (isInContentArea && !shouldSkip) centerX to centerY else null
                 } catch (_: StaleObjectException) {
@@ -507,24 +420,6 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
         }
     }
     return false
-}
-
-/**
- * Performs vertical stress scroll for scrollable content.
- */
-private fun MacrobenchmarkScope.performVerticalStressScroll() {
-    val centerX = device.displayWidth / 2
-    val topY = (device.displayHeight * 0.20f).toInt()
-    val bottomY = (device.displayHeight * 0.80f).toInt()
-
-    repeat(6) {
-        device.swipe(centerX, bottomY, centerX, topY, 24)
-        device.waitForIdle()
-    }
-    repeat(6) {
-        device.swipe(centerX, topY, centerX, bottomY, 24)
-        device.waitForIdle()
-    }
 }
 
 private fun MacrobenchmarkScope.ensureTargetAppInForeground() {
@@ -563,10 +458,4 @@ private fun MacrobenchmarkScope.clickObjectWithRetry(
     }
 }
 
-private fun MacrobenchmarkScope.waitForWorkdayScreenReady() {
-    val ready = device.wait(Until.hasObject(By.text(WORKDAY_READY_TEXT)), NAVIGATION_WAIT_MS)
-    check(ready) {
-        "Workday screen did not reach a ready state (missing '$WORKDAY_READY_TEXT' text)."
-    }
-    device.waitForIdle()
-}
+

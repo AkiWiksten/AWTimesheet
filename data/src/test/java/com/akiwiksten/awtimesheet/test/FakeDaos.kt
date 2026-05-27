@@ -148,10 +148,21 @@ class FakeWorkTypeDao : WorkTypeDao {
 
 class FakeWorkdayDao : WorkdayDao {
     var workdayResult: WorkdayEntity? = null
+    var insertedIfMissingWorkday: WorkdayEntity? = null
 
     override suspend fun loadWorkday(date: String): WorkdayEntity? = workdayResult
 
     override suspend fun insertWorkday(workday: WorkdayEntity) = Unit
+
+    override suspend fun insertWorkdayIfMissing(workday: WorkdayEntity): Long {
+        insertedIfMissingWorkday = workday
+        return if (workdayResult == null) {
+            workdayResult = workday
+            1L
+        } else {
+            -1L
+        }
+    }
 
     override suspend fun getWorkdaysByDateRange(start: String, end: String): List<WorkdayEntity> = emptyList()
 }

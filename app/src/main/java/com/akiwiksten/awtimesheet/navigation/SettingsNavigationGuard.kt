@@ -1,0 +1,222 @@
+package com.akiwiksten.awtimesheet.navigation
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
+import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
+import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
+import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
+import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
+
+internal data class SettingsNavigationGuard(
+    val hasUnsavedChanges: Boolean,
+    val onSaveChanges: () -> Unit,
+    val onDiscardChanges: () -> Unit,
+    val onUnsavedChangesChanged: (Boolean) -> Unit,
+    val registerUnsavedActions: ((() -> Unit)?, (() -> Unit)?) -> Unit
+)
+
+@Composable
+internal fun rememberSettingsNavigationGuard(): SettingsNavigationGuard {
+    var settingsHasUnsavedChanges by remember { mutableStateOf(value = false) }
+    var settingsSaveChanges by remember { mutableStateOf<(() -> Unit)?>(value = null) }
+    var settingsDiscardChanges by remember { mutableStateOf<(() -> Unit)?>(value = null) }
+
+    return SettingsNavigationGuard(
+        hasUnsavedChanges = settingsHasUnsavedChanges,
+        onSaveChanges = {
+            settingsSaveChanges?.invoke()
+            settingsHasUnsavedChanges = false
+        },
+        onDiscardChanges = {
+            settingsDiscardChanges?.invoke()
+            settingsHasUnsavedChanges = false
+        },
+        onUnsavedChangesChanged = { settingsHasUnsavedChanges = it },
+        registerUnsavedActions = { onSave, onDiscard ->
+            settingsSaveChanges = onSave
+            settingsDiscardChanges = onDiscard
+        }
+    )
+}
+
+@Composable
+internal fun MainAppScaffold(
+    backStack: SnapshotStateList<Any>,
+    portraitWidth: Dp,
+    settingsNavigationGuard: SettingsNavigationGuard
+) {
+    Scaffold(
+        bottomBar = {
+            PortraitWidthContainer(portraitWidth = portraitWidth) {
+                AWTimesheetNavigationBar(
+                    backStack = backStack,
+                    settingsHasUnsavedChanges = settingsNavigationGuard.hasUnsavedChanges,
+                    onSaveSettingsChanges = settingsNavigationGuard.onSaveChanges,
+                    onDiscardSettingsChanges = settingsNavigationGuard.onDiscardChanges
+                )
+            }
+        }
+    ) { padding ->
+        PortraitWidthContainer(
+            portraitWidth = portraitWidth,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = padding)
+        ) {
+            AppNavHost(
+                backStack = backStack,
+                settingsNavigationGuard = settingsNavigationGuard,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+@Composable
+internal fun AppNavHost(
+    backStack: SnapshotStateList<Any>,
+    settingsNavigationGuard: SettingsNavigationGuard,
+    modifier: Modifier = Modifier
+) {
+    WorkTimeNavDisplay(
+        backStack = backStack,
+        settingsNavigationGuard = settingsNavigationGuard,
+        modifier = modifier
+    )
+}
+
+@Composable
+internal fun WorkTimeNavDisplay(
+    backStack: SnapshotStateList<Any>,
+    settingsNavigationGuard: SettingsNavigationGuard,
+    modifier: Modifier = Modifier
+) {
+    var showUnsavedBackDialog by remember { mutableStateOf(value = false) }
+
+    SettingsBackNavigationDialog(
+        isVisible = showUnsavedBackDialog,
+        onDismiss = { showUnsavedBackDialog = false },
+        onSave = {
+            settingsNavigationGuard.onSaveChanges()
+            showUnsavedBackDialog = false
+            backStack.pop()
+        },
+        onDiscard = {
+            settingsNavigationGuard.onDiscardChanges()
+            showUnsavedBackDialog = false
+            backStack.pop()
+        }
+    )
+
+    NavDisplay(
+        backStack = backStack,
+        onBack = createGuardedBackAction(
+            backStack = backStack,
+            hasUnsavedChanges = settingsNavigationGuard.hasUnsavedChanges,
+            onUnsavedChangesBlocked = { showUnsavedBackDialog = true }
+        ),
+        modifier = modifier,
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<Screen.Intro> {
+                IntroNavEntry(backStack = backStack)
+            }
+            entry<Screen.Calendar> { CalendarScreen() }
+            entry<Screen.Workday> {
+                WorkdayNavEntry(backStack = backStack)
+            }
+            entry<Screen.Settings> {
+                SettingsNavEntry(settingsNavigationGuard = settingsNavigationGuard)
+            }
+            entry<Screen.ProjectDetails> { screen ->
+                ProjectDetailsEntry(screen = screen, backStack = backStack)
+            }
+            entry<Screen.SingleProject> { screen ->
+                SingleProjectEntry(screen = screen, backStack = backStack)
+            }
+        }
+    )
+}
+
+@Composable
+private fun IntroNavEntry(backStack: SnapshotStateList<Any>) {
+    IntroScreen(onItemClick = { backStack.add(element = Screen.Calendar) })
+}
+
+@Composable
+private fun WorkdayNavEntry(backStack: SnapshotStateList<Any>) {
+    WorkdayScreen(
+        onNavigateToSingleProject = { project ->
+            backStack.add(
+                element = Screen.SingleProject(
+                    index = project.index,
+                    date = project.date,
+                    projectName = project.projectName,
+                    projectTime = project.projectTime,
+                    kilometres = project.kilometres,
+                    allowance = project.allowance,
+                    workType = project.workType
+                )
+            )
+        }
+    )
+}
+
+@Composable
+private fun SettingsNavEntry(settingsNavigationGuard: SettingsNavigationGuard) {
+    SettingsScreen(
+        onUnsavedChangesChanged = settingsNavigationGuard.onUnsavedChangesChanged,
+        registerUnsavedActions = settingsNavigationGuard.registerUnsavedActions
+    )
+}
+
+internal fun createGuardedBackAction(
+    backStack: SnapshotStateList<Any>,
+    hasUnsavedChanges: Boolean,
+    onUnsavedChangesBlocked: () -> Unit
+): () -> Unit {
+    return {
+        val isLeavingSettings = backStack.lastOrNull() == Screen.Settings
+        if (isLeavingSettings && hasUnsavedChanges) {
+            onUnsavedChangesBlocked()
+        } else {
+            backStack.pop()
+        }
+    }
+}
+
+@Composable
+private fun SettingsBackNavigationDialog(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onSave: () -> Unit,
+    onDiscard: () -> Unit
+) {
+    if (!isVisible) return
+
+    UnsavedChangesDialog(
+        onDismiss = onDismiss,
+        onDiscard = onDiscard,
+        onSave = onSave,
+        dialogText = stringResource(id = R.string.unsaved_data_message)
+    )
+}

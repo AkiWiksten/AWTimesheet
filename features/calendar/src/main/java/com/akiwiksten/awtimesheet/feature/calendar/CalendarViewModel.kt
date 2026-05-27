@@ -36,6 +36,7 @@ class CalendarViewModel @Inject constructor(
 
     // Cache for CalendarData to avoid re-fetching when returning to the screen
     private val calendarDataCache = mutableMapOf<String, CalendarData>()
+    private val locallyAdjustedDates = mutableSetOf<String>()
 
     private val _isInitialLoadComplete = MutableStateFlow(false)
     val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
@@ -137,23 +138,39 @@ class CalendarViewModel @Inject constructor(
 
         try {
             val workTimeByDateChange = dateRepository.workTimeByDateChange.value
-            val cachedData = if (forceFetch) null else calendarDataCache[date]
-            val data: CalendarData = cachedData ?: run {
-                val fetchedData = getCalendarDataUseCase(date)
-                calendarDataCache[date] = fetchedData
-                fetchedData
-            }
-
-            val dataToDisplay = if (cachedData != null && workTimeByDateChange != ZERO_TIME) {
-                data.copy(
-                    timePerDay = addWorkTimeChange(data.timePerDay, workTimeByDateChange),
-                    timePerWeek = addWorkTimeChange(data.timePerWeek, workTimeByDateChange),
-                    timePerMonth = addWorkTimeChange(data.timePerMonth, workTimeByDateChange)
-                ).also { adjustedData ->
-                    calendarDataCache[date] = adjustedData
-                }
+            val cachedData = calendarDataCache[date]
+            val fetchedData = if (forceFetch || cachedData == null) {
+                getCalendarDataUseCase(date)
             } else {
-                data
+                null
+            }
+            val baseData = fetchedData ?: cachedData!!
+
+            val dataToDisplay = when {
+                cachedData != null && workTimeByDateChange != ZERO_TIME -> {
+                    locallyAdjustedDates += date
+                    baseData.copy(
+                        timePerDay = addWorkTimeChange(baseData.timePerDay, workTimeByDateChange),
+                        timePerWeek = addWorkTimeChange(baseData.timePerWeek, workTimeByDateChange),
+                        timePerMonth = addWorkTimeChange(baseData.timePerMonth, workTimeByDateChange)
+                    )
+                }
+
+                cachedData != null &&
+                    fetchedData != null &&
+                    date in locallyAdjustedDates &&
+                    fetchedData != cachedData -> {
+                    cachedData
+                }
+
+                else -> {
+                    if (cachedData != null && fetchedData == cachedData) {
+                        locallyAdjustedDates -= date
+                    }
+                    baseData
+                }
+            }.also { adjustedData ->
+                calendarDataCache[date] = adjustedData
             }
 
             val month = YearMonth.from(LocalDate.parse(date))

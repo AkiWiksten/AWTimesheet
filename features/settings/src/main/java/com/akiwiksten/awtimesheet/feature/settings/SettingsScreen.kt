@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    onUnsavedChangesChanged: (Boolean) -> Unit = {},
+    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit = { _, _ -> }
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val ctx = LocalContext.current
@@ -96,6 +98,9 @@ fun SettingsScreen(
     SettingsStateContent(
         uiState = uiState,
         defaultWorkType = defaultWorkType,
+        onUnsavedChangesChanged = onUnsavedChangesChanged,
+        registerUnsavedActions = registerUnsavedActions,
+        onDiscardChanges = settingsViewModel::loadSettings,
         createActions = { successState ->
             createSettingsActions(
                 settingsViewModel = settingsViewModel,
@@ -139,6 +144,9 @@ private fun createSettingsActions(
 internal fun SettingsStateContent(
     uiState: SettingsUiState,
     defaultWorkType: String,
+    onUnsavedChangesChanged: (Boolean) -> Unit,
+    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
+    onDiscardChanges: () -> Unit,
     createActions: (SettingsUiState.Success) -> SettingsActions
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -157,6 +165,9 @@ internal fun SettingsStateContent(
             showLoadingIndicator = showLoadingIndicator,
             lastSuccessState = lastSuccessState,
             defaultWorkType = defaultWorkType,
+            onUnsavedChangesChanged = onUnsavedChangesChanged,
+            registerUnsavedActions = registerUnsavedActions,
+            onDiscardChanges = onDiscardChanges,
             createActions = createActions
         )
         is SettingsUiState.Success -> {
@@ -164,16 +175,25 @@ internal fun SettingsStateContent(
             SettingsContent(
                 uiState = uiState,
                 actions = actions,
-                defaultWorkType = defaultWorkType
+                defaultWorkType = defaultWorkType,
+                onUnsavedChangesChanged = onUnsavedChangesChanged,
+                registerUnsavedActions = registerUnsavedActions,
+                onDiscardChanges = onDiscardChanges
             )
         }
-        is SettingsUiState.Error -> CenteredErrorBox(
-            errorMessage = stringResource(id = R.string.error_message, uiState.message),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = FORM_SECTION_SPACING),
-            fillMaxSize = false
-        )
+        is SettingsUiState.Error -> {
+            LaunchedEffect(Unit) {
+                onUnsavedChangesChanged(false)
+                registerUnsavedActions(null, null)
+            }
+            CenteredErrorBox(
+                errorMessage = stringResource(id = R.string.error_message, uiState.message),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = FORM_SECTION_SPACING),
+                fillMaxSize = false
+            )
+        }
     }
 }
 
@@ -182,6 +202,9 @@ private fun SettingsLoadingContent(
     showLoadingIndicator: Boolean,
     lastSuccessState: SettingsUiState.Success?,
     defaultWorkType: String,
+    onUnsavedChangesChanged: (Boolean) -> Unit,
+    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
+    onDiscardChanges: () -> Unit,
     createActions: (SettingsUiState.Success) -> SettingsActions
 ) {
     if (showLoadingIndicator) {
@@ -196,9 +219,16 @@ private fun SettingsLoadingContent(
         SettingsContent(
             uiState = lastSuccessState,
             actions = actions,
-            defaultWorkType = defaultWorkType
+            defaultWorkType = defaultWorkType,
+            onUnsavedChangesChanged = onUnsavedChangesChanged,
+            registerUnsavedActions = registerUnsavedActions,
+            onDiscardChanges = onDiscardChanges
         )
     } else {
+        LaunchedEffect(Unit) {
+            onUnsavedChangesChanged(false)
+            registerUnsavedActions(null, null)
+        }
         Box(modifier = Modifier.fillMaxSize())
     }
 }

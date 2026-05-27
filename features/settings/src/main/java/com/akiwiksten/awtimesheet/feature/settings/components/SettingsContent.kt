@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
@@ -26,7 +28,10 @@ import com.akiwiksten.awtimesheet.feature.settings.rememberSettingsWorkTypeUiSta
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
     actions: SettingsActions,
-    defaultWorkType: String
+    defaultWorkType: String,
+    onUnsavedChangesChanged: (Boolean) -> Unit,
+    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
+    onDiscardChanges: () -> Unit
 ) {
     val showWorkTimePicker = remember { mutableStateOf(value = false) }
     val showLunchTimePicker = remember { mutableStateOf(value = false) }
@@ -43,6 +48,16 @@ internal fun SettingsContent(
         selectedDate = uiState.selectedDate,
         onSave = actions.onSave
     )
+    val latestOnDiscardChanges = rememberUpdatedState(onDiscardChanges)
+    val latestOnSaveRequested = rememberUpdatedState(saveUi.onSaveRequested)
+
+    LaunchedEffect(saveUi.hasUnsavedChanges) {
+        onUnsavedChangesChanged(saveUi.hasUnsavedChanges)
+    }
+
+    LaunchedEffect(saveUi.hasUnsavedChanges, registerUnsavedActions) {
+        registerUnsavedActions(latestOnSaveRequested.value, latestOnDiscardChanges.value)
+    }
     val guardedActions = actions.copy(
         onGenerateWorkdaysForMonth = { showGenerateMonthConfirm.value = true },
         onGenerateWorkdaysForYear = { showGenerateYearConfirm.value = true }

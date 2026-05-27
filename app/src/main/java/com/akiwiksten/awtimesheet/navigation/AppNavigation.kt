@@ -4,9 +4,7 @@ import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.Saver
@@ -18,23 +16,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
-import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
-import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectNavigationActions
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreenArgs
-import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
 import kotlinx.parcelize.Parcelize
 import kotlin.math.min
 
@@ -53,34 +43,22 @@ private val BackStackSaver: Saver<SnapshotStateList<Any>, BackStackData> = Saver
 @Composable
 fun AWTimesheetApp() {
     val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(Screen.Intro) }
+    val settingsNavigationGuard = rememberSettingsNavigationGuard()
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
     val portraitWidth = rememberPortraitWidthDp()
 
     if (isIntroRoute) {
-        WorkTimeNavDisplay(
+        AppNavHost(
             backStack = backStack,
+            settingsNavigationGuard = settingsNavigationGuard,
             modifier = Modifier.fillMaxSize()
         )
     } else {
-        Scaffold(
-            bottomBar = {
-                PortraitWidthContainer(portraitWidth = portraitWidth) {
-                    WorkTimeNavigationBar(backStack = backStack)
-                }
-            }
-        ) { padding ->
-            PortraitWidthContainer(
-                portraitWidth = portraitWidth,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues = padding)
-            ) {
-                WorkTimeNavDisplay(
-                    backStack = backStack,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
+        MainAppScaffold(
+            backStack = backStack,
+            portraitWidth = portraitWidth,
+            settingsNavigationGuard = settingsNavigationGuard
+        )
     }
 }
 
@@ -113,53 +91,7 @@ internal fun PortraitWidthContainer(
 }
 
 @Composable
-internal fun WorkTimeNavDisplay(
-    backStack: SnapshotStateList<Any>,
-    modifier: Modifier = Modifier
-) {
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.pop() },
-        modifier = modifier,
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<Screen.Intro> {
-                IntroScreen(onItemClick = { backStack.add(element = Screen.Calendar) })
-            }
-            entry<Screen.Calendar> { CalendarScreen() }
-            entry<Screen.Workday> {
-                WorkdayScreen(
-                    onNavigateToSingleProject = { project ->
-                        backStack.add(
-                            element = Screen.SingleProject(
-                                index = project.index,
-                                date = project.date,
-                                projectName = project.projectName,
-                                projectTime = project.projectTime,
-                                kilometres = project.kilometres,
-                                allowance = project.allowance,
-                                workType = project.workType
-                            )
-                        )
-                    }
-                )
-            }
-            entry<Screen.Settings> { SettingsScreen() }
-            entry<Screen.ProjectDetails> { screen ->
-                ProjectDetailsEntry(screen = screen, backStack = backStack)
-            }
-            entry<Screen.SingleProject> { screen ->
-                SingleProjectEntry(screen = screen, backStack = backStack)
-            }
-        }
-    )
-}
-
-@Composable
-private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
+internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
         projectDetails = screen.projectDetails,
         onNavigateBack = { backStack.pop() },
@@ -170,7 +102,7 @@ private fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snapsh
 }
 
 @Composable
-private fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
+internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
     val initialSingleProjectState = SingleProjectState(
         index = screen.index,
         projectName = screen.projectName ?: "",

@@ -74,6 +74,7 @@ internal data class SettingsTimePickerDialogConfig(
 
 internal data class SettingsSaveUi(
     val isSaveEnabled: Boolean,
+    val hasUnsavedChanges: Boolean,
     val isInitialFlexTimeTotalError: Boolean,
     val onSaveRequested: () -> Unit
 )
@@ -169,6 +170,7 @@ internal fun rememberSettingsSaveUi(
             hasRequiredFields = !isInitialFlexTimeTotalError,
             hasUnsavedChanges = hasUnsavedChanges
         ),
+        hasUnsavedChanges = hasUnsavedChanges,
         isInitialFlexTimeTotalError = isInitialFlexTimeTotalError,
         onSaveRequested = {
             if (hasUnsavedChanges) {

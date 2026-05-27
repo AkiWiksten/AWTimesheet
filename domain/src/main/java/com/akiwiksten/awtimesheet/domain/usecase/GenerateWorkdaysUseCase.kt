@@ -339,7 +339,6 @@ class GenerateWorkdaysUseCase @Inject constructor(
         )
 
         return project.projectName in GENERATED_WORKDAY_PROJECT_NAMES &&
-            project.projectTime in GENERATED_WORKDAY_PROJECT_TIMES &&
             project.allowance in allowancesForDate &&
             project.workType in GENERATED_WORKDAY_PROJECT_WORK_TYPES &&
             (project.kilometres.toIntOrNull() ?: -1) in GENERATED_KILOMETRES_MIN..GENERATED_KILOMETRES_MAX

@@ -53,6 +53,10 @@ class GenerateWorkdaysUseCaseTest {
         )
         allProjects.groupBy { it.date }.values.forEach { dayProjects ->
             assertEquals(dayProjects.size, dayProjects.map { it.projectName }.distinct().size)
+            val generatedTotalMinutes = dayProjects.sumOf { project ->
+                timeToMinutes(project.projectTime)
+            }
+            assertTrue(generatedTotalMinutes >= timeToMinutes("06:00"))
         }
         assertTrue(workdayRepository.workdayStatsRows.all { it.workTimeByDateEstimate == "07:30" })
         assertEquals(
@@ -203,6 +207,11 @@ class GenerateWorkdaysUseCaseTest {
             }
             WorkTimeCalculator.calculateFlexTime(total, dayFlexTime)
         }
+    }
+
+    private fun timeToMinutes(time: String): Int {
+        val parts = time.split(":")
+        return (parts[0].toInt() * 60) + parts[1].toInt()
     }
 }
 

@@ -61,14 +61,10 @@ internal val GENERATED_WORKDAY_PROJECT_WORK_TYPES = listOf(
     "Review"
 )
 internal val GENERATED_WORKDAY_PROJECT_TIMES = listOf(
-    "00:30",
-    "01:00",
-    "01:30",
     "02:00",
-    "02:30",
-    "03:00",
     "03:30",
-    "04:00"
+    "06:00",
+    "07:30"
 )
 internal val GENERATED_WORKDAY_ALLOWANCES = listOf(
     "No allowance",
@@ -76,6 +72,8 @@ internal val GENERATED_WORKDAY_ALLOWANCES = listOf(
     "Half-day allowance"
 )
 private const val GENERATED_WORKDAY_ESTIMATE = "07:30"
+private const val GENERATED_WORKDAY_MINIMUM_TOTAL_TIME = "06:00"
+private const val GENERATED_WORKDAY_MINIMUM_SINGLE_PROJECT_TIME = "06:00"
 private const val GENERATED_PROJECTS_PER_DAY_VARIATION = 3
 private const val GENERATED_PROJECTS_PER_DAY_MIN = 1
 private const val GENERATED_TIME_OFFSET_DIVISOR = 10
@@ -83,6 +81,7 @@ private const val GENERATED_PROJECTS_PER_DAY_MAX =
     GENERATED_PROJECTS_PER_DAY_VARIATION + GENERATED_PROJECTS_PER_DAY_MIN - 1
 private const val GENERATED_KILOMETRES_MIN = 0
 private const val GENERATED_KILOMETRES_MAX = 200
+private const val MINUTES_PER_HOUR = 60
 
 class GenerateWorkdaysUseCase @Inject constructor(
     private val workdayRepository: WorkdayRepository,
@@ -270,6 +269,11 @@ class GenerateWorkdaysUseCase @Inject constructor(
         val namesForDate = (0 until count).map { index ->
             GENERATED_WORKDAY_PROJECT_NAMES[(nameOffset + index) % GENERATED_WORKDAY_PROJECT_NAMES.size]
         }
+        val projectTimesForDate = (0 until count).map { index ->
+            GENERATED_WORKDAY_PROJECT_TIMES[
+                (timeOffset + index) % GENERATED_WORKDAY_PROJECT_TIMES.size
+            ]
+        }.let(::ensureMinimumGeneratedWorkTime)
         val allowancesForDate = listOf(
             allowanceLabels.noAllowance,
             allowanceLabels.fullAllowance,
@@ -277,9 +281,7 @@ class GenerateWorkdaysUseCase @Inject constructor(
         )
 
         val projectsForDate = namesForDate.mapIndexed { index, projectName ->
-            val projectTime = GENERATED_WORKDAY_PROJECT_TIMES[
-                (timeOffset + index) % GENERATED_WORKDAY_PROJECT_TIMES.size
-            ]
+            val projectTime = projectTimesForDate[index]
             val kilometres = random.nextInt(
                 from = GENERATED_KILOMETRES_MIN,
                 until = GENERATED_KILOMETRES_MAX + 1
@@ -303,6 +305,27 @@ class GenerateWorkdaysUseCase @Inject constructor(
             nextWorkTypeCursor =
                 (workTypeCursor + projectsForDate.size) % GENERATED_WORKDAY_PROJECT_WORK_TYPES.size
         )
+    }
+
+    private fun ensureMinimumGeneratedWorkTime(projectTimes: List<String>): List<String> {
+        val minimumTotalMinutes = timeToMinutes(GENERATED_WORKDAY_MINIMUM_TOTAL_TIME)
+        val totalMinutes = projectTimes.sumOf(::timeToMinutes)
+        if (totalMinutes >= minimumTotalMinutes || projectTimes.isEmpty()) {
+            return projectTimes
+        }
+
+        return projectTimes.toMutableList().apply {
+            // Lift the first project to 06:00 so day total is always at least 06:00.
+            this[0] = GENERATED_WORKDAY_MINIMUM_SINGLE_PROJECT_TIME
+        }
+    }
+
+    private fun timeToMinutes(time: String): Int {
+        val parts = time.split(":")
+        require(parts.size == 2) { "Invalid time format: $time" }
+        val hours = parts[0].toInt()
+        val minutes = parts[1].toInt()
+        return (hours * MINUTES_PER_HOUR) + minutes
     }
 
     private fun isGeneratedProject(

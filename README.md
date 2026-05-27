@@ -102,7 +102,7 @@ Override per run:
 
 `.\gradlew.bat verifyPerf -Pperf.maxJankPercent=4 -Pperf.maxLongFramesPercent=8`
 
-## Features to be implemented still
+## My manual backlog
 + General
   + Test implemented backup & sync (android:allowBackup="true")
   + Better orientation support
@@ -113,6 +113,7 @@ Override per run:
   + button press animations
   + Refactor tests
   + Configure Python interpreter
+  + Button animations
 + Constants
   + Regroup
 + Repositories
@@ -150,12 +151,38 @@ Override per run:
   + Handle monthly, weekly and biweekly reports, by selecting start date
   + Work type section: Add rows if >= 7 work types
 ## What to test constantly
-+ Thorough testing of all features in all screens
++ Thorough regression testing of all features in all screens
     + Intro, 
     + Calendar, 
     + Workday, R
     + Single project, R
     + Project Details, 
     + Settings R
-      + PDF creation R
+      + Excel creation R
+
+## AI provided quality improvement plan
++ Fix scroll jank regressions on workday first
+  + Latest benchmark showed workdayScroll over the <5% jank target (marginal fail).
+  + Start with features/workday list item composables: reduce recomposition scope, stabilize item keys, avoid expensive modifiers/draw ops in scrolling rows.
+  + Re-run only this benchmark before broader runs.
++ Turn performance checks into stricter release gates
+  + You already have :macrobenchmark:verifyPerf; make it mandatory in CI for protected branches.
+  + Keep thresholds in gradle.properties but enforce fail-on-missing-runs and consistent device profile.
+  + This prevents “slow creep” over time.
++ Increase test coverage where behavior risk is highest
+  + Prioritize feature ViewModels and cross-screen flows (calendar → workday → projectdetails).
+  + Add more integration-level tests around data + domain seams, not only isolated unit tests.
+  + Your structure is testable; now push coverage depth where user-facing bugs happen most.
++ Strengthen architectural boundaries further
+  + You already enforce some module rules in build.gradle.kts (verifyModuleBoundaries); extend rules to prevent accidental feature-to-feature coupling where not intended.
+  + From your own backlog, define missing contracts (e.g., CalendarRepository interface) to reduce concrete dependency spread.
++ Complete unresolved reliability TODOs from your backlog
+  + Highest-value backlog items: save-confirmation consistency, validation correctness, and state persistence behavior.
+  + These directly affect trust and perceived quality more than cosmetic polish.
++ Standardize quality gates into one “definition of done”
+  + Keep one required pipeline: unit tests + lint/detekt + boundary check + screenshot validation + perf gate.
+  + This improves consistency and developer productivity by removing ambiguity.
++ Refine recomposition hot paths on heavy screens
+  + Even with passing long-frame metrics, reduce noisy frame-overrun areas (calendar/projectdetails) proactively.
+  + Focus on state hoisting, memoization (remember, derivedStateOf where appropriate), and avoiding broad state invalidations.
 

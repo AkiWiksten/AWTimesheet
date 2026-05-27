@@ -116,6 +116,50 @@ def iter_known_metrics(record: dict[str, Any]) -> Iterable[tuple[str, Any]]:
     return result
 
 
+def build_summary_details(record: dict[str, Any], benchmark_class: str) -> tuple[str, str]:
+    metrics = {metric_name: metric_value for metric_name, metric_value in iter_known_metrics(record)}
+    if not metrics:
+        return " ", ""
+
+    metric_summary_parts: list[str] = []
+
+    def append_metric_summary(metric_name: str) -> None:
+        metric_value = metrics.get(metric_name)
+        if metric_value is None:
+            return
+        runs = find_runs(metric_value)
+        derived, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
+        if derived_percent is not None:
+            metric_summary_parts.append(f"{metric_name}: {derived}")
+
+    status_metric_name: str | None = None
+    if benchmark_class == "Recomposition":
+        status_metric_name = "frameDurationCpuMs" if "frameDurationCpuMs" in metrics else None
+        append_metric_summary("frameDurationCpuMs")
+        append_metric_summary("recompositionCount")
+        if status_metric_name is None and "recompositionCount" in metrics:
+            status_metric_name = "recompositionCount"
+    else:
+        metric_name, metric_value = next(iter(metrics.items()))
+        status_metric_name = metric_name
+        runs = find_runs(metric_value)
+        derived, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
+        if derived_percent is not None:
+            metric_summary_parts.append(f"{metric_name}: {derived}")
+
+    status = " "
+    if status_metric_name is not None:
+        status_value = metrics.get(status_metric_name)
+        if status_value is not None:
+            runs = find_runs(status_value)
+            _, derived_percent = derive_metric(metric_name=status_metric_name, runs=runs)
+            if derived_percent is not None:
+                status = get_status_indicator(status_metric_name, derived_percent)
+
+    metric_summary = f" [{'; '.join(metric_summary_parts)}]" if metric_summary_parts else ""
+    return status, metric_summary
+
+
 def derive_metric(metric_name: str, runs: list[float]) -> tuple[str, float | None]:
     if metric_name == "timeToInitialDisplayMs" and runs:
         avg = sum(runs) / len(runs)
@@ -272,18 +316,8 @@ def print_summary(records: list[dict[str, Any]]) -> dict[str, list[tuple[str, fl
                 metadata = record.get("_metadata", {})
                 target = metadata.get("target", "N/A")
                 
-                # Extract the most relevant value for status
-                status = " "
-                for metric_name, metric_value in iter_known_metrics(record):
-                    if metric_value is None:
-                        continue
-                    runs = find_runs(metric_value)
-                    _, derived_percent = derive_metric(metric_name=metric_name, runs=runs)
-                    if derived_percent is not None:
-                        status = get_status_indicator(metric_name, derived_percent)
-                        break
-                
-                print(f"  {status} {name:40} Target: {target}")
+                status, metric_summary = build_summary_details(record, benchmark_class)
+                print(f"  {status} {name:40}{metric_summary} Target: {target}")
         else:
             print(f"  (no tests)")
 

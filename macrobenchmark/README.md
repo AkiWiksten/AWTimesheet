@@ -278,7 +278,7 @@ The summary highlights:
 - startup timing / first frame metrics
 - frame overrun metrics (jank and missed frames estimate)
 - long frames over 16 ms (`frameDurationCpuMs` based estimate)
-- recomposition events during interactions (when available)
+- recomposition details during interactions when available (`recompositionCount`, plus inline frame-timing detail for recomposition benchmarks)
 
 
 

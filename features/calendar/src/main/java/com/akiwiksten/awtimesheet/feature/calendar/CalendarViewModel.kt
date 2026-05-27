@@ -79,7 +79,8 @@ class CalendarViewModel @Inject constructor(
             if (selectedDate.isNotEmpty()) {
                 refreshCalendarData(
                     date = selectedDate,
-                    showLoading = false
+                    showLoading = false,
+                    forceFetch = true
                 )
             }
         }
@@ -117,17 +118,26 @@ class CalendarViewModel @Inject constructor(
      * Updates the currently selected date and recalculates sums.
      */
     fun onDateSelected(selectedDate: String) {
+        if (selectedDate == dateRepository.selectedDate.value) {
+            refresh()
+            return
+        }
+
         dateRepository.updateDate(selectedDate)
     }
 
-    private suspend fun refreshCalendarData(date: String, showLoading: Boolean) {
+    private suspend fun refreshCalendarData(
+        date: String,
+        showLoading: Boolean,
+        forceFetch: Boolean = false
+    ) {
         if (showLoading) {
             _uiState.value = CalendarUiState.Loading
         }
 
         try {
             val workTimeByDateChange = dateRepository.workTimeByDateChange.value
-            val cachedData = calendarDataCache[date]
+            val cachedData = if (forceFetch) null else calendarDataCache[date]
             val data: CalendarData = cachedData ?: run {
                 val fetchedData = getCalendarDataUseCase(date)
                 calendarDataCache[date] = fetchedData

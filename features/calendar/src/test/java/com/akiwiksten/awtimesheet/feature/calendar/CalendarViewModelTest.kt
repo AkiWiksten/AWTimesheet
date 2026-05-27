@@ -117,6 +117,45 @@ class CalendarViewModelTest {
     }
 
     @Test
+    fun onDateSelected_sameDate_forcesFreshReloadInsteadOfUsingStaleCache() = runTest {
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+        }
+        val projectRepository = FakeProjectRepository().apply {
+            dataByRange["2026-04-01|2026-04-30"] = emptyList()
+        }
+
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+
+        viewModel.startAutoReload()
+        advanceUntilIdle()
+
+        val initialState = viewModel.uiState.value as CalendarUiState.Success
+        assertEquals(ZERO_TIME, initialState.timePerMonth)
+        assertEquals(ZERO_TIME, initialState.timePerWeek)
+        assertEquals(ZERO_TIME, initialState.timePerDay)
+
+        projectRepository.dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
+        )
+
+        viewModel.onDateSelected("2026-04-10")
+        advanceUntilIdle()
+
+        val refreshedState = viewModel.uiState.value as CalendarUiState.Success
+        assertEquals("02:00", refreshedState.timePerMonth)
+        assertEquals("02:00", refreshedState.timePerWeek)
+        assertEquals("02:00", refreshedState.timePerDay)
+        assertEquals(
+            listOf("2026-04-01|2026-04-30", "2026-04-01|2026-04-30"),
+            projectRepository.requestedRanges
+        )
+    }
+
+    @Test
     fun startAutoReload_emitsInitialDate() = runTest {
         val dateRepository = DateRepository().apply { updateDate("2026-01-01") }
         val projectRepository = FakeProjectRepository()

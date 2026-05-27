@@ -148,6 +148,7 @@ Override per run:
   + Split into sections
 + Excel
   + Handle monthly, weekly and biweekly reports, by selecting start date
+  + Work type section: Add rows if >= 7 work types
 ## What to test constantly
 + Thorough testing of all features in all screens
     + Intro, 

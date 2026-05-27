@@ -133,7 +133,7 @@ Override per run:
 + ProjectDetailsScreen
   + "Lunch time estimate" â†’ Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
-  + "Note! Automatic calculations for most fields in this app."
+  + "Remember to click a date if you want to select the visible month!"
   + Better scalability
     + Fetch projects of the current month once in the app lifecycle.
       + Calculate workdaysByMonth (month, year, workdaytime) and weekSum + monthSum from that

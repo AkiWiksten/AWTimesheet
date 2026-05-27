@@ -113,8 +113,7 @@ private fun WorkdayStatsCardContent(
 ) {
     ElevatedCard(
         modifier = Modifier
-            .fillMaxSize()
-            .heightIn(max = STATS_CARD_MAX_HEIGHT),
+            .fillMaxSize(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(

@@ -6,6 +6,7 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
@@ -15,8 +16,16 @@ import javax.inject.Inject
 class GetCalendarDataUseCase @Inject constructor(
     private val projectRepository: ProjectRepository
 ) {
-    suspend operator fun invoke(date: String): CalendarData {
+    private var cachedMonth: YearMonth? = null
+    private var cachedTimePerMonth: String = ZERO_TIME
+
+    suspend operator fun invoke(
+        date: String,
+        workTimeByDateChange: String = ZERO_TIME,
+        forceMonthRecalculation: Boolean = false
+    ): CalendarData {
         val initial = LocalDate.parse(date)
+        val requestedMonth = YearMonth.from(initial)
         val startMonth = initial.withDayOfMonth(1).toString()
         val lastDay = initial.month.length(initial.isLeapYear)
         val endMonth = initial.withDayOfMonth(lastDay).toString()
@@ -39,7 +48,8 @@ class GetCalendarDataUseCase @Inject constructor(
             projectRepository.getProjectsByDateRange(startOfWeekStr, endOfWeekStr)
         }
 
-        var timePerMonth = ZERO_TIME
+        val useCachedMonthTotal = cachedMonth == requestedMonth && !forceMonthRecalculation
+        var timePerMonth = if (useCachedMonthTotal) cachedTimePerMonth else ZERO_TIME
         var timePerWeekFromMonth = ZERO_TIME
         var timePerDay = ZERO_TIME
         val datesWithWork = mutableSetOf<String>()
@@ -48,7 +58,10 @@ class GetCalendarDataUseCase @Inject constructor(
             val projectDate = project.date
             val projectTime = project.projectTime
             datesWithWork += projectDate
-            timePerMonth = WorkTimeCalculator.calculateFlexTime(timePerMonth, projectTime)
+
+            if (!useCachedMonthTotal) {
+                timePerMonth = WorkTimeCalculator.calculateFlexTime(timePerMonth, projectTime)
+            }
 
             if (projectDate in startOfWeekStr..endOfWeekStr) {
                 timePerWeekFromMonth = WorkTimeCalculator.calculateFlexTime(timePerWeekFromMonth, projectTime)
@@ -57,6 +70,13 @@ class GetCalendarDataUseCase @Inject constructor(
                 timePerDay = WorkTimeCalculator.calculateFlexTime(timePerDay, projectTime)
             }
         }
+
+        if (useCachedMonthTotal && workTimeByDateChange != ZERO_TIME) {
+            timePerMonth = WorkTimeCalculator.calculateFlexTime(timePerMonth, workTimeByDateChange)
+        }
+
+        cachedMonth = requestedMonth
+        cachedTimePerMonth = timePerMonth
 
         val timePerWeek = projectTimesWeek?.let(::calculateTotalTime) ?: timePerWeekFromMonth
 

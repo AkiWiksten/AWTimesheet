@@ -4,9 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.DATE_FORMAT
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.domain.usecase.CalendarData
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +47,8 @@ class CalendarViewModel @Inject constructor(
                 if (date.isNotEmpty()) {
                     refreshCalendarData(
                         date = date,
-                        showLoading = _uiState.value !is CalendarUiState.Success
+                        showLoading = _uiState.value !is CalendarUiState.Success,
+                        forceMonthRecalculation = false
                     )
                 }
             }
@@ -76,7 +75,8 @@ class CalendarViewModel @Inject constructor(
             if (selectedDate.isNotEmpty()) {
                 refreshCalendarData(
                     date = selectedDate,
-                    showLoading = false
+                    showLoading = false,
+                    forceMonthRecalculation = false
                 )
             }
         }
@@ -111,7 +111,13 @@ class CalendarViewModel @Inject constructor(
      */
     fun onDateSelected(selectedDate: String) {
         if (selectedDate == dateRepository.selectedDate.value) {
-            refresh()
+            viewModelScope.launch {
+                refreshCalendarData(
+                    date = selectedDate,
+                    showLoading = false,
+                    forceMonthRecalculation = true
+                )
+            }
             return
         }
 
@@ -121,6 +127,7 @@ class CalendarViewModel @Inject constructor(
     private suspend fun refreshCalendarData(
         date: String,
         showLoading: Boolean,
+        forceMonthRecalculation: Boolean,
     ) {
         if (showLoading) {
             _uiState.value = CalendarUiState.Loading
@@ -129,7 +136,25 @@ class CalendarViewModel @Inject constructor(
         try {
             val workTimeByDateChange = dateRepository.workTimeByDateChange.value
 
-            val baseData = getCalendarDataUseCase(date)
+            val currentState = _uiState.value as? CalendarUiState.Success
+            val incrementalChange = if (currentState != null && !forceMonthRecalculation) {
+                workTimeByDateChange
+            } else {
+                ZERO_TIME
+            }
+            if (
+                !forceMonthRecalculation &&
+                workTimeByDateChange == ZERO_TIME &&
+                currentState?.date == date
+            ) {
+                return
+            }
+
+            val baseData = getCalendarDataUseCase(
+                date = date,
+                workTimeByDateChange = incrementalChange,
+                forceMonthRecalculation = forceMonthRecalculation
+            )
 
             val month = YearMonth.from(LocalDate.parse(date))
             _uiState.value = CalendarUiState.Success(
@@ -152,13 +177,6 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    private fun addWorkTimeChange(baseTime: String, change: String): String {
-        return if (change == ZERO_TIME) {
-            baseTime
-        } else {
-            WorkTimeCalculator.calculateFlexTime(baseTime, change)
-        }
-    }
 }
 
 sealed class CalendarUiState {

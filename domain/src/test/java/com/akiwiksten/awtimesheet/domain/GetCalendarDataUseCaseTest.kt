@@ -45,4 +45,40 @@ class GetCalendarDataUseCaseTest {
         assertEquals("00:00", result.timePerDay)
         assertEquals(listOf("2026-08-01|2026-08-31", "2026-07-27|2026-08-02"), projectRepository.requestedRanges)
     }
+
+    @Test
+    fun invoke_sameMonth_appliesChangeToCachedMonthlyTotal() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByRange["2026-04-01|2026-04-30"] = listOf(
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
+            )
+        }
+        val useCase = GetCalendarDataUseCase(projectRepository)
+
+        val initial = useCase("2026-04-10")
+        val updated = useCase(date = "2026-04-10", workTimeByDateChange = "02:30")
+        val rereadWithoutChange = useCase("2026-04-10")
+
+        assertEquals("08:00", initial.timePerMonth)
+        assertEquals("10:30", updated.timePerMonth)
+        assertEquals("10:30", rereadWithoutChange.timePerMonth)
+    }
+
+    @Test
+    fun invoke_monthChanged_recalculatesMonthlyTotalFromScratch() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByRange["2026-04-01|2026-04-30"] = listOf(
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
+            )
+            projectsByRange["2026-05-01|2026-05-31"] = listOf(
+                projectState(date = "2026-05-02", projectName = "Beta", projectTime = "03:00")
+            )
+        }
+        val useCase = GetCalendarDataUseCase(projectRepository)
+
+        useCase(date = "2026-04-10", workTimeByDateChange = "02:30")
+        val mayResult = useCase("2026-05-02")
+
+        assertEquals("03:00", mayResult.timePerMonth)
+    }
 }

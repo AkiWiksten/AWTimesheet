@@ -34,10 +34,6 @@ class CalendarViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Initial)
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
-    // Cache for CalendarData to avoid re-fetching when returning to the screen
-    private val calendarDataCache = mutableMapOf<String, CalendarData>()
-    private val locallyAdjustedDates = mutableSetOf<String>()
-
     private val _isInitialLoadComplete = MutableStateFlow(false)
     val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
 
@@ -80,8 +76,7 @@ class CalendarViewModel @Inject constructor(
             if (selectedDate.isNotEmpty()) {
                 refreshCalendarData(
                     date = selectedDate,
-                    showLoading = false,
-                    forceFetch = true
+                    showLoading = false
                 )
             }
         }
@@ -97,11 +92,7 @@ class CalendarViewModel @Inject constructor(
             try {
                 val monthDate = month.atDay(1).toString()
                 // Check cache first before fetching
-                val monthData = calendarDataCache[monthDate] ?: run {
-                    val fetchedData = getCalendarDataUseCase(monthDate)
-                    calendarDataCache[monthDate] = fetchedData
-                    fetchedData
-                }
+                val monthData = getCalendarDataUseCase(monthDate)
 
                 _uiState.value = currentState.copy(
                     datesWithWork = monthData.datesWithWork,
@@ -130,7 +121,6 @@ class CalendarViewModel @Inject constructor(
     private suspend fun refreshCalendarData(
         date: String,
         showLoading: Boolean,
-        forceFetch: Boolean = false
     ) {
         if (showLoading) {
             _uiState.value = CalendarUiState.Loading
@@ -138,48 +128,16 @@ class CalendarViewModel @Inject constructor(
 
         try {
             val workTimeByDateChange = dateRepository.workTimeByDateChange.value
-            val cachedData = calendarDataCache[date]
-            val fetchedData = if (forceFetch || cachedData == null) {
-                getCalendarDataUseCase(date)
-            } else {
-                null
-            }
-            val baseData = fetchedData ?: cachedData!!
 
-            val dataToDisplay = when {
-                cachedData != null && workTimeByDateChange != ZERO_TIME -> {
-                    locallyAdjustedDates += date
-                    baseData.copy(
-                        timePerDay = addWorkTimeChange(baseData.timePerDay, workTimeByDateChange),
-                        timePerWeek = addWorkTimeChange(baseData.timePerWeek, workTimeByDateChange),
-                        timePerMonth = addWorkTimeChange(baseData.timePerMonth, workTimeByDateChange)
-                    )
-                }
-
-                cachedData != null &&
-                    fetchedData != null &&
-                    date in locallyAdjustedDates &&
-                    fetchedData != cachedData -> {
-                    cachedData
-                }
-
-                else -> {
-                    if (cachedData != null && fetchedData == cachedData) {
-                        locallyAdjustedDates -= date
-                    }
-                    baseData
-                }
-            }.also { adjustedData ->
-                calendarDataCache[date] = adjustedData
-            }
+            val baseData = getCalendarDataUseCase(date)
 
             val month = YearMonth.from(LocalDate.parse(date))
             _uiState.value = CalendarUiState.Success(
                 date = date,
-                timePerMonth = dataToDisplay.timePerMonth,
-                timePerWeek = dataToDisplay.timePerWeek,
-                timePerDay = dataToDisplay.timePerDay,
-                datesWithWork = dataToDisplay.datesWithWork,
+                timePerMonth = baseData.timePerMonth,
+                timePerWeek = baseData.timePerWeek,
+                timePerDay = baseData.timePerDay,
+                datesWithWork = baseData.datesWithWork,
                 visibleMonth = month
             )
             _isInitialLoadComplete.value = true

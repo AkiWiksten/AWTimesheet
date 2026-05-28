@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -114,6 +115,15 @@ internal fun CalendarContent(
                         )
                     )
                 }
+                Text(
+                    text = stringResource(id = R.string.calendar_month_selection_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
                 WorkTimeSummarySection(uiState = uiState)
             }
             is CalendarUiState.Error -> CenteredErrorBox(

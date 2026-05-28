@@ -127,26 +127,15 @@ Override per run:
   + Rename DialogMainFields -> UpperTextFields
   + DialogDropdownFields -> DropdownFields
 + WorkdayScreen 
-  + Ask to save when leaving without saving (check other screens also)
   + Don't show project_names projects, when there are already recorded projects
-  + Add flexTimeTotal into SettingsEntity
-    + Update it, when projects by date update
 + ProjectDetailsScreen
-  + "Lunch time estimate" â†’ Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
+  + "Lunch time estimate" Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
-  + "Remember to click a date if you want to select the visible month!"
-  + Better scalability
-    + Fetch projects of the current month once in the app lifecycle.
-      + Calculate workdaysByMonth (month, year, workdaytime) and weekSum + monthSum from that
-    + Update workdaysByMonth when returning from WorkdayScreen
-      + Update weekSum + monthSum
-    + When changing month, fetch projects and add to workdaysByMonth and so onâ€¦
+  + 
+
 + SettingsScreen
   + Translate fed "Work type"
   + App localization selection
-  + Ask to save does not work
-  + Create Excel report also, or export to Excel, CSV or similar
-  + Split into sections
 + Excel
   + Handle monthly, weekly and biweekly reports, by selecting start date
   + Work type section: Add rows if >= 7 work types

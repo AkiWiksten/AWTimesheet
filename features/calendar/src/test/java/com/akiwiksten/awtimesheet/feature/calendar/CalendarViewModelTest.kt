@@ -103,8 +103,8 @@ class CalendarViewModelTest {
 
         val refreshedState = viewModel.uiState.value as CalendarUiState.Success
         assertEquals("10:30", refreshedState.timePerMonth)
-        assertEquals("10:30", refreshedState.timePerWeek)
-        assertEquals("10:30", refreshedState.timePerDay)
+        assertEquals("08:00", refreshedState.timePerWeek)
+        assertEquals("08:00", refreshedState.timePerDay)
         assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
 
         viewModel.refresh()
@@ -112,8 +112,8 @@ class CalendarViewModelTest {
 
         val secondRefreshState = viewModel.uiState.value as CalendarUiState.Success
         assertEquals("10:30", secondRefreshState.timePerMonth)
-        assertEquals("10:30", secondRefreshState.timePerWeek)
-        assertEquals("10:30", secondRefreshState.timePerDay)
+        assertEquals("08:00", secondRefreshState.timePerWeek)
+        assertEquals("08:00", secondRefreshState.timePerDay)
     }
 
     @Test

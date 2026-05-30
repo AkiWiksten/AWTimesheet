@@ -52,6 +52,9 @@ private fun SettingsConstrainedPreviewContent() {
                 SettingsStateContent(
                     uiState = PreviewUiState,
                     defaultWorkType = "Other",
+                    onUnsavedChangesChanged = {},
+                    registerUnsavedActions = { _, _ -> },
+                    onDiscardChanges = {},
                     createActions = {
                         SettingsActions(
                             onNameChange = {},
@@ -62,7 +65,9 @@ private fun SettingsConstrainedPreviewContent() {
                             onWorkTypeAdded = {},
                             onWorkTypeRemoved = {},
                             onSave = {},
-                            onGenerateXlsx = {}
+                            onGenerateXlsx = {},
+                            onGenerateWorkdaysForMonth = {},
+                            onGenerateWorkdaysForYear = {}
                         )
                     }
                 )
@@ -86,4 +91,3 @@ private fun PortraitWidthContainer(
         }
     }
 }
-

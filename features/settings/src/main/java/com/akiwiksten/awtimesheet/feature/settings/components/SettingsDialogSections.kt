@@ -1,14 +1,29 @@
 package com.akiwiksten.awtimesheet.feature.settings.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import com.akiwiksten.awtimesheet.core.DATE_FORMAT
+import com.akiwiksten.awtimesheet.core.R as CoreR
 import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.ui.AddTextFieldDialog
 import com.akiwiksten.awtimesheet.core.ui.MyAlertDialog
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.feature.settings.SettingsTimePickerDialogConfig
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 internal fun SettingsTimePickerDialogsSection(
@@ -97,6 +112,43 @@ internal fun SettingsGenerateMonthConfirmDialogSection(
 }
 
 @Composable
+internal fun SettingsGenerateMonthlyReportConfirmDialogSection(
+    isVisible: Boolean,
+    selectedDate: String,
+    onDismiss: () -> Unit,
+    onConfirmed: () -> Unit
+) {
+    if (isVisible) {
+        val monthYear = remember(selectedDate) { formatMonthYear(selectedDate) }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = { Icon(imageVector = Icons.Default.Info, contentDescription = null) },
+            title = { Text(text = stringResource(id = R.string.generate_xlsx)) },
+            text = {
+                Text(
+                    text = buildAnnotatedString {
+                        append("${stringResource(id = R.string.generate_monthly_report_confirm_prefix)} ")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(monthYear)
+                        }
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirmed) {
+                    Text(text = stringResource(id = CoreR.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(id = CoreR.string.dismiss))
+                }
+            }
+        )
+    }
+}
+
+@Composable
 internal fun SettingsGenerateYearConfirmDialogSection(
     isVisible: Boolean,
     onDismiss: () -> Unit,
@@ -111,5 +163,15 @@ internal fun SettingsGenerateYearConfirmDialogSection(
             icon = Icons.Default.Warning
         )
     }
+}
+
+private fun formatMonthYear(selectedDate: String): String {
+    val parser = DateTimeFormatter.ofPattern(DATE_FORMAT)
+    val parsedDate = runCatching { LocalDate.parse(selectedDate, parser) }.getOrNull()
+    if (parsedDate == null) {
+        return selectedDate
+    }
+
+    return String.format(Locale.US, "%02d/%04d", parsedDate.monthValue, parsedDate.year)
 }
 

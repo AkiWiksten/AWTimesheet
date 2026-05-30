@@ -14,6 +14,7 @@
     <string name="save">Spara</string>
     <string name="saved">Sparat!</string>
     <string name="generate_xlsx">Generera månatlig XLSX-rapport</string>
+    <string name="generate_monthly_report_confirm_prefix">Du kommer att skapa en rapport för </string>
     <string name="generate_workdays_month">Generera arbetsdagar för månaden</string>
     <string name="generate_workdays_year">Generera arbetsdagar för året</string>
     <string name="generate_workdays_month_confirm_title">FARA: Generera arbetsdagar för valda månaden?</string>

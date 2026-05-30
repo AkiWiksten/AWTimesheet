@@ -14,6 +14,7 @@
     <string name="save">Tallenna</string>
     <string name="saved">Tallennettu!</string>
     <string name="generate_xlsx">Luo kuukausittainen XLSX-raportti</string>
+    <string name="generate_monthly_report_confirm_prefix">Luot raportin ajalle </string>
     <string name="generate_workdays_month">Luo työpäivät kuukaudelle</string>
     <string name="generate_workdays_year">Luo työpäivät vuodelle</string>
     <string name="generate_workdays_month_confirm_title">VAARA: Luodaanko työpäivät valitulle kuukaudelle?</string>

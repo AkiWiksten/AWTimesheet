@@ -14,6 +14,7 @@
     <string name="save">Save</string>
     <string name="saved">Saved!</string>
     <string name="generate_xlsx">Generate monthly XLSX report</string>
+    <string name="generate_monthly_report_confirm_prefix">You will create a report for </string>
     <string name="generate_workdays_month">Generate workdays for month</string>
     <string name="generate_workdays_year">Generate workdays for year</string>
     <string name="generate_workdays_month_confirm_title">DANGER: Generate workdays for selected month?</string>

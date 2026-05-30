@@ -44,11 +44,11 @@ internal val GENERATED_WORKDAY_PROJECT_NAMES = listOf(
     "Office",
     "Client A",
     "Client B",
-    "Maintenance",
-    "Research",
-    "Planning",
-    "Training",
-    "Support"
+    "Food",
+    "Application",
+    "Animal",
+    "Ice hockey",
+    "Store"
 )
 internal val GENERATED_WORKDAY_PROJECT_WORK_TYPES = listOf(
     "Other",
@@ -101,6 +101,8 @@ class GenerateWorkdaysUseCase @Inject constructor(
         )
     ): WorkdayGenerationResult {
         require(selectedDate.isNotBlank()) { "Selected date is required." }
+
+        ensureGeneratedWorkTypesExist()
 
         val baseDate = LocalDate.parse(selectedDate, dateFormatter)
         val range = resolveRange(baseDate, scope)
@@ -170,6 +172,16 @@ class GenerateWorkdaysUseCase @Inject constructor(
                 start to start.withDayOfYear(start.lengthOfYear())
             }
         }
+    }
+
+    private suspend fun ensureGeneratedWorkTypesExist() {
+        val existingWorkTypes = settingsRepository.getWorkTypes().toSet()
+        GENERATED_WORKDAY_PROJECT_WORK_TYPES
+            .asSequence()
+            .filterNot(existingWorkTypes::contains)
+            .forEach { workType ->
+                settingsRepository.insertWorkType(workType)
+            }
     }
 
 

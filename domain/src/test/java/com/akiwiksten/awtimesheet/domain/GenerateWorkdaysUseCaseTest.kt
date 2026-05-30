@@ -39,6 +39,8 @@ class GenerateWorkdaysUseCaseTest {
             mode = WorkdayGenerationMode.INSERT_MISSING
         )
 
+        assertTrue(settingsRepository.workTypes.containsAll(GENERATED_WORKDAY_PROJECT_WORK_TYPES))
+
         val allProjects = projectRepository.getProjectsByDateRange("2026-02-01", "2026-02-28")
         assertTrue(allProjects.isNotEmpty())
         assertTrue(allProjects.all { it.workType in GENERATED_WORKDAY_PROJECT_WORK_TYPES })
@@ -73,6 +75,10 @@ class GenerateWorkdaysUseCaseTest {
         assertEquals(
             allProjects.size,
             projectRepository.getProjectsByDateRange("2026-02-01", "2026-02-28").size
+        )
+        assertEquals(
+            GENERATED_WORKDAY_PROJECT_WORK_TYPES.size,
+            settingsRepository.insertedWorkTypeCalls.size
         )
 
         val distinctDatesWithProjects = allProjects.map { it.date }.distinct()
@@ -146,6 +152,32 @@ class GenerateWorkdaysUseCaseTest {
         )
         assertTrue(projectsForDate.all { it.workType in GENERATED_WORKDAY_PROJECT_WORK_TYPES })
         assertTrue(projectsForDate.all { it.projectName in GENERATED_WORKDAY_PROJECT_NAMES })
+    }
+
+    @Test
+    fun invoke_insertsGeneratedWorkTypesOnlyWhenMissing() = runBlocking {
+        val projectRepository = FakeProjectRepository()
+        val settingsRepository = FakeSettingsRepository().apply {
+            workTypes = listOf(GENERATED_WORKDAY_PROJECT_WORK_TYPES.first(), "Legacy")
+        }
+        val useCase = GenerateWorkdaysUseCase(
+            workdayRepository = FakeWorkdayRepository(),
+            settingsRepository = settingsRepository,
+            projectRepository = projectRepository
+        )
+
+        useCase(
+            selectedDate = "2026-02-10",
+            scope = WorkdayGenerationScope.MONTH,
+            mode = WorkdayGenerationMode.INSERT_MISSING
+        )
+
+        assertTrue(settingsRepository.workTypes.containsAll(GENERATED_WORKDAY_PROJECT_WORK_TYPES))
+        assertTrue(settingsRepository.workTypes.contains("Legacy"))
+        assertEquals(
+            GENERATED_WORKDAY_PROJECT_WORK_TYPES.drop(1).size,
+            settingsRepository.insertedWorkTypeCalls.size
+        )
     }
 
     @Test

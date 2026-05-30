@@ -241,7 +241,7 @@ internal object TimesheetSectionWriter {
         )
 
         writeWorkTypeHeader(context)
-        writeWorkTypeRows(context, sheetData)
+        writeWorkTypeRows(context, sheetData, exportData)
 
         TimesheetXmlHelper.applySectionHeaderStyles(
             document = document,
@@ -461,10 +461,14 @@ internal object TimesheetSectionWriter {
         )
     }
 
-    private fun writeWorkTypeRows(context: WorkTypeSectionContext, sheetData: Element) {
+    private fun writeWorkTypeRows(
+        context: WorkTypeSectionContext,
+        sheetData: Element,
+        exportData: TimesheetExportData,
+    ) {
         val additionalRowNumber =
             if (context.totalColumnIndex > 31) {
-                DAILY_ENTRIES_START_ROW - 2 - context.exportData.workTypeRows.size
+                (exportData.workTypeRows.size + 1) - (DAILY_ENTRIES_START_ROW - 3)
             } else {
                 0
             }
@@ -472,11 +476,11 @@ internal object TimesheetSectionWriter {
             TimesheetXmlHelper.insertBlankRowRange(
                 sheetData = sheetData,
                 startColumn = 1,
-                rowNumber = i + context.exportData.workTypeRows.size + 1,
+                rowNumber = i + DAILY_ENTRIES_START_ROW - 2,
                 endColumn = context.totalColumnIndex
             )
         }
-        context.exportData.workTypeRows.forEachIndexed { rowIndex, workTypeRow ->
+        exportData.workTypeRows.forEachIndexed { rowIndex, workTypeRow ->
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,

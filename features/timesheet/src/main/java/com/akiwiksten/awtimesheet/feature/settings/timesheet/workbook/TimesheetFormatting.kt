@@ -214,11 +214,19 @@ internal fun buildAllowanceRows(
 
 internal fun buildWorkTypeRows(
     allProjectNames: List<String>,
-    summaryWorkTypes: List<String>,
     workTypeTimeByProjectAndType: Map<Pair<String, String>, Long>,
-    workTypeTotalTime: Map<String, Long>
+    workTypeTotalTime: Map<String, Long>,
+    displayedEntriesByDay: Map<Int, List<TimesheetEntry>>
 ): List<TimesheetWorkTypeSummaryRow> {
-    return summaryWorkTypes.map { workType ->
+    val displayedWorkTypes = displayedEntriesByDay
+        .toSortedMap()
+        .values
+        .flatten()
+        .map { it.workType }
+        .filter { it.isNotBlank() }
+        .distinct()
+
+    return displayedWorkTypes.map { workType ->
         TimesheetWorkTypeSummaryRow(
             label = workType,
             timeByProjectName = allProjectNames.associateWith { projectName ->

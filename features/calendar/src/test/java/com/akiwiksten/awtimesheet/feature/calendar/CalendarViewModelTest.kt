@@ -156,6 +156,36 @@ class CalendarViewModelTest {
     }
 
     @Test
+    fun startAutoReload_refreshSignal_reloadsMarkersWithoutDateChange() = runTest {
+        val dateRepository = DateRepository().apply {
+            updateDate("2026-04-10")
+        }
+        val projectRepository = FakeProjectRepository().apply {
+            dataByRange["2026-04-01|2026-04-30"] = emptyList()
+        }
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+
+        viewModel.startAutoReload()
+        advanceUntilIdle()
+
+        val initialState = viewModel.uiState.value as CalendarUiState.Success
+        assertTrue(initialState.datesWithWork.isEmpty())
+
+        projectRepository.dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectState(date = "2026-04-11", projectName = "Generated", projectTime = "07:30")
+        )
+
+        dateRepository.notifyCalendarDataChanged()
+        advanceUntilIdle()
+
+        val refreshedState = viewModel.uiState.value as CalendarUiState.Success
+        assertTrue("2026-04-11" in refreshedState.datesWithWork)
+    }
+
+    @Test
     fun startAutoReload_emitsInitialDate() = runTest {
         val dateRepository = DateRepository().apply { updateDate("2026-01-01") }
         val projectRepository = FakeProjectRepository()

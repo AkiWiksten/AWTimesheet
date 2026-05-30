@@ -23,6 +23,9 @@ class DateRepository @Inject constructor() {
     private val _workTimeByDateChange = MutableStateFlow(ZERO_TIME)
     val workTimeByDateChange: StateFlow<String> = _workTimeByDateChange.asStateFlow()
 
+    private val _calendarRefreshVersion = MutableStateFlow(0L)
+    val calendarRefreshVersion: StateFlow<Long> = _calendarRefreshVersion.asStateFlow()
+
     fun updateDate(date: String) {
         if (date.isNotEmpty()) {
             _workTimeByDateChange.value = ZERO_TIME
@@ -39,5 +42,9 @@ class DateRepository @Inject constructor() {
             initialTime = _workTimeByDateChange.value,
             addedTime = change
         )
+    }
+
+    fun notifyCalendarDataChanged() {
+        _calendarRefreshVersion.value += 1
     }
 }

@@ -34,4 +34,14 @@ class DateRepositoryTest {
 
         assertEquals(initial, repository.selectedDate.value)
     }
+
+    @Test
+    fun notifyCalendarDataChanged_incrementsCalendarRefreshVersion() {
+        val repository = DateRepository()
+
+        val initial = repository.calendarRefreshVersion.value
+        repository.notifyCalendarDataChanged()
+
+        assertEquals(initial + 1, repository.calendarRefreshVersion.value)
+    }
 }

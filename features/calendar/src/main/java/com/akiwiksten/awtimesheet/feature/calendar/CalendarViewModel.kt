@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -43,12 +44,20 @@ class CalendarViewModel @Inject constructor(
 
     fun startAutoReload() {
         viewModelScope.launch {
-            dateRepository.selectedDate.collect { date ->
+            var lastRefreshVersion = -1L
+            dateRepository.selectedDate
+                .combine(dateRepository.calendarRefreshVersion) { date, refreshVersion ->
+                    date to refreshVersion
+                }
+                .collect { (date, refreshVersion) ->
                 if (date.isNotEmpty()) {
+                    val forceMonthRecalculation =
+                        refreshVersion != lastRefreshVersion && refreshVersion > 0L
+                    lastRefreshVersion = refreshVersion
                     refreshCalendarData(
                         date = date,
                         showLoading = _uiState.value !is CalendarUiState.Success,
-                        forceMonthRecalculation = false
+                        forceMonthRecalculation = forceMonthRecalculation
                     )
                 }
             }

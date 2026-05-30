@@ -250,6 +250,8 @@ class SettingsViewModel @Inject constructor(
                     allowanceLabels = allowanceLabels
                 )
 
+                dateRepository.notifyCalendarDataChanged()
+
                 _events.emit(
                     SettingsEvent.WorkdayGenerationSuccess(
                         mode = mode,

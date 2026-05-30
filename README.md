@@ -105,17 +105,10 @@ Override per run:
 ## My manual backlog
 + General
   + Test implemented backup & sync (android:allowBackup="true")
-  + Better orientation support
   + Dark theme
   + Check test coverage and add tests
   + Warnings on build
-  + more modules
-  + button press animations
-  + Refactor tests
-  + Configure Python interpreter
-  + Button animations
-+ Constants
-  + Regroup
+  + Configure Python interpreter for benchmark summarization script
 + Repositories
   + CalendarRepository: Add interface also
 + SingleProjectScreen
@@ -124,21 +117,30 @@ Override per run:
   + Select distance from map also
   + Show work_type_help string
   + Selecting work type doesn't work in edit mode
-  + Rename DialogMainFields -> UpperTextFields
-  + DialogDropdownFields -> DropdownFields
+  + Add full flex time day (Zero time project, add work type "Absence->Flex time")
 + WorkdayScreen 
   + Don't show project_names projects, when there are already recorded projects
+  + Unselect project from list
+  + Select many in list
+  + Select all in list
+  + Delete all in list
+  + Delete selected in list
+  + For Absence->Flex time, add "Flex time by date" by -"Work time by date estimate"
 + ProjectDetailsScreen
   + "Lunch time estimate" Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
-  + 
-
 + SettingsScreen
+  + Absence.
+    + Add/update/delete vacation range into database. Start and end date by picker
+    + Paid/unpaid/Sick leave/Flex day
+    + Show next in SettingsScreen, others in a list
   + Translate fed "Work type"
   + App localization selection
 + Excel
-  + Handle monthly, weekly and biweekly reports, by selecting start date
-  + Work type section: Add rows if >= 7 work types
+  + Show start date in a month first, e.g. 15th.
+  + Handle by selecting start date 
+    + monthly reports 
+    + weekly reports
 ## What to test constantly
 + Thorough regression testing of all features in all screens
     + Intro, 

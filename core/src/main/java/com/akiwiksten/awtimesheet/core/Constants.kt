@@ -3,15 +3,18 @@ package com.akiwiksten.awtimesheet.core
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// Core / shared formatting and defaults
 const val DATE = "date"
+const val DATE_FORMAT = "yyyy-MM-dd"
+const val TIME_FORMAT = "HH:mm"
 const val ZERO_TIME = "00:00"
 const val DEFAULT_DAILY_WORK_TIME = "07:30"
 const val MINUTES_IN_HOUR = 60
-const val TIME_FORMAT = "HH:mm"
-const val DATE_FORMAT = "yyyy-MM-dd"
 const val LOADING_INDICATOR_DELAY_MS = 1_000L
 const val APP_NAME_QUALIFIER = "app_name"
 const val LABEL_FONT_SIZE_SCALE = 1.08f
+
+// Core / UI design constants
 val FIELD_CORNER_RADIUS = 12.dp
 val HEADER_CONTENT_PADDING = 12.dp
 val HEADER_CONTENT_SPACING = 6.dp
@@ -23,7 +26,7 @@ val SCREEN_CONTENT_SPACING = 24.dp
 val FORM_MAX_WIDTH = 600.dp
 val ACTION_BUTTON_FONT_SIZE = 18.sp
 
-// Project Details
+// Domain / project details keys
 const val START_TIME = "start_time"
 const val END_TIME = "end_time"
 const val WORK_TIME_BY_DATE = "work_time_today"
@@ -38,7 +41,7 @@ const val BREAK_START = "break_start"
 const val BREAK_END = "break_end"
 const val LUNCH_TIME_ESTIMATE = "lunch_time_estimate"
 
-// Screens
+// App / navigation routes
 const val INTRO_SCREEN = "intro_screen"
 const val CALENDAR_SCREEN = "calendar_screen"
 const val PROJECT_DETAILS_SCREEN = "project_details_screen"
@@ -46,18 +49,18 @@ const val PROJECTS_SCREEN = "projects_screen"
 const val SINGLE_PROJECT_SCREEN = "single_project_screen"
 const val SETTINGS_SCREEN = "settings_screen"
 
-// Project
+// Domain / project entity keys
 const val PROJECT_NAME = "project_name"
 const val PROJECT_TIME = "project_time"
 const val KILOMETRES = "kilometres"
 const val ALLOWANCE = "allowance"
 const val WORK_TYPE = "workType"
 
-// Settings
+// Domain / settings keys
 const val NAME = "name"
 const val EMPLOYER = "employer"
 
-// Database Tables
+// Data / Room table names and shared ids
 const val PROJECT_DETAILS_TABLE = "project_details"
 const val PROJECT_TABLE = "project"
 const val WORKDAY_TABLE = "workday"

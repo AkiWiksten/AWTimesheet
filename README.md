@@ -159,3 +159,14 @@ Summarize benchmark output:
   + Even with passing long-frame metrics, reduce noisy frame-overrun areas (calendar/projectdetails) proactively.
   + Focus on state hoisting, memoization (remember, derivedStateOf where appropriate), and avoiding broad state invalidations.
 
+
++ Scroll (needs work)
+  + workdayScroll — 46.62% jank (worst, high priority)
+  + settingsScroll — 18.49% jank (high priority)
+  + calScroll — 2.45% jank (acceptable; below 5% target)
++ Recomposition (needs work)
+  + workdayRecomp — 29.40% jank (worst, high priority)
+  + settingsRecomp — 27.32% jank (high priority)
+  + calRecomp — 14.22% jank (needs work)
+  + singleProjRecomp — 11.82% jank (needs work)
+  + projDetailsRecomp — 9.68% jank (borderline / moderate)

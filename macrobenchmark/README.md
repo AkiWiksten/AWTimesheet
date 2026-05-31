@@ -107,8 +107,11 @@ powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequent
 # Wait longer for the device to come back after a crash/reboot
 powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -DeviceRecoveryTimeoutSeconds 300
 
-# Fail a single benchmark run if it exceeds 6 minutes (default is 420 seconds)
-powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -BenchmarkTimeoutSeconds 360
+# Retry flaky benchmark invocations once (default is already 1)
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -BenchmarkRetryCount 1
+
+# Increase retry backoff for unstable adb/device links
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -RetryBackoffSeconds 30
 ```
 
 ### Run by Category

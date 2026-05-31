@@ -68,14 +68,14 @@ tasks.register<Exec>("sequentialBenchmarks") {
 
     commandLine(
         "powershell",
+        "-NoProfile",
+        "-NonInteractive",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
         "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
         "-StartupDataset",
-        "empty",
-        "-BenchmarkTimeoutSeconds",
-        "360"
+        "empty"
     )
 }
 
@@ -85,14 +85,14 @@ tasks.register<Exec>("sequentialBenchmarksContinue") {
 
     commandLine(
         "powershell",
+        "-NoProfile",
+        "-NonInteractive",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
         "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
         "-StartupDataset",
         "empty",
-        "-BenchmarkTimeoutSeconds",
-        "360",
         "-ContinueOnFailure"
     )
 }
@@ -103,14 +103,14 @@ tasks.register<Exec>("sequentialBenchmarksExisting") {
 
     commandLine(
         "powershell",
+        "-NoProfile",
+        "-NonInteractive",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
         "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
         "-StartupDataset",
-        "existing",
-        "-BenchmarkTimeoutSeconds",
-        "360"
+        "existing"
     )
 }
 
@@ -120,14 +120,14 @@ tasks.register<Exec>("sequentialBenchmarksEmpty") {
 
     commandLine(
         "powershell",
+        "-NoProfile",
+        "-NonInteractive",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
         "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
         "-StartupDataset",
-        "empty",
-        "-BenchmarkTimeoutSeconds",
-        "360"
+        "empty"
     )
 }
 

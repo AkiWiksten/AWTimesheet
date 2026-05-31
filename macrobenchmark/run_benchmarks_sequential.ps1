@@ -3,7 +3,15 @@ param(
     [switch]$DryRun,
     [switch]$SummarizeAfterEach,
     [switch]$SummarizeAtEnd = $true,
-    [switch]$VerboseGradle
+    [switch]$VerboseGradle,
+    [switch]$NoDaemon,
+    [ValidateSet("existing", "empty")]
+    [string]$StartupDataset = "existing",
+    [ValidateSet("local", "ci")]
+    [string]$StartupProfile = "ci",
+    [int]$CooldownSeconds = 20,
+    [int]$BenchmarkRetryCount = 1,
+    [int]$RetryBackoffSeconds = 15
 )
 
 $ErrorActionPreference = "Stop"
@@ -13,12 +21,28 @@ $gradlew = Join-Path $projectRoot "gradlew.bat"
 $summaryScript = Join-Path $PSScriptRoot "tools\summarize_benchmark.py"
 $additionalOutputDir = Join-Path $PSScriptRoot "build\outputs\connected_android_test_additional_output"
 $sessionRoot = Join-Path $PSScriptRoot ("build\sequential_sessions\" + (Get-Date -Format "yyyyMMdd_HHmmss"))
+$adbExecutable = "adb"
 
 if (-not (Test-Path $gradlew)) {
     throw "Could not find gradle wrapper at '$gradlew'."
 }
 
 New-Item -ItemType Directory -Path $sessionRoot -Force | Out-Null
+
+function Invoke-BenchmarkCooldown {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Reason,
+        [int]$Seconds = $CooldownSeconds
+    )
+
+    if ($Seconds -le 0) {
+        return
+    }
+
+    Write-Host "Cooling down for $Seconds seconds ($Reason)..."
+    Start-Sleep -Seconds $Seconds
+}
 
 function Save-BenchmarkJsonSnapshot {
     param(
@@ -36,7 +60,6 @@ function Save-BenchmarkJsonSnapshot {
 
     $jsonFiles = Get-ChildItem -Path $additionalOutputDir -Recurse -File -Filter "*.json" -ErrorAction SilentlyContinue
     foreach ($jsonFile in $jsonFiles) {
-        # Prefix with source folder to avoid collisions across benchmark runs.
         $sourceFolder = Split-Path -Leaf (Split-Path -Parent $jsonFile.FullName)
         $destName = "$sourceFolder`_$($jsonFile.Name)"
         Copy-Item -Path $jsonFile.FullName -Destination (Join-Path $destDir $destName) -Force
@@ -66,11 +89,21 @@ try {
             "-Pandroid.testInstrumentationRunnerArguments.class=$benchmark"
         )
 
-        if (-not $VerboseGradle) {
-            $cmdArgs = @("-q", "--console=plain", "--no-daemon") + $cmdArgs
-        } else {
-            $cmdArgs = @("--no-daemon") + $cmdArgs
+        if ($benchmark.StartsWith("com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark")) {
+            $cmdArgs += "-Pandroid.testInstrumentationRunnerArguments.startupDataset=$StartupDataset"
+            $cmdArgs += "-Pandroid.testInstrumentationRunnerArguments.startupProfile=$StartupProfile"
         }
+
+        $gradlePrefixArgs = @("--console=plain")
+        if (-not $VerboseGradle) {
+            # Keep benchmark-level logging while hiding noisy task-by-task Gradle output.
+            $gradlePrefixArgs += "-q"
+            $gradlePrefixArgs += "--warning-mode=summary"
+        }
+        if ($NoDaemon) {
+            $gradlePrefixArgs += "--no-daemon"
+        }
+        $cmdArgs = $gradlePrefixArgs + $cmdArgs
 
         Write-Host "================================================================================"
         Write-Host "Running benchmark: $benchmark"
@@ -81,14 +114,41 @@ try {
             continue
         }
 
-        & $gradlew @cmdArgs
-        $exitCode = $LASTEXITCODE
+        $maxAttempts = 1 + [Math]::Max(0, $BenchmarkRetryCount)
+        $attempt = 0
+
+        while ($attempt -lt $maxAttempts) {
+            $attempt += 1
+            Write-Host "Attempt $attempt/$maxAttempts"
+
+            $startedAt = Get-Date
+            & $gradlew @cmdArgs
+            $exitCode = $LASTEXITCODE
+            $elapsedSeconds = [int]((Get-Date) - $startedAt).TotalSeconds
+
+            if ($exitCode -eq 0) {
+                Write-Host "Completed in $elapsedSeconds seconds: $benchmark"
+                break
+            }
+
+            if ($attempt -lt $maxAttempts) {
+                Write-Warning "Benchmark attempt failed (exit code $exitCode): $benchmark"
+                try {
+                    & $adbExecutable kill-server | Out-Null
+                    & $adbExecutable start-server | Out-Null
+                } catch {
+                    Write-Warning "Could not restart adb before retry: $($_.Exception.Message)"
+                }
+                Write-Host "Retrying in $RetryBackoffSeconds seconds..."
+                Start-Sleep -Seconds $RetryBackoffSeconds
+            }
+        }
 
         Save-BenchmarkJsonSnapshot -Benchmark $benchmark
 
         if ($exitCode -ne 0) {
             $failed.Add($benchmark)
-            Write-Warning "Benchmark failed: $benchmark (exit code $exitCode)"
+            Write-Warning "Benchmark failed after $maxAttempts attempt(s): $benchmark (exit code $exitCode)"
             if (-not $ContinueOnFailure) {
                 break
             }
@@ -97,6 +157,8 @@ try {
         if ($SummarizeAfterEach -and (Test-Path $summaryScript)) {
             python -u $summaryScript $sessionRoot
         }
+
+        Invoke-BenchmarkCooldown -Reason "after $benchmark"
     }
 
     if (-not $DryRun -and $SummarizeAtEnd -and (Test-Path $summaryScript)) {
@@ -119,4 +181,4 @@ if ($failed.Count -gt 0) {
 
 Write-Host ""
 Write-Host "All sequential benchmark runs completed." -ForegroundColor Green
-
+exit 0

@@ -34,10 +34,14 @@ internal const val TAB_SETTINGS = "Settings"
 // Ready-state text signals
 // ---------------------------------------------------------------------------
 
-// "Add" button label across all supported locales (en / fi / sv).
-// The benchmark must match the device locale; checking all variants avoids
-// a hard dependency on the device being set to English.
-internal val WORKDAY_READY_TEXTS = listOf("Add", "Lisää", "Lägg till")
+// Workday-ready markers across supported locales (en / fi / sv).
+// We include both action labels and screen-identifying text so the benchmark
+// remains stable even when the Add button is temporarily off-screen/unavailable.
+internal val WORKDAY_READY_TEXTS = listOf(
+    "Add", "Lisää", "Lägg till",
+    "Workday", "Työpäivä", "Arbetsdag",
+    "No projects available", "Ei projekteja saatavilla", "Inga projekt tillgängliga"
+)
 
 
 // ---------------------------------------------------------------------------
@@ -158,13 +162,13 @@ internal fun MacrobenchmarkScope.waitForCalendarScreenReady() {
     device.waitForIdle()
 }
 
-/** Waits for the Workday screen's "Add" button (locale-aware). */
+/** Waits for Workday screen markers (locale-aware). */
 internal fun MacrobenchmarkScope.waitForWorkdayScreenReady() {
     val ready = WORKDAY_READY_TEXTS.any { text ->
         device.wait(Until.hasObject(By.text(text)), NAVIGATION_WAIT_MS / WORKDAY_READY_TEXTS.size)
     }
     check(ready) {
-        "Workday screen did not reach a ready state (missing Add / Lisää / Lägg till text)."
+        "Workday screen did not reach a ready state (missing known localized markers)."
     }
     device.waitForIdle()
 }
@@ -181,6 +185,16 @@ internal fun MacrobenchmarkScope.waitForSettingsScreenReady() {
 internal fun MacrobenchmarkScope.waitForSingleProjectScreenReady() {
     val ready = device.wait(Until.hasObject(By.clazz("android.widget.EditText")), NAVIGATION_WAIT_MS)
     check(ready) { "SingleProject screen did not reach ready state (no editable fields visible)." }
+    device.waitForIdle()
+}
+
+/** Verifies target app stays foregrounded after launch/navigation steps. */
+internal fun MacrobenchmarkScope.ensureTargetAppForegroundVisible() {
+    val hasTargetPackage =
+        device.wait(Until.hasObject(By.pkg(BenchmarkConfig.TARGET_PACKAGE)), NAVIGATION_WAIT_MS)
+    check(hasTargetPackage) {
+        "Target package '${BenchmarkConfig.TARGET_PACKAGE}' is not visible after launch."
+    }
     device.waitForIdle()
 }
 

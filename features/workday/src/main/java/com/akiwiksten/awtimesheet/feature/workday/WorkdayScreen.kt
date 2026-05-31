@@ -58,12 +58,8 @@ fun WorkdayScreen(
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
     val selectedItemIndexState = rememberSaveable { mutableIntStateOf(value = -1) }
-
-    WorkdayContent(
-        workdayUiState = workdayUiState,
-        selectedItemIndex = selectedItemIndexState.intValue,
-        scrollState = scrollState,
-        actions = WorkdayActions(
+    val actions = remember(workdayViewModel, onNavigateToSingleProject) {
+        WorkdayActions(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onTrackProjectEditorLaunch = { oldFlexTimeByDate, oldWorkTimeByDate ->
                 pendingOldFlexTimeByDateState.value = oldFlexTimeByDate
@@ -76,6 +72,13 @@ fun WorkdayScreen(
                 workdayViewModel.deleteProject(state = project)
             }
         )
+    }
+
+    WorkdayContent(
+        workdayUiState = workdayUiState,
+        selectedItemIndex = selectedItemIndexState.intValue,
+        scrollState = scrollState,
+        actions = actions
     )
 }
 

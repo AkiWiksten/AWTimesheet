@@ -15,6 +15,8 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,14 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
 
 @Composable
 internal fun WorkdayListSection(
-    items: List<SingleProjectState>,
-    selectedIndex: Int,
+    items: List<WorkdayListItemUiModel>,
+    selectedItemKey: String?,
     onItemSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -65,11 +65,18 @@ internal fun WorkdayListSection(
                 }
             } else {
                 items.forEach { item ->
-                    ProjectListItem(
-                        item = item,
-                        isSelected = selectedIndex == item.index,
-                        onClick = { onItemSelected(item.index) }
-                    )
+                    key(item.stableKey) {
+                        ProjectListItem(
+                            projectName = item.projectName,
+                            projectTime = item.projectTime,
+                            kilometres = item.kilometres,
+                            allowance = item.allowance,
+                            workType = item.workType,
+                            isProjectNameOnlyPlaceholder = item.isProjectNameOnlyPlaceholder,
+                            isSelected = selectedItemKey == item.stableKey,
+                            onClick = { onItemSelected(item.index) }
+                        )
+                    }
                 }
             }
         }
@@ -78,12 +85,15 @@ internal fun WorkdayListSection(
 
 @Composable
 private fun ProjectListItem(
-    item: SingleProjectState,
+    projectName: String,
+    projectTime: String,
+    kilometres: String,
+    allowance: String,
+    workType: String,
+    isProjectNameOnlyPlaceholder: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val isProjectNameOnlyPlaceholder = item.isProjectNameOnlyPlaceholder()
-
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,9 +112,15 @@ private fun ProjectListItem(
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
             if (isProjectNameOnlyPlaceholder) {
-                ProjectNameOnlyContent(projectName = item.projectName)
+                ProjectNameOnlyContent(projectName = projectName)
             } else {
-                ProjectSummaryContent(item = item)
+                ProjectSummaryContent(
+                    projectName = projectName,
+                    projectTime = projectTime,
+                    kilometres = kilometres,
+                    allowance = allowance,
+                    workType = workType
+                )
             }
         }
     }
@@ -122,19 +138,25 @@ private fun ProjectNameOnlyContent(projectName: String) {
 }
 
 @Composable
-private fun ProjectSummaryContent(item: SingleProjectState) {
+private fun ProjectSummaryContent(
+    projectName: String,
+    projectTime: String,
+    kilometres: String,
+    allowance: String,
+    workType: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = item.projectName,
+            text = projectName,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
-            text = item.projectTime,
+            text = projectTime,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
         )
@@ -145,18 +167,30 @@ private fun ProjectSummaryContent(item: SingleProjectState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         ProjectDetails(
-            workType = item.workType,
-            allowance = item.allowance,
+            workType = workType,
+            allowance = allowance,
             modifier = Modifier.weight(weight = 1f)
         )
         Text(
-            text = "${item.kilometres} km",
+            text = "$kilometres km",
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
+
+@Immutable
+internal data class WorkdayListItemUiModel(
+    val index: Int,
+    val projectName: String,
+    val projectTime: String,
+    val kilometres: String,
+    val allowance: String,
+    val workType: String,
+    val isProjectNameOnlyPlaceholder: Boolean,
+    val stableKey: String
+)
 
 @Composable
 private fun ProjectDetails(workType: String, allowance: String, modifier: Modifier = Modifier) {

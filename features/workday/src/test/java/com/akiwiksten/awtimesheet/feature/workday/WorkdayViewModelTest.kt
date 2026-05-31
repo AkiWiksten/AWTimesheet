@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.workday
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.UpdateSettingsUseCase
@@ -58,7 +59,7 @@ class WorkdayViewModelTest {
             workTypes = listOf("Office")
             calculatedFlexTimeTotal = "-05:00"
         }
-        val dateRepository = DateRepository()
+        val dateRepository = InMemoryDateRepository()
         dateRepository.updateDate("2026-04-10")
 
         val viewModel = createViewModel(
@@ -93,7 +94,7 @@ class WorkdayViewModelTest {
             )
         }
         val settingsRepository = FakeSettingsRepository()
-        val dateRepository = DateRepository()
+        val dateRepository = InMemoryDateRepository()
         dateRepository.updateDate(LocalDate.now().toString())
 
         val viewModel = createViewModel(
@@ -132,7 +133,7 @@ class WorkdayViewModelTest {
             )
         }
         val settingsRepository = FakeSettingsRepository()
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate(today)
         }
 
@@ -162,7 +163,7 @@ class WorkdayViewModelTest {
             )
         }
         val settingsRepository = FakeSettingsRepository()
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2000-01-01")
         }
 
@@ -193,7 +194,7 @@ class WorkdayViewModelTest {
             settings = initialStats
         }
         val settingsRepository = FakeSettingsRepository()
-        val dateRepository = DateRepository()
+        val dateRepository = InMemoryDateRepository()
         dateRepository.updateDate("2026-04-10")
 
         val viewModel = createViewModel(
@@ -238,7 +239,7 @@ class WorkdayViewModelTest {
         val settingsRepository = FakeSettingsRepository().apply {
             calculatedFlexTimeTotal = "01:00"
         }
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
             updateWorkTimeByDateChange("01:00")
         }
@@ -286,7 +287,7 @@ class WorkdayViewModelTest {
         val settingsRepository = FakeSettingsRepository().apply {
             calculatedFlexTimeTotal = "01:00"
         }
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
         }
 
@@ -333,7 +334,7 @@ class WorkdayViewModelTest {
         val settingsRepository = FakeSettingsRepository().apply {
             calculatedFlexTimeTotal = ZERO_TIME
         }
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
         }
 
@@ -376,7 +377,7 @@ class WorkdayViewModelTest {
             workdayStatsRows = emptyList()
         }
         val settingsRepository = FakeSettingsRepository()
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-12")
         }
 
@@ -411,7 +412,7 @@ class WorkdayViewModelTest {
                 initialFlexTimeTotal = ZERO_TIME
             )
         }
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-13")
         }
 
@@ -447,7 +448,7 @@ class WorkdayViewModelTest {
             )
         }
         val settingsRepository = FakeSettingsRepository()
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2000-01-01")
         }
 

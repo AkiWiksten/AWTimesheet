@@ -110,7 +110,6 @@ Override per run:
   + Warnings on build
   + Configure Python interpreter for benchmark summarization script
 + Repositories
-  + CalendarRepository: Add interface also
 + SingleProjectScreen
   + Project name edit and validation
   + Kilometres validation. 0050 not valid.
@@ -166,7 +165,7 @@ Override per run:
   + Your structure is testable; now push coverage depth where user-facing bugs happen most.
 + Strengthen architectural boundaries further
   + You already enforce some module rules in build.gradle.kts (verifyModuleBoundaries); extend rules to prevent accidental feature-to-feature coupling where not intended.
-  + From your own backlog, define missing contracts (e.g., CalendarRepository interface) to reduce concrete dependency spread.
+  + From your own backlog, define missing contracts (e.g., DateRepository interface DONE) to reduce concrete dependency spread.
 + Complete unresolved reliability TODOs from your backlog
   + Highest-value backlog items: save-confirmation consistency, validation correctness, and state persistence behavior.
   + These directly affect trust and perceived quality more than cosmetic polish.

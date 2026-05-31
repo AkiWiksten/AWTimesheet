@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
@@ -23,7 +24,7 @@ class SingleProjectViewModelTest {
 
     @Test
     fun saveProject_newProject_addsProjectTimeToTrackedChange() = runTest {
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val projectRepository = FakeProjectRepository()
         val viewModel = createViewModel(
             projectRepository = projectRepository,
@@ -46,7 +47,7 @@ class SingleProjectViewModelTest {
 
     @Test
     fun saveProject_existingProject_tracksOnlyProjectTimeDifference() = runTest {
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val projectRepository = FakeProjectRepository().apply {
             insertProject(
                 projectState(

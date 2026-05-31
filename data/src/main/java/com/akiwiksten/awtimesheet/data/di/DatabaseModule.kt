@@ -14,6 +14,8 @@ import com.akiwiksten.awtimesheet.data.repository.ProjectDetailsRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.SettingsRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.WorkdayRepositoryImpl
+import com.akiwiksten.awtimesheet.data.repository.DateRepositoryImpl
+import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
@@ -46,6 +48,10 @@ abstract class DatabaseModule {
     @Binds
     @Singleton
     abstract fun bindWorkdayRepository(impl: WorkdayRepositoryImpl): WorkdayRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDateRepository(impl: DateRepositoryImpl): DateRepository
 
     companion object {
         @Provides

@@ -5,12 +5,49 @@ import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayStatsRow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+class InMemoryDateRepository(initialDate: String = "2026-01-01") : DateRepository {
+    private val _selectedDate = MutableStateFlow(initialDate)
+    override val selectedDate: StateFlow<String> = _selectedDate.asStateFlow()
+
+    private val _workTimeByDateChange = MutableStateFlow(ZERO_TIME)
+    override val workTimeByDateChange: StateFlow<String> = _workTimeByDateChange.asStateFlow()
+
+    private val _calendarRefreshVersion = MutableStateFlow(0L)
+    override val calendarRefreshVersion: StateFlow<Long> = _calendarRefreshVersion.asStateFlow()
+
+    override fun updateDate(date: String) {
+        if (date.isNotEmpty()) {
+            _workTimeByDateChange.value = ZERO_TIME
+            _selectedDate.value = date
+        }
+    }
+
+    override fun updateWorkTimeByDateChange(change: String) {
+        _workTimeByDateChange.value = change
+    }
+
+    override fun addWorkTimeByDateChange(change: String) {
+        _workTimeByDateChange.value = WorkTimeCalculator.calculateFlexTime(
+            initialTime = _workTimeByDateChange.value,
+            addedTime = change
+        )
+    }
+
+    override fun notifyCalendarDataChanged() {
+        _calendarRefreshVersion.value += 1
+    }
+}
 
 class FakeProjectRepository : ProjectRepository {
     private val storedProjects = linkedMapOf<String, SingleProjectState>()

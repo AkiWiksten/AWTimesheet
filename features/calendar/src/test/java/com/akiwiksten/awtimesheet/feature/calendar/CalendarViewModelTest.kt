@@ -1,9 +1,9 @@
 package com.akiwiksten.awtimesheet.feature.calendar
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GetCalendarDataUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,7 +32,7 @@ class CalendarViewModelTest {
         }
         val viewModel = CalendarViewModel(
             getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
-            dateRepository = DateRepository()
+            dateRepository = InMemoryDateRepository()
         )
 
         viewModel.startAutoReload()
@@ -51,7 +51,7 @@ class CalendarViewModelTest {
 
     @Test
     fun init_withFreshFetch_doesNotDoubleCountStoredWorkTimeChange() = runTest {
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
             updateWorkTimeByDateChange("-02:30")
         }
@@ -79,7 +79,7 @@ class CalendarViewModelTest {
 
     @Test
     fun refresh_withCachedData_appliesStoredWorkTimeChangeOnce() = runTest {
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
         }
         val projectRepository = FakeProjectRepository().apply {
@@ -118,7 +118,7 @@ class CalendarViewModelTest {
 
     @Test
     fun onDateSelected_sameDate_forcesFreshReloadInsteadOfUsingStaleCache() = runTest {
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
         }
         val projectRepository = FakeProjectRepository().apply {
@@ -157,7 +157,7 @@ class CalendarViewModelTest {
 
     @Test
     fun startAutoReload_refreshSignal_reloadsMarkersWithoutDateChange() = runTest {
-        val dateRepository = DateRepository().apply {
+        val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
         }
         val projectRepository = FakeProjectRepository().apply {
@@ -187,7 +187,7 @@ class CalendarViewModelTest {
 
     @Test
     fun startAutoReload_emitsInitialDate() = runTest {
-        val dateRepository = DateRepository().apply { updateDate("2026-01-01") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-01-01") }
         val projectRepository = FakeProjectRepository()
 
         val viewModel = CalendarViewModel(
@@ -205,7 +205,7 @@ class CalendarViewModelTest {
 
     @Test
     fun onDateSelected_afterInitialSuccess_doesNotEmitLoading() = runTest {
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val projectRepository = FakeProjectRepository().apply {
             dataByRange["2026-04-01|2026-04-30"] = listOf(
                 projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
@@ -249,7 +249,7 @@ class CalendarViewModelTest {
     fun convertMillisToDate_returnsCorrectIsoFormat() {
         val viewModel = CalendarViewModel(
             getCalendarDataUseCase = GetCalendarDataUseCase(FakeProjectRepository()),
-            dateRepository = DateRepository()
+            dateRepository = InMemoryDateRepository()
         )
 
         // 2026-04-10 00:00:00 UTC (The formatter uses systemDefault, but this is a stable timestamp)

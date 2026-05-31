@@ -1,6 +1,6 @@
 package com.akiwiksten.awtimesheet.domain.repository
 
-import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -8,7 +8,7 @@ import org.junit.Test
 class DateRepositoryTest {
     @Test
     fun selectedDate_hasDefaultValue() {
-        val repository = DateRepository()
+        val repository = InMemoryDateRepository()
 
         val selectedDate = repository.selectedDate.value
 
@@ -18,7 +18,7 @@ class DateRepositoryTest {
 
     @Test
     fun updateDate_updatesSelectedDate_whenDateIsNotEmpty() {
-        val repository = DateRepository()
+        val repository = InMemoryDateRepository()
 
         repository.updateDate("2026-04-10")
 
@@ -27,7 +27,7 @@ class DateRepositoryTest {
 
     @Test
     fun updateDate_ignoresEmptyDate() {
-        val repository = DateRepository()
+        val repository = InMemoryDateRepository()
         val initial = repository.selectedDate.value
 
         repository.updateDate("")
@@ -37,7 +37,7 @@ class DateRepositoryTest {
 
     @Test
     fun notifyCalendarDataChanged_incrementsCalendarRefreshVersion() {
-        val repository = DateRepository()
+        val repository = InMemoryDateRepository()
 
         val initial = repository.calendarRefreshVersion.value
         repository.notifyCalendarDataChanged()

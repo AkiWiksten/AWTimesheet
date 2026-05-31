@@ -16,6 +16,7 @@ private const val STARTUP_BENCHMARK_TAG = "StartupBenchmark"
 private const val STARTUP_PROFILE_ARG = "startupProfile"
 private const val STARTUP_ITERATIONS_ARG = "startupIterations"
 private const val STARTUP_INCLUDE_FRAME_TIMING_ARG = "startupIncludeFrameTiming"
+private const val STARTUP_DATASET_ARG = "startupDataset"
 
 @RunWith(AndroidJUnit4::class)
 class StartupBenchmark {
@@ -33,12 +34,15 @@ class StartupBenchmark {
         val startupIterations = resolveStartupIterations()
         val startupProfile = resolveStartupProfile()
         val includeFrameTiming = resolveIncludeFrameTiming()
+        val startupDataset = resolveStartupDataset()
+        var didPrepareDataset = false
 
         logStartupBenchmarkContext(
             startupMode = startupMode,
             startupIterations = startupIterations,
             startupProfile = startupProfile,
-            includeFrameTiming = includeFrameTiming
+            includeFrameTiming = includeFrameTiming,
+            startupDataset = startupDataset
         )
 
         benchmarkRule.measureRepeated(
@@ -48,6 +52,13 @@ class StartupBenchmark {
             startupMode = startupMode,
             iterations = startupIterations,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    when (startupDataset) {
+                        BENCHMARK_SEED_DATASET_EXISTING -> seedRealisticStartupDataIfEmpty()
+                        BENCHMARK_SEED_DATASET_EMPTY -> Unit
+                    }
+                    didPrepareDataset = true
+                }
                 pressHome()
             }
         ) {
@@ -77,6 +88,15 @@ class StartupBenchmark {
         return if (profile == "ci") "ci" else "local"
     }
 
+    private fun resolveStartupDataset(): String {
+        val args = InstrumentationRegistry.getArguments()
+        val requested = args.getString(STARTUP_DATASET_ARG)?.trim()?.lowercase()
+        return when (requested) {
+            BENCHMARK_SEED_DATASET_EXISTING -> BENCHMARK_SEED_DATASET_EXISTING
+            else -> BENCHMARK_SEED_DATASET_EMPTY // Default to empty for faster local runs
+        }
+    }
+
     private fun resolveStartupIterations(): Int {
         val args = InstrumentationRegistry.getArguments()
 
@@ -97,11 +117,13 @@ class StartupBenchmark {
         startupIterations: Int,
         startupProfile: String,
         includeFrameTiming: Boolean,
+        startupDataset: String,
     ) {
         val introBypassExpected = BenchmarkConfig.TARGET_PACKAGE.endsWith(".benchmark")
         val message = listOf(
             "startupMode=$startupMode",
             "profile=$startupProfile",
+            "dataset=$startupDataset",
             "iterations=$startupIterations",
             "includeFrameTiming=$includeFrameTiming",
             "targetPackage=${BenchmarkConfig.TARGET_PACKAGE}",

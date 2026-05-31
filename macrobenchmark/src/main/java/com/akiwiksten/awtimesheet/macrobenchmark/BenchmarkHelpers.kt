@@ -31,6 +31,16 @@ internal const val TAB_WORKDAY = "Workday"
 internal const val TAB_SETTINGS = "Settings"
 
 // ---------------------------------------------------------------------------
+// Benchmark data seeding
+// ---------------------------------------------------------------------------
+internal const val BENCHMARK_SEED_ACTION =
+    "com.akiwiksten.awtimesheet.benchmark.ACTION_SEED_REALISTIC_STARTUP_DATA"
+internal const val BENCHMARK_SEED_RECEIVER_CLASS =
+    "com.akiwiksten.awtimesheet.benchmark.BenchmarkDataSeedReceiver"
+internal const val BENCHMARK_SEED_DATASET_EXISTING = "existing"
+internal const val BENCHMARK_SEED_DATASET_EMPTY = "empty"
+
+// ---------------------------------------------------------------------------
 // Ready-state text signals
 // ---------------------------------------------------------------------------
 
@@ -43,12 +53,19 @@ internal val WORKDAY_READY_TEXTS = listOf(
     "No projects available", "Ei projekteja saatavilla", "Inga projekt tillgängliga"
 )
 
+// SingleProjectScreen action labels across supported locales (en / fi / sv).
+internal val SINGLE_PROJECT_READY_TEXTS = listOf(
+    "Details", "Tiedot", "Detaljer",
+    "Pick", "Valitse", "Välj"
+)
+
 
 // ---------------------------------------------------------------------------
-// Scroll constants (shared by both ScrollBenchmark and RecompositionBenchmark)
+// Scroll constants
 // ---------------------------------------------------------------------------
 private const val SWIPE_STEPS = 24
-private const val SWIPE_REPEATS = 6
+private const val STRESS_SWIPE_REPEATS = 6
+private const val INTERACTION_SWIPE_REPEATS = 3
 private const val NAV_FALLBACK_RETRIES = 5
 
 // ---------------------------------------------------------------------------
@@ -183,9 +200,23 @@ internal fun MacrobenchmarkScope.waitForSettingsScreenReady() {
 
 /** Waits for SingleProjectScreen's editable text fields to appear. */
 internal fun MacrobenchmarkScope.waitForSingleProjectScreenReady() {
-    val ready = device.wait(Until.hasObject(By.clazz("android.widget.EditText")), NAVIGATION_WAIT_MS)
-    check(ready) { "SingleProject screen did not reach ready state (no editable fields visible)." }
-    device.waitForIdle()
+    val deadlineMs = System.currentTimeMillis() + NAVIGATION_WAIT_MS
+    var latestCount = 0
+    var latestHasActionLabel = false
+    while (System.currentTimeMillis() <= deadlineMs) {
+        latestCount = device.findObjects(By.clazz("android.widget.EditText")).size
+        latestHasActionLabel = SINGLE_PROJECT_READY_TEXTS.any { label ->
+            device.hasObject(By.text(label))
+        }
+        if (latestCount >= 1 && latestHasActionLabel) {
+            device.waitForIdle()
+            return
+        }
+        device.waitForIdle()
+    }
+    check(false) {
+        "SingleProject screen did not reach ready state (editTexts=$latestCount, hasActionLabel=$latestHasActionLabel)."
+    }
 }
 
 /** Verifies target app stays foregrounded after launch/navigation steps. */
@@ -202,18 +233,48 @@ internal fun MacrobenchmarkScope.ensureTargetAppForegroundVisible() {
 // Scroll helper
 // ---------------------------------------------------------------------------
 
-/** Performs repeated full-height up/down swipes to stress scroll performance. */
-internal fun MacrobenchmarkScope.performVerticalStressScroll() {
+private fun MacrobenchmarkScope.performVerticalScroll(repeats: Int) {
     val centerX = device.displayWidth / 2
     val topY    = (device.displayHeight * 0.20f).toInt()
     val bottomY = (device.displayHeight * 0.80f).toInt()
 
-    repeat(SWIPE_REPEATS) {
+    repeat(repeats) {
         device.swipe(centerX, bottomY, centerX, topY, SWIPE_STEPS)
         device.waitForIdle()
     }
-    repeat(SWIPE_REPEATS) {
+    repeat(repeats) {
         device.swipe(centerX, topY, centerX, bottomY, SWIPE_STEPS)
         device.waitForIdle()
     }
 }
+
+/** Performs repeated full-height up/down swipes to stress scroll performance. */
+internal fun MacrobenchmarkScope.performVerticalStressScroll() {
+    performVerticalScroll(repeats = STRESS_SWIPE_REPEATS)
+}
+
+/**
+ * Performs a lighter swipe sequence for recomposition tests.
+ * This still produces deterministic UI updates but lowers thermal/CPU pressure.
+ */
+internal fun MacrobenchmarkScope.performVerticalInteractionScroll() {
+    performVerticalScroll(repeats = INTERACTION_SWIPE_REPEATS)
+}
+
+/**
+ * Seeds a realistic startup dataset through the benchmark-only receiver.
+ *
+ * This runs in setup, outside measured startup timing windows.
+ */
+internal fun MacrobenchmarkScope.seedRealisticStartupDataIfEmpty() {
+    val receiverComponent = "${BenchmarkConfig.TARGET_PACKAGE}/$BENCHMARK_SEED_RECEIVER_CLASS"
+    val output = device.executeShellCommand(
+        "am broadcast -a $BENCHMARK_SEED_ACTION -n $receiverComponent"
+    )
+    val completed = output.contains("Broadcast completed")
+    val hasError = output.contains("Error:") || output.contains("Exception")
+    check(completed && !hasError) {
+        "Benchmark data seeding broadcast failed. Output: $output"
+    }
+}
+

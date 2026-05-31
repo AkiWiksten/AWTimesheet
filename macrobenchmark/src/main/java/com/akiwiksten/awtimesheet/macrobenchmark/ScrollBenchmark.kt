@@ -18,6 +18,7 @@ class ScrollBenchmark {
 
     @Test
     fun calScroll() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -25,6 +26,10 @@ class ScrollBenchmark {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_CALENDAR)
                 waitForCalendarScreenReady()
@@ -37,6 +42,7 @@ class ScrollBenchmark {
 
     @Test
     fun workdayScroll() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -44,6 +50,10 @@ class ScrollBenchmark {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 ensureTargetAppForegroundVisible()
                 openBottomNavTab(label = TAB_WORKDAY)
@@ -64,6 +74,7 @@ class ScrollBenchmark {
 
     @Test
     fun settingsScroll() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -71,6 +82,10 @@ class ScrollBenchmark {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_SETTINGS)
                 waitForSettingsScreenReady()

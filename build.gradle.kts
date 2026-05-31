@@ -64,20 +64,7 @@ tasks.register("verifyPerf") {
 
 tasks.register<Exec>("sequentialBenchmarks") {
     group = "verification"
-    description = "Run all macrobenchmarks sequentially (one benchmark per invocation)."
-
-    commandLine(
-        "powershell",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1"
-    )
-}
-
-tasks.register<Exec>("sequentialBenchmarksContinue") {
-    group = "verification"
-    description = "Run all 10 macrobenchmarks sequentially and continue after individual failures."
+    description = "Run all macrobenchmarks sequentially with fast startup dataset (one benchmark per invocation)."
 
     commandLine(
         "powershell",
@@ -85,7 +72,62 @@ tasks.register<Exec>("sequentialBenchmarksContinue") {
         "Bypass",
         "-File",
         "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
+        "-StartupDataset",
+        "empty",
+        "-BenchmarkTimeoutSeconds",
+        "360"
+    )
+}
+
+tasks.register<Exec>("sequentialBenchmarksContinue") {
+    group = "verification"
+    description = "Run all 10 macrobenchmarks sequentially with fast startup dataset and continue after failures."
+
+    commandLine(
+        "powershell",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
+        "-StartupDataset",
+        "empty",
+        "-BenchmarkTimeoutSeconds",
+        "360",
         "-ContinueOnFailure"
+    )
+}
+
+tasks.register<Exec>("sequentialBenchmarksExisting") {
+    group = "verification"
+    description = "Run all macrobenchmarks sequentially with realistic startup dataset (slower)."
+
+    commandLine(
+        "powershell",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
+        "-StartupDataset",
+        "existing",
+        "-BenchmarkTimeoutSeconds",
+        "360"
+    )
+}
+
+tasks.register<Exec>("sequentialBenchmarksEmpty") {
+    group = "verification"
+    description = "Run all macrobenchmarks sequentially with empty startup dataset profile."
+
+    commandLine(
+        "powershell",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "$rootDir/macrobenchmark/run_benchmarks_sequential.ps1",
+        "-StartupDataset",
+        "empty",
+        "-BenchmarkTimeoutSeconds",
+        "360"
     )
 }
 

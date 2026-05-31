@@ -69,38 +69,21 @@ See `build-logic/README.md` for details and usage examples.
 
 Run benchmarks on a connected device (recommended) or emulator:
 
+`.\gradlew.bat sequentialBenchmarks` <- USE THIS
 `.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest`
 
-Quick reference:
+`sequentialBenchmarks` runs one benchmark per invocation, uses a safer startup
+profile for startup tests with a fast startup dataset (`empty`), and performs
+device wait/recovery checks between runs. Use `sequentialBenchmarksExisting`
+when you want realistic returning-user startup data.
 
-`macrobenchmark/BENCHMARK_QUICK_START.md` ← **Start here** for 30-second overview and common commands
+Quick reference:
 
 `macrobenchmark/README.md` ← Full benchmark matrix, workflows, troubleshooting
 
 Summarize benchmark output:
 
 `python -u .\macrobenchmark\tools\summarize_benchmark.py`
-
-Example CI gate (fails on jank > 5%, long frames > 10%):
-
-`python -u .\macrobenchmark\tools\summarize_benchmark.py .\macrobenchmark\build --max-jank-percent 5 --max-long-frames-percent 10 --fail-on-missing-runs`
-
-Or use Gradle wrapper:
-
-`.\gradlew.bat :macrobenchmark:verifyPerf`
-
-Root-level aliases:
-
-`.\gradlew.bat verifyPerf` or `.\gradlew.bat summarizePerf`
-
-Performance gate defaults (in `gradle.properties`):
-
-- `perf.maxJankPercent=5`
-- `perf.maxLongFramesPercent=10`
-
-Override per run:
-
-`.\gradlew.bat verifyPerf -Pperf.maxJankPercent=4 -Pperf.maxLongFramesPercent=8`
 
 ## My manual backlog
 + General
@@ -118,7 +101,7 @@ Override per run:
   + Selecting work type doesn't work in edit mode
   + Add full flex time day (Zero time project, add work type "Absence->Flex time")
 + WorkdayScreen 
-  + Don't show project_names projects, when there are already recorded projects
+  + Show non-empty projects first alphabetically and then project_names projects
   + Unselect project from list
   + Select many in list
   + Select all in list

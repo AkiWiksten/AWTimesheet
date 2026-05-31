@@ -44,6 +44,12 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 - `RecompBm#projDetailsRecomp` - Composition performance when editing project details
 - `RecompBm#singleProjRecomp` - Composition performance when editing single project entry
 
+Calendar/workday-facing scroll and recomposition benchmarks seed a realistic dataset
+once during setup so the target UI has visible content before measurement begins.
+For Workday editor flows, navigation to `SingleProjectScreen` first tries the Add
+action and can fall back to selecting an existing project and using Edit when the
+action row is off-screen or long lists make direct Add navigation less reliable.
+
 ## Common Commands
 
 ### Run All Benchmarks (10 tests, ~15–20 minutes on real device)
@@ -51,14 +57,27 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest
 .\gradlew.bat sequentialBenchmarks <- USE THIS
 .\gradlew.bat sequentialBenchmarksContinue
+.\gradlew.bat sequentialBenchmarksExisting
 .\gradlew.bat sequentialBenchmarksClean
+.\gradlew.bat sequentialBenchmarksEmpty
 ```
+
+`sequentialBenchmarks` and `sequentialBenchmarksContinue` run startup tests with
+`startupDataset=empty` by default (faster local feedback) and use the safer
+`startupProfile=ci` startup setting by default to reduce device stress in long
+sequential sessions. Use `sequentialBenchmarksExisting` for realistic returning-
+user startup data (slower). Scroll and recomposition benchmarks seed realistic
+data in their own setup blocks; the `startupDataset` argument only affects
+`StartupBenchmark`.
 
 ### Run All Benchmarks Sequentially (one benchmark per invocation)
 
 Use this when running all 10 in one invocation causes device/ADB instability.
 The runner archives each benchmark's JSON output into a session folder and the
 final summary is generated from that full session (not just the latest test).
+The script also waits for the device to become healthy before each benchmark,
+adds a cooldown between runs, and attempts recovery when the device disconnects
+after a failed benchmark.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1
@@ -75,6 +94,21 @@ powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequent
 
 # Show full Gradle task logs (disables quiet mode)
 powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -VerboseGradle
+
+# Run sequential suite with empty startup dataset profile
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -StartupDataset empty
+
+# Use local startup profile instead of the safer default CI profile
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -StartupProfile local
+
+# Shorten or disable cooldown between benchmarks (0 disables)
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -CooldownSeconds 10
+
+# Wait longer for the device to come back after a crash/reboot
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -DeviceRecoveryTimeoutSeconds 300
+
+# Fail a single benchmark run if it exceeds 6 minutes (default is 420 seconds)
+powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequential.ps1 -BenchmarkTimeoutSeconds 360
 ```
 
 ### Run by Category
@@ -86,10 +120,12 @@ powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequent
 
 **Startup profiles and overrides**
 
-- `local` profile (default): `STARTUP_ITERATIONS_LOCAL` in `BenchmarkConfig.kt`
-- `ci` profile: `STARTUP_ITERATIONS_CI` in `BenchmarkConfig.kt`
+- `local` profile (default): `STARTUP_ITERATIONS_LOCAL` in `BenchmarkConfig.kt` (now 1 iteration for faster local development)
+- `ci` profile: `STARTUP_ITERATIONS_CI` in `BenchmarkConfig.kt` (1 iteration)
 - Explicit `startupIterations` override always wins
 - `startupIncludeFrameTiming` (optional): `true`/`false`, default `false`
+- `startupDataset` (optional): `empty` (default for faster local runs) or `existing` (seeds realistic data for more accurate measurements)
+- `startupDataset` only applies to `StartupBenchmark`; other benchmarks seed realistic workday/calendar data during setup
 
 ```powershell
 # Startup with explicit local profile
@@ -103,6 +139,15 @@ powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequent
 
 # Startup with frame timing diagnostics enabled (off by default)
 .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupCold" "-Pandroid.testInstrumentationRunnerArguments.startupIncludeFrameTiming=true"
+
+# Startup with realistic returning-user dataset (better for accurate measurements, slower)
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupCold" "-Pandroid.testInstrumentationRunnerArguments.startupDataset=existing"
+
+# Startup cold app with 3 iterations for accurate baseline (slower, ~3-4 minutes on a device)
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupCold" "-Pandroid.testInstrumentationRunnerArguments.startupIterations=3"
+
+# Startup with empty DB first-run dataset
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.StartupBenchmark#startupCold" "-Pandroid.testInstrumentationRunnerArguments.startupDataset=empty"
 ```
 
 **Scroll/Jank only** (3 tests, ~7 minutes):
@@ -205,13 +250,29 @@ adb devices
 ```
 You should see `device_id  device` (not `offline`).
 
+If you are using the sequential runner, it now waits for the device before each
+benchmark and attempts recovery after disconnects. If the phone fully reboots,
+rerun the sequential command once the device is visible again.
+
 ### Stale Object Exceptions
 ```
 androidx.test.uiautomator.StaleObjectException
 ```
 **Solution:** This usually occurs when UI changes during benchmark interactions. The retry logic in recomposition benchmarks should handle this automatically. If persistent:
 1. Increase `CLICK_RETRY_COUNT` in `RecompositionBenchmark.kt`
-2. Run on a less busy device/emulator
+2. Prefer the sequential runner so each benchmark starts from a cleaner device state
+3. Run on a less busy device/emulator
+
+### Workday editor navigation is flaky
+```
+Could not open SingleProject screen from Workday Add action
+```
+**Solution:** The benchmark already retries Add, scrolls toward the action row, and
+can fall back to selecting an existing project and using Edit. If this still
+persists, verify the seeded dataset is present and rerun the single benchmark first:
+```powershell
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#singleProjRecomp"
+```
 
 ### No Benchmark Output Found
 ```

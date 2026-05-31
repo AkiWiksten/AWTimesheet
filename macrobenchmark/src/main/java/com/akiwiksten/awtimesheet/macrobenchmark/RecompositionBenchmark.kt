@@ -9,6 +9,7 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
@@ -19,11 +20,14 @@ import org.junit.runner.RunWith
 private const val FIELD_INTERACTION_RETRIES = 4
 private const val CLICK_RETRY_COUNT = 5
 private const val CLICK_RETRY_WAIT_MS = 250L
+private const val MAX_NAV_DEBUG_TOKENS = 12
 private const val CONTENT_AREA_MIN_Y_RATIO = 0.18f
 private const val CONTENT_AREA_MAX_Y_RATIO = 0.86f
 private const val MIN_EXPECTED_DETAILS_FOCUSABLES = 2
 private const val MAX_DEBUG_TEXT_TOKENS = 8
 private val TRANSIENT_DIALOG_ACTION_TEXTS = listOf("Dismiss", "Cancel", "OK", "Confirm")
+private val WORKDAY_ADD_ACTION_TEXTS = listOf("Add", "Lisää", "Lägg till")
+private val WORKDAY_EDIT_ACTION_TEXTS = listOf("Edit", "Muokkaa", "Redigera")
 
 /**
  * Benchmark that measures recomposition counts during common user interactions.
@@ -43,6 +47,7 @@ class RecompBm {
      */
     @Test
     fun calRecomp() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -50,6 +55,10 @@ class RecompBm {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_CALENDAR)
                 waitForCalendarScreenReady()
@@ -57,7 +66,7 @@ class RecompBm {
             }
         ) {
             // Engage with calendar to trigger recompositions
-            performVerticalStressScroll()
+            performVerticalInteractionScroll()
             device.click(device.displayWidth / 2, device.displayHeight / 2)
             device.waitForIdle()
         }
@@ -69,6 +78,7 @@ class RecompBm {
      */
     @Test
     fun workdayRecomp() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -76,6 +86,10 @@ class RecompBm {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 ensureTargetAppInForeground()
                 openBottomNavTab(label = TAB_WORKDAY)
@@ -92,6 +106,7 @@ class RecompBm {
      */
     @Test
     fun settingsRecomp() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -99,6 +114,10 @@ class RecompBm {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 ensureTargetAppInForeground()
                 openBottomNavTab(label = TAB_SETTINGS)
@@ -106,7 +125,7 @@ class RecompBm {
                 device.waitForIdle()
             }
         ) {
-            performVerticalStressScroll()
+            performVerticalInteractionScroll()
             device.click(device.displayWidth / 2, device.displayHeight / 2)
             device.waitForIdle()
         }
@@ -118,6 +137,7 @@ class RecompBm {
      */
     @Test
     fun projDetailsRecomp() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -125,6 +145,10 @@ class RecompBm {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 ensureTargetAppInForeground()
                 // Navigate to a project's details screen
@@ -142,6 +166,7 @@ class RecompBm {
      */
     @Test
     fun singleProjRecomp() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -149,6 +174,10 @@ class RecompBm {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 ensureTargetAppInForeground()
                 // Navigate to single project editing screen
@@ -163,7 +192,7 @@ class RecompBm {
 }
 
 // openBottomNavTab, dismissIntroIfPresent, waitForXxxScreenReady, and
-// performVerticalStressScroll are defined in BenchmarkHelpers.kt.
+// performVerticalInteractionScroll are defined in BenchmarkHelpers.kt.
 
 /**
  * Navigates to the Project Details screen by adding a new project (via "Add" button),
@@ -180,7 +209,7 @@ private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
 
     // Click "Add" button to create a new project entry and open SingleProjectScreen
     clickWorkdayAddButton()
-    device.waitForIdle()
+    waitForSingleProjectScreenReady()
 
     // Now we're on SingleProjectScreen; navigate to ProjectDetailsScreen
     openProjectDetailsFromSingleProjectScreen()
@@ -247,11 +276,11 @@ private fun MacrobenchmarkScope.navigateToSingleProjectScreen() {
 }
 
 private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
-    performVerticalStressScroll()
+    performVerticalInteractionScroll()
 
     if (!interactWithFirstFocusableField()) {
         // Fallback: extra swipes and tap still produce interaction if no focusable field is visible.
-        performVerticalStressScroll()
+        performVerticalInteractionScroll()
         device.click(device.displayWidth / 2, device.displayHeight / 2)
         device.waitForIdle()
     }
@@ -267,10 +296,10 @@ private fun MacrobenchmarkScope.exerciseSingleProjectScreen() {
 private fun MacrobenchmarkScope.exerciseWorkdayFlow() {
     // Keep measured actions on Workday only; avoid route transitions that can
     // inflate frame-overrun without reflecting Workday recomposition cost.
-    performVerticalStressScroll()
+    performVerticalInteractionScroll()
     device.click(device.displayWidth / 2, (device.displayHeight * 0.45f).toInt())
     device.waitForIdle()
-    performVerticalStressScroll()
+    performVerticalInteractionScroll()
 }
 
 private fun MacrobenchmarkScope.exerciseProjectDetailsFlow() {
@@ -292,7 +321,7 @@ private fun MacrobenchmarkScope.exerciseProjectDetailsFlow() {
 
     closeTransientDialogIfPresent()
 
-    performVerticalStressScroll()
+    performVerticalInteractionScroll()
 }
 
 private fun MacrobenchmarkScope.requireLikelyProjectDetailsScreen(context: String) {
@@ -410,24 +439,193 @@ private fun MacrobenchmarkScope.ensureTargetAppInForeground() {
  */
 private fun MacrobenchmarkScope.clickWorkdayAddButton() {
     repeat(CLICK_RETRY_COUNT) { attempt ->
-        val node = WORKDAY_READY_TEXTS
+        if (attempt == 0) {
+            ensureWorkdayAddActionVisible()
+        } else {
+            scrollTowardWorkdayActionButtons()
+            ensureWorkdayAddActionVisible()
+        }
+
+        val node = WORKDAY_ADD_ACTION_TEXTS
             .firstNotNullOfOrNull { text ->
                 device.wait(Until.findObject(By.text(text)), CLICK_RETRY_WAIT_MS)
             }
         if (node != null) {
             try {
-                node.click()
-                device.waitForIdle()
-                return
+                if (clickNodeViaClickableAncestor(node)) {
+                    device.waitForIdle()
+                    if (isLikelySingleProjectScreenVisible()) {
+                        return
+                    }
+                    closeTransientDialogIfPresent()
+                }
             } catch (_: StaleObjectException) {
                 // Retry on stale hierarchy.
             }
         }
+
+        // Fallback: left-most button in Workday action row (Add/Edit/Delete).
+        val addActionX = (device.displayWidth * 0.18f).toInt()
+        val addActionYCandidates = listOf(0.76f, 0.72f, 0.68f)
+            .map { ratio -> (device.displayHeight * ratio).toInt() }
+        addActionYCandidates.forEach { y ->
+            if (device.click(addActionX, y)) {
+                device.waitForIdle()
+                if (isLikelySingleProjectScreenVisible()) {
+                    return
+                }
+                closeTransientDialogIfPresent()
+            }
+        }
+
+        val fallbackPoint = device.findObjects(By.clickable(true))
+            .asSequence()
+            .mapNotNull { candidate ->
+                try {
+                    val bounds = candidate.visibleBounds
+                    val centerX = bounds.centerX()
+                    val centerY = bounds.centerY()
+                    val isLikelyAddAction =
+                        centerX >= (device.displayWidth * 0.52f).toInt() &&
+                            centerY in (device.displayHeight * 0.25f).toInt()..
+                            (device.displayHeight * 0.78f).toInt()
+                    if (isLikelyAddAction) centerX to centerY else null
+                } catch (_: StaleObjectException) {
+                    null
+                }
+            }
+            .sortedWith(compareByDescending<Pair<Int, Int>> { it.first }.thenBy { it.second })
+            .firstOrNull()
+
+        if (fallbackPoint != null && device.click(fallbackPoint.first, fallbackPoint.second)) {
+            device.waitForIdle()
+            if (isLikelySingleProjectScreenVisible()) {
+                return
+            }
+            closeTransientDialogIfPresent()
+        }
+
+        if (attemptOpenSingleProjectViaEditAction()) {
+            return
+        }
+
         if (attempt < CLICK_RETRY_COUNT - 1) {
             device.waitForIdle()
         }
     }
-    error("Could not click Add button on WorkdayScreen (tried: ${WORKDAY_READY_TEXTS.joinToString()})")
+    error(
+        "Could not open SingleProject screen from Workday Add action " +
+            "(tried: ${WORKDAY_ADD_ACTION_TEXTS.joinToString()}). " +
+            "UI snapshot: ${buildWorkdayNavigationDebugSnapshot()}"
+    )
+}
+
+private fun MacrobenchmarkScope.isLikelySingleProjectScreenVisible(): Boolean {
+    val fieldCount = device.findObjects(By.clazz("android.widget.EditText")).size
+    val hasActionLabel = SINGLE_PROJECT_READY_TEXTS.any { label ->
+        device.hasObject(By.text(label))
+    }
+    return fieldCount >= 1 && hasActionLabel
+}
+
+private fun MacrobenchmarkScope.scrollTowardWorkdayActionButtons() {
+    val centerX = device.displayWidth / 2
+    val startY = (device.displayHeight * 0.78f).toInt()
+    val endY = (device.displayHeight * 0.30f).toInt()
+    device.swipe(centerX, startY, centerX, endY, 24)
+    device.waitForIdle()
+}
+
+private fun MacrobenchmarkScope.ensureWorkdayAddActionVisible(): Boolean {
+    repeat(8) {
+        val hasAddActionText = WORKDAY_ADD_ACTION_TEXTS.any { label -> device.hasObject(By.text(label)) }
+        if (hasAddActionText) {
+            return true
+        }
+        scrollTowardWorkdayActionButtons()
+    }
+    return WORKDAY_ADD_ACTION_TEXTS.any { label -> device.hasObject(By.text(label)) }
+}
+
+private fun MacrobenchmarkScope.buildWorkdayNavigationDebugSnapshot(): String {
+    val visibleTexts = device.findObjects(By.clazz("android.widget.TextView"))
+        .asSequence()
+        .mapNotNull { node -> runCatching { node.text?.trim() }.getOrNull() }
+        .filter { it.isNotEmpty() }
+        .distinct()
+        .take(MAX_NAV_DEBUG_TOKENS)
+        .joinToString(" | ")
+
+    val buttonHints = device.findObjects(By.clazz("android.widget.Button"))
+        .asSequence()
+        .mapNotNull { node ->
+            runCatching {
+                val text = node.text?.trim().orEmpty()
+                val desc = node.contentDescription?.toString()?.trim().orEmpty()
+                val label = listOf(text, desc).firstOrNull { it.isNotBlank() } ?: "<no-label>"
+                "$label@${node.visibleBounds.centerX()},${node.visibleBounds.centerY()}"
+            }.getOrNull()
+        }
+        .distinct()
+        .take(MAX_NAV_DEBUG_TOKENS)
+        .joinToString(" | ")
+
+    return "texts=[$visibleTexts] buttons=[$buttonHints]"
+}
+
+private fun MacrobenchmarkScope.attemptOpenSingleProjectViaEditAction(): Boolean {
+    val candidateProject = device.findObjects(By.clazz("android.widget.TextView"))
+        .asSequence()
+        .mapNotNull { node ->
+            runCatching {
+                val text = node.text?.trim().orEmpty()
+                if (text.isBlank()) return@runCatching null
+
+                val excluded = WORKDAY_READY_TEXTS + WORKDAY_ADD_ACTION_TEXTS + WORKDAY_EDIT_ACTION_TEXTS +
+                    listOf("Delete", "Poista", "Radera", "Nullify", "Nollaa")
+                if (excluded.contains(text)) return@runCatching null
+
+                val y = node.visibleBounds.centerY()
+                val inContentBand = y in (device.displayHeight * 0.24f).toInt()..(device.displayHeight * 0.78f).toInt()
+                if (!inContentBand) return@runCatching null
+
+                node
+            }.getOrNull()
+        }
+        .firstOrNull()
+
+    if (candidateProject != null && clickNodeViaClickableAncestor(candidateProject)) {
+        device.waitForIdle()
+    }
+
+    val editNode = WORKDAY_EDIT_ACTION_TEXTS
+        .firstNotNullOfOrNull { text -> device.wait(Until.findObject(By.text(text)), CLICK_RETRY_WAIT_MS) }
+
+    if (editNode != null && clickNodeViaClickableAncestor(editNode)) {
+        device.waitForIdle()
+        if (isLikelySingleProjectScreenVisible()) {
+            return true
+        }
+        closeTransientDialogIfPresent()
+    }
+
+    return false
+}
+
+private fun MacrobenchmarkScope.clickNodeViaClickableAncestor(node: UiObject2): Boolean {
+    var current: UiObject2? = node
+    repeat(8) {
+        val candidate = current ?: return@repeat
+        if (candidate.isClickable) {
+            candidate.click()
+            return true
+        }
+        current = candidate.parent
+    }
+
+    // Last-resort tap on original node bounds when hierarchy metadata is ambiguous.
+    val bounds = node.visibleBounds
+    return device.click(bounds.centerX(), bounds.centerY())
 }
 
 

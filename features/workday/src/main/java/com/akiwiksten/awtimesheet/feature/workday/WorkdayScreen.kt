@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
@@ -53,7 +53,7 @@ fun WorkdayScreen(
         onPauseOrDispose { }
     }
 
-    val workdayUiState by workdayViewModel.uiState.collectAsState()
+    val workdayUiState by workdayViewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate

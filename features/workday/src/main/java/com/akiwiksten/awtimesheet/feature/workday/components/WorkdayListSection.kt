@@ -1,22 +1,26 @@
 package com.akiwiksten.awtimesheet.feature.workday.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.key
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,15 +68,21 @@ internal fun WorkdayListSection(
                     )
                 }
             } else {
-                items.forEach { item ->
-                    key(item.stableKey) {
+                // Keep list virtualization bounded to reduce layout and draw work on long workday lists.
+                LazyColumn(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.secondary)
+                        .fillMaxWidth()
+                        .heightIn(max = 420.dp),
+                    verticalArrangement = Arrangement.spacedBy(space = 2.dp)
+                ) {
+                    items(
+                        items = items,
+                        key = { it.stableKey },
+                        contentType = { if (it.isProjectNameOnlyPlaceholder) "nameOnly" else "summary" }
+                    ) { item ->
                         ProjectListItem(
-                            projectName = item.projectName,
-                            projectTime = item.projectTime,
-                            kilometres = item.kilometres,
-                            allowance = item.allowance,
-                            workType = item.workType,
-                            isProjectNameOnlyPlaceholder = item.isProjectNameOnlyPlaceholder,
+                            item = item,
                             isSelected = selectedItemKey == item.stableKey,
                             onClick = { onItemSelected(item.index) }
                         )
@@ -85,23 +95,18 @@ internal fun WorkdayListSection(
 
 @Composable
 private fun ProjectListItem(
-    projectName: String,
-    projectTime: String,
-    kilometres: String,
-    allowance: String,
-    workType: String,
-    isProjectNameOnlyPlaceholder: Boolean,
+    item: WorkdayListItemUiModel,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    ElevatedCard(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .selectable(selected = isSelected, onClick = onClick),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.elevatedCardColors(
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
             containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                MaterialTheme.colorScheme.primaryContainer
             } else {
                 MaterialTheme.colorScheme.surface
             }
@@ -111,15 +116,15 @@ private fun ProjectListItem(
             modifier = Modifier.padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
-            if (isProjectNameOnlyPlaceholder) {
-                ProjectNameOnlyContent(projectName = projectName)
+            if (item.isProjectNameOnlyPlaceholder) {
+                ProjectNameOnlyContent(projectName = item.projectName)
             } else {
                 ProjectSummaryContent(
-                    projectName = projectName,
-                    projectTime = projectTime,
-                    kilometres = kilometres,
-                    allowance = allowance,
-                    workType = workType
+                    projectName = item.projectName,
+                    projectTime = item.projectTime,
+                    kilometresLabel = item.kilometresLabel,
+                    allowance = item.allowance,
+                    workType = item.workType
                 )
             }
         }
@@ -141,7 +146,7 @@ private fun ProjectNameOnlyContent(projectName: String) {
 private fun ProjectSummaryContent(
     projectName: String,
     projectTime: String,
-    kilometres: String,
+    kilometresLabel: String,
     allowance: String,
     workType: String
 ) {
@@ -172,7 +177,7 @@ private fun ProjectSummaryContent(
             modifier = Modifier.weight(weight = 1f)
         )
         Text(
-            text = "$kilometres km",
+            text = kilometresLabel,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
@@ -188,6 +193,7 @@ internal data class WorkdayListItemUiModel(
     val kilometres: String,
     val allowance: String,
     val workType: String,
+    val kilometresLabel: String,
     val isProjectNameOnlyPlaceholder: Boolean,
     val stableKey: String
 )

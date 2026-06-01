@@ -245,6 +245,7 @@ private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
         kilometres = kilometres,
         allowance = allowance,
         workType = workType,
+        kilometresLabel = "$kilometres km",
         isProjectNameOnlyPlaceholder = isProjectNameOnlyPlaceholder(),
         stableKey = stableListItemKey()
     )

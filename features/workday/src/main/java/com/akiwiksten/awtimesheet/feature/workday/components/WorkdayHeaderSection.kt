@@ -3,9 +3,7 @@ package com.akiwiksten.awtimesheet.feature.workday.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,8 +34,6 @@ import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.awtimesheet.feature.workday.WorkdaySettingsEditorState
 import com.akiwiksten.awtimesheet.feature.workday.R
-
-private val STATS_CARD_MAX_HEIGHT = 200.dp
 
 @Composable
 internal fun WorkdayHeaderSection(
@@ -113,7 +109,7 @@ private fun WorkdayStatsCardContent(
 ) {
     ElevatedCard(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
     ) {
         Column(

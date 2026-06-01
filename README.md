@@ -57,7 +57,7 @@ See `build-logic/README.md` for details and usage examples.
 6. `.\gradlew.bat lint`
 7. `.\gradlew.bat --no-configuration-cache verifyModuleBoundaries`
 8. SonarCube runs automatically on new code
-9. Run MacroBenchmark occasionally .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest
+9. Run MacroBenchmark occasionally
 
 ## Macrobenchmark
 

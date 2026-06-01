@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
@@ -30,7 +31,14 @@ internal fun WorkdaySuccessContent(
     )
 
     val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
-    val listItems = remember(state.projects) { state.projects.map { it.toListItemUiModel() } }
+    val listItems = remember(state.projects) {
+        state.projects
+            .sortedWith(
+                compareBy<SingleProjectState> { it.projectTime == ZERO_TIME }
+                    .thenBy { it.projectName }
+            )
+            .map { it.toListItemUiModel() }
+    }
     val selectedItemKey = remember(state.projects, selectedItemIndex) {
         state.projects.firstOrNull { it.index == selectedItemIndex }?.stableListItemKey()
     }

@@ -18,6 +18,7 @@ class GetCalendarDataUseCase @Inject constructor(
 ) {
     private var cachedMonth: YearMonth? = null
     private var cachedTimePerMonth: String = ZERO_TIME
+    private var cachedDatesWithWork: Set<String> = emptySet()
 
     suspend operator fun invoke(
         date: String,
@@ -32,53 +33,39 @@ class GetCalendarDataUseCase @Inject constructor(
 
         val startOfWeek = initial.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val endOfWeek = startOfWeek.plusDays(6)
-
-        // Fetch month data once and derive day/week/month summaries from it.
-        val projectTimesMonth = projectRepository.getProjectsByDateRange(startMonth, endMonth)
         val startOfWeekStr = startOfWeek.toString()
         val endOfWeekStr = endOfWeek.toString()
 
-        // If the week crosses month boundaries, fetch exact week range once.
-        val projectTimesWeek = if (
-            startOfWeek.toString() >= startMonth &&
-            endOfWeek.toString() <= endMonth
-        ) {
-            null
-        } else {
-            projectRepository.getProjectsByDateRange(startOfWeekStr, endOfWeekStr)
-        }
-
         val useCachedMonthTotal = cachedMonth == requestedMonth && !forceMonthRecalculation
-        var timePerMonth = if (useCachedMonthTotal) cachedTimePerMonth else ZERO_TIME
-        var timePerWeekFromMonth = ZERO_TIME
-        var timePerDay = ZERO_TIME
-        val datesWithWork = mutableSetOf<String>()
 
-        for (project in projectTimesMonth) {
-            val projectDate = project.date
-            val projectTime = project.projectTime
-            datesWithWork += projectDate
+        val timePerMonth: String
+        val datesWithWork: Set<String>
 
-            if (!useCachedMonthTotal) {
-                timePerMonth = WorkTimeCalculator.calculateFlexTime(timePerMonth, projectTime)
+        if (!useCachedMonthTotal) {
+            val projectTimesMonth = projectRepository.getProjectsByDateRange(startMonth, endMonth)
+            timePerMonth = projectTimesMonth.fold(ZERO_TIME) { acc, project ->
+                WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
             }
-
-            if (projectDate in startOfWeekStr..endOfWeekStr) {
-                timePerWeekFromMonth = WorkTimeCalculator.calculateFlexTime(timePerWeekFromMonth, projectTime)
+            datesWithWork = projectTimesMonth.mapTo(mutableSetOf()) { it.date }
+            cachedMonth = requestedMonth
+            cachedTimePerMonth = timePerMonth
+            cachedDatesWithWork = datesWithWork
+        } else {
+            timePerMonth = if (workTimeByDateChange != ZERO_TIME) {
+                WorkTimeCalculator.calculateFlexTime(cachedTimePerMonth, workTimeByDateChange)
+                    .also { cachedTimePerMonth = it }
+            } else {
+                cachedTimePerMonth
             }
-            if (projectDate == date) {
-                timePerDay = WorkTimeCalculator.calculateFlexTime(timePerDay, projectTime)
-            }
+            datesWithWork = cachedDatesWithWork
         }
 
-        if (useCachedMonthTotal && workTimeByDateChange != ZERO_TIME) {
-            timePerMonth = WorkTimeCalculator.calculateFlexTime(timePerMonth, workTimeByDateChange)
-        }
-
-        cachedMonth = requestedMonth
-        cachedTimePerMonth = timePerMonth
-
-        val timePerWeek = projectTimesWeek?.let(::calculateTotalTime) ?: timePerWeekFromMonth
+        val timePerWeek = calculateTotalTime(
+            projectRepository.getProjectsByDateRange(startOfWeekStr, endOfWeekStr)
+        )
+        val timePerDay = calculateTotalTime(
+            projectRepository.getProjectsByDateRange(date, date)
+        )
 
         return CalendarData(
             timePerMonth = timePerMonth,
@@ -88,16 +75,10 @@ class GetCalendarDataUseCase @Inject constructor(
         )
     }
 
-    private fun calculateTotalTime(projects: List<SingleProjectState>): String {
-        var totalTime = ZERO_TIME
-
-        // Sum up projects
-        for (project in projects) {
-            totalTime = WorkTimeCalculator.calculateFlexTime(totalTime, project.projectTime)
+    private fun calculateTotalTime(projects: List<SingleProjectState>): String =
+        projects.fold(ZERO_TIME) { acc, project ->
+            WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
         }
-
-        return totalTime
-    }
 }
 
 data class CalendarData(

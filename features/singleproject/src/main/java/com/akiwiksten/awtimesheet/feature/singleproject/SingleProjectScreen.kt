@@ -48,7 +48,7 @@ import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDialogDropdownFieldsSection
+import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
@@ -425,7 +425,7 @@ private fun SingleProjectFormFields(
             onStateChange = actions.onStateChange
         )
 
-        SingleProjectDialogDropdownFieldsSection(
+        SingleProjectDropdownFieldsSection(
             state = screenState.state,
             workTypeDropDownList = workTypes,
             onStateChange = actions.onStateChange

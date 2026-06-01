@@ -21,8 +21,10 @@ object BenchmarkConfig {
 
     /**
      * Default number of iterations for startup benchmarks when running locally.
+     * Reduced from 3 to 1 for faster feedback during development.
+     * Override with "-Pandroid.testInstrumentationRunnerArguments.startupIterations=3" for accurate results.
      */
-    const val STARTUP_ITERATIONS_LOCAL = 3
+    const val STARTUP_ITERATIONS_LOCAL = 1
 
     /**
      * Default number of iterations for startup benchmarks in CI profile.

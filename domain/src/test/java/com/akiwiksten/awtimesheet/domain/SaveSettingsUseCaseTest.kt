@@ -1,6 +1,6 @@
 package com.akiwiksten.awtimesheet.domain
 
-import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
@@ -20,7 +20,7 @@ class SaveSettingsUseCaseTest {
         val settingsRepository = FakeSettingsRepository()
         val workdayRepository = FakeWorkdayRepository()
         val projectRepository = FakeProjectRepository()
-        val dateRepository = DateRepository()
+        val dateRepository = InMemoryDateRepository()
         val useCase = SaveSettingsUseCase(
             settingsRepository = settingsRepository,
             workdayRepository = workdayRepository,
@@ -50,7 +50,7 @@ class SaveSettingsUseCaseTest {
             settingsRepository = settingsRepository,
             workdayRepository = FakeWorkdayRepository(),
             projectRepository = FakeProjectRepository(),
-            dateRepository = DateRepository()
+            dateRepository = InMemoryDateRepository()
         )
 
         useCase(settings = settingsState(name = "Aki", employer = "WorkTime", workTypes = emptyList()))
@@ -62,11 +62,12 @@ class SaveSettingsUseCaseTest {
     @Test
     fun invoke_withDailyWorkTimeEstimate_currentDayAndZeroWorkTime_savesDailyWorkTime() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
+        val dateRepository = InMemoryDateRepository().apply { updateDate(LocalDate.now().toString()) }
         val useCase = SaveSettingsUseCase(
             settingsRepository = settingsRepository,
             workdayRepository = FakeWorkdayRepository(),
             projectRepository = FakeProjectRepository(),
-            dateRepository = DateRepository().apply { updateDate(LocalDate.now().toString()) }
+            dateRepository = dateRepository
         )
 
         useCase(
@@ -85,11 +86,12 @@ class SaveSettingsUseCaseTest {
     @Test
     fun invoke_withLunchTimeEstimate_currentDayAndZeroWorkTime_savesLunchTime() = runBlocking {
         val settingsRepository = FakeSettingsRepository()
+        val dateRepository = InMemoryDateRepository().apply { updateDate(LocalDate.now().toString()) }
         val useCase = SaveSettingsUseCase(
             settingsRepository = settingsRepository,
             workdayRepository = FakeWorkdayRepository(),
             projectRepository = FakeProjectRepository(),
-            dateRepository = DateRepository().apply { updateDate(LocalDate.now().toString()) }
+            dateRepository = dateRepository
         )
 
         useCase(
@@ -115,11 +117,12 @@ class SaveSettingsUseCaseTest {
             )
         }
         val workdayRepository = FakeWorkdayRepository()
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2000-01-01") }
         val useCase = SaveSettingsUseCase(
             settingsRepository = settingsRepository,
             workdayRepository = workdayRepository,
             projectRepository = FakeProjectRepository(),
-            dateRepository = DateRepository().apply { updateDate("2000-01-01") }
+            dateRepository = dateRepository
         )
 
         useCase(
@@ -149,11 +152,12 @@ class SaveSettingsUseCaseTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(projectState(date = today, projectName = "Alpha", projectTime = "01:00"))
         }
+        val dateRepository = InMemoryDateRepository().apply { updateDate(today) }
         val useCase = SaveSettingsUseCase(
             settingsRepository = settingsRepository,
             workdayRepository = workdayRepository,
             projectRepository = projectRepository,
-            dateRepository = DateRepository().apply { updateDate(today) }
+            dateRepository = dateRepository
         )
 
         useCase(

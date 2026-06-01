@@ -2,10 +2,10 @@ package com.akiwiksten.awtimesheet.feature.projectdetails
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
-import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,7 +40,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val viewModel =
-            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, InMemoryDateRepository())
 
         viewModel.setProjectName("Alpha")
         viewModel.setDate("2026-04-10")
@@ -69,7 +69,7 @@ class ProjectDetailsViewModelTest {
             val viewModel = ProjectDetailsViewModel(
                 FakeProjectDetailsRepository(),
                 settingsRepository,
-                DateRepository()
+                InMemoryDateRepository()
             )
 
             viewModel.loadProjectDetails(
@@ -112,7 +112,7 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
             settingsRepository,
-            DateRepository()
+            InMemoryDateRepository()
         )
 
         viewModel.loadProjectDetails(
@@ -152,7 +152,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val viewModel =
-            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, InMemoryDateRepository())
 
         viewModel.loadProjectDetails(date = "2026-04-10", projectName = "Alpha")
         advanceUntilIdle()
@@ -174,7 +174,7 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
             settingsRepository,
-            DateRepository()
+            InMemoryDateRepository()
         )
 
         viewModel.loadProjectDetails(
@@ -206,7 +206,7 @@ class ProjectDetailsViewModelTest {
             val viewModel = ProjectDetailsViewModel(
                 FakeProjectDetailsRepository(),
                 settingsRepository,
-                DateRepository()
+                InMemoryDateRepository()
             )
 
             viewModel.loadProjectDetails(
@@ -240,7 +240,7 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
             settingsRepository,
-            DateRepository()
+            InMemoryDateRepository()
         )
 
         viewModel.loadProjectDetails(
@@ -267,7 +267,7 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun observeDateRepository_whenReObserved_doesNotLetOlderLoadOverwriteNewerDetails() = runTest {
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             delayMsByProjectName["Alpha"] = 1_000L
         }
@@ -319,7 +319,7 @@ class ProjectDetailsViewModelTest {
                 ProjectDetailsViewModel(
                     projectDetailsRepository,
                     settingsRepository,
-                    DateRepository()
+                    InMemoryDateRepository()
                 )
 
             viewModel.loadProjectDetails(
@@ -361,7 +361,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val viewModel =
-            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, InMemoryDateRepository())
 
         viewModel.loadProjectDetails(
             date = "2026-04-10",
@@ -383,7 +383,7 @@ class ProjectDetailsViewModelTest {
     @Test
     fun observeDateRepository_afterProjectNameChange_usesLatestProjectNameOnDateUpdates() =
         runTest {
-            val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+            val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
             val projectDetailsRepository = FakeProjectDetailsRepository().apply {
                 projectDetails = projectDetailsState(
                     date = "2026-04-11",
@@ -448,7 +448,7 @@ class ProjectDetailsViewModelTest {
             )
         }
         val viewModel =
-            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, DateRepository())
+            ProjectDetailsViewModel(projectDetailsRepository, settingsRepository, InMemoryDateRepository())
 
         viewModel.loadProjectDetails(date = "2026-04-10", projectName = "Alpha")
         advanceUntilIdle()
@@ -467,7 +467,7 @@ class ProjectDetailsViewModelTest {
 
     @Test
     fun observeDateRepository_withRapidDateUpdates_keepsLatestDateState() = runTest {
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {
             projectDetails = projectDetailsState(
                 date = "2026-04-10",
@@ -511,7 +511,7 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
             FakeSettingsRepository(),
-            DateRepository()
+            InMemoryDateRepository()
         )
 
         val error = Assert.assertThrows(IllegalStateException::class.java) {
@@ -529,7 +529,7 @@ class ProjectDetailsViewModelTest {
         val viewModel = ProjectDetailsViewModel(
             FakeProjectDetailsRepository(),
             FakeSettingsRepository(),
-            DateRepository()
+            InMemoryDateRepository()
         )
 
         val error = Assert.assertThrows(IllegalStateException::class.java) {

@@ -57,7 +57,7 @@ See `build-logic/README.md` for details and usage examples.
 6. `.\gradlew.bat lint`
 7. `.\gradlew.bat --no-configuration-cache verifyModuleBoundaries`
 8. SonarCube runs automatically on new code
-9. Run MacroBenchmark occasionally .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest
+9. Run MacroBenchmark occasionally
 
 ## Macrobenchmark
 
@@ -69,11 +69,15 @@ See `build-logic/README.md` for details and usage examples.
 
 Run benchmarks on a connected device (recommended) or emulator:
 
+`.\gradlew.bat sequentialBenchmarks` <- USE THIS
 `.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest`
 
-Quick reference:
+`sequentialBenchmarks` runs one benchmark per invocation, uses a safer startup
+profile for startup tests with a fast startup dataset (`empty`), and performs
+device wait/recovery checks between runs. Use `sequentialBenchmarksExisting`
+when you want realistic returning-user startup data.
 
-`macrobenchmark/BENCHMARK_QUICK_START.md` ← **Start here** for 30-second overview and common commands
+Quick reference:
 
 `macrobenchmark/README.md` ← Full benchmark matrix, workflows, troubleshooting
 
@@ -81,64 +85,43 @@ Summarize benchmark output:
 
 `python -u .\macrobenchmark\tools\summarize_benchmark.py`
 
-Example CI gate (fails on jank > 5%, long frames > 10%):
-
-`python -u .\macrobenchmark\tools\summarize_benchmark.py .\macrobenchmark\build --max-jank-percent 5 --max-long-frames-percent 10 --fail-on-missing-runs`
-
-Or use Gradle wrapper:
-
-`.\gradlew.bat :macrobenchmark:verifyPerf`
-
-Root-level aliases:
-
-`.\gradlew.bat verifyPerf` or `.\gradlew.bat summarizePerf`
-
-Performance gate defaults (in `gradle.properties`):
-
-- `perf.maxJankPercent=5`
-- `perf.maxLongFramesPercent=10`
-
-Override per run:
-
-`.\gradlew.bat verifyPerf -Pperf.maxJankPercent=4 -Pperf.maxLongFramesPercent=8`
-
 ## My manual backlog
 + General
   + Test implemented backup & sync (android:allowBackup="true")
-  + Better orientation support
   + Dark theme
   + Check test coverage and add tests
   + Warnings on build
-  + more modules
-  + button press animations
-  + Refactor tests
-  + Configure Python interpreter
-  + Button animations
-+ Constants
-  + Regroup
+  + Configure Python interpreter for benchmark summarization script
 + Repositories
-  + CalendarRepository: Add interface also
 + SingleProjectScreen
   + Project name edit and validation
   + Kilometres validation. 0050 not valid.
   + Select distance from map also
   + Show work_type_help string
   + Selecting work type doesn't work in edit mode
-  + Rename DialogMainFields -> UpperTextFields
-  + DialogDropdownFields -> DropdownFields
+  + Add full flex time day (Zero time project, add work type "Absence->Flex time")
 + WorkdayScreen 
-  + Don't show project_names projects, when there are already recorded projects
+  + Unselect project from list
+  + Select many in list
+  + Select all in list
+  + Delete all in list
+  + Delete selected in list
+  + For Absence->Flex time, add "Flex time by date" by -"Work time by date estimate"
 + ProjectDetailsScreen
   + "Lunch time estimate" Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
-  + 
-
 + SettingsScreen
+  + Absence.
+    + Add/update/delete vacation range into database. Start and end date by picker
+    + Paid/unpaid/Sick leave/Flex day
+    + Show next in SettingsScreen, others in a list
   + Translate fed "Work type"
   + App localization selection
 + Excel
-  + Handle monthly, weekly and biweekly reports, by selecting start date
-  + Work type section: Add rows if >= 7 work types
+  + Show start date in a month first, e.g. 15th.
+  + Handle by selecting start date 
+    + monthly reports 
+    + weekly reports
 ## What to test constantly
 + Thorough regression testing of all features in all screens
     + Intro, 
@@ -164,7 +147,7 @@ Override per run:
   + Your structure is testable; now push coverage depth where user-facing bugs happen most.
 + Strengthen architectural boundaries further
   + You already enforce some module rules in build.gradle.kts (verifyModuleBoundaries); extend rules to prevent accidental feature-to-feature coupling where not intended.
-  + From your own backlog, define missing contracts (e.g., CalendarRepository interface) to reduce concrete dependency spread.
+  + From your own backlog, define missing contracts (e.g., DateRepository interface DONE) to reduce concrete dependency spread.
 + Complete unresolved reliability TODOs from your backlog
   + Highest-value backlog items: save-confirmation consistency, validation correctness, and state persistence behavior.
   + These directly affect trust and perceived quality more than cosmetic polish.
@@ -175,3 +158,14 @@ Override per run:
   + Even with passing long-frame metrics, reduce noisy frame-overrun areas (calendar/projectdetails) proactively.
   + Focus on state hoisting, memoization (remember, derivedStateOf where appropriate), and avoiding broad state invalidations.
 
+
++ Scroll (needs work)
+  + workdayScroll — 46.62% jank (worst, high priority)
+  + settingsScroll — 18.49% jank (high priority)
+  + calScroll — 2.45% jank (acceptable; below 5% target)
++ Recomposition (needs work)
+  + workdayRecomp — 29.40% jank (worst, high priority)
+  + settingsRecomp — 27.32% jank (high priority)
+  + calRecomp — 14.22% jank (needs work)
+  + singleProjRecomp — 11.82% jank (needs work)
+  + projDetailsRecomp — 9.68% jank (borderline / moderate)

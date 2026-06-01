@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
@@ -46,24 +46,18 @@ fun WorkdayScreen(
             )
             pendingOldFlexTimeByDateState.value = null
             pendingOldWorkTimeByDateState.value = null
-        } else {
-            workdayViewModel.retryLoad()
         }
 
         onPauseOrDispose { }
     }
 
-    val workdayUiState by workdayViewModel.uiState.collectAsState()
+    val workdayUiState by workdayViewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
     // Use state object directly to avoid SonarQube "unused assignment" false positives with 'by' delegate
     val selectedItemIndexState = rememberSaveable { mutableIntStateOf(value = -1) }
-
-    WorkdayContent(
-        workdayUiState = workdayUiState,
-        selectedItemIndex = selectedItemIndexState.intValue,
-        scrollState = scrollState,
-        actions = WorkdayActions(
+    val actions = remember(workdayViewModel, onNavigateToSingleProject) {
+        WorkdayActions(
             onSelectedItemIndexChange = { selectedItemIndexState.intValue = it },
             onTrackProjectEditorLaunch = { oldFlexTimeByDate, oldWorkTimeByDate ->
                 pendingOldFlexTimeByDateState.value = oldFlexTimeByDate
@@ -76,6 +70,13 @@ fun WorkdayScreen(
                 workdayViewModel.deleteProject(state = project)
             }
         )
+    }
+
+    WorkdayContent(
+        workdayUiState = workdayUiState,
+        selectedItemIndex = selectedItemIndexState.intValue,
+        scrollState = scrollState,
+        actions = actions
     )
 }
 

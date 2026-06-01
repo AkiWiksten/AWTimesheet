@@ -2,7 +2,6 @@ package com.akiwiksten.awtimesheet.macrobenchmark
 
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +18,7 @@ class ScrollBenchmark {
 
     @Test
     fun calScroll() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -26,6 +26,10 @@ class ScrollBenchmark {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_CALENDAR)
                 waitForCalendarScreenReady()
@@ -38,6 +42,7 @@ class ScrollBenchmark {
 
     @Test
     fun workdayScroll() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -45,18 +50,31 @@ class ScrollBenchmark {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
+                ensureTargetAppForegroundVisible()
                 openBottomNavTab(label = TAB_WORKDAY)
                 waitForWorkdayScreenReady()
                 device.waitForIdle()
             }
         ) {
             performVerticalStressScroll()
+            // Workday can be non-scrollable on empty data; force a deterministic UI transition
+            // so FrameTimingMetric always captures renderthread slices.
+            openBottomNavTab(label = TAB_SETTINGS)
+            waitForSettingsScreenReady()
+            openBottomNavTab(label = TAB_WORKDAY)
+            device.waitForIdle()
+            performVerticalStressScroll()
         }
     }
 
     @Test
     fun settingsScroll() {
+        var didPrepareDataset = false
         benchmarkRule.measureRepeated(
             packageName = BenchmarkConfig.TARGET_PACKAGE,
             metrics = listOf(FrameTimingMetric()),
@@ -64,6 +82,10 @@ class ScrollBenchmark {
             startupMode = StartupMode.WARM,
             iterations = BenchmarkConfig.ITERATIONS,
             setupBlock = {
+                if (!didPrepareDataset) {
+                    seedRealisticStartupDataIfEmpty()
+                    didPrepareDataset = true
+                }
                 startActivityAndWait()
                 openBottomNavTab(label = TAB_SETTINGS)
                 waitForSettingsScreenReady()

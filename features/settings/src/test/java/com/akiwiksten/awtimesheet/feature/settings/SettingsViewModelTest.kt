@@ -1,6 +1,5 @@
 package com.akiwiksten.awtimesheet.feature.settings
 
-import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.GenerateWorkdaysUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
@@ -8,6 +7,7 @@ import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import com.akiwiksten.awtimesheet.test.projectState
 import com.akiwiksten.awtimesheet.test.settingsState
@@ -56,7 +56,7 @@ class SettingsViewModelTest {
                 projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "03:00")
             )
         }
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val workdayRepository = FakeWorkdayRepository()
         val viewModel = SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
@@ -104,7 +104,7 @@ class SettingsViewModelTest {
                 projectState(date = "2026-05-10", projectName = "Beta", projectTime = "04:00")
             )
         }
-        val dateRepository = DateRepository().apply { updateDate("2026-04-10") }
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val workdayRepository = FakeWorkdayRepository()
         val viewModel = SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),
@@ -161,7 +161,7 @@ class SettingsViewModelTest {
         settingsRepository: FakeSettingsRepository,
         projectRepository: FakeProjectRepository,
     ): SettingsViewModel {
-        val dateRepository = DateRepository()
+        val dateRepository = InMemoryDateRepository()
         val workdayRepository = FakeWorkdayRepository()
         return SettingsViewModel(
             getSettingsUseCase = GetSettingsUseCase(settingsRepository),

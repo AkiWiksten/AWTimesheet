@@ -310,7 +310,7 @@ internal fun SingleProjectTimeSelectionSection(
 }
 
 @Composable
-internal fun SingleProjectDialogDropdownFieldsSection(
+internal fun SingleProjectDropdownFieldsSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
     onStateChange: (SingleProjectState) -> Unit

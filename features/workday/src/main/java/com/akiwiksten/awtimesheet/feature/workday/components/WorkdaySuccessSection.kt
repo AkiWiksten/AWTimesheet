@@ -9,7 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
 import com.akiwiksten.awtimesheet.feature.workday.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayActions
@@ -29,6 +31,17 @@ internal fun WorkdaySuccessContent(
     )
 
     val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
+    val listItems = remember(state.projects) {
+        state.projects
+            .sortedWith(
+                compareBy<SingleProjectState> { it.projectTime == ZERO_TIME }
+                    .thenBy { it.projectName }
+            )
+            .map { it.toListItemUiModel() }
+    }
+    val selectedItemKey = remember(state.projects, selectedItemIndex) {
+        state.projects.firstOrNull { it.index == selectedItemIndex }?.stableListItemKey()
+    }
 
     WorkdayHeaderSection(date = state.date)
     WorkdayStatsCard(
@@ -42,8 +55,8 @@ internal fun WorkdaySuccessContent(
     )
 
     WorkdayListSection(
-        items = state.projects,
-        selectedIndex = selectedItemIndex,
+        items = listItems,
+        selectedItemKey = selectedItemKey,
         onItemSelected = actions.onSelectedItemIndexChange
     )
 
@@ -231,3 +244,23 @@ private data class WorkdayDisplayState(
     val editorState: WorkdaySettingsEditorState,
     val headerActions: WorkdayHeaderActions
 )
+
+private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
+    return WorkdayListItemUiModel(
+        index = index,
+        projectName = projectName,
+        projectTime = projectTime,
+        kilometres = kilometres,
+        allowance = allowance,
+        workType = workType,
+        kilometresLabel = "$kilometres km",
+        isProjectNameOnlyPlaceholder = isProjectNameOnlyPlaceholder(),
+        stableKey = stableListItemKey()
+    )
+}
+
+private fun SingleProjectState.stableListItemKey(): String {
+    val datePart = if (date.isNotBlank()) date else "<no-date>"
+    return "$datePart|index:$index|$projectName|$projectTime|$kilometres|$allowance|$workType"
+}
+

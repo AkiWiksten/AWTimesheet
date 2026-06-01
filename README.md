@@ -101,7 +101,6 @@ Summarize benchmark output:
   + Selecting work type doesn't work in edit mode
   + Add full flex time day (Zero time project, add work type "Absence->Flex time")
 + WorkdayScreen 
-  + Show non-empty projects first alphabetically and then project_names projects
   + Unselect project from list
   + Select many in list
   + Select all in list

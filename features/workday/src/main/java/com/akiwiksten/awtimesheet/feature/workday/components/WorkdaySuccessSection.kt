@@ -252,10 +252,7 @@ private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
 }
 
 private fun SingleProjectState.stableListItemKey(): String {
-    return if (date.isNotBlank()) {
-        "$date|$projectName"
-    } else {
-        "index:$index|$projectName|$projectTime|$kilometres|$allowance|$workType"
-    }
+    val datePart = if (date.isNotBlank()) date else "<no-date>"
+    return "$datePart|index:$index|$projectName|$projectTime|$kilometres|$allowance|$workType"
 }
 

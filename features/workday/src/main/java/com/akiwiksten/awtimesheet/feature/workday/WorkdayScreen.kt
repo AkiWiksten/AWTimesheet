@@ -46,8 +46,6 @@ fun WorkdayScreen(
             )
             pendingOldFlexTimeByDateState.value = null
             pendingOldWorkTimeByDateState.value = null
-        } else {
-            workdayViewModel.retryLoad()
         }
 
         onPauseOrDispose { }

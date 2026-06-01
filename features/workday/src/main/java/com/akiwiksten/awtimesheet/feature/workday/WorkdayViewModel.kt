@@ -105,7 +105,8 @@ class WorkdayViewModel @Inject constructor(
             try {
                 reconcileFlexTimeTotal(
                     oldFlexTimeByDate = oldFlexTimeByDate,
-                    oldWorkTimeByDate = oldWorkTimeByDate
+                    oldWorkTimeByDate = oldWorkTimeByDate,
+                    trackedWorkTimeByDateChange = dateRepository.workTimeByDateChange.value
                 )
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "reconcileFlexTimeTotalAfterProjectEditorReturn: ", e)
@@ -166,25 +167,45 @@ class WorkdayViewModel @Inject constructor(
         }
     }
 
-    private suspend fun reconcileFlexTimeTotal(oldFlexTimeByDate: String, oldWorkTimeByDate: String) {
+    private suspend fun reconcileFlexTimeTotal(
+        oldFlexTimeByDate: String,
+        oldWorkTimeByDate: String,
+        trackedWorkTimeByDateChange: String? = null
+    ) {
         val date = dateRepository.selectedDate.value
         if (date.isBlank()) {
             requestReload()
             return
         }
 
-        val latestData = getWorkdayScreenDataUseCase(date)
-        val newFlexTimeByDate = calculateFlexTimeByDate(
-            workTimeByDate = latestData.workTimeByDate,
-            workTimeByDateEstimate = latestData.workTimeByDateEstimate
-        )
+        val currentState = uiState.value as? WorkdayUiState.Success
+        val (newWorkTimeByDate, newFlexTimeByDate) = if (
+            trackedWorkTimeByDateChange != null &&
+            trackedWorkTimeByDateChange != ZERO_TIME &&
+            currentState != null
+        ) {
+            val updatedWorkTimeByDate = WorkTimeCalculator.calculateFlexTime(
+                initialTime = oldWorkTimeByDate,
+                addedTime = trackedWorkTimeByDateChange
+            )
+            updatedWorkTimeByDate to calculateFlexTimeByDate(
+                workTimeByDate = updatedWorkTimeByDate,
+                workTimeByDateEstimate = currentState.workTimeByDateEstimate
+            )
+        } else {
+            val latestData = getWorkdayScreenDataUseCase(date)
+            latestData.workTimeByDate to calculateFlexTimeByDate(
+                workTimeByDate = latestData.workTimeByDate,
+                workTimeByDateEstimate = latestData.workTimeByDateEstimate
+            )
+        }
         val oldFlexContribution = resolveFlexContribution(
             flexTimeByDate = oldFlexTimeByDate,
             workTimeByDate = oldWorkTimeByDate
         )
         val newFlexContribution = resolveFlexContribution(
             flexTimeByDate = newFlexTimeByDate,
-            workTimeByDate = latestData.workTimeByDate
+            workTimeByDate = newWorkTimeByDate
         )
         val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
             initialTime = newFlexContribution,

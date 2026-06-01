@@ -366,6 +366,53 @@ class WorkdayViewModelTest {
     }
 
     @Test
+    fun reconcileFlexTimeTotalAfterProjectEditorReturn_usesTrackedWorkTimeDeltaWithoutExtraWorkdayRead() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:30"
+                )
+            )
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = "01:00"
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        val initialRangeReads = projectRepository.requestedRanges.size
+        dateRepository.addWorkTimeByDateChange("02:00")
+
+        viewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(
+            oldFlexTimeByDate = "-05:00",
+            oldWorkTimeByDate = "02:30"
+        )
+        advanceUntilIdle()
+
+        Assert.assertEquals(initialRangeReads + 1, projectRepository.requestedRanges.size)
+        Assert.assertEquals("03:00", settingsRepository.calculatedFlexTimeTotal)
+    }
+
+    @Test
     fun newDateWithoutWorkdayRow_usesGlobalDailyEstimateForworkTimeByDateEstimate() = runTest {
         val projectRepository = FakeProjectRepository()
         val projectDetailsRepository = FakeProjectDetailsRepository().apply {

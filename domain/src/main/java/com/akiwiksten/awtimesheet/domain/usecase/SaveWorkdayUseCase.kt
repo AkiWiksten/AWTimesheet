@@ -18,22 +18,18 @@ class SaveWorkdayUseCase @Inject constructor(
     private val workdayRepository: WorkdayRepository
 ) {
     suspend operator fun invoke(
-        projectsToSave: List<SingleProjectState>,
+        projectToSave: SingleProjectState,
         projectDetailsToSave: ProjectDetailsState? = null
     ) {
-        projectsToSave.forEach { project ->
-            projectRepository.insertProjectName(project.projectName)
-            projectRepository.insertProject(project)
-        }
+        projectRepository.insertProjectName(projectToSave.projectName)
+        projectRepository.insertProject(projectToSave)
 
         projectDetailsToSave?.let {
             projectDetailsRepository.insertProjectDetails(it)
         }
 
-        // Ensure each affected date has an estimate row for flex-time aggregation.
-        val affectedDates = projectsToSave.map { it.date }.filter { it.isNotEmpty() }.distinct()
-        affectedDates.forEach { date ->
-            val existing = settingsRepository.getEffectiveSettingsForDate(date)
+        if (projectToSave.date.isNotEmpty()) {
+            val existing = settingsRepository.getEffectiveSettingsForDate(projectToSave.date)
                 ?: settingsRepository.getSettings()
                 ?: SettingsState(
                     dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
@@ -41,7 +37,7 @@ class SaveWorkdayUseCase @Inject constructor(
                     initialFlexTimeTotal = ZERO_TIME
                 )
             workdayRepository.upsertWorkdayStats(
-                date = date,
+                date = projectToSave.date,
                 workTimeByDateEstimate = existing.dailyWorkTimeEstimate
             )
         }

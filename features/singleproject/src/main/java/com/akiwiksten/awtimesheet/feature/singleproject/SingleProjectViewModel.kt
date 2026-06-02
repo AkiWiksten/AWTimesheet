@@ -108,7 +108,7 @@ class SingleProjectViewModel @Inject constructor(
                 )
 
                 saveWorkdayUseCase(
-                    projectsToSave = listOf(projectToSave),
+                    projectToSave = projectToSave,
                     projectDetailsToSave = projectDetailsToSave
                 )
 

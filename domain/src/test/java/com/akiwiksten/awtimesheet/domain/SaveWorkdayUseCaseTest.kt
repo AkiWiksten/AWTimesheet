@@ -28,12 +28,10 @@ class SaveWorkdayUseCaseTest {
         )
 
         useCase(
-            projectsToSave = listOf(
-                projectState(
-                    date = "2026-04-10",
-                    projectName = "Alpha",
-                    projectTime = "02:00"
-                )
+            projectToSave = projectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "02:00"
             ),
             projectDetailsToSave = projectDetailsState(
                 date = "2026-04-10",
@@ -62,12 +60,10 @@ class SaveWorkdayUseCaseTest {
         )
 
         useCase(
-            projectsToSave = listOf(
-                projectState(
-                    date = "2026-04-10",
-                    projectName = "Alpha",
-                    projectTime = "01:00"
-                )
+            projectToSave = projectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "01:00"
             ),
             projectDetailsToSave = null
         )

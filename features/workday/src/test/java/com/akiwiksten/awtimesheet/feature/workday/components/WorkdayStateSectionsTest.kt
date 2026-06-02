@@ -1,9 +1,34 @@
 package com.akiwiksten.awtimesheet.feature.workday.components
 
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class WorkdayStateSectionsTest {
+
+    @Test
+    fun calculateDisplayedFlexTimeByDate_whenWorkTimeIsZero_returnsZeroTime() {
+        val result = calculateDisplayedFlexTimeByDate(
+            persistedWorkTimeByDate = ZERO_TIME,
+            persistedFlexTimeByDate = ZERO_TIME,
+            editedWorkTimeByDateEstimate = "07:30",
+            isEditedWorkTimeByDateEstimateValid = true
+        )
+
+        assertEquals(ZERO_TIME, result)
+    }
+
+    @Test
+    fun calculateDisplayedFlexTimeByDate_whenEstimateInvalid_returnsPersistedFlexTime() {
+        val result = calculateDisplayedFlexTimeByDate(
+            persistedWorkTimeByDate = "02:00",
+            persistedFlexTimeByDate = "-05:30",
+            editedWorkTimeByDateEstimate = "bad",
+            isEditedWorkTimeByDateEstimateValid = false
+        )
+
+        assertEquals("-05:30", result)
+    }
 
     @Test
     fun calculateDisplayedCalculatedFlexTimeTotal_usesPersistedInitialFlexTimeTotal() {

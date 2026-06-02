@@ -147,6 +147,8 @@ class WorkdayViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentUiState = uiState.value as? WorkdayUiState.Success ?: return@launch
+                val oldFlexTimeByDate = currentUiState.flexTimeByDate
+                val oldWorkTimeByDate = currentUiState.workTimeByDate
                 updateSettingsUseCase(
                     UpdateSettingsParams(
                         date = currentUiState.date,
@@ -157,13 +159,51 @@ class WorkdayViewModel @Inject constructor(
                         updateGlobalSettings = updateGlobalSettings
                     )
                 )
-                requestReload()
+                reconcileFlexTimeTotalAfterEstimateUpdate(
+                    oldFlexTimeByDate = oldFlexTimeByDate,
+                    workTimeByDate = oldWorkTimeByDate,
+                    newWorkTimeByDateEstimate = workTimeByDateEstimate
+                )
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "updateSettings: ", e)
             } catch (e: IllegalStateException) {
                 Log.e("WorkdayViewModel", "updateSettings: ", e)
             }
         }
+    }
+
+    private suspend fun reconcileFlexTimeTotalAfterEstimateUpdate(
+        oldFlexTimeByDate: String,
+        workTimeByDate: String,
+        newWorkTimeByDateEstimate: String
+    ) {
+        val newFlexTimeByDate = calculateFlexTimeByDate(
+            workTimeByDate = workTimeByDate,
+            workTimeByDateEstimate = newWorkTimeByDateEstimate
+        )
+        val oldFlexContribution = resolveFlexContribution(
+            flexTimeByDate = oldFlexTimeByDate,
+            workTimeByDate = workTimeByDate
+        )
+        val newFlexContribution = resolveFlexContribution(
+            flexTimeByDate = newFlexTimeByDate,
+            workTimeByDate = workTimeByDate
+        )
+        val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
+            initialTime = newFlexContribution,
+            addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$oldFlexContribution")
+        )
+
+        if (flexTimeByDateDelta != ZERO_TIME) {
+            val persistedCalculatedFlexTimeTotal = settingsRepository.getCalculatedFlextimeTotal()
+            val updatedCalculatedFlexTimeTotal = WorkTimeCalculator.calculateFlexTime(
+                initialTime = persistedCalculatedFlexTimeTotal,
+                addedTime = flexTimeByDateDelta
+            )
+            settingsRepository.insertCalculatedFlextimeTotal(updatedCalculatedFlexTimeTotal)
+        }
+
+        requestReload()
     }
 
     private suspend fun reconcileFlexTimeTotal(

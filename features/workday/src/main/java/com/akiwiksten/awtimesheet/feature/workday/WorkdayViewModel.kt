@@ -105,8 +105,7 @@ class WorkdayViewModel @Inject constructor(
             try {
                 reconcileFlexTimeTotal(
                     oldFlexTimeByDate = oldFlexTimeByDate,
-                    oldWorkTimeByDate = oldWorkTimeByDate,
-                    trackedWorkTimeByDateChange = dateRepository.workTimeByDateChange.value
+                    oldWorkTimeByDate = oldWorkTimeByDate
                 )
             } catch (e: IllegalArgumentException) {
                 Log.e("WorkdayViewModel", "reconcileFlexTimeTotalAfterProjectEditorReturn: ", e)
@@ -169,8 +168,7 @@ class WorkdayViewModel @Inject constructor(
 
     private suspend fun reconcileFlexTimeTotal(
         oldFlexTimeByDate: String,
-        oldWorkTimeByDate: String,
-        trackedWorkTimeByDateChange: String? = null
+        oldWorkTimeByDate: String
     ) {
         val date = dateRepository.selectedDate.value
         if (date.isBlank()) {

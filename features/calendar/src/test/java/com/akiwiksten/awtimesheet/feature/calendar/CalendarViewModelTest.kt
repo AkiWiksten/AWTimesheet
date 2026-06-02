@@ -26,7 +26,7 @@ class CalendarViewModelTest {
     @Test
     fun onDateSelected_updatesUiStateWithCalculatedSums() = runTest {
         val projectRepository = FakeProjectRepository().apply {
-            dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectsResult = listOf(
                 projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
             )
         }
@@ -56,7 +56,7 @@ class CalendarViewModelTest {
             updateWorkTimeByDateChange("-02:30")
         }
         val projectRepository = FakeProjectRepository().apply {
-            dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectsResult = listOf(
                 projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
             )
         }
@@ -83,7 +83,7 @@ class CalendarViewModelTest {
             updateDate("2026-04-10")
         }
         val projectRepository = FakeProjectRepository().apply {
-            dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectsResult = listOf(
                 projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "08:00")
             )
         }
@@ -121,9 +121,7 @@ class CalendarViewModelTest {
         val dateRepository = InMemoryDateRepository().apply {
             updateDate("2026-04-10")
         }
-        val projectRepository = FakeProjectRepository().apply {
-            dataByRange["2026-04-01|2026-04-30"] = emptyList()
-        }
+        val projectRepository = FakeProjectRepository()
 
         val viewModel = CalendarViewModel(
             getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
@@ -138,7 +136,7 @@ class CalendarViewModelTest {
         assertEquals(ZERO_TIME, initialState.timePerWeek)
         assertEquals(ZERO_TIME, initialState.timePerDay)
 
-        projectRepository.dataByRange["2026-04-01|2026-04-30"] = listOf(
+        projectRepository.projectsResult = listOf(
             projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
         )
 
@@ -149,10 +147,8 @@ class CalendarViewModelTest {
         assertEquals("02:00", refreshedState.timePerMonth)
         assertEquals("02:00", refreshedState.timePerWeek)
         assertEquals("02:00", refreshedState.timePerDay)
-        assertEquals(
-            listOf("2026-04-01|2026-04-30", "2026-04-01|2026-04-30"),
-            projectRepository.requestedRanges
-        )
+        // Month range should have been requested twice: once on initial load, once on forced re-select
+        assertEquals(2, projectRepository.requestedRanges.count { it == "2026-04-01|2026-04-30" })
     }
 
     @Test
@@ -207,10 +203,8 @@ class CalendarViewModelTest {
     fun onDateSelected_afterInitialSuccess_doesNotEmitLoading() = runTest {
         val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
         val projectRepository = FakeProjectRepository().apply {
-            dataByRange["2026-04-01|2026-04-30"] = listOf(
-                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00")
-            )
-            dataByRange["2026-05-01|2026-05-31"] = listOf(
+            projectsResult = listOf(
+                projectState(date = "2026-04-10", projectName = "Alpha", projectTime = "02:00"),
                 projectState(date = "2026-05-10", projectName = "Beta", projectTime = "03:00")
             )
         }
@@ -243,6 +237,52 @@ class CalendarViewModelTest {
         assertEquals("03:00", state.timePerDay)
 
         job.cancel()
+    }
+
+    @Test
+    fun addProjectThenChangeDateThenAddProject_monthShowsBothProjectsTotal() = runTest {
+        // Regression: updateDate() resets workTimeByDateChange before the calendar can apply
+        // it as an incremental delta. The fix forces a fresh DB fetch on every date change so
+        // the cache is always re-seeded from DB, then remaining incremental changes (from the
+        // new date's work) are applied correctly on top.
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-14") }
+        val projectRepository = FakeProjectRepository().apply {
+            dataByRange["2026-04-01|2026-04-30"] = emptyList()
+        }
+        val viewModel = CalendarViewModel(
+            getCalendarDataUseCase = GetCalendarDataUseCase(projectRepository),
+            dateRepository = dateRepository
+        )
+        viewModel.startAutoReload()
+        advanceUntilIdle()
+
+        assertEquals(ZERO_TIME, (viewModel.uiState.value as CalendarUiState.Success).timePerMonth)
+
+        // User saves Alpha (01:00) on Apr 14. DB now has Alpha.
+        projectRepository.dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectState(date = "2026-04-14", projectName = "Alpha", projectTime = "01:00")
+        )
+        dateRepository.addWorkTimeByDateChange("01:00")
+
+        // User changes to Apr 15 without returning to the calendar.
+        // updateDate() resets workTimeByDateChange → old approach would lose the "01:00" delta.
+        // New approach: date change triggers a forced DB re-fetch, which picks up Alpha correctly.
+        dateRepository.updateDate("2026-04-15")
+        advanceUntilIdle()
+        // Cache is now "01:00" (read fresh from DB after date change).
+
+        // User saves Beta (02:00) on Apr 15.
+        projectRepository.dataByRange["2026-04-01|2026-04-30"] = listOf(
+            projectState(date = "2026-04-14", projectName = "Alpha", projectTime = "01:00"),
+            projectState(date = "2026-04-15", projectName = "Beta", projectTime = "02:00")
+        )
+        dateRepository.addWorkTimeByDateChange("02:00")
+
+        // User returns to the calendar — refresh applies the +02:00 delta on top of cached "01:00".
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals("03:00", (viewModel.uiState.value as CalendarUiState.Success).timePerMonth)
     }
 
     @Test

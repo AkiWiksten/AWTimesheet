@@ -44,6 +44,7 @@ class CalendarViewModel @Inject constructor(
 
     fun startAutoReload() {
         viewModelScope.launch {
+            var lastDate = ""
             var lastRefreshVersion = -1L
             dateRepository.selectedDate
                 .combine(dateRepository.calendarRefreshVersion) { date, refreshVersion ->
@@ -51,8 +52,10 @@ class CalendarViewModel @Inject constructor(
                 }
                 .collect { (date, refreshVersion) ->
                 if (date.isNotEmpty()) {
+                    val dateChanged = date != lastDate
+                    lastDate = date
                     val forceMonthRecalculation =
-                        refreshVersion != lastRefreshVersion && refreshVersion > 0L
+                        dateChanged || (refreshVersion != lastRefreshVersion && refreshVersion > 0L)
                     lastRefreshVersion = refreshVersion
                     refreshCalendarData(
                         date = date,

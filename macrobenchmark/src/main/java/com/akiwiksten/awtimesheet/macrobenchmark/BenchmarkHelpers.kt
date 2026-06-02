@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.akiwiksten.awtimesheet.macrobenchmark
 
 import androidx.benchmark.macro.MacrobenchmarkScope
@@ -55,10 +57,13 @@ internal val WORKDAY_READY_TEXTS = listOf(
 
 // SingleProjectScreen action labels across supported locales (en / fi / sv).
 internal val SINGLE_PROJECT_READY_TEXTS = listOf(
-    "Details", "Tiedot", "Detaljer",
-    "Pick", "Valitse", "Välj"
+    "Details",
+    "Tiedot",
+    "Detaljer",
+    "Pick",
+    "Valitse",
+    "Välj"
 )
-
 
 // ---------------------------------------------------------------------------
 // Scroll constants
@@ -76,6 +81,7 @@ private const val NAV_FALLBACK_RETRIES = 5
  * Navigates to a bottom-nav tab by text label, with intro-dismiss and
  * coordinate-based fallback.
  */
+@Suppress("ReturnCount")
 internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     device.waitForIdle()
 
@@ -101,9 +107,9 @@ internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     // Fallback: select bottom-nav item by its stable positional order.
     val targetIndex = when (label) {
         TAB_CALENDAR -> 0
-        TAB_WORKDAY  -> 1
+        TAB_WORKDAY -> 1
         TAB_SETTINGS -> 2
-        else         -> null
+        else -> null
     }
 
     if (targetIndex != null) {
@@ -116,7 +122,9 @@ internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
                         val centerY = bounds.centerY()
                         if (centerY >= (device.displayHeight * BOTTOM_NAV_MIN_Y_RATIO).toInt()) {
                             bounds.centerX() to centerY
-                        } else null
+                        } else {
+                            null
+                        }
                     }.getOrNull()
                 }
                 .sortedBy { it.first }
@@ -146,11 +154,14 @@ internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
  * completes.  This function keeps tapping and checking with generous delays
  * so the caller does not need to know the animation length.
  */
+@Suppress("ReturnCount")
 internal fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
     if (device.hasObject(By.text(TAB_CALENDAR)) ||
         device.hasObject(By.text(TAB_WORKDAY)) ||
         device.hasObject(By.text(TAB_SETTINGS))
-    ) return false
+    ) {
+        return false
+    }
 
     val centerX = device.displayWidth / 2
     val centerY = device.displayHeight / 2
@@ -161,8 +172,8 @@ internal fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
 
         val tabsVisible =
             device.wait(Until.hasObject(By.text(TAB_WORKDAY)), INTRO_DISMISS_WAIT_MS) ||
-            device.hasObject(By.text(TAB_CALENDAR)) ||
-            device.hasObject(By.text(TAB_SETTINGS))
+                device.hasObject(By.text(TAB_CALENDAR)) ||
+                device.hasObject(By.text(TAB_SETTINGS))
         if (tabsVisible) return true
     }
     return false
@@ -235,7 +246,7 @@ internal fun MacrobenchmarkScope.ensureTargetAppForegroundVisible() {
 
 private fun MacrobenchmarkScope.performVerticalScroll(repeats: Int) {
     val centerX = device.displayWidth / 2
-    val topY    = (device.displayHeight * 0.20f).toInt()
+    val topY = (device.displayHeight * 0.20f).toInt()
     val bottomY = (device.displayHeight * 0.80f).toInt()
 
     repeat(repeats) {
@@ -277,4 +288,3 @@ internal fun MacrobenchmarkScope.seedRealisticStartupDataIfEmpty() {
         "Benchmark data seeding broadcast failed. Output: $output"
     }
 }
-

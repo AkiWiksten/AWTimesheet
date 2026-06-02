@@ -25,6 +25,7 @@ import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
+@Suppress("LongMethod")
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     onUnsavedChangesChanged: (Boolean) -> Unit = {},
@@ -141,6 +142,7 @@ private fun createSettingsActions(
 }
 
 @Composable
+@Suppress("LongParameterList")
 internal fun SettingsStateContent(
     uiState: SettingsUiState,
     defaultWorkType: String,
@@ -198,6 +200,7 @@ internal fun SettingsStateContent(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun SettingsLoadingContent(
     showLoadingIndicator: Boolean,
     lastSuccessState: SettingsUiState.Success?,

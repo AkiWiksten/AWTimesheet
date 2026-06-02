@@ -1,5 +1,7 @@
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.ProjectDependency
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.kotlin.dsl.configure
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
 plugins {
@@ -11,6 +13,17 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.screenshot) apply false
+}
+
+subprojects {
+    pluginManager.apply("io.gitlab.arturbosch.detekt")
+
+    dependencies.add("detektPlugins", "io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+
+    extensions.configure<DetektExtension> {
+        buildUponDefaultConfig = true
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    }
 }
 
 tasks.register("verifyModuleBoundaries") {

@@ -34,11 +34,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.akiwiksten.awtimesheet.feature.singleproject.R
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
@@ -48,6 +47,7 @@ import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.singleproject.R
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
@@ -477,4 +477,3 @@ data class SingleProjectActions(
     val onOpenProjectDetails: () -> Unit,
     val onConfirm: () -> Unit
 )
-

@@ -3,8 +3,8 @@
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -133,4 +133,3 @@ private fun calculateWorkTimeByDateChange(previousProjectTime: String, newProjec
         addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$previousProjectTime")
     )
 }
-

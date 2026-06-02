@@ -1,14 +1,16 @@
-﻿@file:Suppress("ImportOrdering")
 package com.akiwiksten.awtimesheet.data.repository
+
 import com.akiwiksten.awtimesheet.data.mapper.toEntity
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsDao
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
+
 class ProjectDetailsRepositoryImplTest {
     private val projectDetailsDao = FakeProjectDetailsDao()
     private val repository = ProjectDetailsRepositoryImpl(projectDetailsDao)
+
     @Test
     fun getProjectDetails_returnsDataFromDao() = runBlocking {
         val expected = ProjectDetailsState(date = "2026-04-10", projectName = "Alpha")
@@ -18,18 +20,21 @@ class ProjectDetailsRepositoryImplTest {
         assertEquals("2026-04-10", projectDetailsDao.lastDate)
         assertEquals("Alpha", projectDetailsDao.lastProjectName)
     }
+
     @Test
     fun insertProjectDetails_callsDaoInsert() = runBlocking {
         val projectDetails = ProjectDetailsState(date = "2026-04-10", projectName = "Alpha")
         repository.insertProjectDetails(projectDetails)
         assertEquals(projectDetails.toEntity(), projectDetailsDao.insertedProjectDetails)
     }
+
     @Test
     fun deleteProjectDetails_callsDaoDelete() = runBlocking {
         val projectDetails = ProjectDetailsState(date = "2026-04-10", projectName = "Alpha")
         repository.deleteProjectDetails(projectDetails)
         assertEquals(projectDetails.toEntity(), projectDetailsDao.deletedProjectDetails)
     }
+
     @Test
     fun getProjectDetailsByDateRange_returnsDataFromDao() = runBlocking {
         val expected: List<ProjectDetailsState> = listOf(

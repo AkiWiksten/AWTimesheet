@@ -1,7 +1,6 @@
 package com.akiwiksten.awtimesheet.feature.settings
 
 import android.content.Context
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.GenerateTimesheetParams
 import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.TimesheetGeneratorEntry
 

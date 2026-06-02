@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility

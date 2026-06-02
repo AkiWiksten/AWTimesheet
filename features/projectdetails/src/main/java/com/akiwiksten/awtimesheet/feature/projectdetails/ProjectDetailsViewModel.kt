@@ -3,11 +3,10 @@
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.TIME_FORMAT
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.StartTimeUpdateParams
-import com.akiwiksten.awtimesheet.feature.projectdetails.calculator.ProjectDetailsTimeUpdateCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.hasOnlyProjectTime
@@ -15,6 +14,7 @@ import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
+import com.akiwiksten.awtimesheet.feature.projectdetails.calculator.ProjectDetailsTimeUpdateCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -497,4 +497,3 @@ class ProjectDetailsViewModel @Inject constructor(
         setProjectTime(LocalTime.now().format(timeFormatter))
     }
 }
-

@@ -11,4 +11,3 @@ fun String.toWorkTypeEntity(): WorkTypeEntity {
         workType = this
     )
 }
-

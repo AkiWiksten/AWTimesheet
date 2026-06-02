@@ -180,4 +180,3 @@ private fun LocalTime.subtract(time: LocalTime): LocalTime {
 private fun LocalTime.add(time: LocalTime): LocalTime {
     return plusHours(time.hour.toLong()).plusMinutes(time.minute.toLong())
 }
-

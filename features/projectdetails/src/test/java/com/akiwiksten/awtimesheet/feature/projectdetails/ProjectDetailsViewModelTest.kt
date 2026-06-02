@@ -4,8 +4,8 @@ import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
-import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
+import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.ExperimentalCoroutinesApi

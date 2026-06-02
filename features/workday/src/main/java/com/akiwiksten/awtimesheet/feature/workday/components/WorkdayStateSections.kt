@@ -14,8 +14,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
-import com.akiwiksten.awtimesheet.feature.workday.WorkdayActions
 import com.akiwiksten.awtimesheet.feature.workday.R
+import com.akiwiksten.awtimesheet.feature.workday.WorkdayActions
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayUiState
 
 @Composable

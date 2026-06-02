@@ -80,4 +80,3 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun deleteWorkType(workType: String) = workTypeDao.delete(workType.toWorkTypeEntity())
     override suspend fun deleteAllWorkTypes() = workTypeDao.deleteAllWorkTypes()
 }
-

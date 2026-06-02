@@ -29,6 +29,7 @@ class CalendarViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+
     // Keep startup UI minimal to reduce first-draw cost.
     private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Initial)
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -51,19 +52,19 @@ class CalendarViewModel @Inject constructor(
                     date to refreshVersion
                 }
                 .collect { (date, refreshVersion) ->
-                if (date.isNotEmpty()) {
-                    val dateChanged = date != lastDate
-                    lastDate = date
-                    val forceMonthRecalculation =
-                        dateChanged || (refreshVersion != lastRefreshVersion && refreshVersion > 0L)
-                    lastRefreshVersion = refreshVersion
-                    refreshCalendarData(
-                        date = date,
-                        showLoading = _uiState.value !is CalendarUiState.Success,
-                        forceMonthRecalculation = forceMonthRecalculation
-                    )
+                    if (date.isNotEmpty()) {
+                        val dateChanged = date != lastDate
+                        lastDate = date
+                        val forceMonthRecalculation =
+                            dateChanged || (refreshVersion != lastRefreshVersion && refreshVersion > 0L)
+                        lastRefreshVersion = refreshVersion
+                        refreshCalendarData(
+                            date = date,
+                            showLoading = _uiState.value !is CalendarUiState.Success,
+                            forceMonthRecalculation = forceMonthRecalculation
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -188,7 +189,6 @@ class CalendarViewModel @Inject constructor(
             _uiState.value = CalendarUiState.Error(e.message ?: "Invalid state")
         }
     }
-
 }
 
 sealed class CalendarUiState {

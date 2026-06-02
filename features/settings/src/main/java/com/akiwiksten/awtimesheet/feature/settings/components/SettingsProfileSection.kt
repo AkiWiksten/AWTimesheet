@@ -3,8 +3,8 @@ package com.akiwiksten.awtimesheet.feature.settings.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
+import com.akiwiksten.awtimesheet.feature.settings.R
 
 @Composable
 internal fun SettingsProfileSection(

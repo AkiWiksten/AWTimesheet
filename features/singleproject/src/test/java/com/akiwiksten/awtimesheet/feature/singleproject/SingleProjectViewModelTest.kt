@@ -1,12 +1,12 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import com.akiwiksten.awtimesheet.test.projectState
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -30,4 +30,3 @@ internal fun resolveInitialSingleProjectState(
             ?.data!!
     }
 }
-

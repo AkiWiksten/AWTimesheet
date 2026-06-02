@@ -133,18 +133,14 @@ internal fun calculateDisplayedFlexTimeByDate(
     editedWorkTimeByDateEstimate: String,
     isEditedWorkTimeByDateEstimateValid: Boolean
 ): String {
-    if (!isEditedWorkTimeByDateEstimateValid) {
-        return persistedFlexTimeByDate
+    return when {
+        !isEditedWorkTimeByDateEstimateValid -> persistedFlexTimeByDate
+        persistedWorkTimeByDate == ZERO_TIME -> ZERO_TIME
+        else -> WorkTimeCalculator.calculateFlexTime(
+            initialTime = persistedWorkTimeByDate,
+            addedTime = "-$editedWorkTimeByDateEstimate"
+        )
     }
-
-    if (persistedWorkTimeByDate == ZERO_TIME) {
-        return ZERO_TIME
-    }
-
-    return WorkTimeCalculator.calculateFlexTime(
-        initialTime = persistedWorkTimeByDate,
-        addedTime = "-$editedWorkTimeByDateEstimate"
-    )
 }
 
 internal fun calculateDisplayedCalculatedFlexTimeTotal(
@@ -281,4 +277,3 @@ private fun SingleProjectState.stableListItemKey(): String {
     val datePart = if (date.isNotBlank()) date else "<no-date>"
     return "$datePart|index:$index|$projectName|$projectTime|$kilometres|$allowance|$workType"
 }
-

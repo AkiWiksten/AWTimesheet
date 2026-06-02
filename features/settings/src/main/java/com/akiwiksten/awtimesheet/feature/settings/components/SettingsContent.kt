@@ -25,6 +25,7 @@ import com.akiwiksten.awtimesheet.feature.settings.rememberSettingsSaveUi
 import com.akiwiksten.awtimesheet.feature.settings.rememberSettingsWorkTypeUiState
 
 @Composable
+@Suppress("LongParameterList", "LongMethod")
 internal fun SettingsContent(
     uiState: SettingsUiState.Success,
     actions: SettingsActions,

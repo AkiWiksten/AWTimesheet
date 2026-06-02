@@ -24,4 +24,3 @@ class ProjectDetailsRepositoryImpl @Inject constructor(
     override suspend fun getProjectDetailsByDateRange(start: String, end: String): List<ProjectDetailsState> =
         projectDetailsDao.getProjectDetailsByDateRange(start, end).map { it.toDomain() }
 }
-

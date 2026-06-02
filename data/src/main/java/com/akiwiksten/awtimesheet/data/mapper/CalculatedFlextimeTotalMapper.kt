@@ -12,4 +12,3 @@ fun String.toCalculatedFlextimeTotalEntity(): CalculatedFlextimeTotalEntity {
         calculatedFlexTimeTotal = this
     )
 }
-

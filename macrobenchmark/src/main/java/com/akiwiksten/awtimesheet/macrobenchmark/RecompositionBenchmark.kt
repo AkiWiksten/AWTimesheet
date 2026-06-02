@@ -1,3 +1,5 @@
+@file:Suppress("Filename", "TooManyFunctions")
+
 package com.akiwiksten.awtimesheet.macrobenchmark
 
 import android.view.KeyEvent
@@ -217,7 +219,6 @@ private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
     requireLikelyProjectDetailsScreen(context = "after opening Project Details")
 }
 
-
 private fun MacrobenchmarkScope.openProjectDetailsFromSingleProjectScreen() {
     // Primary path: text-based lookup (works in matching locale).
     val detailsByText = device.wait(Until.findObject(By.text("Details")), NAVIGATION_WAIT_MS)
@@ -391,15 +392,18 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
                     val bounds = node.visibleBounds
                     val centerX = bounds.centerX()
                     val centerY = bounds.centerY()
+                    val contentAreaStartY =
+                        (device.displayHeight * CONTENT_AREA_MIN_Y_RATIO).toInt()
+                    val contentAreaEndY =
+                        (device.displayHeight * CONTENT_AREA_MAX_Y_RATIO).toInt()
                     val isInContentArea =
-                        centerY in (device.displayHeight * CONTENT_AREA_MIN_Y_RATIO).toInt()..
-                            (device.displayHeight * CONTENT_AREA_MAX_Y_RATIO).toInt()
+                        centerY in contentAreaStartY..contentAreaEndY
 
                     // Skip navigation buttons that would leave SingleProjectScreen
                     val nodeText = node.text?.lowercase() ?: ""
-                    val shouldSkip = nodeText.contains("details")
-                        || nodeText.contains("pick")
-                        || nodeText.contains("edit")
+                    val shouldSkip = nodeText.contains("details") ||
+                        nodeText.contains("pick") ||
+                        nodeText.contains("edit")
 
                     if (isInContentArea && !shouldSkip) centerX to centerY else null
                 } catch (_: StaleObjectException) {
@@ -437,6 +441,7 @@ private fun MacrobenchmarkScope.ensureTargetAppInForeground() {
  * Clicks the Workday "Add" button using locale-aware text matching
  * (English: "Add", Finnish: "Lisää", Swedish: "Lägg till").
  */
+@Suppress("LongMethod", "CyclomaticComplexMethod", "ReturnCount")
 private fun MacrobenchmarkScope.clickWorkdayAddButton() {
     repeat(CLICK_RETRY_COUNT) { attempt ->
         if (attempt == 0) {
@@ -487,8 +492,7 @@ private fun MacrobenchmarkScope.clickWorkdayAddButton() {
                     val centerY = bounds.centerY()
                     val isLikelyAddAction =
                         centerX >= (device.displayWidth * 0.52f).toInt() &&
-                            centerY in (device.displayHeight * 0.25f).toInt()..
-                            (device.displayHeight * 0.78f).toInt()
+                            centerY in (device.displayHeight * 0.25f).toInt()..(device.displayHeight * 0.78f).toInt()
                     if (isLikelyAddAction) centerX to centerY else null
                 } catch (_: StaleObjectException) {
                     null
@@ -627,5 +631,3 @@ private fun MacrobenchmarkScope.clickNodeViaClickableAncestor(node: UiObject2): 
     val bounds = node.visibleBounds
     return device.click(bounds.centerX(), bounds.centerY())
 }
-
-

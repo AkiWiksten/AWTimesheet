@@ -13,12 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.ACTION_BUTTON_FONT_SIZE
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
+import com.akiwiksten.awtimesheet.feature.settings.R
 
 @Composable
+@Suppress("LongParameterList")
 internal fun SettingsActionButtonsSection(
     onSave: () -> Unit,
     onGenerateXlsx: () -> Unit,

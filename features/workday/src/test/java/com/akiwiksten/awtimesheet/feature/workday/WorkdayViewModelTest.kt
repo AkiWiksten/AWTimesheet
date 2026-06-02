@@ -1,8 +1,9 @@
+@file:Suppress("MaxLineLength", "MaximumLineLength")
+
 package com.akiwiksten.awtimesheet.feature.workday
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
@@ -11,6 +12,7 @@ import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.test.MainDispatcherRule
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.projectState
@@ -25,6 +27,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass", "LongMethod")
 class WorkdayViewModelTest {
 
     @get:Rule

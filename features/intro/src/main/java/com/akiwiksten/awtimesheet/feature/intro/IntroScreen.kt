@@ -289,4 +289,3 @@ private fun StrokeText(text: String, modifier: Modifier = Modifier) {
         drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
     }
 }
-

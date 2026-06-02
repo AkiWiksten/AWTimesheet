@@ -52,7 +52,6 @@ private fun updateXmlSpaceAttribute(textNode: Element, preserveXmlSpace: Boolean
     }
 }
 
-
 internal fun createDocumentBuilderFactory(): DocumentBuilderFactory {
     return DocumentBuilderFactory.newInstance().apply {
         isNamespaceAware = true

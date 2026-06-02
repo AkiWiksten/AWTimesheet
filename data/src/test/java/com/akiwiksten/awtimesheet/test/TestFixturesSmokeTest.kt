@@ -17,5 +17,3 @@ class TestFixturesSmokeTest {
         assertEquals("2026-05-23", row.date)
     }
 }
-
-

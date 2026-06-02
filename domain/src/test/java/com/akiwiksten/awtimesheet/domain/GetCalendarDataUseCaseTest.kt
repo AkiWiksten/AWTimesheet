@@ -23,7 +23,7 @@ class GetCalendarDataUseCaseTest {
         val result = useCase("2026-04-15")
 
         assertEquals("16:00", result.timePerMonth)
-        assertEquals("08:00", result.timePerWeek)  // Apr 15 (05:00) + Apr 16 (03:00) in same week
+        assertEquals("08:00", result.timePerWeek) // Apr 15 (05:00) + Apr 16 (03:00) in same week
         assertEquals("05:00", result.timePerDay)
         // First call: month + week + day = 3 range queries
         assertEquals(3, projectRepository.requestedRanges.size)
@@ -76,9 +76,9 @@ class GetCalendarDataUseCaseTest {
         }
         val useCase = GetCalendarDataUseCase(projectRepository)
 
-        useCase("2026-04-10")                                          // 1st call: month + week + day
-        useCase(date = "2026-04-10", workTimeByDateChange = "02:30")  // 2nd call: week + day only
-        useCase("2026-04-10")                                          // 3rd call: week + day only
+        useCase("2026-04-10") // 1st call: month + week + day
+        useCase(date = "2026-04-10", workTimeByDateChange = "02:30") // 2nd call: week + day only
+        useCase("2026-04-10") // 3rd call: week + day only
 
         // 1 month fetch + 3×week + 3×day = 7 total range queries
         assertEquals(7, projectRepository.requestedRanges.size)

@@ -1,10 +1,10 @@
 package com.akiwiksten.awtimesheet.domain
 
-import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
+import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.test.projectState
 import com.akiwiksten.awtimesheet.test.settingsState
 import kotlinx.coroutines.runBlocking

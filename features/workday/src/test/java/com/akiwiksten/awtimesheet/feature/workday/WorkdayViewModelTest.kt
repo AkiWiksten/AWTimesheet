@@ -5,6 +5,7 @@ import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.test.InMemoryDateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetWorkdayScreenDataUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.UpdateSettingsUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
@@ -81,6 +82,40 @@ class WorkdayViewModelTest {
         Assert.assertEquals("-03:15", state.flexTimeTotal)
         Assert.assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
         Assert.assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
+    }
+
+    @Test
+    fun selectedDate_withZeroWorkTime_showsZeroFlexTimeByDate() = runTest {
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:45"
+            )
+            workdayStatsRows = listOf(
+                workdayStatsRow(
+                    date = "2026-04-10",
+                    workTimeByDateEstimate = "07:30"
+                )
+            )
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals(ZERO_TIME, state.workTimeByDate)
+        Assert.assertEquals(ZERO_TIME, state.flexTimeByDate)
     }
 
     @Test
@@ -366,7 +401,7 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun reconcileFlexTimeTotalAfterProjectEditorReturn_usesTrackedWorkTimeDeltaWithoutExtraWorkdayRead() = runTest {
+    fun reconcileFlexTimeTotalAfterProjectEditorReturn_readsLatestWorkdayDataBeforeReload() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
                 projectState(
@@ -408,8 +443,80 @@ class WorkdayViewModelTest {
         )
         advanceUntilIdle()
 
-        Assert.assertEquals(initialRangeReads + 1, projectRepository.requestedRanges.size)
-        Assert.assertEquals("03:00", settingsRepository.calculatedFlexTimeTotal)
+        Assert.assertEquals(initialRangeReads + 2, projectRepository.requestedRanges.size)
+        Assert.assertEquals("01:00", settingsRepository.calculatedFlexTimeTotal)
+    }
+
+    @Test
+    fun reconcileFlexTimeTotalAfterProjectEditorReturn_cumulativeTrackedChange_keepsTotalFromLatestPersistedWorkTime() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = emptyList()
+            projectNames = listOf("Alpha", "Beta")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = ZERO_TIME
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        // First added project: day total work time becomes 01:00.
+        projectRepository.projectsByDateRange = listOf(
+            projectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "01:00"
+            )
+        )
+        dateRepository.addWorkTimeByDateChange("01:00")
+
+        viewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(
+            oldFlexTimeByDate = "-07:30",
+            oldWorkTimeByDate = ZERO_TIME
+        )
+        advanceUntilIdle()
+
+        // Second added project: cumulative tracked change becomes 03:00, real day total is 03:00.
+        projectRepository.projectsByDateRange = listOf(
+            projectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = "01:00"
+            ),
+            projectState(
+                date = "2026-04-10",
+                projectName = "Beta",
+                projectTime = "02:00"
+            )
+        )
+        dateRepository.addWorkTimeByDateChange("02:00")
+
+        viewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(
+            oldFlexTimeByDate = "-06:30",
+            oldWorkTimeByDate = "01:00"
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("03:00", state.workTimeByDate)
+        Assert.assertEquals("-04:30", state.flexTimeByDate)
+        Assert.assertEquals("-04:30", state.flexTimeTotal)
+        Assert.assertEquals("03:00", dateRepository.workTimeByDateChange.value)
     }
 
     @Test
@@ -514,6 +621,74 @@ class WorkdayViewModelTest {
         Assert.assertEquals("07:30", projectDetailsRepository.settings?.dailyWorkTimeEstimate)
         // Global settings are still updated when user chooses Save globally.
         Assert.assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
+    }
+
+    @Test
+    fun addTwoProjectsOnEmptyDay_reconcileAfterEachSave_keepsFlexTotalConsistent() = runTest {
+        val date = "2026-04-10"
+        val projectRepository = FakeProjectRepository().apply {
+            projectNames = listOf("Alpha", "Beta")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = ZERO_TIME
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate(date)
+        }
+
+        val workdayRepository = FakeWorkdayRepository(projectDetailsRepository).apply {
+            workdayStatsRows = projectDetailsRepository.workdayStatsRows
+        }
+        val saveWorkdayUseCase = SaveWorkdayUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            workdayRepository = workdayRepository
+        )
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        val beforeFirstAdd = viewModel.uiState.value as WorkdayUiState.Success
+        saveWorkdayUseCase(
+            projectToSave = projectState(date = date, projectName = "Alpha", projectTime = "01:00"),
+            projectDetailsToSave = projectDetailsState(date = date, projectName = "Alpha", projectTime = "01:00")
+        )
+        dateRepository.addWorkTimeByDateChange("01:00")
+        viewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(
+            oldFlexTimeByDate = beforeFirstAdd.flexTimeByDate,
+            oldWorkTimeByDate = beforeFirstAdd.workTimeByDate
+        )
+        advanceUntilIdle()
+
+        val beforeSecondAdd = viewModel.uiState.value as WorkdayUiState.Success
+        saveWorkdayUseCase(
+            projectToSave = projectState(date = date, projectName = "Beta", projectTime = "02:00"),
+            projectDetailsToSave = projectDetailsState(date = date, projectName = "Beta", projectTime = "02:00")
+        )
+        dateRepository.addWorkTimeByDateChange("02:00")
+        viewModel.reconcileFlexTimeTotalAfterProjectEditorReturn(
+            oldFlexTimeByDate = beforeSecondAdd.flexTimeByDate,
+            oldWorkTimeByDate = beforeSecondAdd.workTimeByDate
+        )
+        advanceUntilIdle()
+
+        val finalState = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("03:00", finalState.workTimeByDate)
+        Assert.assertEquals("-04:30", finalState.flexTimeByDate)
+        Assert.assertEquals("-04:30", finalState.flexTimeTotal)
     }
 
     private fun createViewModel(

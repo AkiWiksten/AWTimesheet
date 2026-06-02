@@ -92,14 +92,12 @@ private fun rememberWorkdayDisplayState(
         estimateUiState.workTimeByDateEstimate,
         estimateUiState.isWorkTimeByDateEstimateValid
     ) {
-        if (estimateUiState.isWorkTimeByDateEstimateValid) {
-            WorkTimeCalculator.calculateFlexTime(
-                initialTime = state.workTimeByDate,
-                addedTime = "-${estimateUiState.workTimeByDateEstimate}"
-            )
-        } else {
-            state.flexTimeByDate
-        }
+        calculateDisplayedFlexTimeByDate(
+            persistedWorkTimeByDate = state.workTimeByDate,
+            persistedFlexTimeByDate = state.flexTimeByDate,
+            editedWorkTimeByDateEstimate = estimateUiState.workTimeByDateEstimate,
+            isEditedWorkTimeByDateEstimateValid = estimateUiState.isWorkTimeByDateEstimateValid
+        )
     }
 
     val displayedCalculatedFlexTimeTotal = remember(
@@ -126,6 +124,26 @@ private fun rememberWorkdayDisplayState(
         headerActions = WorkdayHeaderActions(
             onWorkTimeByDateEstimateChange = estimateUiState.onWorkTimeByDateEstimateChange
         )
+    )
+}
+
+internal fun calculateDisplayedFlexTimeByDate(
+    persistedWorkTimeByDate: String,
+    persistedFlexTimeByDate: String,
+    editedWorkTimeByDateEstimate: String,
+    isEditedWorkTimeByDateEstimateValid: Boolean
+): String {
+    if (!isEditedWorkTimeByDateEstimateValid) {
+        return persistedFlexTimeByDate
+    }
+
+    if (persistedWorkTimeByDate == ZERO_TIME) {
+        return ZERO_TIME
+    }
+
+    return WorkTimeCalculator.calculateFlexTime(
+        initialTime = persistedWorkTimeByDate,
+        addedTime = "-$editedWorkTimeByDateEstimate"
     )
 }
 

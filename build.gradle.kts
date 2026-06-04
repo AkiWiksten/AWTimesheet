@@ -150,4 +150,30 @@ tasks.register("sequentialBenchmarksClean") {
     dependsOn(":macrobenchmark:clean", "sequentialBenchmarks")
 }
 
+// Alias that runs all module debug unit tests when user runs ./gradlew testDebugUnitTest
+tasks.register("testDebugUnitTest") {
+    group = "verification"
+    description = "Run all debug unit tests across all modules (aggregated from module-level tasks)."
+    dependsOn("testAllDebugUnitTests")
+}
 
+// Aggregate unit test tasks from all modules
+tasks.register("testAllDebugUnitTests") {
+    group = "verification"
+    description = "Run all debug unit tests across all modules."
+    
+    val testTasks = listOf(
+        ":core:testDebugUnitTest",
+        ":data:testDebugUnitTest",
+        ":domain:testDebugUnitTest",
+        ":features:calendar:testDebugUnitTest",
+        ":features:intro:testDebugUnitTest",
+        ":features:projectdetails:testDebugUnitTest",
+        ":features:settings:testDebugUnitTest",
+        ":features:singleproject:testDebugUnitTest",
+        ":features:timesheet:testDebugUnitTest",
+        ":features:workday:testDebugUnitTest"
+    )
+    
+    dependsOn(testTasks)
+}

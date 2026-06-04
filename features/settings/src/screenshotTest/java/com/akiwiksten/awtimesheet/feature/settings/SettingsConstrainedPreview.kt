@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsStateContentState
 import com.android.tools.screenshot.PreviewTest
 
 private val PreviewPortraitWidth = 411.dp
@@ -50,26 +52,28 @@ private fun SettingsConstrainedPreviewContent() {
                 modifier = Modifier.fillMaxSize()
             ) {
                 SettingsStateContent(
-                    uiState = PreviewUiState,
-                    defaultWorkType = "Other",
-                    onUnsavedChangesChanged = {},
-                    registerUnsavedActions = { _, _ -> },
-                    onDiscardChanges = {},
-                    createActions = {
-                        SettingsActions(
-                            onNameChange = {},
-                            onEmployerChange = {},
-                            onDailyWorkTimeEstimateChange = {},
-                            onDailyLunchTimeEstimateChange = {},
-                            onInitialFlexTimeTotalChange = {},
-                            onWorkTypeAdded = {},
-                            onWorkTypeRemoved = {},
-                            onSave = {},
-                            onGenerateXlsx = {},
-                            onGenerateWorkdaysForMonth = {},
-                            onGenerateWorkdaysForYear = {}
-                        )
-                    }
+                    state = SettingsStateContentState(
+                        uiState = PreviewUiState,
+                        defaultWorkType = "Other",
+                        onUnsavedChangesChanged = {},
+                        registerUnsavedActions = { _, _ -> },
+                        onDiscardChanges = {},
+                        createActions = {
+                            SettingsActions(
+                                onNameChange = {},
+                                onEmployerChange = {},
+                                onDailyWorkTimeEstimateChange = {},
+                                onDailyLunchTimeEstimateChange = {},
+                                onInitialFlexTimeTotalChange = {},
+                                onWorkTypeAdded = {},
+                                onWorkTypeRemoved = {},
+                                onSave = {},
+                                onGenerateXlsx = {},
+                                onGenerateWorkdaysForMonth = {},
+                                onGenerateWorkdaysForYear = {}
+                            )
+                        }
+                    )
                 )
             }
         }

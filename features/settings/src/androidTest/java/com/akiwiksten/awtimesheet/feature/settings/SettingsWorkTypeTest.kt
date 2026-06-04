@@ -22,7 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
-import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContentState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

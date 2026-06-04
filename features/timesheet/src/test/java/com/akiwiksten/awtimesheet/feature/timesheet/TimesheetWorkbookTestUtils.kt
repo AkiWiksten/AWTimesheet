@@ -40,7 +40,7 @@ internal fun org.w3c.dom.Document.cellSharedString(cellReference: String, workbo
 
     val sharedStringsBytes = workbookBytes.readZipEntryBytes("xl/sharedStrings.xml")
     val ssDoc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
-        .newDocumentBuilder().parse(java.io.ByteArrayInputStream(sharedStringsBytes))
+        .newDocumentBuilder().parse(ByteArrayInputStream(sharedStringsBytes))
     val siNodes = ssDoc.getElementsByTagNameNS(
         "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
         "si"

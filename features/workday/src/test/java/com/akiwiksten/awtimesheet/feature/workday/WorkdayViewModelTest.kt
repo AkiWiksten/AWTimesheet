@@ -1,5 +1,3 @@
-@file:Suppress("MaxLineLength", "MaximumLineLength")
-
 package com.akiwiksten.awtimesheet.feature.workday
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
@@ -345,7 +343,7 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun reconcileFlexTimeTotalAfterProjectEditorReturn_addsFlexDeltaToPersistedCalculatedTotal() = runTest {
+    fun reconcileAfterProjectEditorReturn_addsFlexDeltaToPersistedCalculatedTotal() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
                 projectState(
@@ -398,7 +396,7 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun reconcileFlexTimeTotalAfterProjectEditorReturn_emptyDayToFirstProject_usesFlexByDateChange() = runTest {
+    fun reconcileAfterProjectEditorReturn_emptyDayToFirstProject_usesFlexByDateChange() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = emptyList()
             projectNames = listOf("Alpha")
@@ -445,7 +443,7 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun reconcileFlexTimeTotalAfterProjectEditorReturn_readsLatestWorkdayDataBeforeReload() = runTest {
+    fun reconcileAfterProjectEditorReturn_readsLatestWorkdayDataBeforeReload() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(
                 projectState(
@@ -492,7 +490,7 @@ class WorkdayViewModelTest {
     }
 
     @Test
-    fun reconcileFlexTimeTotalAfterProjectEditorReturn_cumulativeTrackedChange_keepsTotalFromLatestPersistedWorkTime() = runTest {
+    fun reconcileAfterReturn_cumulativeTrackedChange_keepsTotalFromLatestPersistedWorkTime() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = emptyList()
             projectNames = listOf("Alpha", "Beta")

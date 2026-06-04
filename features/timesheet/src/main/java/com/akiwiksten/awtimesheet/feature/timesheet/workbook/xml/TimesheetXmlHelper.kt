@@ -2,12 +2,12 @@
 
 package com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml
 
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.BOLD_TEXT_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_START_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRY_ROW_HEIGHT
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PLAIN_TEXT_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.model.SectionBodyStyleSpec
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.buildCellReference
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.BOLD_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_ROW_HEIGHT
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.buildCellReference
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -217,8 +217,9 @@ private fun extractRowNumber(cellReference: String): Int {
 internal fun columnIndex(cellReference: String): Int {
     val letters = cellReference.takeWhile { it.isLetter() }
     var result = 0
+    val alphabetSize = 26
     letters.forEach { character ->
-        result = (result * 26) + (character.code - 'A'.code + 1)
+        result = (result * alphabetSize) + (character.code - 'A'.code + 1)
     }
     return result
 }

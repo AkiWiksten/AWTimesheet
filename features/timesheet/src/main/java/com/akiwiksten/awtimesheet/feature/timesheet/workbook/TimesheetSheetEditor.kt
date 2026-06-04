@@ -1,23 +1,27 @@
-@file:Suppress("MagicNumber")
-
 package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_HEADER_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_LABEL_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_START_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_KILOMETRES_SUMMARY_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_NAME_HEADER_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_TIME_SUMMARY_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_END_COLUMN_INDEX
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_END_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_START_COLUMN_INDEX
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_START_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_HEADER_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_LABEL_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_TOTAL_CELLS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_VALUE_CELLS
 import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetFreezePaneEditor
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetSectionWriter
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_HEADER_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_LABEL_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_CLEAR_END_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_CLEAR_START_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.HEADER_CLEAR_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_KILOMETRES_SUMMARY_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_NAME_HEADER_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_TIME_SUMMARY_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.TOP_SUMMARY_CLEAR_END_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.TOP_SUMMARY_CLEAR_END_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.TOP_SUMMARY_CLEAR_START_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.TOP_SUMMARY_CLEAR_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_HEADER_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_LABEL_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_TOTAL_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_VALUE_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.buildCellReference
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.TimesheetXmlHelper
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.childElementSequence
@@ -52,7 +56,7 @@ internal object TimesheetSheetEditor {
     }
 
     private fun clearDynamicCells(sheetData: Element, dailyEntriesRowOffset: Int) {
-        listOf("B2", "B3", "B4", "B5", "H1", "H2", "H3").forEach { cellReference ->
+        HEADER_CLEAR_CELLS.forEach { cellReference ->
             TimesheetXmlHelper.clearCell(sheetData, cellReference)
         }
         PROJECT_NAME_HEADER_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
@@ -64,7 +68,7 @@ internal object TimesheetSheetEditor {
         WORK_TYPE_LABEL_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
         WORK_TYPE_VALUE_CELLS.flatten().forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
         WORK_TYPE_TOTAL_CELLS.forEach { TimesheetXmlHelper.clearCell(sheetData, it) }
-        for (columnIndex in 2..32) { // column 1 (A8) is the "Day of Month" label — keep it
+        for (columnIndex in DAILY_ENTRIES_CLEAR_START_COLUMN_INDEX..DAILY_ENTRIES_CLEAR_END_COLUMN_INDEX) {
             TimesheetXmlHelper.clearCell(sheetData, buildCellReference(columnIndex, DAILY_ENTRIES_SEPARATOR_ROW))
         }
 
@@ -82,15 +86,13 @@ internal object TimesheetSheetEditor {
         }
 
         // Clear only existing B..AF daily-entry cells to avoid repeated lookup work.
-        val startColumnIndex = 2
-        val endColumnIndex = 32
         sheetData.childElementSequence("row")
             .mapNotNull { row -> row.getAttribute("r").toIntOrNull()?.let { rowNumber -> rowNumber to row } }
             .filter { (rowNumber, _) -> rowNumber in DAILY_ENTRIES_START_ROW..clearEndRow }
             .forEach { (_, row) ->
                 row.childElementSequence("c").forEach { cell ->
                     val columnIndex = columnIndex(cell.getAttribute("r"))
-                    if (columnIndex in startColumnIndex..endColumnIndex) {
+                    if (columnIndex in DAILY_ENTRIES_CLEAR_START_COLUMN_INDEX..DAILY_ENTRIES_CLEAR_END_COLUMN_INDEX) {
                         TimesheetXmlHelper.clearCell(sheetData, cell.getAttribute("r"))
                     }
                 }

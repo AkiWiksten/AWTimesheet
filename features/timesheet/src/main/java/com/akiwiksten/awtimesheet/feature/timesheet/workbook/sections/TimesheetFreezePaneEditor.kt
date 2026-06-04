@@ -1,15 +1,15 @@
-@file:Suppress("MagicNumber")
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections
 
-package com.akiwiksten.awtimesheet.feature.timesheet.workbook
-
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_START_ROW
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.childElementSequence
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+
+private const val MIN_DAY_MARKERS_FOR_DETECTION = 15
 
 internal object TimesheetFreezePaneEditor {
     fun ensureTopRowFrozen(document: Document, sheetData: Element) {
@@ -151,7 +151,7 @@ internal object TimesheetFreezePaneEditor {
         }
 
         // Return the row if we found at least 15 day markers (more than half)
-        return if (bestCount >= 15) bestRow else null
+        return if (bestCount >= MIN_DAY_MARKERS_FOR_DETECTION) bestRow else null
     }
 
     private fun isCandidateDayOfMonthRow(rowNumber: Int): Boolean {

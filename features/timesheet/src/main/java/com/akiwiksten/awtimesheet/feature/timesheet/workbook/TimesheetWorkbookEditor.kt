@@ -1,5 +1,3 @@
-@file:Suppress("MagicNumber", "TooManyFunctions")
-
 package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
 import android.content.Context
@@ -52,6 +50,7 @@ internal object TimesheetWorkbookEditor {
         return zipEntries(zipEntries)
     }
 
+    @Suppress("MagicNumber")
     private fun localizeSharedStrings(sharedStringsXml: ByteArray, exportData: TimesheetExportData): ByteArray {
         val labelMappings = mapOf(
             0 to exportData.dayOfMonthLabel,

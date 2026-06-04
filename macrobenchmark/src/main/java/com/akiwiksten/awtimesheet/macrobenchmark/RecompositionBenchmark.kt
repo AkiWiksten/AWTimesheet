@@ -38,7 +38,7 @@ private val WORKDAY_EDIT_ACTION_TEXTS = listOf("Edit", "Muokkaa", "Redigera")
  * and exporting composition statistics in macrobenchmark-compatible JSON format.
  */
 @RunWith(AndroidJUnit4::class)
-class RecompBm {
+class RecompositionBenchmark {
 
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()

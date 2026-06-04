@@ -1,14 +1,16 @@
-package com.akiwiksten.awtimesheet.feature.timesheet.model
+package com.akiwiksten.awtimesheet.feature.timesheet.mapper
 
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.allDistinctProjectNames
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.buildAllowanceRows
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.buildWorkTypeRows
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.toMinutesOrNull
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.toSortedTimesheetEntries
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.toTimesheetLabels
+import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetAllowanceType
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetDisplayData
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetEntry
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetEntryAggregates
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.buildAllowanceRows
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.buildWorkTypeRows
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.MAX_SUMMARY_PROJECTS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toMinutesOrNull
 import java.time.LocalDate
-
-internal const val MAX_SUMMARY_PROJECTS = 3
 
 internal object TimesheetExportDataBuilder {
     fun build(params: GenerateTimesheetParams): TimesheetExportData {

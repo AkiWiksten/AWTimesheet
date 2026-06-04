@@ -1,35 +1,46 @@
-@file:Suppress("MagicNumber", "TooManyFunctions")
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections
 
-package com.akiwiksten.awtimesheet.feature.timesheet.workbook
-
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_HEADER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_PROJECT_VALUE_STYLES
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_TOTAL_HEADER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_TOTAL_VALUE_STYLES
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.BOLD_TEXT_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_START_ROW
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAY_OF_MONTH_VALUE_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PLAIN_INTEGER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PLAIN_TEXT_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PLAIN_TIME_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_HEADER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_KILOMETRES_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_START_COLUMN_INDEX
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_TOTAL_HEADER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_WORK_TIME_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.TEMPLATE_DAILY_ENTRY_BLOCKS
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_HEADER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_TOTAL_HEADER_STYLE
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_TOTAL_STYLES
-import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_VALUE_STYLES
 import com.akiwiksten.awtimesheet.feature.timesheet.model.AllowanceSectionContext
 import com.akiwiksten.awtimesheet.feature.timesheet.model.ProjectSummarySectionContext
 import com.akiwiksten.awtimesheet.feature.timesheet.model.SectionBodyStyleSpec
 import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.timesheet.model.WorkTypeSectionContext
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_PROJECT_VALUE_STYLES
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_TOTAL_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_TOTAL_VALUE_STYLES
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.BOLD_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAY_OF_MONTH_VALUE_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_INTEGER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_KILOMETRES_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_START_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_TOTAL_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_WORK_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.TEMPLATE_DAILY_ENTRY_BLOCKS
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_TOTAL_HEADER_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_TOTAL_STYLES
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_VALUE_STYLES
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.allowanceLabelColumnIndex
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.allowanceStartColumnIndex
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.buildCellReference
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.columnIndexToLetters
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.dayToColumn
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryColumnLetters
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryTotalColumnLetters
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryTotalColumnIndex
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toExcelSerialDate
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toExcelTimeFractionNumberString
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toHourMinuteString
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toMinutesOrNull
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.workTypeLabelColumnIndex
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.TimesheetXmlHelper
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -58,7 +69,8 @@ internal object TimesheetSectionWriter {
     }
 
     fun populateDayOfMonthRow(document: Document, sheetData: Element) {
-        for (day in 1..31) {
+        val maxDays = 31
+        for (day in 1..maxDays) {
             TimesheetXmlHelper.setNumericCell(
                 document = document,
                 sheetData = sheetData,
@@ -444,10 +456,11 @@ internal object TimesheetSectionWriter {
             styleIndex = BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
+            val cellReference = buildCellReference(context.startColumnIndex + index, 1)
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = buildCellReference(context.startColumnIndex + index, 1),
+                cellReference = cellReference,
                 value = projectName,
                 styleIndex = WORK_TYPE_HEADER_STYLE
             )

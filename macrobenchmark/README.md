@@ -38,11 +38,11 @@ Comprehensive performance testing for **app startup**, **frame rendering**, and 
 - `ScrollBenchmark#settingsScroll` - Jank detection during settings list scrolling
 
 ### Recomposition Efficiency Benchmarks
-- `RecompBm#calRecomp` - Composition performance on calendar screen interactions
-- `RecompBm#workdayRecomp` - Composition performance on workday screen interactions
-- `RecompBm#settingsRecomp` - Composition performance on settings screen interactions
-- `RecompBm#projDetailsRecomp` - Composition performance when editing project details
-- `RecompBm#singleProjRecomp` - Composition performance when editing single project entry
+- `RecompositionBenchmark#calRecomp` - Composition performance on calendar screen interactions
+- `RecompositionBenchmark#workdayRecomp` - Composition performance on workday screen interactions
+- `RecompositionBenchmark#settingsRecomp` - Composition performance on settings screen interactions
+- `RecompositionBenchmark#projDetailsRecomp` - Composition performance when editing project details
+- `RecompositionBenchmark#singleProjRecomp` - Composition performance when editing single project entry
 
 Calendar/workday-facing scroll and recomposition benchmarks seed a realistic dataset
 once during setup so the target UI has visible content before measurement begins.
@@ -160,7 +160,7 @@ powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequent
 
 **Recomposition only** (5 tests, ~10 minutes):
 ```powershell
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark"
 ```
 
 ### Run Single Test (PowerShell)
@@ -179,7 +179,7 @@ powershell -ExecutionPolicy Bypass -File .\macrobenchmark\run_benchmarks_sequent
 .\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.ScrollBenchmark#calScroll"
 
 # Recomposition
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#singleProjRecomp"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#singleProjRecomp"
 ```
 
 ## Interpret Results
@@ -228,7 +228,7 @@ val selectedDateState = derivedStateOf { selectedDate.value }
 
 ### 3. Retest Same Benchmark
 ```powershell
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#calRecomp"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#calRecomp"
 python -u .\macrobenchmark\tools\summarize_benchmark.py
 ```
 
@@ -274,7 +274,7 @@ Could not open SingleProject screen from Workday Add action
 can fall back to selecting an existing project and using Edit. If this still
 persists, verify the seeded dataset is present and rerun the single benchmark first:
 ```powershell
-.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#singleProjRecomp"
+.\gradlew.bat :macrobenchmark:connectedBenchmarkAndroidTest "-Pandroid.testInstrumentationRunnerArguments.class=com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#singleProjRecomp"
 ```
 
 ### No Benchmark Output Found

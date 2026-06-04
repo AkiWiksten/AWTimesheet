@@ -72,11 +72,11 @@ $benchmarks = @(
     "com.akiwiksten.awtimesheet.macrobenchmark.ScrollBenchmark#calScroll",
     "com.akiwiksten.awtimesheet.macrobenchmark.ScrollBenchmark#workdayScroll",
     "com.akiwiksten.awtimesheet.macrobenchmark.ScrollBenchmark#settingsScroll",
-    "com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#calRecomp",
-    "com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#workdayRecomp",
-    "com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#settingsRecomp",
-    "com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#projDetailsRecomp",
-    "com.akiwiksten.awtimesheet.macrobenchmark.RecompBm#singleProjRecomp"
+    "com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#calRecomp",
+    "com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#workdayRecomp",
+    "com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#settingsRecomp",
+    "com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#projDetailsRecomp",
+    "com.akiwiksten.awtimesheet.macrobenchmark.RecompositionBenchmark#singleProjRecomp"
 )
 
 $failed = New-Object System.Collections.Generic.List[string]

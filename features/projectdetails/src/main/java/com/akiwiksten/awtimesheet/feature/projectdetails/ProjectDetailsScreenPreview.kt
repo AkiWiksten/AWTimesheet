@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest

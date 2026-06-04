@@ -12,6 +12,7 @@ import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GetWorkdayScreenDataUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.UpdateSettingsParams
 import com.akiwiksten.awtimesheet.domain.usecase.UpdateSettingsUseCase
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,23 +24,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-sealed class WorkdayUiState {
-    object Loading : WorkdayUiState()
-
-    data class Success(
-        val date: String = "",
-        val workTimeByDate: String = ZERO_TIME,
-        val workTimeByDateEstimate: String = ZERO_TIME,
-        val flexTimeByDate: String = ZERO_TIME,
-        val initialFlexTimeTotal: String = ZERO_TIME,
-        val flexTimeTotal: String = ZERO_TIME,
-        val projects: List<SingleProjectState> = emptyList(),
-        val workTypes: List<String> = emptyList()
-    ) : WorkdayUiState()
-
-    data class Error(val message: String) : WorkdayUiState()
-}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -69,7 +53,7 @@ class WorkdayViewModel @Inject constructor(
                 .mapIndexed { index, project -> project.copy(index = index) }
 
             val workTypes = settingsRepository.getWorkTypes()
-            val flexTimeByDate = calculateFlexTimeByDate(
+            val flexTimeByDate = WorkTimeCalculator.calculateFlexTimeByDate(
                 workTimeByDate = data.workTimeByDate,
                 workTimeByDateEstimate = data.workTimeByDateEstimate
             )
@@ -140,7 +124,7 @@ class WorkdayViewModel @Inject constructor(
     }
 
     fun updateSettings(workTimeByDateEstimate: String, updateGlobalSettings: Boolean = false) {
-        if (!isValidWorkTimeByDateEstimateInput(workTimeByDateEstimate)) {
+        if (!WorkTimeCalculator.isValidTimeInput(workTimeByDateEstimate)) {
             return
         }
 
@@ -177,15 +161,15 @@ class WorkdayViewModel @Inject constructor(
         workTimeByDate: String,
         newWorkTimeByDateEstimate: String
     ) {
-        val newFlexTimeByDate = calculateFlexTimeByDate(
+        val newFlexTimeByDate = WorkTimeCalculator.calculateFlexTimeByDate(
             workTimeByDate = workTimeByDate,
             workTimeByDateEstimate = newWorkTimeByDateEstimate
         )
-        val oldFlexContribution = resolveFlexContribution(
+        val oldFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = oldFlexTimeByDate,
             workTimeByDate = workTimeByDate
         )
-        val newFlexContribution = resolveFlexContribution(
+        val newFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = newFlexTimeByDate,
             workTimeByDate = workTimeByDate
         )
@@ -218,15 +202,15 @@ class WorkdayViewModel @Inject constructor(
 
         val latestData = getWorkdayScreenDataUseCase(date)
         val newWorkTimeByDate = latestData.workTimeByDate
-        val newFlexTimeByDate = calculateFlexTimeByDate(
+        val newFlexTimeByDate = WorkTimeCalculator.calculateFlexTimeByDate(
             workTimeByDate = latestData.workTimeByDate,
             workTimeByDateEstimate = latestData.workTimeByDateEstimate
         )
-        val oldFlexContribution = resolveFlexContribution(
+        val oldFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = oldFlexTimeByDate,
             workTimeByDate = oldWorkTimeByDate
         )
-        val newFlexContribution = resolveFlexContribution(
+        val newFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = newFlexTimeByDate,
             workTimeByDate = newWorkTimeByDate
         )
@@ -245,28 +229,5 @@ class WorkdayViewModel @Inject constructor(
         }
 
         requestReload()
-    }
-}
-
-private fun isValidWorkTimeByDateEstimateInput(value: String): Boolean {
-    return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
-}
-
-private fun calculateFlexTimeByDate(workTimeByDate: String, workTimeByDateEstimate: String): String {
-    if (workTimeByDate == ZERO_TIME) {
-        return ZERO_TIME
-    }
-
-    return WorkTimeCalculator.calculateFlexTime(
-        initialTime = workTimeByDate,
-        addedTime = "-$workTimeByDateEstimate"
-    )
-}
-
-internal fun resolveFlexContribution(flexTimeByDate: String, workTimeByDate: String): String {
-    return if (workTimeByDate == ZERO_TIME) {
-        ZERO_TIME
-    } else {
-        flexTimeByDate
     }
 }

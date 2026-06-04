@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 import com.android.tools.screenshot.PreviewTest
 
 private const val PREVIEW_DATE = "2026-04-10"

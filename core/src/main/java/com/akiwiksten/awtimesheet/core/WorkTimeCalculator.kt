@@ -54,6 +54,54 @@ object WorkTimeCalculator {
         )
     }
 
+    /**
+     * Calculates the change in total work time when a project time is updated.
+     *
+     * @param previousProjectTime The project time before the update (e.g., "01:00").
+     * @param newProjectTime The new project time after the update (e.g., "01:30").
+     * @return The difference to be added to the total work time (e.g., "00:30").
+     */
+    fun calculateWorkTimeByDateChange(previousProjectTime: String, newProjectTime: String): String {
+        return calculateFlexTime(
+            initialTime = newProjectTime,
+            addedTime = normalizeDuplicateMinus("-$previousProjectTime")
+        )
+    }
+
+    /**
+     * Calculates flex time for a specific date based on recorded work time and the estimate.
+     * If no work time is recorded, returns [ZERO_TIME].
+     */
+    fun calculateFlexTimeByDate(workTimeByDate: String, workTimeByDateEstimate: String): String {
+        if (workTimeByDate == ZERO_TIME) {
+            return ZERO_TIME
+        }
+
+        return calculateFlexTime(
+            initialTime = workTimeByDate,
+            addedTime = "-$workTimeByDateEstimate"
+        )
+    }
+
+    /**
+     * Resolves the flex contribution for a workday.
+     * If no work time is recorded, the contribution is [ZERO_TIME].
+     */
+    fun resolveFlexContribution(flexTimeByDate: String, workTimeByDate: String): String {
+        return if (workTimeByDate == ZERO_TIME) {
+            ZERO_TIME
+        } else {
+            flexTimeByDate
+        }
+    }
+
+    /**
+     * Validates if the given string is a valid time input (e.g. "07:30", "120:15").
+     */
+    fun isValidTimeInput(value: String): Boolean {
+        return value.matches(regex = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]"))
+    }
+
     fun calculateTotalMinutes(
         initialTime: String,
         addedTime: String,

@@ -92,7 +92,7 @@ class SingleProjectViewModel @Inject constructor(
                     .takeIf { it.isNotBlank() }
                     ?.let { projectRepository.getProject(date = date, projectName = it) }
                 val projectToSave = state.copy(date = date)
-                val workTimeByDateChange = calculateWorkTimeByDateChange(
+                val workTimeByDateChange = WorkTimeCalculator.calculateWorkTimeByDateChange(
                     previousProjectTime = existingProject?.projectTime ?: ZERO_TIME,
                     newProjectTime = projectToSave.projectTime
                 )
@@ -125,11 +125,4 @@ class SingleProjectViewModel @Inject constructor(
             }
         }
     }
-}
-
-private fun calculateWorkTimeByDateChange(previousProjectTime: String, newProjectTime: String): String {
-    return WorkTimeCalculator.calculateFlexTime(
-        initialTime = newProjectTime,
-        addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$previousProjectTime")
-    )
 }

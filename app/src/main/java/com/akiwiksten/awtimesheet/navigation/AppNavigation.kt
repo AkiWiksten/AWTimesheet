@@ -22,9 +22,9 @@ import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
-import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectNavigationActions
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
-import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreenArgs
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenArgs
 import kotlinx.parcelize.Parcelize
 import kotlin.math.min
 

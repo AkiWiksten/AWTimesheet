@@ -48,12 +48,21 @@ import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.singleproject.R
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectUpperFieldsSection
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectDerivedState
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenArgs
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
+import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProjectName
+import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
+import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveInitialSingleProjectState
+import com.akiwiksten.awtimesheet.feature.singleproject.model.withDefaultAllowance
+import com.akiwiksten.awtimesheet.feature.singleproject.model.withDefaultWorkType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -447,36 +456,3 @@ private fun SingleProjectFormFields(
         }
     }
 }
-
-data class SingleProjectScreenArgs(
-    val initialSingleProjectState: SingleProjectState,
-    val initialProjectDetails: ProjectDetailsState? = null,
-    val initialSettings: SettingsState? = null
-)
-
-data class SingleProjectNavigationActions(
-    val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit
-)
-
-private data class SingleProjectDerivedState(
-    val hasUnsavedChanges: Boolean,
-    val isDuplicate: Boolean,
-    val isConfirmEnabled: Boolean
-)
-
-data class SingleProjectScreenState(
-    val date: String,
-    val editedProjectIndex: Int,
-    val state: SingleProjectState,
-    val isAddMode: Boolean,
-    val uiState: SingleProjectUiState,
-    val isConfirmEnabled: Boolean,
-    val isDuplicateProjectName: Boolean
-)
-
-data class SingleProjectActions(
-    val onStateChange: (SingleProjectState) -> Unit,
-    val onOpenProjectDetails: () -> Unit,
-    val onConfirm: () -> Unit
-)

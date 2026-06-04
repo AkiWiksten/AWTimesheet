@@ -1,5 +1,8 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
+import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProjectName
+import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
+import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveInitialSingleProjectState
 import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.projectState
 import com.akiwiksten.awtimesheet.test.settingsState

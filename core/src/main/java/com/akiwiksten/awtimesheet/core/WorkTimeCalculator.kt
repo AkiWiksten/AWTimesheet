@@ -54,6 +54,20 @@ object WorkTimeCalculator {
         )
     }
 
+    /**
+     * Calculates the change in total work time when a project time is updated.
+     *
+     * @param previousProjectTime The project time before the update (e.g., "01:00").
+     * @param newProjectTime The new project time after the update (e.g., "01:30").
+     * @return The difference to be added to the total work time (e.g., "00:30").
+     */
+    fun calculateWorkTimeByDateChange(previousProjectTime: String, newProjectTime: String): String {
+        return calculateFlexTime(
+            initialTime = newProjectTime,
+            addedTime = normalizeDuplicateMinus("-$previousProjectTime")
+        )
+    }
+
     fun calculateTotalMinutes(
         initialTime: String,
         addedTime: String,

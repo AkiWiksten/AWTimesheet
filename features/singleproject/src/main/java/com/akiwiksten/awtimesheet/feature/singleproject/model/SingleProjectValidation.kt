@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.awtimesheet.feature.singleproject
+﻿package com.akiwiksten.awtimesheet.feature.singleproject.model
 
 import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState

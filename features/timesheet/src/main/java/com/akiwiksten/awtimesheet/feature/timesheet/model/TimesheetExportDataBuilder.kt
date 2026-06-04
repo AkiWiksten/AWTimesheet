@@ -1,19 +1,14 @@
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.builder
+package com.akiwiksten.awtimesheet.feature.timesheet.model
 
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.GenerateTimesheetParams
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.MAX_SUMMARY_PROJECTS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetAllowanceType
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetDisplayData
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetEntry
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetEntryAggregates
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.allDistinctProjectNames
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.buildAllowanceRows
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.buildWorkTypeRows
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.toMinutesOrNull
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.toSortedTimesheetEntries
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.toTimesheetLabels
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.allDistinctProjectNames
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.buildAllowanceRows
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.buildWorkTypeRows
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.toMinutesOrNull
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.toSortedTimesheetEntries
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.toTimesheetLabels
 import java.time.LocalDate
+
+internal const val MAX_SUMMARY_PROJECTS = 3
 
 internal object TimesheetExportDataBuilder {
     fun build(params: GenerateTimesheetParams): TimesheetExportData {

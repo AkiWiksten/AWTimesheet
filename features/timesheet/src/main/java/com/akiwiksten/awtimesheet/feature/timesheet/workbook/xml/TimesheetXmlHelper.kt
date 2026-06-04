@@ -1,13 +1,13 @@
 @file:Suppress("NestedBlockDepth", "TooManyFunctions")
 
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml
 
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.BOLD_TEXT_STYLE
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_START_ROW
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRY_ROW_HEIGHT
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PLAIN_TEXT_STYLE
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.SectionBodyStyleSpec
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.buildCellReference
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.BOLD_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRY_ROW_HEIGHT
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.PLAIN_TEXT_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.model.SectionBodyStyleSpec
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.buildCellReference
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node

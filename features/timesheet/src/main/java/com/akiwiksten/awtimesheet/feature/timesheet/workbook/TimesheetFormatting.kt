@@ -1,16 +1,16 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.GenerateTimesheetParams
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_SUMMARY_START_COLUMN_INDEX
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetAllowanceSummaryRow
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetAllowanceType
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetEntry
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetLabels
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetWorkTypeSummaryRow
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_SUMMARY_START_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetAllowanceSummaryRow
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetAllowanceType
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetEntry
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetLabels
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetWorkTypeSummaryRow
 import java.time.LocalDate
 
 private const val HOURS_PER_MINUTE = 60L

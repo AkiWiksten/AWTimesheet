@@ -1,9 +1,9 @@
-package com.akiwiksten.awtimesheet.feature.settings.timesheet
+package com.akiwiksten.awtimesheet.feature.timesheet
 
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.builder.TimesheetExportDataBuilder
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.GenerateTimesheetParams
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.TimesheetWorkbookEditor
+import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportDataBuilder
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.TimesheetWorkbookEditor
 import com.akiwiksten.awtimesheet.test.projectState
 import org.junit.Test
 import org.junit.runner.RunWith

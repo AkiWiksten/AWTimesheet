@@ -1,29 +1,29 @@
 @file:Suppress("MagicNumber")
 
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_HEADER_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.ALLOWANCE_LABEL_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.DAILY_ENTRIES_START_ROW
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_KILOMETRES_SUMMARY_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_NAME_HEADER_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.PROJECT_TIME_SUMMARY_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.TOP_SUMMARY_CLEAR_END_COLUMN_INDEX
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.TOP_SUMMARY_CLEAR_END_ROW
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.TOP_SUMMARY_CLEAR_START_COLUMN_INDEX
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.TOP_SUMMARY_CLEAR_START_ROW
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_HEADER_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_LABEL_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_TOTAL_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.entry.WORK_TYPE_VALUE_CELLS
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.TimesheetXmlHelper
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.childElementSequence
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.columnIndex
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.createDocumentBuilderFactory
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.toByteArray
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_HEADER_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.ALLOWANCE_LABEL_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.DAILY_ENTRIES_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_KILOMETRES_SUMMARY_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_NAME_HEADER_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.PROJECT_TIME_SUMMARY_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_END_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_END_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_START_COLUMN_INDEX
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.TOP_SUMMARY_CLEAR_START_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_HEADER_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_LABEL_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_TOTAL_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.entry.WORK_TYPE_VALUE_CELLS
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.TimesheetXmlHelper
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.childElementSequence
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.columnIndex
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.createDocumentBuilderFactory
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.toByteArray
 import org.w3c.dom.Element
 import java.io.ByteArrayInputStream
 

@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.settings.timesheet
+package com.akiwiksten.awtimesheet.feature.timesheet
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -60,4 +60,3 @@ private fun PortraitWidthContainer(
         }
     }
 }
-

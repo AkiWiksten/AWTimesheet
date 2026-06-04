@@ -1,19 +1,16 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.entry
+package com.akiwiksten.awtimesheet.feature.timesheet.entry
 
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.builder.TimesheetExportDataBuilder
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.TimesheetStorage
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.TimesheetWorkbookEditor
+import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportDataBuilder
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.TimesheetStorage
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.TimesheetWorkbookEditor
 
 private const val TEMPLATE_ASSET_NAME = "timesheet_template.xlsx"
-internal const val MAX_SUMMARY_PROJECTS = 3
 internal const val DAILY_ENTRY_ROW_HEIGHT = 6
 internal const val DAILY_ENTRIES_START_ROW = 9
 internal const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
@@ -102,40 +99,6 @@ object TimesheetGeneratorEntry {
         }
     }
 }
-
-// Input params.
-data class GenerateTimesheetParams(
-    val ctx: Context,
-    val projectsByMonth: List<SingleProjectState>,
-    val endOfMonthDate: String,
-    val name: String,
-    val employer: String,
-    val defaultWorkTypeLabel: String,
-    val noAllowanceSourceLabel: String,
-    val halfDayAllowanceSourceLabel: String,
-    val fullAllowanceSourceLabel: String,
-    val noAllowanceExportLabel: String,
-    val halfDayAllowanceExportLabel: String,
-    val fullAllowanceExportLabel: String,
-    val dayOfMonthLabel: String = "Day of Month",
-    val projectNameLabel: String = "Project name",
-    val workTimeByDateLabel: String = "Work time by date",
-    val allowanceLabel: String = "Allowance",
-    val workTypeLabel: String = "Work type",
-    val employerLabel: String = "Employer",
-    val nameLabel: String = "Name",
-    val totalSumLabel: String = "TOTAL SUM",
-    val startDateLabel: String = "Start date",
-    val titleLabel: String = "Timesheet",
-    val endDateLabel: String = "End date",
-    val projectTimeLabel: String = "Project time",
-    val totalLabel: String,
-    val generalLabel: String,
-    val workTimeTotalLabel: String,
-    val kilometresLabel: String,
-    val flexTimeTotalLabel: String,
-    val totalFlexTimeTotal: String = ZERO_TIME
-)
 
 private fun TimesheetExportData.logIfTruncated() {
     if (overflowedDays.isEmpty() && hiddenProjectNames.isEmpty() && hiddenWorkTypes.isEmpty()) {

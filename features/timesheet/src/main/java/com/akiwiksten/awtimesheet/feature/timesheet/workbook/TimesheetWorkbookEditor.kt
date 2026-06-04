@@ -1,16 +1,16 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
 import android.content.Context
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.model.TimesheetExportData
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.CONTENT_TYPES_NAMESPACE
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.RELATIONSHIPS_NAMESPACE
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.childElementSequence
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.createDocumentBuilderFactory
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.replaceSharedStrings
-import com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook.xml.toByteArray
+import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.CONTENT_TYPES_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.RELATIONSHIPS_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.SPREADSHEET_NAMESPACE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.childElementSequence
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.createDocumentBuilderFactory
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.replaceSharedStrings
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.toByteArray
 import org.w3c.dom.Element
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

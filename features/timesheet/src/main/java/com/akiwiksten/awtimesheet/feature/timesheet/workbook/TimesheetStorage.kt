@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.workbook
+package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
 import android.content.ContentValues
 import android.content.Context

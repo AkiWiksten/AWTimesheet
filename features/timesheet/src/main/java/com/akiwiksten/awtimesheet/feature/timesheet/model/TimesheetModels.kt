@@ -1,8 +1,43 @@
-package com.akiwiksten.awtimesheet.feature.settings.timesheet.model
+package com.akiwiksten.awtimesheet.feature.timesheet.model
 
-import org.w3c.dom.Document
-import org.w3c.dom.Element
+import android.content.Context
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import java.time.LocalDate
+
+// Input params.
+data class GenerateTimesheetParams(
+    val ctx: Context,
+    val projectsByMonth: List<SingleProjectState>,
+    val endOfMonthDate: String,
+    val name: String,
+    val employer: String,
+    val defaultWorkTypeLabel: String,
+    val noAllowanceSourceLabel: String,
+    val halfDayAllowanceSourceLabel: String,
+    val fullAllowanceSourceLabel: String,
+    val noAllowanceExportLabel: String,
+    val halfDayAllowanceExportLabel: String,
+    val fullAllowanceExportLabel: String,
+    val dayOfMonthLabel: String = "Day of Month",
+    val projectNameLabel: String = "Project name",
+    val workTimeByDateLabel: String = "Work time by date",
+    val allowanceLabel: String = "Allowance",
+    val workTypeLabel: String = "Work type",
+    val employerLabel: String = "Employer",
+    val nameLabel: String = "Name",
+    val totalSumLabel: String = "TOTAL SUM",
+    val startDateLabel: String = "Start date",
+    val titleLabel: String = "Timesheet",
+    val endDateLabel: String = "End date",
+    val projectTimeLabel: String = "Project time",
+    val totalLabel: String,
+    val generalLabel: String,
+    val workTimeTotalLabel: String,
+    val kilometresLabel: String,
+    val flexTimeTotalLabel: String,
+    val totalFlexTimeTotal: String = ZERO_TIME
+)
 
 internal data class TimesheetEntryAggregates(
     val summaryProjectTimes: Map<String, Long>,
@@ -18,44 +53,6 @@ internal data class TimesheetEntryAggregates(
 internal data class TimesheetDisplayData(
     val displayedEntriesByDay: Map<Int, List<TimesheetEntry>>,
     val overflowedDays: List<Int>
-)
-
-internal data class ProjectSummarySectionContext(
-    val document: Document,
-    val sheetData: Element,
-    val exportData: TimesheetExportData,
-    val labelColumnIndex: Int,
-    val projectSummaryColumns: List<String>,
-    val totalColumnLetters: String,
-    val startColumnIndex: Int,
-    val endColumnIndex: Int
-)
-
-internal data class AllowanceSectionContext(
-    val document: Document,
-    val sheetData: Element,
-    val exportData: TimesheetExportData,
-    val allProjectNames: List<String>,
-    val labelColumnIndex: Int,
-    val startColumnIndex: Int,
-    val totalColumnIndex: Int
-)
-
-internal data class WorkTypeSectionContext(
-    val document: Document,
-    val sheetData: Element,
-    val exportData: TimesheetExportData,
-    val allProjectNames: List<String>,
-    val labelColumnIndex: Int,
-    val startColumnIndex: Int,
-    val totalColumnIndex: Int
-)
-
-internal data class SectionBodyStyleSpec(
-    val labelColumnIndex: Int,
-    val valueColumnRange: IntRange,
-    val rowRange: IntRange,
-    val valueStyle: Int
 )
 
 internal data class TimesheetExportData(

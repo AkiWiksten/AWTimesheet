@@ -19,7 +19,7 @@ import com.akiwiksten.awtimesheet.core.ui.AddTextFieldDialog
 import com.akiwiksten.awtimesheet.core.ui.MyAlertDialog
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.feature.settings.R
-import com.akiwiksten.awtimesheet.feature.settings.SettingsTimePickerDialogConfig
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsTimePickerDialogConfig
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale

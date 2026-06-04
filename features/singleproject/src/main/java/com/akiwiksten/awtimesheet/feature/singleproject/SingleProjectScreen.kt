@@ -42,6 +42,7 @@ import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
@@ -372,14 +373,16 @@ private fun SingleProjectContent(
             .sorted()
 
     ScrollableScreenColumn(
-        scrollState = scrollState,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues = padding),
-        columnModifier = Modifier
-            .fillMaxWidth()
-            .padding(all = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+        state = ScrollableScreenColumnState(
+            scrollState = scrollState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = padding),
+            columnModifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+        )
     ) {
         SingleProjectHeaderSection(
             date = screenState.date,

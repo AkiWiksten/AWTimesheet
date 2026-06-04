@@ -50,9 +50,6 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
-@Suppress("MagicNumber")
-private val workDayRed = Color(0xFF8B0000)
-
 private const val DAYS_IN_WEEK = 7
 private const val WEEK_GRID_ROUND_UP = 6
 private const val YEAR_PICKER_RANGE = 25
@@ -301,7 +298,7 @@ private fun DayCell(
     val hasWork = cellState.hasWork
     val backgroundColor = resolveDayCellBackground(isSelected, isToday)
     val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork)
-    val workBorderColor = workDayRed
+    val workBorderColor = MaterialTheme.colorScheme.onSurface
     val todayBorderColor = if (isSelected) {
         MaterialTheme.colorScheme.onPrimary
     } else {
@@ -352,6 +349,6 @@ private fun resolveDayCellBackground(isSelected: Boolean, isToday: Boolean) = wh
 private fun resolveDayCellTextColor(isSelected: Boolean, isToday: Boolean, hasWork: Boolean) = when {
     isSelected -> MaterialTheme.colorScheme.onPrimary
     isToday -> MaterialTheme.colorScheme.onPrimaryContainer
-    hasWork -> workDayRed
+    hasWork -> MaterialTheme.colorScheme.onSurface
     else -> MaterialTheme.colorScheme.onSurface
 }

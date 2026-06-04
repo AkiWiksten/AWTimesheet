@@ -124,6 +124,7 @@ Summarize benchmark output:
   + Handle by selecting start date 
     + monthly reports 
     + weekly reports
++ defaultGeneratedAllowanceLabels() localize
 ## What to test constantly
 + Thorough regression testing of all features in all screens
     + Intro, 

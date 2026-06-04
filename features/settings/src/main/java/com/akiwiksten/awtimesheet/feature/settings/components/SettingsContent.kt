@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -15,118 +16,156 @@ import androidx.compose.ui.Modifier
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.SCREEN_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
-import com.akiwiksten.awtimesheet.feature.settings.SettingsActions
-import com.akiwiksten.awtimesheet.feature.settings.SettingsContentBodyState
-import com.akiwiksten.awtimesheet.feature.settings.SettingsTimePickerDialogConfig
-import com.akiwiksten.awtimesheet.feature.settings.SettingsTimePickerState
-import com.akiwiksten.awtimesheet.feature.settings.SettingsUiState
-import com.akiwiksten.awtimesheet.feature.settings.SettingsWorkTypeSectionState
-import com.akiwiksten.awtimesheet.feature.settings.rememberSettingsSaveUi
-import com.akiwiksten.awtimesheet.feature.settings.rememberSettingsWorkTypeUiState
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentBodyState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsDialogVisibilityState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsTimePickerDialogConfig
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsTimePickerState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeSectionState
+import com.akiwiksten.awtimesheet.feature.settings.remember.rememberSettingsDialogVisibilityState
+import com.akiwiksten.awtimesheet.feature.settings.remember.rememberSettingsSaveUi
+import com.akiwiksten.awtimesheet.feature.settings.remember.rememberSettingsWorkTypeUiState
 
 @Composable
-@Suppress("LongParameterList", "LongMethod")
 internal fun SettingsContent(
-    uiState: SettingsUiState.Success,
-    actions: SettingsActions,
-    defaultWorkType: String,
-    onUnsavedChangesChanged: (Boolean) -> Unit,
-    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
-    onDiscardChanges: () -> Unit
+    state: SettingsContentState
 ) {
-    val showWorkTimePicker = remember { mutableStateOf(value = false) }
-    val showLunchTimePicker = remember { mutableStateOf(value = false) }
-    val showGenerateMonthlyReportConfirm = remember { mutableStateOf(value = false) }
-    val showGenerateMonthConfirm = remember { mutableStateOf(value = false) }
-    val showGenerateYearConfirm = remember { mutableStateOf(value = false) }
+    val dialogVisibility = rememberSettingsDialogVisibilityState()
     val workTypeUi = rememberSettingsWorkTypeUiState(
-        workTypes = uiState.data.workTypes,
-        defaultWorkType = defaultWorkType,
-        onWorkTypeRemoved = actions.onWorkTypeRemoved,
-        onWorkTypeAdded = actions.onWorkTypeAdded
+        workTypes = state.uiState.data.workTypes,
+        defaultWorkType = state.defaultWorkType,
+        onWorkTypeRemoved = state.actions.onWorkTypeRemoved,
+        onWorkTypeAdded = state.actions.onWorkTypeAdded
     )
     val saveUi = rememberSettingsSaveUi(
-        data = uiState.data,
-        selectedDate = uiState.selectedDate,
-        onSave = actions.onSave
-    )
-    val latestOnDiscardChanges = rememberUpdatedState(onDiscardChanges)
-    val latestOnSaveRequested = rememberUpdatedState(saveUi.onSaveRequested)
-
-    LaunchedEffect(saveUi.hasUnsavedChanges) {
-        onUnsavedChangesChanged(saveUi.hasUnsavedChanges)
-    }
-
-    LaunchedEffect(saveUi.hasUnsavedChanges, registerUnsavedActions) {
-        registerUnsavedActions(latestOnSaveRequested.value, latestOnDiscardChanges.value)
-    }
-    val guardedActions = actions.copy(
-        onGenerateXlsx = { showGenerateMonthlyReportConfirm.value = true },
-        onGenerateWorkdaysForMonth = { showGenerateMonthConfirm.value = true },
-        onGenerateWorkdaysForYear = { showGenerateYearConfirm.value = true }
+        data = state.uiState.data,
+        selectedDate = state.uiState.selectedDate,
+        onSave = state.actions.onSave
     )
 
-    SettingsTimePickerDialogsSection(
-        workTimePicker = SettingsTimePickerDialogConfig(
-            time = uiState.data.dailyWorkTimeEstimate,
-            isVisible = showWorkTimePicker.value,
-            onDismiss = { showWorkTimePicker.value = false },
-            onConfirm = {
-                actions.onDailyWorkTimeEstimateChange(it)
-                showWorkTimePicker.value = false
-            }
-        ),
-        lunchTimePicker = SettingsTimePickerDialogConfig(
-            time = uiState.data.dailyLunchTimeEstimate,
-            isVisible = showLunchTimePicker.value,
-            onDismiss = { showLunchTimePicker.value = false },
-            onConfirm = {
-                actions.onDailyLunchTimeEstimateChange(it)
-                showLunchTimePicker.value = false
-            }
-        )
+    SettingsUnsavedChangesEffects(
+        saveUiHasUnsavedChanges = saveUi.hasUnsavedChanges,
+        onUnsavedChangesChanged = state.onUnsavedChangesChanged,
+        registerUnsavedActions = state.registerUnsavedActions,
+        onSaveRequested = saveUi.onSaveRequested,
+        onDiscardChanges = state.onDiscardChanges
+    )
+
+    val guardedActions = state.actions.copy(
+        onGenerateXlsx = { dialogVisibility.showGenerateMonthlyReportConfirm.value = true },
+        onGenerateWorkdaysForMonth = { dialogVisibility.showGenerateMonthConfirm.value = true },
+        onGenerateWorkdaysForYear = { dialogVisibility.showGenerateYearConfirm.value = true }
+    )
+
+    SettingsTimePickerDialogs(
+        state = state,
+        dialogVisibility = dialogVisibility
     )
 
     SettingsContentBody(
         state = SettingsContentBodyState(
-            uiState = uiState,
+            uiState = state.uiState,
             actions = guardedActions,
             settingsWorkTypeState = workTypeUi.settingsWorkTypeDialogState,
             settingsTimePickerState = SettingsTimePickerState(
-                onDailyWorkTimePickerClick = { showWorkTimePicker.value = true },
-                onDailyLunchTimeEstimatePickerClick = { showLunchTimePicker.value = true }
+                onDailyWorkTimePickerClick = { dialogVisibility.showWorkTimePicker.value = true },
+                onDailyLunchTimeEstimatePickerClick = { dialogVisibility.showLunchTimePicker.value = true }
             ),
             settingsAddWorkTypeDialogState = workTypeUi.settingsAddWorkTypeDialogState,
             scrollState = rememberScrollState(),
             settingsSaveUi = saveUi,
-            defaultWorkType = defaultWorkType
+            defaultWorkType = state.defaultWorkType
         )
     )
 
+    SettingsConfirmDialogsSection(
+        selectedDate = state.uiState.selectedDate,
+        actions = state.actions,
+        dialogVisibility = dialogVisibility
+    )
+}
+
+
+@Composable
+private fun SettingsTimePickerDialogs(
+    state: SettingsContentState,
+    dialogVisibility: SettingsDialogVisibilityState
+) {
+    SettingsTimePickerDialogsSection(
+        workTimePicker = SettingsTimePickerDialogConfig(
+            time = state.uiState.data.dailyWorkTimeEstimate,
+            isVisible = dialogVisibility.showWorkTimePicker.value,
+            onDismiss = { dialogVisibility.showWorkTimePicker.value = false },
+            onConfirm = {
+                state.actions.onDailyWorkTimeEstimateChange(it)
+                dialogVisibility.showWorkTimePicker.value = false
+            }
+        ),
+        lunchTimePicker = SettingsTimePickerDialogConfig(
+            time = state.uiState.data.dailyLunchTimeEstimate,
+            isVisible = dialogVisibility.showLunchTimePicker.value,
+            onDismiss = { dialogVisibility.showLunchTimePicker.value = false },
+            onConfirm = {
+                state.actions.onDailyLunchTimeEstimateChange(it)
+                dialogVisibility.showLunchTimePicker.value = false
+            }
+        )
+    )
+}
+
+@Composable
+private fun SettingsUnsavedChangesEffects(
+    saveUiHasUnsavedChanges: Boolean,
+    onUnsavedChangesChanged: (Boolean) -> Unit,
+    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
+    onSaveRequested: () -> Unit,
+    onDiscardChanges: () -> Unit
+) {
+    val latestOnDiscardChanges = rememberUpdatedState(onDiscardChanges)
+    val latestOnSaveRequested = rememberUpdatedState(onSaveRequested)
+
+    LaunchedEffect(saveUiHasUnsavedChanges) {
+        onUnsavedChangesChanged(saveUiHasUnsavedChanges)
+    }
+
+    LaunchedEffect(saveUiHasUnsavedChanges, registerUnsavedActions) {
+        registerUnsavedActions(latestOnSaveRequested.value, latestOnDiscardChanges.value)
+    }
+}
+
+@Composable
+private fun SettingsConfirmDialogsSection(
+    selectedDate: String,
+    actions: SettingsActions,
+    dialogVisibility: SettingsDialogVisibilityState
+) {
     SettingsGenerateMonthConfirmDialogSection(
-        isVisible = showGenerateMonthConfirm.value,
-        onDismiss = { showGenerateMonthConfirm.value = false },
+        isVisible = dialogVisibility.showGenerateMonthConfirm.value,
+        onDismiss = { dialogVisibility.showGenerateMonthConfirm.value = false },
         onConfirmed = {
-            showGenerateMonthConfirm.value = false
+            dialogVisibility.showGenerateMonthConfirm.value = false
             actions.onGenerateWorkdaysForMonth()
         }
     )
 
     SettingsGenerateMonthlyReportConfirmDialogSection(
-        isVisible = showGenerateMonthlyReportConfirm.value,
-        selectedDate = uiState.selectedDate,
-        onDismiss = { showGenerateMonthlyReportConfirm.value = false },
+        isVisible = dialogVisibility.showGenerateMonthlyReportConfirm.value,
+        selectedDate = selectedDate,
+        onDismiss = { dialogVisibility.showGenerateMonthlyReportConfirm.value = false },
         onConfirmed = {
-            showGenerateMonthlyReportConfirm.value = false
+            dialogVisibility.showGenerateMonthlyReportConfirm.value = false
             actions.onGenerateXlsx()
         }
     )
 
     SettingsGenerateYearConfirmDialogSection(
-        isVisible = showGenerateYearConfirm.value,
-        onDismiss = { showGenerateYearConfirm.value = false },
+        isVisible = dialogVisibility.showGenerateYearConfirm.value,
+        onDismiss = { dialogVisibility.showGenerateYearConfirm.value = false },
         onConfirmed = {
-            showGenerateYearConfirm.value = false
+            dialogVisibility.showGenerateYearConfirm.value = false
             actions.onGenerateWorkdaysForYear()
         }
     )
@@ -137,13 +176,15 @@ private fun SettingsContentBody(
     state: SettingsContentBodyState
 ) {
     ScrollableScreenColumn(
-        scrollState = state.scrollState,
-        modifier = Modifier.fillMaxSize(),
-        columnModifier = Modifier
-            .fillMaxWidth()
-            .padding(all = FORM_SECTION_SPACING),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
+        state = ScrollableScreenColumnState(
+            scrollState = state.scrollState,
+            modifier = Modifier.fillMaxSize(),
+            columnModifier = Modifier
+                .fillMaxWidth()
+                .padding(all = FORM_SECTION_SPACING),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
+        )
     ) {
         SettingsHeaderSection(date = state.uiState.selectedDate)
 
@@ -169,12 +210,14 @@ private fun SettingsContentBody(
         }
 
         SettingsActionButtonsSection(
-            onSave = state.settingsSaveUi.onSaveRequested,
-            onGenerateXlsx = state.actions.onGenerateXlsx,
-            onGenerateWorkdaysForMonth = state.actions.onGenerateWorkdaysForMonth,
-            onGenerateWorkdaysForYear = state.actions.onGenerateWorkdaysForYear,
-            isReportEnabled = state.uiState.selectedDate.isNotBlank(),
-            isSaveEnabled = state.settingsSaveUi.isSaveEnabled
+            state = SettingsActionButtonsSectionState(
+                onSave = state.settingsSaveUi.onSaveRequested,
+                onGenerateXlsx = state.actions.onGenerateXlsx,
+                onGenerateWorkdaysForMonth = state.actions.onGenerateWorkdaysForMonth,
+                onGenerateWorkdaysForYear = state.actions.onGenerateWorkdaysForYear,
+                isReportEnabled = state.uiState.selectedDate.isNotBlank(),
+                isSaveEnabled = state.settingsSaveUi.isSaveEnabled
+            )
         )
 
         SettingsAddWorkTypeDialogSection(

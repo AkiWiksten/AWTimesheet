@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.feature.settings
+package com.akiwiksten.awtimesheet.feature.settings.remember
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
@@ -9,77 +9,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
+import com.akiwiksten.awtimesheet.feature.settings.INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX
+import com.akiwiksten.awtimesheet.feature.settings.R
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsAddWorkTypeDialogState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsDialogVisibilityState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsSaveUi
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeDialogState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeUiState
 
-// State data classes
-data class SettingsActions(
-    val onNameChange: (String) -> Unit,
-    val onEmployerChange: (String) -> Unit,
-    val onDailyWorkTimeEstimateChange: (String) -> Unit,
-    val onDailyLunchTimeEstimateChange: (String) -> Unit,
-    val onInitialFlexTimeTotalChange: (String) -> Unit,
-    val onWorkTypeAdded: (String) -> Unit,
-    val onWorkTypeRemoved: (String) -> Unit,
-    val onSave: () -> Unit,
-    val onGenerateXlsx: () -> Unit,
-    val onGenerateWorkdaysForMonth: () -> Unit,
-    val onGenerateWorkdaysForYear: () -> Unit
-)
-
-internal data class SettingsWorkTypeDialogState(
-    val selectedWorkType: String,
-    val onWorkTypeSelected: (String) -> Unit,
-    val onAddClick: () -> Unit,
-    val onDeleteClick: () -> Unit
-)
-
-internal data class SettingsWorkTypeSectionState(
-    val workTypes: List<String>,
-    val settingsWorkTypeDialogState: SettingsWorkTypeDialogState,
-    val protectedWorkType: String
-)
-
-internal data class SettingsAddWorkTypeDialogState(
-    val isVisible: Boolean,
-    val onDismiss: () -> Unit,
-    val onConfirm: (String) -> Unit
-)
-
-internal data class SettingsTimePickerState(
-    val onDailyWorkTimePickerClick: () -> Unit,
-    val onDailyLunchTimeEstimatePickerClick: () -> Unit
-)
-
-internal data class SettingsContentBodyState(
-    val uiState: SettingsUiState.Success,
-    val actions: SettingsActions,
-    val settingsWorkTypeState: SettingsWorkTypeDialogState,
-    val settingsTimePickerState: SettingsTimePickerState,
-    val settingsAddWorkTypeDialogState: SettingsAddWorkTypeDialogState,
-    val scrollState: androidx.compose.foundation.ScrollState,
-    val settingsSaveUi: SettingsSaveUi,
-    val defaultWorkType: String
-)
-
-internal data class SettingsWorkTypeUiState(
-    val settingsWorkTypeDialogState: SettingsWorkTypeDialogState,
-    val settingsAddWorkTypeDialogState: SettingsAddWorkTypeDialogState
-)
-
-internal data class SettingsTimePickerDialogConfig(
-    val time: String,
-    val isVisible: Boolean,
-    val onDismiss: () -> Unit,
-    val onConfirm: (String) -> Unit
-)
-
-internal data class SettingsSaveUi(
-    val isSaveEnabled: Boolean,
-    val hasUnsavedChanges: Boolean,
-    val isInitialFlexTimeTotalError: Boolean,
-    val onSaveRequested: () -> Unit
-)
-
-// Utility functions
 @Composable
 internal fun rememberSettingsWorkTypeUiState(
     workTypes: List<String>,
@@ -187,4 +125,26 @@ internal fun rememberSettingsSaveUi(
     )
 }
 
-private val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+@Composable
+internal fun rememberSettingsDialogVisibilityState() = SettingsDialogVisibilityState(
+    showWorkTimePicker = remember { mutableStateOf(value = false) },
+    showLunchTimePicker = remember { mutableStateOf(value = false) },
+    showGenerateMonthlyReportConfirm = remember { mutableStateOf(value = false) },
+    showGenerateMonthConfirm = remember { mutableStateOf(value = false) },
+    showGenerateYearConfirm = remember { mutableStateOf(value = false) }
+)
+
+
+@Composable
+internal fun rememberGeneratedAllowanceLabels(): GeneratedAllowanceLabels {
+    val noAllowance = stringResource(id = R.string.no_allowance)
+    val fullAllowance = stringResource(id = R.string.full_allowance)
+    val halfDayAllowance = stringResource(id = R.string.half_day_allowance)
+    return remember(noAllowance, fullAllowance, halfDayAllowance) {
+        GeneratedAllowanceLabels(
+            noAllowance = noAllowance,
+            fullAllowance = fullAllowance,
+            halfDayAllowance = halfDayAllowance
+        )
+    }
+}

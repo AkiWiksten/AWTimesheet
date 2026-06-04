@@ -22,10 +22,15 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsLoadingContentState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsScreenBodyState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsStateContentState
+import com.akiwiksten.awtimesheet.feature.settings.remember.rememberGeneratedAllowanceLabels
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-@Suppress("LongMethod")
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     onUnsavedChangesChanged: (Boolean) -> Unit = {},
@@ -34,19 +39,131 @@ fun SettingsScreen(
     val uiState by settingsViewModel.uiState.collectAsState()
     val ctx = LocalContext.current
     val defaultWorkType = stringResource(id = R.string.other)
+    val generatedAllowanceLabels = rememberGeneratedAllowanceLabels()
+
+    SettingsScreenEffects(
+        settingsViewModel = settingsViewModel,
+        uiState = uiState,
+        defaultWorkType = defaultWorkType,
+        ctx = ctx
+    )
+
+    SettingsStateContent(
+        state = SettingsStateContentState(
+            uiState = uiState,
+            defaultWorkType = defaultWorkType,
+            onUnsavedChangesChanged = onUnsavedChangesChanged,
+            registerUnsavedActions = registerUnsavedActions,
+            onDiscardChanges = settingsViewModel::loadSettings,
+            createActions = { successState ->
+                createSettingsActions(
+                    settingsViewModel = settingsViewModel,
+                    successState = successState,
+                    generatedAllowanceLabels = generatedAllowanceLabels
+                )
+            }
+        )
+    )
+}
+
+@Composable
+internal fun SettingsStateContent(
+    state: SettingsStateContentState
+) {
+    val showLoadingIndicator = rememberDelayedLoadingVisibility(
+        isLoading = state.uiState is SettingsUiState.Loading
+    )
+    var lastSuccessState by remember { mutableStateOf<SettingsUiState.Success?>(value = null) }
+
+    LaunchedEffect(state.uiState) {
+        if (state.uiState is SettingsUiState.Success) {
+            lastSuccessState = state.uiState
+        }
+    }
+
+    when (state.uiState) {
+        is SettingsUiState.Loading -> SettingsLoadingContent(
+            state = SettingsLoadingContentState(
+                showLoadingIndicator = showLoadingIndicator,
+                lastSuccessState = lastSuccessState,
+                defaultWorkType = state.defaultWorkType,
+                onUnsavedChangesChanged = state.onUnsavedChangesChanged,
+                registerUnsavedActions = state.registerUnsavedActions,
+                onDiscardChanges = state.onDiscardChanges,
+                createActions = state.createActions
+            )
+        )
+        is SettingsUiState.Success -> {
+            val actions = remember(state.uiState) { state.createActions(state.uiState) }
+            SettingsContent(
+                state = SettingsContentState(
+                    uiState = state.uiState,
+                    actions = actions,
+                    defaultWorkType = state.defaultWorkType,
+                    onUnsavedChangesChanged = state.onUnsavedChangesChanged,
+                    registerUnsavedActions = state.registerUnsavedActions,
+                    onDiscardChanges = state.onDiscardChanges
+                )
+            )
+        }
+        is SettingsUiState.Error -> {
+            LaunchedEffect(Unit) {
+                state.onUnsavedChangesChanged(false)
+                state.registerUnsavedActions(null, null)
+            }
+            CenteredErrorBox(
+                errorMessage = stringResource(id = R.string.error_message, state.uiState.message),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = FORM_SECTION_SPACING),
+                fillMaxSize = false
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsLoadingContent(
+    state: SettingsLoadingContentState
+) {
+    if (state.showLoadingIndicator) {
+        CenteredLoadingBox(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = FORM_SECTION_SPACING),
+            fillMaxSize = false
+        )
+    } else if (state.lastSuccessState != null) {
+        val actions = remember(state.lastSuccessState) { state.createActions(state.lastSuccessState) }
+        SettingsContent(
+            state = SettingsContentState(
+                uiState = state.lastSuccessState,
+                actions = actions,
+                defaultWorkType = state.defaultWorkType,
+                onUnsavedChangesChanged = state.onUnsavedChangesChanged,
+                registerUnsavedActions = state.registerUnsavedActions,
+                onDiscardChanges = state.onDiscardChanges
+            )
+        )
+    } else {
+        LaunchedEffect(Unit) {
+            state.onUnsavedChangesChanged(false)
+            state.registerUnsavedActions(null, null)
+        }
+        Box(modifier = Modifier.fillMaxSize())
+    }
+}
+
+@Composable
+internal fun SettingsScreenEffects(
+    settingsViewModel: SettingsViewModel,
+    uiState: SettingsUiState,
+    defaultWorkType: String,
+    ctx: android.content.Context
+) {
     val noProjectsMessage = stringResource(id = R.string.no_projects_available)
     val generationSuccessMessage = stringResource(id = R.string.workday_generation_success)
     val generationErrorMessage = stringResource(id = R.string.workday_generation_error)
-    val noAllowance = stringResource(id = R.string.no_allowance)
-    val fullAllowance = stringResource(id = R.string.full_allowance)
-    val halfDayAllowance = stringResource(id = R.string.half_day_allowance)
-    val generatedAllowanceLabels = remember(noAllowance, fullAllowance, halfDayAllowance) {
-        GeneratedAllowanceLabels(
-            noAllowance = noAllowance,
-            fullAllowance = fullAllowance,
-            halfDayAllowance = halfDayAllowance
-        )
-    }
 
     LaunchedEffect(Unit) {
         settingsViewModel.loadSettings()
@@ -68,10 +185,7 @@ fun SettingsScreen(
         settingsViewModel.events.collectLatest { event ->
             when (event) {
                 is SettingsEvent.TimesheetReportReady -> {
-                    generateTimesheetReport(
-                        ctx = ctx,
-                        event = event
-                    )
+                    generateTimesheetReport(ctx = ctx, event = event)
                 }
                 is SettingsEvent.MonthlyReportError -> {
                     Toast.makeText(ctx, event.message, Toast.LENGTH_SHORT).show()
@@ -95,24 +209,11 @@ fun SettingsScreen(
             }
         }
     }
-
-    SettingsStateContent(
-        uiState = uiState,
-        defaultWorkType = defaultWorkType,
-        onUnsavedChangesChanged = onUnsavedChangesChanged,
-        registerUnsavedActions = registerUnsavedActions,
-        onDiscardChanges = settingsViewModel::loadSettings,
-        createActions = { successState ->
-            createSettingsActions(
-                settingsViewModel = settingsViewModel,
-                successState = successState,
-                generatedAllowanceLabels = generatedAllowanceLabels
-            )
-        }
-    )
 }
 
-private fun createSettingsActions(
+internal val INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX = Regex(pattern = "[+-]?(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")
+
+internal fun createSettingsActions(
     settingsViewModel: SettingsViewModel,
     successState: SettingsUiState.Success,
     generatedAllowanceLabels: GeneratedAllowanceLabels
@@ -139,99 +240,4 @@ private fun createSettingsActions(
             settingsViewModel.generateWorkdaysForSelectedYear(generatedAllowanceLabels)
         }
     )
-}
-
-@Composable
-@Suppress("LongParameterList")
-internal fun SettingsStateContent(
-    uiState: SettingsUiState,
-    defaultWorkType: String,
-    onUnsavedChangesChanged: (Boolean) -> Unit,
-    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
-    onDiscardChanges: () -> Unit,
-    createActions: (SettingsUiState.Success) -> SettingsActions
-) {
-    val showLoadingIndicator = rememberDelayedLoadingVisibility(
-        isLoading = uiState is SettingsUiState.Loading
-    )
-    var lastSuccessState by remember { mutableStateOf<SettingsUiState.Success?>(value = null) }
-
-    LaunchedEffect(uiState) {
-        if (uiState is SettingsUiState.Success) {
-            lastSuccessState = uiState
-        }
-    }
-
-    when (uiState) {
-        is SettingsUiState.Loading -> SettingsLoadingContent(
-            showLoadingIndicator = showLoadingIndicator,
-            lastSuccessState = lastSuccessState,
-            defaultWorkType = defaultWorkType,
-            onUnsavedChangesChanged = onUnsavedChangesChanged,
-            registerUnsavedActions = registerUnsavedActions,
-            onDiscardChanges = onDiscardChanges,
-            createActions = createActions
-        )
-        is SettingsUiState.Success -> {
-            val actions = remember(uiState) { createActions(uiState) }
-            SettingsContent(
-                uiState = uiState,
-                actions = actions,
-                defaultWorkType = defaultWorkType,
-                onUnsavedChangesChanged = onUnsavedChangesChanged,
-                registerUnsavedActions = registerUnsavedActions,
-                onDiscardChanges = onDiscardChanges
-            )
-        }
-        is SettingsUiState.Error -> {
-            LaunchedEffect(Unit) {
-                onUnsavedChangesChanged(false)
-                registerUnsavedActions(null, null)
-            }
-            CenteredErrorBox(
-                errorMessage = stringResource(id = R.string.error_message, uiState.message),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = FORM_SECTION_SPACING),
-                fillMaxSize = false
-            )
-        }
-    }
-}
-
-@Composable
-@Suppress("LongParameterList")
-private fun SettingsLoadingContent(
-    showLoadingIndicator: Boolean,
-    lastSuccessState: SettingsUiState.Success?,
-    defaultWorkType: String,
-    onUnsavedChangesChanged: (Boolean) -> Unit,
-    registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
-    onDiscardChanges: () -> Unit,
-    createActions: (SettingsUiState.Success) -> SettingsActions
-) {
-    if (showLoadingIndicator) {
-        CenteredLoadingBox(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = FORM_SECTION_SPACING),
-            fillMaxSize = false
-        )
-    } else if (lastSuccessState != null) {
-        val actions = remember(lastSuccessState) { createActions(lastSuccessState) }
-        SettingsContent(
-            uiState = lastSuccessState,
-            actions = actions,
-            defaultWorkType = defaultWorkType,
-            onUnsavedChangesChanged = onUnsavedChangesChanged,
-            registerUnsavedActions = registerUnsavedActions,
-            onDiscardChanges = onDiscardChanges
-        )
-    } else {
-        LaunchedEffect(Unit) {
-            onUnsavedChangesChanged(false)
-            registerUnsavedActions(null, null)
-        }
-        Box(modifier = Modifier.fillMaxSize())
-    }
 }

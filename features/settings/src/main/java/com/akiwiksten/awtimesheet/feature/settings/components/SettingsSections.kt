@@ -146,7 +146,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
             Button(
                 onClick = state.settingsWorkTypeDialogState.onDeleteClick,
                 enabled = state.settingsWorkTypeDialogState.selectedWorkType.isNotEmpty() &&
-                        state.settingsWorkTypeDialogState.selectedWorkType != state.protectedWorkType,
+                    state.settingsWorkTypeDialogState.selectedWorkType != state.protectedWorkType,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)

@@ -25,7 +25,6 @@ import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsLoadingContentState
-import com.akiwiksten.awtimesheet.feature.settings.model.SettingsScreenBodyState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsStateContentState
 import com.akiwiksten.awtimesheet.feature.settings.remember.rememberGeneratedAllowanceLabels
 import kotlinx.coroutines.flow.collectLatest

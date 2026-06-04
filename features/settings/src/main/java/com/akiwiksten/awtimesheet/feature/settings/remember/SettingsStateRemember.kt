@@ -134,7 +134,6 @@ internal fun rememberSettingsDialogVisibilityState() = SettingsDialogVisibilityS
     showGenerateYearConfirm = remember { mutableStateOf(value = false) }
 )
 
-
 @Composable
 internal fun rememberGeneratedAllowanceLabels(): GeneratedAllowanceLabels {
     val noAllowance = stringResource(id = R.string.no_allowance)

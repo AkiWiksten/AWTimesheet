@@ -6,6 +6,20 @@ internal const val DAILY_ENTRIES_START_ROW = 9
 internal const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
 internal const val TEMPLATE_DAILY_ENTRY_BLOCKS = 1
 
+internal const val DAYS_IN_MONTH = 31
+
+// Row offsets within a daily entry block.
+internal const val DAILY_ENTRY_NAME_ROW_OFFSET = 2
+internal const val DAILY_ENTRY_TIME_ROW_OFFSET = 3
+internal const val DAILY_ENTRY_ALLOWANCE_ROW_OFFSET = 4
+internal const val DAILY_ENTRY_WORK_TYPE_ROW_OFFSET = 5
+internal const val DAILY_ENTRY_KILOMETRES_ROW_OFFSET = 6
+
+// Row offsets within the summary sections.
+internal const val SUMMARY_LABEL_ROW = 1
+internal const val SUMMARY_WORK_TIME_ROW = 2
+internal const val SUMMARY_KILOMETRES_ROW = 3
+
 // Workbook style ids (match template cellXfs 0-based index).
 //   0 = default plain text (no bold, no border)
 //   1 = bold, no border

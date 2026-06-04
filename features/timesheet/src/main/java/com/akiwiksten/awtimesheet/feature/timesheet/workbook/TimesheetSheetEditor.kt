@@ -1,8 +1,11 @@
 package com.akiwiksten.awtimesheet.feature.timesheet.workbook
 
 import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetCategorizedSummaryWriter
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetDailyEntryWriter
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetFreezePaneEditor
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetSectionWriter
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetHeaderWriter
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections.TimesheetProjectSummaryWriter
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_HEADER_CELLS
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.ALLOWANCE_LABEL_CELLS
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_CLEAR_END_COLUMN_INDEX
@@ -42,13 +45,13 @@ internal object TimesheetSheetEditor {
         clearDynamicCells(sheetData, dailyEntriesRowOffset)
         // Keep the full top summary area deterministic even when some populate* calls are disabled.
         clearTopSummaryArea(sheetData)
-        TimesheetSectionWriter.populateHeader(document, sheetData, exportData)
-        TimesheetSectionWriter.populateDayOfMonthRow(document, sheetData)
-        TimesheetSectionWriter.populateDailyEntryLabels(document, sheetData, exportData)
-        TimesheetSectionWriter.populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
-        TimesheetSectionWriter.populateProjectSummary(document, sheetData, exportData)
-        TimesheetSectionWriter.populateAllowanceSummary(document, sheetData, exportData)
-        TimesheetSectionWriter.populateWorkTypeSummary(document, sheetData, exportData)
+        TimesheetHeaderWriter.populateHeader(document, sheetData, exportData)
+        TimesheetHeaderWriter.populateDayOfMonthRow(document, sheetData)
+        TimesheetHeaderWriter.populateDailyEntryLabels(document, sheetData, exportData)
+        TimesheetDailyEntryWriter.populateDailyEntries(document, sheetData, exportData, dailyEntriesRowOffset)
+        TimesheetProjectSummaryWriter.populateProjectSummary(document, sheetData, exportData)
+        TimesheetCategorizedSummaryWriter.populateAllowanceSummary(document, sheetData, exportData)
+        TimesheetCategorizedSummaryWriter.populateWorkTypeSummary(document, sheetData, exportData)
         TimesheetFreezePaneEditor.ensureTopRowFrozen(document, sheetData)
         TimesheetFreezePaneEditor.ensureFirstColumnFrozen(document)
 

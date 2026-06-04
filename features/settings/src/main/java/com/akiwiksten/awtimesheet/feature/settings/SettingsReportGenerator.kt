@@ -1,8 +1,8 @@
 package com.akiwiksten.awtimesheet.feature.settings
 
 import android.content.Context
-import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
 import com.akiwiksten.awtimesheet.feature.timesheet.entry.TimesheetGeneratorEntry
+import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
 
 internal fun generateTimesheetReport(
     ctx: Context,

@@ -46,7 +46,6 @@ import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection

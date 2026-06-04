@@ -13,6 +13,7 @@ import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_INTEGER_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_TEXT_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PLAIN_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.SUMMARY_LABEL_ROW
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_HEADER_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_TOTAL_HEADER_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.WORK_TYPE_TOTAL_STYLES
@@ -21,12 +22,17 @@ import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.allowanceLabel
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.allowanceStartColumnIndex
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.buildCellReference
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.columnIndexToLetters
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryTotalColumnIndex
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toExcelTimeFractionNumberString
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.workTypeLabelColumnIndex
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.TimesheetXmlHelper
 import org.w3c.dom.Document
 import org.w3c.dom.Element
+
+private const val ALLOWANCE_ROW_COUNT = 3
+private const val MAX_DAYS_IN_MONTH = 31
+private const val HEADER_ROW_COUNT = 2
+private const val BODY_START_ROW = 2
+private const val SUMMARY_ROW_OFFSET = 3
 
 internal object TimesheetCategorizedSummaryWriter {
 
@@ -63,7 +69,7 @@ internal object TimesheetCategorizedSummaryWriter {
             spec = SectionBodyStyleSpec(
                 labelColumnIndex = context.labelColumnIndex,
                 valueColumnRange = context.startColumnIndex..context.totalColumnIndex,
-                rowRange = 2..4,
+                rowRange = BODY_START_ROW..(ALLOWANCE_ROW_COUNT + 1),
                 valueStyle = PLAIN_INTEGER_STYLE
             )
         )
@@ -102,7 +108,7 @@ internal object TimesheetCategorizedSummaryWriter {
             spec = SectionBodyStyleSpec(
                 labelColumnIndex = context.labelColumnIndex,
                 valueColumnRange = context.startColumnIndex..context.totalColumnIndex,
-                rowRange = 2..(context.exportData.workTypeRows.size + 1),
+                rowRange = BODY_START_ROW..(context.exportData.workTypeRows.size + 1),
                 valueStyle = PLAIN_TIME_STYLE
             )
         )
@@ -112,7 +118,7 @@ internal object TimesheetCategorizedSummaryWriter {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 1),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_LABEL_ROW),
             value = context.exportData.allowanceLabel,
             styleIndex = BOLD_TEXT_STYLE
         )
@@ -121,7 +127,7 @@ internal object TimesheetCategorizedSummaryWriter {
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = "${columnLetters}1",
+                cellReference = "${columnLetters}$SUMMARY_LABEL_ROW",
                 value = projectName,
                 styleIndex = ALLOWANCE_HEADER_STYLE
             )
@@ -130,7 +136,7 @@ internal object TimesheetCategorizedSummaryWriter {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = "${totalColumnLetters}1",
+            cellReference = "${totalColumnLetters}$SUMMARY_LABEL_ROW",
             value = context.exportData.totalLabel,
             styleIndex = ALLOWANCE_TOTAL_HEADER_STYLE
         )
@@ -141,15 +147,19 @@ internal object TimesheetCategorizedSummaryWriter {
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = buildCellReference(context.labelColumnIndex, rowIndex + 2),
+                cellReference = buildCellReference(context.labelColumnIndex, rowIndex + HEADER_ROW_COUNT),
                 value = allowanceRow.label,
                 styleIndex = PLAIN_TEXT_STYLE
             )
             context.allProjectNames.forEachIndexed { columnIndex, projectName ->
+                val cellReference = buildCellReference(
+                    context.startColumnIndex + columnIndex,
+                    rowIndex + HEADER_ROW_COUNT
+                )
                 TimesheetXmlHelper.setNumericCell(
                     document = context.document,
                     sheetData = context.sheetData,
-                    cellReference = buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2),
+                    cellReference = cellReference,
                     numericValue = allowanceRow.countByProjectName.getValue(projectName).toString(),
                     styleIndex = ALLOWANCE_PROJECT_VALUE_STYLES[rowIndex]
                 )
@@ -157,7 +167,7 @@ internal object TimesheetCategorizedSummaryWriter {
             TimesheetXmlHelper.setNumericCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = buildCellReference(context.totalColumnIndex, rowIndex + 2),
+                cellReference = buildCellReference(context.totalColumnIndex, rowIndex + HEADER_ROW_COUNT),
                 numericValue = allowanceRow.totalCount.toString(),
                 styleIndex = ALLOWANCE_TOTAL_VALUE_STYLES[rowIndex]
             )
@@ -168,12 +178,12 @@ internal object TimesheetCategorizedSummaryWriter {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 1),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_LABEL_ROW),
             value = context.exportData.workTypeLabel,
             styleIndex = BOLD_TEXT_STYLE
         )
         context.allProjectNames.forEachIndexed { index, projectName ->
-            val cellReference = buildCellReference(context.startColumnIndex + index, 1)
+            val cellReference = buildCellReference(context.startColumnIndex + index, SUMMARY_LABEL_ROW)
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,
@@ -185,7 +195,7 @@ internal object TimesheetCategorizedSummaryWriter {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.totalColumnIndex, 1),
+            cellReference = buildCellReference(context.totalColumnIndex, SUMMARY_LABEL_ROW),
             value = context.exportData.totalLabel,
             styleIndex = WORK_TYPE_TOTAL_HEADER_STYLE
         )
@@ -197,8 +207,8 @@ internal object TimesheetCategorizedSummaryWriter {
         exportData: TimesheetExportData,
     ) {
         val additionalRowNumber =
-            if (context.totalColumnIndex > 31) {
-                (exportData.workTypeRows.size + 1) - (DAILY_ENTRIES_START_ROW - 3)
+            if (context.totalColumnIndex > MAX_DAYS_IN_MONTH) {
+                (exportData.workTypeRows.size + 1) - (DAILY_ENTRIES_START_ROW - SUMMARY_ROW_OFFSET)
             } else {
                 0
             }
@@ -214,17 +224,21 @@ internal object TimesheetCategorizedSummaryWriter {
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = buildCellReference(context.labelColumnIndex, rowIndex + 2),
+                cellReference = buildCellReference(context.labelColumnIndex, rowIndex + HEADER_ROW_COUNT),
                 value = workTypeRow.label,
                 styleIndex = PLAIN_TEXT_STYLE
             )
             context.allProjectNames.forEachIndexed { columnIndex, projectName ->
                 val value = workTypeRow.timeByProjectName.getValue(projectName)
                 if (value > 0L) {
+                    val cellReference = buildCellReference(
+                        context.startColumnIndex + columnIndex,
+                        rowIndex + HEADER_ROW_COUNT
+                    )
                     TimesheetXmlHelper.setNumericCell(
                         document = context.document,
                         sheetData = context.sheetData,
-                        cellReference = buildCellReference(context.startColumnIndex + columnIndex, rowIndex + 2),
+                        cellReference = cellReference,
                         numericValue = value.toExcelTimeFractionNumberString(),
                         styleIndex = WORK_TYPE_VALUE_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
                     )
@@ -234,7 +248,7 @@ internal object TimesheetCategorizedSummaryWriter {
                 TimesheetXmlHelper.setNumericCell(
                     document = context.document,
                     sheetData = context.sheetData,
-                    cellReference = buildCellReference(context.totalColumnIndex, rowIndex + 2),
+                    cellReference = buildCellReference(context.totalColumnIndex, rowIndex + HEADER_ROW_COUNT),
                     numericValue = workTypeRow.totalTime.toExcelTimeFractionNumberString(),
                     styleIndex = WORK_TYPE_TOTAL_STYLES.getOrElse(rowIndex) { PLAIN_TIME_STYLE }
                 )

@@ -13,9 +13,11 @@ import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMAR
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.PROJECT_SUMMARY_WORK_TIME_STYLE
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.SUMMARY_KILOMETRES_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.SUMMARY_LABEL_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.SUMMARY_WORK_TIME_ROW
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.buildCellReference
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryColumnLetters
-import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryTotalColumnLetters
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.columnIndexToLetters
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.projectSummaryTotalColumnIndex
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.toExcelTimeFractionNumberString
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.xml.TimesheetXmlHelper
@@ -26,15 +28,19 @@ internal object TimesheetProjectSummaryWriter {
 
     fun populateProjectSummary(document: Document, sheetData: Element, exportData: TimesheetExportData) {
         val allProjectNames = exportData.summaryProjectNames + exportData.hiddenProjectNames
+        val projectCount = allProjectNames.size
+        val totalIndex = projectSummaryTotalColumnIndex(projectCount)
         val context = ProjectSummarySectionContext(
             document = document,
             sheetData = sheetData,
             exportData = exportData,
             labelColumnIndex = PROJECT_SUMMARY_START_COLUMN_INDEX - 1,
-            projectSummaryColumns = projectSummaryColumnLetters(allProjectNames.size),
-            totalColumnLetters = projectSummaryTotalColumnLetters(allProjectNames.size),
+            projectSummaryColumns = (0 until projectCount).map { offset ->
+                columnIndexToLetters(PROJECT_SUMMARY_START_COLUMN_INDEX + offset)
+            },
+            totalColumnLetters = columnIndexToLetters(totalIndex),
             startColumnIndex = PROJECT_SUMMARY_START_COLUMN_INDEX - 1,
-            endColumnIndex = projectSummaryTotalColumnIndex(allProjectNames.size)
+            endColumnIndex = totalIndex
         )
 
         writeProjectSummaryLabels(context)
@@ -47,21 +53,21 @@ internal object TimesheetProjectSummaryWriter {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 1),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_LABEL_ROW),
             value = context.exportData.generalLabel,
             styleIndex = BOLD_TEXT_STYLE
         )
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 2),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_WORK_TIME_ROW),
             value = context.exportData.workTimeTotalLabel,
             styleIndex = PLAIN_TEXT_STYLE
         )
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 3),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_KILOMETRES_ROW),
             value = context.exportData.kilometresLabel,
             styleIndex = PLAIN_TEXT_STYLE
         )
@@ -73,14 +79,14 @@ internal object TimesheetProjectSummaryWriter {
             TimesheetXmlHelper.setStringCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = "${columnLetters}1",
+                cellReference = "${columnLetters}$SUMMARY_LABEL_ROW",
                 value = projectName,
                 styleIndex = PROJECT_SUMMARY_HEADER_STYLE
             )
             TimesheetXmlHelper.setNumericCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = "${columnLetters}2",
+                cellReference = "${columnLetters}$SUMMARY_WORK_TIME_ROW",
                 numericValue = context.exportData
                     .summaryProjectTimes
                     .getValue(projectName)
@@ -90,7 +96,7 @@ internal object TimesheetProjectSummaryWriter {
             TimesheetXmlHelper.setNumericCell(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = "${columnLetters}3",
+                cellReference = "${columnLetters}$SUMMARY_KILOMETRES_ROW",
                 numericValue = context.exportData
                     .summaryProjectKilometres
                     .getValue(projectName)
@@ -104,21 +110,21 @@ internal object TimesheetProjectSummaryWriter {
         TimesheetXmlHelper.setStringCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = "${context.totalColumnLetters}1",
+            cellReference = "${context.totalColumnLetters}$SUMMARY_LABEL_ROW",
             value = context.exportData.totalLabel,
             styleIndex = PROJECT_SUMMARY_TOTAL_HEADER_STYLE
         )
         TimesheetXmlHelper.setNumericCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = "${context.totalColumnLetters}2",
+            cellReference = "${context.totalColumnLetters}$SUMMARY_WORK_TIME_ROW",
             numericValue = context.exportData.totalWorkTime.toExcelTimeFractionNumberString(),
             styleIndex = PROJECT_SUMMARY_TOTAL_WORK_TIME_STYLE
         )
         TimesheetXmlHelper.setNumericCell(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = "${context.totalColumnLetters}3",
+            cellReference = "${context.totalColumnLetters}$SUMMARY_KILOMETRES_ROW",
             numericValue = context.exportData.totalKilometres.toString(),
             styleIndex = PROJECT_SUMMARY_TOTAL_KILOMETRES_STYLE
         )
@@ -136,26 +142,26 @@ internal object TimesheetProjectSummaryWriter {
             TimesheetXmlHelper.setCellStyle(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = buildCellReference(columnIndex, 2),
+                cellReference = buildCellReference(columnIndex, SUMMARY_WORK_TIME_ROW),
                 styleIndex = PLAIN_TIME_STYLE
             )
             TimesheetXmlHelper.setCellStyle(
                 document = context.document,
                 sheetData = context.sheetData,
-                cellReference = buildCellReference(columnIndex, 3),
+                cellReference = buildCellReference(columnIndex, SUMMARY_KILOMETRES_ROW),
                 styleIndex = PLAIN_INTEGER_STYLE
             )
         }
         TimesheetXmlHelper.setCellStyle(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 2),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_WORK_TIME_ROW),
             styleIndex = PLAIN_TEXT_STYLE
         )
         TimesheetXmlHelper.setCellStyle(
             document = context.document,
             sheetData = context.sheetData,
-            cellReference = buildCellReference(context.labelColumnIndex, 3),
+            cellReference = buildCellReference(context.labelColumnIndex, SUMMARY_KILOMETRES_ROW),
             styleIndex = PLAIN_TEXT_STYLE
         )
     }

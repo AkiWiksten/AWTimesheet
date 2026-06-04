@@ -3,6 +3,12 @@ package com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections
 import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.BOLD_TEXT_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_SEPARATOR_ROW
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_ALLOWANCE_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_KILOMETRES_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_NAME_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_TIME_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_WORK_TYPE_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAYS_IN_MONTH
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAY_OF_MONTH_VALUE_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.TEMPLATE_DAILY_ENTRY_BLOCKS
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.dayToColumn
@@ -32,8 +38,7 @@ internal object TimesheetHeaderWriter {
     }
 
     fun populateDayOfMonthRow(document: Document, sheetData: Element) {
-        val maxDays = 31
-        for (day in 1..maxDays) {
+        for (day in 1..DAYS_IN_MONTH) {
             TimesheetXmlHelper.setNumericCell(
                 document = document,
                 sheetData = sheetData,
@@ -64,35 +69,35 @@ internal object TimesheetHeaderWriter {
             TimesheetXmlHelper.setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = "A${baseRow + 2}",
+                cellReference = "A${baseRow + DAILY_ENTRY_NAME_ROW_OFFSET}",
                 value = dailyEntryLabels[0],
                 styleIndex = BOLD_TEXT_STYLE
             )
             TimesheetXmlHelper.setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = "A${baseRow + 3}",
+                cellReference = "A${baseRow + DAILY_ENTRY_TIME_ROW_OFFSET}",
                 value = dailyEntryLabels[1],
                 styleIndex = BOLD_TEXT_STYLE
             )
             TimesheetXmlHelper.setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = "A${baseRow + 4}",
+                cellReference = "A${baseRow + DAILY_ENTRY_ALLOWANCE_ROW_OFFSET}",
                 value = dailyEntryLabels[2],
                 styleIndex = BOLD_TEXT_STYLE
             )
             TimesheetXmlHelper.setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = "A${baseRow + 5}",
+                cellReference = "A${baseRow + DAILY_ENTRY_WORK_TYPE_ROW_OFFSET}",
                 value = dailyEntryLabels[3],
                 styleIndex = BOLD_TEXT_STYLE
             )
             TimesheetXmlHelper.setStringCell(
                 document = document,
                 sheetData = sheetData,
-                cellReference = "A${baseRow + 6}",
+                cellReference = "A${baseRow + DAILY_ENTRY_KILOMETRES_ROW_OFFSET}",
                 value = dailyEntryLabels[4],
                 styleIndex = BOLD_TEXT_STYLE
             )

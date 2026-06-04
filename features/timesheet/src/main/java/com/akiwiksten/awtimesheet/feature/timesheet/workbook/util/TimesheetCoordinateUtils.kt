@@ -2,21 +2,8 @@ package com.akiwiksten.awtimesheet.feature.timesheet.workbook.util
 
 private const val DAYS_IN_ALPHABET = 26
 
-internal fun projectSummaryColumnLetters(projectCount: Int): List<String> {
-    val startIndex = projectSummaryStartColumnIndex()
-    return (0 until projectCount).map { offset -> columnIndexToLetters(startIndex + offset) }
-}
-
-internal fun projectSummaryTotalColumnLetters(projectCount: Int): String {
-    return columnIndexToLetters(projectSummaryTotalColumnIndex(projectCount))
-}
-
-internal fun projectSummaryStartColumnIndex(): Int {
-    return PROJECT_SUMMARY_START_COLUMN_INDEX
-}
-
 internal fun projectSummaryTotalColumnIndex(projectCount: Int): Int {
-    return projectSummaryStartColumnIndex() + projectCount
+    return PROJECT_SUMMARY_START_COLUMN_INDEX + projectCount
 }
 
 internal fun allowanceLabelColumnIndex(projectCount: Int): Int {

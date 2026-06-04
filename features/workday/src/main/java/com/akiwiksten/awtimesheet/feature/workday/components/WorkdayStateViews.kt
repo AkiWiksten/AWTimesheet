@@ -1,23 +1,82 @@
 package com.akiwiksten.awtimesheet.feature.workday.components
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
-import com.akiwiksten.awtimesheet.feature.workday.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
-import com.akiwiksten.awtimesheet.feature.workday.WorkdayActions
-import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions
-import com.akiwiksten.awtimesheet.feature.workday.WorkdaySettingsEditorState
-import com.akiwiksten.awtimesheet.feature.workday.WorkdayUiState
+import com.akiwiksten.awtimesheet.feature.workday.model.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayDisplayState
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayEstimateUiState
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayHeaderActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayListItemUiModel
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdaySettingsEditorState
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayStatsCardContentParams
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayStatsCardState
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
+
+@Composable
+internal fun WorkdayLoadingContent(
+    showLoadingIndicator: Boolean,
+    cachedState: WorkdayUiState.Success?,
+    selectedItemIndex: Int,
+    actions: WorkdayActions
+) {
+    if (showLoadingIndicator) {
+        CenteredLoadingBox()
+        return
+    }
+
+    cachedState?.let {
+        WorkdaySuccessContent(
+            state = it,
+            selectedItemIndex = selectedItemIndex,
+            actions = actions
+        )
+    }
+}
+
+@Composable
+internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Error: $message",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(all = 32.dp)
+        )
+        Button(onClick = onRetry) {
+            Text(text = stringResource(id = R.string.retry))
+        }
+    }
+}
 
 @Composable
 internal fun WorkdaySuccessContent(
@@ -44,7 +103,7 @@ internal fun WorkdaySuccessContent(
     }
 
     WorkdayHeaderSection(date = state.date)
-    WorkdayStatsCard(
+    WorkdayStatsSection(
         state = WorkdayStatsCardState(
             workTime = state.workTimeByDate,
             flexTimeByDate = displayState.displayedFlexTimeByDate,
@@ -92,7 +151,7 @@ private fun rememberWorkdayDisplayState(
         estimateUiState.workTimeByDateEstimate,
         estimateUiState.isWorkTimeByDateEstimateValid
     ) {
-        calculateDisplayedFlexTimeByDate(
+        WorkTimeDisplayCalculator.calculateDisplayedFlexTimeByDate(
             persistedWorkTimeByDate = state.workTimeByDate,
             persistedFlexTimeByDate = state.flexTimeByDate,
             editedWorkTimeByDateEstimate = estimateUiState.workTimeByDateEstimate,
@@ -106,7 +165,7 @@ private fun rememberWorkdayDisplayState(
         state.flexTimeByDate,
         displayedFlexTimeByDate
     ) {
-        calculateDisplayedCalculatedFlexTimeTotal(
+        WorkTimeDisplayCalculator.calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = state.initialFlexTimeTotal,
             persistedDisplayedFlexTimeTotal = state.flexTimeTotal,
             persistedFlexTimeByDate = state.flexTimeByDate,
@@ -124,49 +183,6 @@ private fun rememberWorkdayDisplayState(
         headerActions = WorkdayHeaderActions(
             onWorkTimeByDateEstimateChange = estimateUiState.onWorkTimeByDateEstimateChange
         )
-    )
-}
-
-internal fun calculateDisplayedFlexTimeByDate(
-    persistedWorkTimeByDate: String,
-    persistedFlexTimeByDate: String,
-    editedWorkTimeByDateEstimate: String,
-    isEditedWorkTimeByDateEstimateValid: Boolean
-): String {
-    return when {
-        !isEditedWorkTimeByDateEstimateValid -> persistedFlexTimeByDate
-        persistedWorkTimeByDate == ZERO_TIME -> ZERO_TIME
-        else -> WorkTimeCalculator.calculateFlexTime(
-            initialTime = persistedWorkTimeByDate,
-            addedTime = "-$editedWorkTimeByDateEstimate"
-        )
-    }
-}
-
-internal fun calculateDisplayedCalculatedFlexTimeTotal(
-    persistedInitialFlexTimeTotal: String,
-    persistedDisplayedFlexTimeTotal: String,
-    persistedFlexTimeByDate: String,
-    editedFlexTimeByDate: String
-): String {
-    val persistedCalculatedFlexDeltaTotal = WorkTimeCalculator.calculateFlexTime(
-        initialTime = persistedDisplayedFlexTimeTotal,
-        addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$persistedInitialFlexTimeTotal")
-    )
-
-    val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
-        initialTime = editedFlexTimeByDate,
-        addedTime = WorkTimeCalculator.normalizeDuplicateMinus("-$persistedFlexTimeByDate")
-    )
-
-    val recalculatedFlexDeltaTotal = WorkTimeCalculator.calculateFlexTime(
-        initialTime = persistedCalculatedFlexDeltaTotal,
-        addedTime = flexTimeByDateDelta
-    )
-
-    return WorkTimeCalculator.calculateFlexTime(
-        initialTime = persistedInitialFlexTimeTotal,
-        addedTime = recalculatedFlexDeltaTotal
     )
 }
 
@@ -224,40 +240,27 @@ private fun SaveWorkTimeEstimateDialog(
     onSaveToday: () -> Unit,
     onSaveGlobally: () -> Unit
 ) {
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         onDismissRequest = onDismiss,
-        title = { androidx.compose.material3.Text(text = stringResource(id = R.string.save_work_time_estimate)) },
+        title = { Text(text = stringResource(id = R.string.save_work_time_estimate)) },
         text = {
-            androidx.compose.material3.Text(
+            Text(
                 text = stringResource(id = R.string.save_work_time_estimate_message),
-                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         confirmButton = {
-            androidx.compose.material3.Button(onClick = onSaveGlobally) {
-                androidx.compose.material3.Text(text = stringResource(id = R.string.save_globally))
+            Button(onClick = onSaveGlobally) {
+                Text(text = stringResource(id = R.string.save_globally))
             }
         },
         dismissButton = {
-            androidx.compose.material3.Button(onClick = onSaveToday) {
-                androidx.compose.material3.Text(text = stringResource(id = R.string.save_today))
+            Button(onClick = onSaveToday) {
+                Text(text = stringResource(id = R.string.save_today))
             }
         }
     )
 }
-
-private data class WorkdayEstimateUiState(
-    val workTimeByDateEstimate: String,
-    val isWorkTimeByDateEstimateValid: Boolean,
-    val onWorkTimeByDateEstimateChange: (String) -> Unit
-)
-
-private data class WorkdayDisplayState(
-    val displayedFlexTimeByDate: String,
-    val displayedCalculatedFlexTimeTotal: String,
-    val editorState: WorkdaySettingsEditorState,
-    val headerActions: WorkdayHeaderActions
-)
 
 private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
     return WorkdayListItemUiModel(

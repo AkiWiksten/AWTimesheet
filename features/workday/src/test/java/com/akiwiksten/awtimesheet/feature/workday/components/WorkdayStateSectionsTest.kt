@@ -1,5 +1,6 @@
 package com.akiwiksten.awtimesheet.feature.workday.components
 
+import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -8,7 +9,7 @@ class WorkdayStateSectionsTest {
 
     @Test
     fun calculateDisplayedFlexTimeByDate_whenWorkTimeIsZero_returnsZeroTime() {
-        val result = calculateDisplayedFlexTimeByDate(
+        val result = WorkTimeDisplayCalculator.calculateDisplayedFlexTimeByDate(
             persistedWorkTimeByDate = ZERO_TIME,
             persistedFlexTimeByDate = ZERO_TIME,
             editedWorkTimeByDateEstimate = "07:30",
@@ -20,7 +21,7 @@ class WorkdayStateSectionsTest {
 
     @Test
     fun calculateDisplayedFlexTimeByDate_whenEstimateInvalid_returnsPersistedFlexTime() {
-        val result = calculateDisplayedFlexTimeByDate(
+        val result = WorkTimeDisplayCalculator.calculateDisplayedFlexTimeByDate(
             persistedWorkTimeByDate = "02:00",
             persistedFlexTimeByDate = "-05:30",
             editedWorkTimeByDateEstimate = "bad",
@@ -32,7 +33,7 @@ class WorkdayStateSectionsTest {
 
     @Test
     fun calculateDisplayedCalculatedFlexTimeTotal_usesPersistedInitialFlexTimeTotal() {
-        val result = calculateDisplayedCalculatedFlexTimeTotal(
+        val result = WorkTimeDisplayCalculator.calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",
             persistedDisplayedFlexTimeTotal = "+03:30",
             persistedFlexTimeByDate = "+00:30",
@@ -44,7 +45,7 @@ class WorkdayStateSectionsTest {
 
     @Test
     fun calculateDisplayedCalculatedFlexTimeTotal_keepsZeroTimeOnCleanStart() {
-        val result = calculateDisplayedCalculatedFlexTimeTotal(
+        val result = WorkTimeDisplayCalculator.calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "00:00",
             persistedDisplayedFlexTimeTotal = "00:00",
             persistedFlexTimeByDate = "00:00",
@@ -56,7 +57,7 @@ class WorkdayStateSectionsTest {
 
     @Test
     fun calculateDisplayedCalculatedFlexTimeTotal_updatesWhenEstimateChangesflexTimeByDate() {
-        val result = calculateDisplayedCalculatedFlexTimeTotal(
+        val result = WorkTimeDisplayCalculator.calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",
             persistedDisplayedFlexTimeTotal = "+03:30",
             persistedFlexTimeByDate = "+00:30",

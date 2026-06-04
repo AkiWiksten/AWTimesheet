@@ -15,6 +15,8 @@ import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.feature.projectdetails.calculator.ProjectDetailsTimeUpdateCalculator
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsField
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsUiMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,170 +109,135 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
-    val setStartTime: (String) -> Unit = { startTime ->
+    val updateTime: (ProjectDetailsField, String) -> Unit = { field, time ->
         _uiState.update { currentState ->
             val successState = currentState as? ProjectDetailsUiState.Success
                 ?: return@update currentState
-            val oldStart = WorkTimeCalculator.stringToLocalTime(successState.details.startTime)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
-                StartTimeUpdateParams(
-                    start = WorkTimeCalculator.stringToLocalTime(startTime),
-                    dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.settings.dailyWorkTimeEstimate
-                    ),
-                    dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        successState.details.lunchTimeEstimate
-                    ),
-                    projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                    oldStartTime = oldStart,
-                    isNewDayForProject = successState.details.isNewDayForProject()
-                )
-            )
-            val nextState = successState.copy(
-                details = successState.details.copy(
-                    startTime = startTime
-                )
-            )
-            applyUpdateToState(nextState, update)
-        }
-    }
 
-    val currentStartTime: () -> Unit = {
-        setStartTime(LocalTime.now().format(timeFormatter))
-    }
-
-    val setEndTime: (String) -> Unit = { endTime ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val oldEnd = WorkTimeCalculator.stringToLocalTime(successState.details.endTime)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateEndTimeUpdate(
-                EndTimeUpdateParams(
-                    start = WorkTimeCalculator.stringToLocalTime(successState.details.startTime),
-                    end = WorkTimeCalculator.stringToLocalTime(endTime),
-                    lunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart),
-                    lunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd),
-                    breakStart = WorkTimeCalculator.stringToLocalTime(successState.details.breakStart),
-                    breakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd),
-                    projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                    oldEndTime = oldEnd
-                )
-            )
-            applyUpdateToState(successState.copy(details = successState.details.copy(endTime = endTime)), update)
-        }
-    }
-
-    val currentEndTime: () -> Unit = {
-        setEndTime(LocalTime.now().format(timeFormatter))
-    }
-
-    val setLunchStart: (String) -> Unit = { lunchStart0 ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val oldLunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
-                lunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart0),
-                dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.details.lunchTimeEstimate
-                ),
-                projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                oldLunchStart = oldLunchStart,
-                currentLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd)
-            )
-            applyUpdateToState(successState.copy(details = successState.details.copy(lunchStart = lunchStart0)), update)
-        }
-    }
-
-    val currentLunchStart: () -> Unit = {
-        setLunchStart(LocalTime.now().format(timeFormatter))
-    }
-
-    val setLunchEnd: (String) -> Unit = { lunchEnd ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val oldLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateLunchEndUpdate(
-                end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
-                lunchEnd = WorkTimeCalculator.stringToLocalTime(lunchEnd),
-                projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                oldLunchEnd = oldLunchEnd
-            )
-            applyUpdateToState(successState.copy(details = successState.details.copy(lunchEnd = lunchEnd)), update)
-        }
-    }
-
-    val currentLunchEnd: () -> Unit = {
-        setLunchEnd(LocalTime.now().format(timeFormatter))
-    }
-
-    val setLunchTime: (String) -> Unit = { dailyLunchTimeEstimate ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                successState.details.lunchTimeEstimate
-            )
-            val update = ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
-                end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
-                lunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart),
-                dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(dailyLunchTimeEstimate),
-                projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                oldDailyLunchTimeEstimate = oldDailyLunchTimeEstimate
-            )
-            applyUpdateToState(
-                successState.copy(
-                    details = successState.details.copy(
-                        lunchTimeEstimate = dailyLunchTimeEstimate
+            val update = when (field) {
+                ProjectDetailsField.START_TIME -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
+                        StartTimeUpdateParams(
+                            start = WorkTimeCalculator.stringToLocalTime(time),
+                            dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                                successState.settings.dailyWorkTimeEstimate
+                            ),
+                            dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                                successState.details.lunchTimeEstimate
+                            ),
+                            projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                            oldStartTime = WorkTimeCalculator.stringToLocalTime(successState.details.startTime),
+                            isNewDayForProject = successState.details.isNewDayForProject()
+                        )
                     )
-                ),
-                update
-            )
+                }
+
+                ProjectDetailsField.END_TIME -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateEndTimeUpdate(
+                        EndTimeUpdateParams(
+                            start = WorkTimeCalculator.stringToLocalTime(successState.details.startTime),
+                            end = WorkTimeCalculator.stringToLocalTime(time),
+                            lunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart),
+                            lunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd),
+                            breakStart = WorkTimeCalculator.stringToLocalTime(successState.details.breakStart),
+                            breakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd),
+                            projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                            oldEndTime = WorkTimeCalculator.stringToLocalTime(successState.details.endTime)
+                        )
+                    )
+                }
+
+                ProjectDetailsField.LUNCH_START -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
+                        lunchStart = WorkTimeCalculator.stringToLocalTime(time),
+                        dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                            successState.details.lunchTimeEstimate
+                        ),
+                        projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                        oldLunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart),
+                        currentLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd)
+                    )
+                }
+
+                ProjectDetailsField.LUNCH_END -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateLunchEndUpdate(
+                        end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
+                        lunchEnd = WorkTimeCalculator.stringToLocalTime(time),
+                        projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                        oldLunchEnd = WorkTimeCalculator.stringToLocalTime(successState.details.lunchEnd)
+                    )
+                }
+
+                ProjectDetailsField.LUNCH_TIME -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateLunchTimeUpdate(
+                        end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
+                        lunchStart = WorkTimeCalculator.stringToLocalTime(successState.details.lunchStart),
+                        dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(time),
+                        projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                        oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                            successState.details.lunchTimeEstimate
+                        )
+                    )
+                }
+
+                ProjectDetailsField.BREAK_START -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateBreakStartUpdate(
+                        end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
+                        breakStart = WorkTimeCalculator.stringToLocalTime(time),
+                        breakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd),
+                        projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                        oldBreakStart = WorkTimeCalculator.stringToLocalTime(successState.details.breakStart)
+                    )
+                }
+
+                ProjectDetailsField.BREAK_END -> {
+                    ProjectDetailsTimeUpdateCalculator.calculateBreakEndUpdate(
+                        end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
+                        projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
+                        breakEnd = WorkTimeCalculator.stringToLocalTime(time),
+                        oldBreakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd)
+                    )
+                }
+
+                ProjectDetailsField.PROJECT_TIME -> {
+                    val nextDetails = successState.details.copy(projectTime = time)
+                    if (nextDetails.hasOnlyProjectTime()) {
+                        return@update successState.copy(
+                            details = ProjectDetailsUiMapper.normalizeProjectDetails(
+                                nextDetails,
+                                successState.settings
+                            ) ?: nextDetails
+                        )
+                    }
+
+                    ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
+                        end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
+                        dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
+                            successState.settings.dailyWorkTimeEstimate
+                        ),
+                        projectTime = WorkTimeCalculator.stringToLocalTime(time),
+                        oldProjectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime)
+                    )
+                }
+            }
+
+            val nextDetails = when (field) {
+                ProjectDetailsField.START_TIME -> successState.details.copy(startTime = time)
+                ProjectDetailsField.END_TIME -> successState.details.copy(endTime = time)
+                ProjectDetailsField.LUNCH_START -> successState.details.copy(lunchStart = time)
+                ProjectDetailsField.LUNCH_END -> successState.details.copy(lunchEnd = time)
+                ProjectDetailsField.LUNCH_TIME -> successState.details.copy(lunchTimeEstimate = time)
+                ProjectDetailsField.BREAK_START -> successState.details.copy(breakStart = time)
+                ProjectDetailsField.BREAK_END -> successState.details.copy(breakEnd = time)
+                ProjectDetailsField.PROJECT_TIME -> successState.details.copy(projectTime = time)
+            }
+
+            applyUpdateToState(successState.copy(details = nextDetails), update)
         }
     }
 
-    val currentLunchTime: () -> Unit = {
-        setLunchTime(LocalTime.now().format(timeFormatter))
-    }
-
-    val setBreakStart: (String) -> Unit = { breakStart0 ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val oldBreakStart = WorkTimeCalculator.stringToLocalTime(successState.details.breakStart)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateBreakStartUpdate(
-                end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
-                breakStart = WorkTimeCalculator.stringToLocalTime(breakStart0),
-                breakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd),
-                projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                oldBreakStart = oldBreakStart
-            )
-            applyUpdateToState(successState.copy(details = successState.details.copy(breakStart = breakStart0)), update)
-        }
-    }
-
-    val currentBreakStart: () -> Unit = {
-        setBreakStart(LocalTime.now().format(timeFormatter))
-    }
-
-    val setBreakEnd: (String) -> Unit = { breakEnd0 ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val oldBreakEnd = WorkTimeCalculator.stringToLocalTime(successState.details.breakEnd)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateBreakEndUpdate(
-                end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
-                projectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime),
-                breakEnd = WorkTimeCalculator.stringToLocalTime(breakEnd0),
-                oldBreakEnd = oldBreakEnd
-            )
-            applyUpdateToState(successState.copy(details = successState.details.copy(breakEnd = breakEnd0)), update)
-        }
-    }
-
-    val currentBreakEnd: () -> Unit = {
-        setBreakEnd(LocalTime.now().format(timeFormatter))
+    val currentTime: (ProjectDetailsField) -> Unit = { field ->
+        updateTime(field, LocalTime.now().format(timeFormatter))
     }
 
     private fun applyUpdateToState(
@@ -358,7 +325,10 @@ class ProjectDetailsViewModel @Inject constructor(
                 projectDetailsArg = projectDetailsArg
             )
             val settings = resolveSettings(loadedProjectDetails, date)
-            val normalizedProjectDetails = normalizeProjectDetails(loadedProjectDetails, settings)
+            val normalizedProjectDetails = ProjectDetailsUiMapper.normalizeProjectDetails(
+                loadedProjectDetails,
+                settings
+            )
 
             _uiState.value = createNextState(
                 baseState = baseState,
@@ -401,29 +371,6 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun normalizeProjectDetails(
-        projectDetails: ProjectDetailsState?,
-        settings: SettingsState?
-    ): ProjectDetailsState? {
-        if (projectDetails == null || !projectDetails.hasOnlyProjectTime()) {
-            return projectDetails
-        }
-
-        val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
-            projectTime = WorkTimeCalculator.stringToLocalTime(projectDetails.projectTime),
-            dailyLunchTimeEstimate = WorkTimeCalculator
-                .stringToLocalTime(settings?.dailyLunchTimeEstimate ?: ZERO_TIME)
-        )
-        return projectDetails.copy(
-            startTime = ZERO_TIME,
-            endTime = update.end?.format(timeFormatter) ?: ZERO_TIME,
-            lunchStart = update.lunchStart?.format(timeFormatter) ?: ZERO_TIME,
-            lunchEnd = update.lunchEnd?.format(timeFormatter) ?: ZERO_TIME,
-            breakStart = update.breakStart?.format(timeFormatter) ?: ZERO_TIME,
-            breakEnd = update.breakEnd?.format(timeFormatter) ?: ZERO_TIME
-        )
-    }
-
     private fun createNextState(
         baseState: ProjectDetailsUiState.Success,
         date: String,
@@ -461,39 +408,5 @@ class ProjectDetailsViewModel @Inject constructor(
                 )
             )
         }
-    }
-
-    val setProjectTime: (String) -> Unit = { projectTime ->
-        _uiState.update { currentState ->
-            val successState = currentState as? ProjectDetailsUiState.Success
-                ?: return@update currentState
-            val nextDetails = successState.details.copy(projectTime = projectTime)
-
-            if (nextDetails.hasOnlyProjectTime()) {
-                return@update successState.copy(
-                    details = normalizeProjectDetails(nextDetails, successState.settings) ?: nextDetails
-                )
-            }
-
-            val oldProjectTime = WorkTimeCalculator.stringToLocalTime(successState.details.projectTime)
-            val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
-                end = WorkTimeCalculator.stringToLocalTime(successState.details.endTime),
-                dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    successState.settings.dailyWorkTimeEstimate
-                ),
-                projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
-                oldProjectTime = oldProjectTime
-            )
-            applyUpdateToState(
-                successState.copy(
-                    details = nextDetails
-                ),
-                update
-            )
-        }
-    }
-
-    val currentProjectTime: () -> Unit = {
-        setProjectTime(LocalTime.now().format(timeFormatter))
     }
 }

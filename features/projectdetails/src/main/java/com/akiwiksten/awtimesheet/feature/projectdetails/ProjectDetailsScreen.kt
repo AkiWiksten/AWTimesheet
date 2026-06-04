@@ -23,12 +23,14 @@ import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsSuccessState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsTopBar
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsUnsavedChangesDialog
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.createProjectDetailsScreenActions
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.rememberBaselineData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,7 +88,8 @@ fun ProjectDetailsScreen(
     ) { padding ->
         val actions = remember(viewModel, onConfirm) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
-                val successState = uiState as? ProjectDetailsUiState.Success ?: return@createProjectDetailsScreenActions
+                val successState = uiState as? ProjectDetailsUiState.Success
+                    ?: return@createProjectDetailsScreenActions
                 onConfirm(
                     successState.details,
                     successState.settings.copy(

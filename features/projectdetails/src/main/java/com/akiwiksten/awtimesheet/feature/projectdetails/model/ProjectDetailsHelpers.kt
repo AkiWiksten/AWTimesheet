@@ -1,4 +1,4 @@
-﻿package com.akiwiksten.awtimesheet.feature.projectdetails
+﻿package com.akiwiksten.awtimesheet.feature.projectdetails.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
+import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsViewModel
 
 @Composable
 internal fun rememberBaselineData(
@@ -56,36 +58,36 @@ fun createProjectDetailsScreenActions(
         onConfirm = onConfirm,
         fieldActions = ProjectDetailsFieldActions(
             startTime = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentStartTime,
-                onSet = viewModel.setStartTime
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.START_TIME) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.START_TIME, it) }
             ),
             lunchTime = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentLunchTime,
-                onSet = viewModel.setLunchTime
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.LUNCH_TIME) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.LUNCH_TIME, it) }
             ),
             endTime = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentEndTime,
-                onSet = viewModel.setEndTime
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.END_TIME) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.END_TIME, it) }
             ),
             projectTime = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentProjectTime,
-                onSet = viewModel.setProjectTime
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.PROJECT_TIME) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.PROJECT_TIME, it) }
             ),
             lunchStart = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentLunchStart,
-                onSet = viewModel.setLunchStart
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.LUNCH_START) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.LUNCH_START, it) }
             ),
             lunchEnd = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentLunchEnd,
-                onSet = viewModel.setLunchEnd
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.LUNCH_END) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.LUNCH_END, it) }
             ),
             breakStart = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentBreakStart,
-                onSet = viewModel.setBreakStart
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.BREAK_START) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.BREAK_START, it) }
             ),
             breakEnd = ProjectDetailsTimeFieldAction(
-                onCurrent = viewModel.currentBreakEnd,
-                onSet = viewModel.setBreakEnd
+                onCurrent = { viewModel.currentTime(ProjectDetailsField.BREAK_END) },
+                onSet = { viewModel.updateTime(ProjectDetailsField.BREAK_END, it) }
             )
         )
     )

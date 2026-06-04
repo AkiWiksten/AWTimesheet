@@ -1,12 +1,20 @@
-﻿package com.akiwiksten.awtimesheet.feature.projectdetails
+package com.akiwiksten.awtimesheet.feature.projectdetails.model
 
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
+import com.akiwiksten.awtimesheet.core.TIME_FORMAT
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.domain.model.hasOnlyProjectTime
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
+import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.projectdetails.calculator.ProjectDetailsTimeUpdateCalculator
+import java.time.format.DateTimeFormatter
 
 object ProjectDetailsUiMapper {
+    private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
+
     fun mapEntitiesToUiState(
         baseState: ProjectDetailsUiState.Success,
         projectDetails: ProjectDetailsState?,
@@ -80,5 +88,28 @@ object ProjectDetailsUiMapper {
         } else {
             projectTime
         }
+    }
+
+    fun normalizeProjectDetails(
+        projectDetails: ProjectDetailsState?,
+        settings: SettingsState?
+    ): ProjectDetailsState? {
+        if (projectDetails == null || !projectDetails.hasOnlyProjectTime()) {
+            return projectDetails
+        }
+
+        val update = ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
+            projectTime = WorkTimeCalculator.stringToLocalTime(projectDetails.projectTime),
+            dailyLunchTimeEstimate = WorkTimeCalculator
+                .stringToLocalTime(settings?.dailyLunchTimeEstimate ?: ZERO_TIME)
+        )
+        return projectDetails.copy(
+            startTime = ZERO_TIME,
+            endTime = update.end?.format(timeFormatter) ?: ZERO_TIME,
+            lunchStart = update.lunchStart?.format(timeFormatter) ?: ZERO_TIME,
+            lunchEnd = update.lunchEnd?.format(timeFormatter) ?: ZERO_TIME,
+            breakStart = update.breakStart?.format(timeFormatter) ?: ZERO_TIME,
+            breakEnd = update.breakEnd?.format(timeFormatter) ?: ZERO_TIME
+        )
     }
 }

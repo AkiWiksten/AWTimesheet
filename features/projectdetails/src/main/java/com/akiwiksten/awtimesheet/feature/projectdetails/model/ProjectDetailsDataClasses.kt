@@ -1,4 +1,15 @@
-﻿package com.akiwiksten.awtimesheet.feature.projectdetails
+﻿package com.akiwiksten.awtimesheet.feature.projectdetails.model
+
+enum class ProjectDetailsField {
+    START_TIME,
+    END_TIME,
+    LUNCH_START,
+    LUNCH_END,
+    LUNCH_TIME,
+    BREAK_START,
+    BREAK_END,
+    PROJECT_TIME
+}
 
 data class ProjectDetailsTimeFieldAction(
     val onCurrent: () -> Unit = {},

@@ -33,7 +33,6 @@ import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayEstimateUiState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayHeaderActions
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayListItemUiModel
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdaySettingsEditorState
-import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayStatsCardContentParams
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayStatsCardState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 

@@ -1,6 +1,5 @@
 package com.akiwiksten.awtimesheet.feature.workday
 
-import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase

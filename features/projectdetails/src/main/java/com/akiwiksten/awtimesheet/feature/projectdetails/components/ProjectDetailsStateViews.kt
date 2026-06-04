@@ -15,9 +15,9 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
-import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 
 @Composable
 internal fun ProjectDetailsLoadingState(padding: PaddingValues) {

@@ -42,4 +42,3 @@ private fun IntroPreviewContent(uiState: IntroUiState) {
         )
     }
 }
-

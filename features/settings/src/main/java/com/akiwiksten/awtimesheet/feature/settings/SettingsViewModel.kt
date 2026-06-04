@@ -6,10 +6,10 @@ import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
-import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
-import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GenerateWorkdaysUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
+import com.akiwiksten.awtimesheet.domain.usecase.GetProjectsByMonthUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.GetSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.ProjectsByMonthResult
 import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
@@ -230,7 +230,6 @@ class SettingsViewModel @Inject constructor(
             allowanceLabels = allowanceLabels
         )
     }
-
 
     private fun generateWorkdays(
         scope: WorkdayGenerationScope,

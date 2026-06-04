@@ -1,5 +1,7 @@
 import org.gradle.api.GradleException
 import org.gradle.api.artifacts.ProjectDependency
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.kotlin.dsl.configure
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
 plugins {
@@ -11,6 +13,17 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.screenshot) apply false
+}
+
+subprojects {
+    pluginManager.apply("io.gitlab.arturbosch.detekt")
+
+    dependencies.add("detektPlugins", "io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+
+    extensions.configure<DetektExtension> {
+        buildUponDefaultConfig = true
+        config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    }
 }
 
 tasks.register("verifyModuleBoundaries") {
@@ -137,4 +150,30 @@ tasks.register("sequentialBenchmarksClean") {
     dependsOn(":macrobenchmark:clean", "sequentialBenchmarks")
 }
 
+// Alias that runs all module debug unit tests when user runs ./gradlew testDebugUnitTest
+tasks.register("testDebugUnitTest") {
+    group = "verification"
+    description = "Run all debug unit tests across all modules (aggregated from module-level tasks)."
+    dependsOn("testAllDebugUnitTests")
+}
 
+// Aggregate unit test tasks from all modules
+tasks.register("testAllDebugUnitTests") {
+    group = "verification"
+    description = "Run all debug unit tests across all modules."
+    
+    val testTasks = listOf(
+        ":core:testDebugUnitTest",
+        ":data:testDebugUnitTest",
+        ":domain:testDebugUnitTest",
+        ":features:calendar:testDebugUnitTest",
+        ":features:intro:testDebugUnitTest",
+        ":features:projectdetails:testDebugUnitTest",
+        ":features:settings:testDebugUnitTest",
+        ":features:singleproject:testDebugUnitTest",
+        ":features:timesheet:testDebugUnitTest",
+        ":features:workday:testDebugUnitTest"
+    )
+    
+    dependsOn(testTasks)
+}

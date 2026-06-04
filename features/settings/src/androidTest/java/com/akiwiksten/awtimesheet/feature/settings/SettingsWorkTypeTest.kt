@@ -21,6 +21,8 @@ import androidx.compose.ui.test.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,9 +40,11 @@ class SettingsWorkTypeTest {
         composeRule.setContent {
             MaterialTheme {
                 SettingsContent(
-                    uiState = settingsUiState(workTypes = listOf(otherText, "Support")),
-                    actions = settingsActions(),
-                    defaultWorkType = otherText
+                    state = SettingsContentState(
+                        uiState = settingsUiState(workTypes = listOf(otherText, "Support")),
+                        actions = settingsActions(),
+                        defaultWorkType = otherText
+                    )
                 )
             }
         }
@@ -56,9 +60,11 @@ class SettingsWorkTypeTest {
         composeRule.setContent {
             MaterialTheme {
                 SettingsContent(
-                    uiState = settingsUiState(workTypes = listOf(otherText, supportText)),
-                    actions = settingsActions(),
-                    defaultWorkType = otherText
+                    state = SettingsContentState(
+                        uiState = settingsUiState(workTypes = listOf(otherText, supportText)),
+                        actions = settingsActions(),
+                        defaultWorkType = otherText
+                    )
                 )
             }
         }
@@ -83,13 +89,15 @@ class SettingsWorkTypeTest {
 
             MaterialTheme {
                 SettingsContent(
-                    uiState = uiState,
-                    actions = settingsActions(
-                        onWorkTypeAdded = { addedType ->
-                            uiState = settingsUiState(uiState.data.workTypes + addedType)
-                        }
-                    ),
-                    defaultWorkType = otherText
+                    state = SettingsContentState(
+                        uiState = uiState,
+                        actions = settingsActions(
+                            onWorkTypeAdded = { addedType ->
+                                uiState = settingsUiState(uiState.data.workTypes + addedType)
+                            }
+                        ),
+                        defaultWorkType = otherText
+                    )
                 )
             }
         }
@@ -128,7 +136,9 @@ class SettingsWorkTypeTest {
             onWorkTypeAdded = onWorkTypeAdded,
             onWorkTypeRemoved = {},
             onSave = {},
-            onGenerateXlsx = {}
+            onGenerateXlsx = {},
+            onGenerateWorkdaysForMonth = {},
+            onGenerateWorkdaysForYear = {}
         )
     }
 

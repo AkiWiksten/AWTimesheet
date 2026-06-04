@@ -31,9 +31,9 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
+import com.akiwiksten.awtimesheet.feature.workday.R
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayHeaderActions
 import com.akiwiksten.awtimesheet.feature.workday.WorkdaySettingsEditorState
-import com.akiwiksten.awtimesheet.feature.workday.R
 
 @Composable
 internal fun WorkdayHeaderSection(

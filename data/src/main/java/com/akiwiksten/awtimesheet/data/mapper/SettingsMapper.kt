@@ -22,4 +22,3 @@ fun SettingsState.toEntity(): SettingsEntity {
         initialFlexTimeTotal = initialFlexTimeTotal,
     )
 }
-

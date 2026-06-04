@@ -32,4 +32,3 @@ fun ProjectDetailsState.toEntity(): ProjectDetailsEntity {
         lunchTimeEstimate = lunchTimeEstimate,
     )
 }
-

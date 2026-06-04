@@ -100,6 +100,8 @@ Summarize benchmark output:
   + Show work_type_help string
   + Selecting work type doesn't work in edit mode
   + Add full flex time day (Zero time project, add work type "Absence->Flex time")
+  + Add Text field for comments. Expandable when clicked. 
+    + Show in  excel.
 + WorkdayScreen 
   + Unselect project from list
   + Select many in list
@@ -122,6 +124,7 @@ Summarize benchmark output:
   + Handle by selecting start date 
     + monthly reports 
     + weekly reports
++ defaultGeneratedAllowanceLabels() localize
 ## What to test constantly
 + Thorough regression testing of all features in all screens
     + Intro, 

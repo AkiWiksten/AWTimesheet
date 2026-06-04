@@ -178,4 +178,3 @@ class FakeCalculatedFlexTimeTotalDao : CalculatedFlexTimeTotalDao {
 
     override suspend fun loadCalculatedFlextimeTotal(): CalculatedFlextimeTotalEntity? = storedEntity
 }
-

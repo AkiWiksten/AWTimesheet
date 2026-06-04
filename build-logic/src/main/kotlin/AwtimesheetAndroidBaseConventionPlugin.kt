@@ -4,6 +4,7 @@ import com.android.build.api.dsl.TestExtension
 import org.gradle.api.Plugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
@@ -15,14 +16,17 @@ class AwtimesheetAndroidBaseConventionPlugin : Plugin<Project> {
         plugins.withId("com.android.application") {
             configureAndroidDefaults(extensions.getByType(ApplicationExtension::class.java))
             configureKotlinDefaults()
+            configureTestDefaults()
         }
         plugins.withId("com.android.library") {
             configureAndroidDefaults(extensions.getByType(LibraryExtension::class.java))
             configureKotlinDefaults()
+            configureTestDefaults()
         }
         plugins.withId("com.android.test") {
             configureAndroidDefaults(extensions.getByType(TestExtension::class.java))
             configureKotlinDefaults()
+            configureTestDefaults()
         }
     }
 }
@@ -79,5 +83,10 @@ private fun Project.configureKotlinDefaults() {
     }
 }
 
-
-
+private fun Project.configureTestDefaults() {
+    tasks.withType(Test::class.java).configureEach {
+        // Disable upToDateWhen caching for unit tests so they always execute fresh
+        // This ensures that test failures are caught even if sources haven't changed
+        outputs.upToDateWhen { false }
+    }
+}

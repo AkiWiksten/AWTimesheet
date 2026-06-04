@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
@@ -30,6 +29,7 @@ import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsFieldActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsTimeRowLabels
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.projectdetails.R
 
 @Composable
 internal fun ProjectDetailsHeaderSection(
@@ -272,4 +272,3 @@ internal fun ProjectDetailsFooterSection(onConfirm: () -> Unit, isConfirmEnabled
         Text(text = stringResource(id = R.string.confirm), style = MaterialTheme.typography.titleLarge)
     }
 }
-

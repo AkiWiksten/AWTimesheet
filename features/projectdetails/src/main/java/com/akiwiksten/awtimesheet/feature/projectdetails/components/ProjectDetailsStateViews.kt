@@ -9,14 +9,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreenActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
+import com.akiwiksten.awtimesheet.feature.projectdetails.R
 
 @Composable
 internal fun ProjectDetailsLoadingState(padding: PaddingValues) {
@@ -52,15 +53,17 @@ internal fun ProjectDetailsSuccessState(
     }
 
     ScrollableScreenColumn(
-        scrollState = scrollState,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues = padding),
-        columnModifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp, 16.dp, 16.dp, 0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+        state = ScrollableScreenColumnState(
+            scrollState = scrollState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues = padding),
+            columnModifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp, 16.dp, 16.dp, 0.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+        )
     ) {
         ProjectDetailsHeaderSection(
             date = uiState.details.date,
@@ -78,4 +81,3 @@ internal fun ProjectDetailsSuccessState(
         ProjectDetailsFooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
     }
 }
-

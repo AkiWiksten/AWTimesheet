@@ -72,7 +72,37 @@ class UpdateSettingsUseCaseTest {
     }
 
     @Test
-    fun invoke_saveGlobally_whenLocalUpdateBlocked_updatesGlobalOnly() = runBlocking {
+    fun invoke_saveToday_onNonCurrentDateWithoutLoggedWork_updatesWorkdayStats() = runBlocking {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = settingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
+        }
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = UpdateSettingsUseCase(settingsRepository, workdayRepository)
+
+        useCase(
+            UpdateSettingsParams(
+                date = "2000-01-01",
+                workTimeByDate = ZERO_TIME,
+                currentWorkTimeByDateEstimate = "07:30",
+                newWorkTimeByDateEstimate = "08:00",
+                newInitialFlexTimeTotal = "+01:00",
+                updateGlobalSettings = false
+            )
+        )
+
+        assertEquals("08:00", workdayRepository.lastSaved)
+        assertEquals(0, settingsRepository.insertCalls)
+        assertEquals("07:30", settingsRepository.settings?.dailyWorkTimeEstimate)
+    }
+
+    @Test
+    fun invoke_saveGlobally_withLoggedWork_updatesLocalAndGlobal() = runBlocking {
         val settingsRepository = FakeSettingsRepository().apply {
             settings = settingsState(
                 name = "Aki",
@@ -96,9 +126,9 @@ class UpdateSettingsUseCaseTest {
             )
         )
 
-        // Local/day estimate remains unchanged due to guard.
-        assertEquals("07:30", workdayRepository.lastSaved)
-        // Global save still applies requested value.
+        // Local/day estimate now follows the requested value.
+        assertEquals("08:00", workdayRepository.lastSaved)
+        // Global save also applies requested value.
         assertEquals(1, settingsRepository.insertCalls)
         assertEquals("08:00", settingsRepository.settings?.dailyWorkTimeEstimate)
     }

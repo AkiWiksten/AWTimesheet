@@ -12,4 +12,3 @@ fun String.toWorkdayEntity(date: String): WorkdayEntity {
         workTimeByDateEstimate = this
     )
 }
-

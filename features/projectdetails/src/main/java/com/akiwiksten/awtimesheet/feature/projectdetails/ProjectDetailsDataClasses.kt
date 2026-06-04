@@ -26,4 +26,3 @@ data class ProjectDetailsTimeRowLabels(
     val currentTimeLabelId: Int? = null,
     val timePickerLabelId: Int? = null,
 )
-

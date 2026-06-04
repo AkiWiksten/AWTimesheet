@@ -1,5 +1,4 @@
-﻿package com.akiwiksten.awtimesheet.data.repository
-import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
+﻿package com.akiwiksten.awtimesheet.data.repository import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.data.mapper.toDomain
 import com.akiwiksten.awtimesheet.data.mapper.toEntity
 import com.akiwiksten.awtimesheet.test.FakeProjectDao
@@ -14,6 +13,7 @@ class ProjectRepositoryImplTest {
     private val projectDao = FakeProjectDao()
     private val projectNameDao = FakeProjectNameDao()
     private val repository = ProjectRepositoryImpl(projectDao, projectNameDao)
+
     @Test
     fun getProjectsByDateRange_returnsDataFromDao() = runBlocking {
         val expected = listOf(ProjectEntity(date = "2026-04-10", projectName = "Alpha"))
@@ -24,18 +24,21 @@ class ProjectRepositoryImplTest {
         assertEquals("2026-04-01", projectDao.lastDateStart)
         assertEquals("2026-04-30", projectDao.lastDateEnd)
     }
+
     @Test
     fun insertProject_callsDaoInsert() = runBlocking {
         val project = projectState(date = "2026-04-10", projectName = "Alpha")
         repository.insertProject(project)
         assertEquals(project.toEntity(), projectDao.insertedProject)
     }
+
     @Test
     fun deleteProject_callsDaoDelete() = runBlocking {
         val project = projectState(date = "2026-04-10", projectName = "Alpha")
         repository.deleteProject(project)
         assertEquals(project.toEntity(), projectDao.deletedProject)
     }
+
     @Test
     fun getProjectNames_returnsDataFromDao() = runBlocking {
         val expected = listOf("Alpha", "Beta")
@@ -43,18 +46,21 @@ class ProjectRepositoryImplTest {
         val result = repository.getProjectNames()
         assertEquals(expected, result)
     }
+
     @Test
     fun insertProjectName_callsDaoInsert() = runBlocking {
         val projectName = "Alpha"
         repository.insertProjectName(projectName)
         assertEquals(projectName, projectNameDao.insertedProjectName)
     }
+
     @Test
     fun deleteProjectName_callsDaoDelete() = runBlocking {
         val projectName = "Alpha"
         repository.deleteProjectName(projectName)
         assertEquals(projectName, projectNameDao.deletedProjectName)
     }
+
     @Test
     fun isProjectNameUsed_returnsValueFromDao() = runBlocking {
         projectDao.projectNameUsed = true

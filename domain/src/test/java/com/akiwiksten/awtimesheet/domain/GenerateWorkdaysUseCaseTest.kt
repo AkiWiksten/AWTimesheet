@@ -1,7 +1,7 @@
 package com.akiwiksten.awtimesheet.domain
 
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.usecase.GENERATED_WORKDAY_ALLOWANCES
 import com.akiwiksten.awtimesheet.domain.usecase.GENERATED_WORKDAY_PROJECT_NAMES
@@ -246,4 +246,3 @@ class GenerateWorkdaysUseCaseTest {
         return (parts[0].toInt() * 60) + parts[1].toInt()
     }
 }
-

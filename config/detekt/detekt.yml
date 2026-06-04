@@ -31,3 +31,8 @@ complexity:
 comments:
   UndocumentedPublicFunction:
     active: false
+
+formatting:
+  NoConsecutiveBlankLines:
+    active: true
+

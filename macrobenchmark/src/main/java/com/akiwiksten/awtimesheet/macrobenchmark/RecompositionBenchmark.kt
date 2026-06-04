@@ -1,3 +1,5 @@
+@file:Suppress("Filename", "TooManyFunctions")
+
 package com.akiwiksten.awtimesheet.macrobenchmark
 
 import android.view.KeyEvent
@@ -217,7 +219,6 @@ private fun MacrobenchmarkScope.navigateToProjectDetailsScreen() {
     requireLikelyProjectDetailsScreen(context = "after opening Project Details")
 }
 
-
 private fun MacrobenchmarkScope.openProjectDetailsFromSingleProjectScreen() {
     // Primary path: text-based lookup (works in matching locale).
     val detailsByText = device.wait(Until.findObject(By.text("Details")), NAVIGATION_WAIT_MS)
@@ -391,15 +392,18 @@ private fun MacrobenchmarkScope.interactWithFirstFocusableField(): Boolean {
                     val bounds = node.visibleBounds
                     val centerX = bounds.centerX()
                     val centerY = bounds.centerY()
+                    val contentAreaStartY =
+                        (device.displayHeight * CONTENT_AREA_MIN_Y_RATIO).toInt()
+                    val contentAreaEndY =
+                        (device.displayHeight * CONTENT_AREA_MAX_Y_RATIO).toInt()
                     val isInContentArea =
-                        centerY in (device.displayHeight * CONTENT_AREA_MIN_Y_RATIO).toInt()..
-                            (device.displayHeight * CONTENT_AREA_MAX_Y_RATIO).toInt()
+                        centerY in contentAreaStartY..contentAreaEndY
 
                     // Skip navigation buttons that would leave SingleProjectScreen
                     val nodeText = node.text?.lowercase() ?: ""
-                    val shouldSkip = nodeText.contains("details")
-                        || nodeText.contains("pick")
-                        || nodeText.contains("edit")
+                    val shouldSkip = nodeText.contains("details") ||
+                        nodeText.contains("pick") ||
+                        nodeText.contains("edit")
 
                     if (isInContentArea && !shouldSkip) centerX to centerY else null
                 } catch (_: StaleObjectException) {
@@ -438,86 +442,101 @@ private fun MacrobenchmarkScope.ensureTargetAppInForeground() {
  * (English: "Add", Finnish: "Lisää", Swedish: "Lägg till").
  */
 private fun MacrobenchmarkScope.clickWorkdayAddButton() {
+    var opened = false
     repeat(CLICK_RETRY_COUNT) { attempt ->
-        if (attempt == 0) {
-            ensureWorkdayAddActionVisible()
-        } else {
-            scrollTowardWorkdayActionButtons()
-            ensureWorkdayAddActionVisible()
-        }
+        if (!opened) {
+            prepareWorkdayAddAttempt(attempt = attempt)
+            opened = attemptOpenSingleProjectViaAddStrategies() ||
+                attemptOpenSingleProjectViaEditAction()
 
-        val node = WORKDAY_ADD_ACTION_TEXTS
-            .firstNotNullOfOrNull { text ->
-                device.wait(Until.findObject(By.text(text)), CLICK_RETRY_WAIT_MS)
-            }
-        if (node != null) {
-            try {
-                if (clickNodeViaClickableAncestor(node)) {
-                    device.waitForIdle()
-                    if (isLikelySingleProjectScreenVisible()) {
-                        return
-                    }
-                    closeTransientDialogIfPresent()
-                }
-            } catch (_: StaleObjectException) {
-                // Retry on stale hierarchy.
-            }
-        }
-
-        // Fallback: left-most button in Workday action row (Add/Edit/Delete).
-        val addActionX = (device.displayWidth * 0.18f).toInt()
-        val addActionYCandidates = listOf(0.76f, 0.72f, 0.68f)
-            .map { ratio -> (device.displayHeight * ratio).toInt() }
-        addActionYCandidates.forEach { y ->
-            if (device.click(addActionX, y)) {
+            if (!opened && attempt < CLICK_RETRY_COUNT - 1) {
                 device.waitForIdle()
-                if (isLikelySingleProjectScreenVisible()) {
-                    return
-                }
-                closeTransientDialogIfPresent()
             }
-        }
-
-        val fallbackPoint = device.findObjects(By.clickable(true))
-            .asSequence()
-            .mapNotNull { candidate ->
-                try {
-                    val bounds = candidate.visibleBounds
-                    val centerX = bounds.centerX()
-                    val centerY = bounds.centerY()
-                    val isLikelyAddAction =
-                        centerX >= (device.displayWidth * 0.52f).toInt() &&
-                            centerY in (device.displayHeight * 0.25f).toInt()..
-                            (device.displayHeight * 0.78f).toInt()
-                    if (isLikelyAddAction) centerX to centerY else null
-                } catch (_: StaleObjectException) {
-                    null
-                }
-            }
-            .sortedWith(compareByDescending<Pair<Int, Int>> { it.first }.thenBy { it.second })
-            .firstOrNull()
-
-        if (fallbackPoint != null && device.click(fallbackPoint.first, fallbackPoint.second)) {
-            device.waitForIdle()
-            if (isLikelySingleProjectScreenVisible()) {
-                return
-            }
-            closeTransientDialogIfPresent()
-        }
-
-        if (attemptOpenSingleProjectViaEditAction()) {
-            return
-        }
-
-        if (attempt < CLICK_RETRY_COUNT - 1) {
-            device.waitForIdle()
         }
     }
-    error(
+    check(opened) {
         "Could not open SingleProject screen from Workday Add action " +
             "(tried: ${WORKDAY_ADD_ACTION_TEXTS.joinToString()}). " +
             "UI snapshot: ${buildWorkdayNavigationDebugSnapshot()}"
-    )
+    }
+}
+
+private fun MacrobenchmarkScope.prepareWorkdayAddAttempt(attempt: Int) {
+    if (attempt > 0) {
+        scrollTowardWorkdayActionButtons()
+    }
+    ensureWorkdayAddActionVisible()
+}
+
+private fun MacrobenchmarkScope.attemptOpenSingleProjectViaAddStrategies(): Boolean {
+    return attemptOpenSingleProjectViaLocalizedAddAction() ||
+        attemptOpenSingleProjectViaLeftActionColumn() ||
+        attemptOpenSingleProjectViaClickableFallback()
+}
+
+private fun MacrobenchmarkScope.attemptOpenSingleProjectViaLocalizedAddAction(): Boolean {
+    val node = WORKDAY_ADD_ACTION_TEXTS
+        .firstNotNullOfOrNull { text ->
+            device.wait(Until.findObject(By.text(text)), CLICK_RETRY_WAIT_MS)
+        }
+
+    val clicked = if (node != null) {
+        runCatching { clickNodeViaClickableAncestor(node) }
+            .getOrDefault(defaultValue = false)
+    } else {
+        false
+    }
+    return completeAddActionClick(clicked)
+}
+
+private fun MacrobenchmarkScope.attemptOpenSingleProjectViaLeftActionColumn(): Boolean {
+    // Fallback: left-most button in Workday action row (Add/Edit/Delete).
+    val addActionX = (device.displayWidth * 0.18f).toInt()
+    val addActionYCandidates = listOf(0.76f, 0.72f, 0.68f)
+        .map { ratio -> (device.displayHeight * ratio).toInt() }
+
+    var opened = false
+    addActionYCandidates.forEach { y ->
+        if (!opened) {
+            opened = completeAddActionClick(device.click(addActionX, y))
+        }
+    }
+    return opened
+}
+
+private fun MacrobenchmarkScope.attemptOpenSingleProjectViaClickableFallback(): Boolean {
+    val fallbackPoint = device.findObjects(By.clickable(true))
+        .asSequence()
+        .mapNotNull { candidate ->
+            try {
+                val bounds = candidate.visibleBounds
+                val centerX = bounds.centerX()
+                val centerY = bounds.centerY()
+                val isLikelyAddAction =
+                    centerX >= (device.displayWidth * 0.52f).toInt() &&
+                        centerY in (device.displayHeight * 0.25f).toInt()..(device.displayHeight * 0.78f).toInt()
+                if (isLikelyAddAction) centerX to centerY else null
+            } catch (_: StaleObjectException) {
+                null
+            }
+        }
+        .sortedWith(compareByDescending<Pair<Int, Int>> { it.first }.thenBy { it.second })
+        .firstOrNull()
+
+    val clicked = fallbackPoint != null && device.click(fallbackPoint.first, fallbackPoint.second)
+    return completeAddActionClick(clicked)
+}
+
+private fun MacrobenchmarkScope.completeAddActionClick(clicked: Boolean): Boolean {
+    var opened = false
+    if (clicked) {
+        device.waitForIdle()
+        opened = isLikelySingleProjectScreenVisible()
+        if (!opened) {
+            closeTransientDialogIfPresent()
+        }
+    }
+    return opened
 }
 
 private fun MacrobenchmarkScope.isLikelySingleProjectScreenVisible(): Boolean {
@@ -627,5 +646,3 @@ private fun MacrobenchmarkScope.clickNodeViaClickableAncestor(node: UiObject2): 
     val bounds = node.visibleBounds
     return device.click(bounds.centerX(), bounds.centerY())
 }
-
-

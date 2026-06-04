@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.akiwiksten.awtimesheet.macrobenchmark
 
 import androidx.benchmark.macro.MacrobenchmarkScope
@@ -55,10 +57,13 @@ internal val WORKDAY_READY_TEXTS = listOf(
 
 // SingleProjectScreen action labels across supported locales (en / fi / sv).
 internal val SINGLE_PROJECT_READY_TEXTS = listOf(
-    "Details", "Tiedot", "Detaljer",
-    "Pick", "Valitse", "Välj"
+    "Details",
+    "Tiedot",
+    "Detaljer",
+    "Pick",
+    "Valitse",
+    "Välj"
 )
-
 
 // ---------------------------------------------------------------------------
 // Scroll constants
@@ -79,61 +84,82 @@ private const val NAV_FALLBACK_RETRIES = 5
 internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
     device.waitForIdle()
 
-    // Primary path: text label lookup.
-    val textTab = device.wait(Until.findObject(By.text(label)), NAVIGATION_WAIT_MS)
-    if (textTab != null) {
-        textTab.click()
-        device.waitForIdle()
-        return
-    }
+    val clickedWithoutIntroDismiss = clickBottomNavTabByText(
+        label = label,
+        timeoutMs = NAVIGATION_WAIT_MS
+    )
 
     // Intro-first builds can start on a full-screen intro screen.
     // Dismiss it and wait long enough for the 3 s intro animation to
     // finish and the Compose navigation transition to complete.
-    dismissIntroIfPresent()
-    val textTabAfterIntro = device.wait(Until.findObject(By.text(label)), POST_INTRO_TABS_WAIT_MS)
-    if (textTabAfterIntro != null) {
-        textTabAfterIntro.click()
-        device.waitForIdle()
-        return
+    if (!clickedWithoutIntroDismiss) {
+        dismissIntroIfPresent()
     }
 
+    val clickedByText = clickedWithoutIntroDismiss || clickBottomNavTabByText(
+        label = label,
+        timeoutMs = POST_INTRO_TABS_WAIT_MS
+    )
+    val clickedByFallback = !clickedByText && clickBottomNavTabByIndex(label)
+    val clicked = clickedByText || clickedByFallback
+
+    check(clicked) { "Could not find bottom nav tab '$label'." }
+}
+
+private fun MacrobenchmarkScope.clickBottomNavTabByText(
+    label: String,
+    timeoutMs: Long
+): Boolean {
+    val textTab = device.wait(Until.findObject(By.text(label)), timeoutMs)
+    val clicked = textTab != null
+    if (clicked) {
+        textTab.click()
+        device.waitForIdle()
+    }
+    return clicked
+}
+
+private fun MacrobenchmarkScope.clickBottomNavTabByIndex(label: String): Boolean {
     // Fallback: select bottom-nav item by its stable positional order.
     val targetIndex = when (label) {
         TAB_CALENDAR -> 0
-        TAB_WORKDAY  -> 1
+        TAB_WORKDAY -> 1
         TAB_SETTINGS -> 2
-        else         -> null
+        else -> null
     }
 
+    var clicked = false
     if (targetIndex != null) {
         repeat(NAV_FALLBACK_RETRIES) {
-            val candidates = device.findObjects(By.clickable(true))
-                .asSequence()
-                .mapNotNull { node ->
-                    runCatching {
-                        val bounds = node.visibleBounds
-                        val centerY = bounds.centerY()
-                        if (centerY >= (device.displayHeight * BOTTOM_NAV_MIN_Y_RATIO).toInt()) {
-                            bounds.centerX() to centerY
-                        } else null
-                    }.getOrNull()
-                }
-                .sortedBy { it.first }
-                .toList()
+            if (!clicked) {
+                val candidates = device.findObjects(By.clickable(true))
+                    .asSequence()
+                    .mapNotNull { node ->
+                        runCatching {
+                            val bounds = node.visibleBounds
+                            val centerY = bounds.centerY()
+                            if (centerY >= (device.displayHeight * BOTTOM_NAV_MIN_Y_RATIO).toInt()) {
+                                bounds.centerX() to centerY
+                            } else {
+                                null
+                            }
+                        }.getOrNull()
+                    }
+                    .sortedBy { it.first }
+                    .toList()
 
-            if (candidates.size >= 3) {
-                val (x, y) = candidates[targetIndex]
-                if (device.click(x, y)) {
-                    device.waitForIdle()
-                    return
+                if (candidates.size >= 3) {
+                    val (x, y) = candidates[targetIndex]
+                    clicked = device.click(x, y)
+                    if (clicked) {
+                        device.waitForIdle()
+                    }
                 }
             }
             device.waitForIdle()
         }
     }
-
-    error("Could not find bottom nav tab '$label'.")
+    return clicked
 }
 
 /**
@@ -147,25 +173,31 @@ internal fun MacrobenchmarkScope.openBottomNavTab(label: String) {
  * so the caller does not need to know the animation length.
  */
 internal fun MacrobenchmarkScope.dismissIntroIfPresent(): Boolean {
-    if (device.hasObject(By.text(TAB_CALENDAR)) ||
-        device.hasObject(By.text(TAB_WORKDAY)) ||
-        device.hasObject(By.text(TAB_SETTINGS))
-    ) return false
+    val tabsWereAlreadyVisible =
+        device.hasObject(By.text(TAB_CALENDAR)) ||
+            device.hasObject(By.text(TAB_WORKDAY)) ||
+            device.hasObject(By.text(TAB_SETTINGS))
 
     val centerX = device.displayWidth / 2
     val centerY = device.displayHeight / 2
 
-    repeat(INTRO_DISMISS_TAPS) {
-        device.click(centerX, centerY)
-        device.waitForIdle()
+    var tabsBecameVisible = false
 
-        val tabsVisible =
-            device.wait(Until.hasObject(By.text(TAB_WORKDAY)), INTRO_DISMISS_WAIT_MS) ||
-            device.hasObject(By.text(TAB_CALENDAR)) ||
-            device.hasObject(By.text(TAB_SETTINGS))
-        if (tabsVisible) return true
+    if (!tabsWereAlreadyVisible) {
+        repeat(INTRO_DISMISS_TAPS) {
+            if (!tabsBecameVisible) {
+                device.click(centerX, centerY)
+                device.waitForIdle()
+
+                tabsBecameVisible =
+                    device.wait(Until.hasObject(By.text(TAB_WORKDAY)), INTRO_DISMISS_WAIT_MS) ||
+                    device.hasObject(By.text(TAB_CALENDAR)) ||
+                    device.hasObject(By.text(TAB_SETTINGS))
+            }
+        }
     }
-    return false
+
+    return tabsBecameVisible
 }
 
 // ---------------------------------------------------------------------------
@@ -235,7 +267,7 @@ internal fun MacrobenchmarkScope.ensureTargetAppForegroundVisible() {
 
 private fun MacrobenchmarkScope.performVerticalScroll(repeats: Int) {
     val centerX = device.displayWidth / 2
-    val topY    = (device.displayHeight * 0.20f).toInt()
+    val topY = (device.displayHeight * 0.20f).toInt()
     val bottomY = (device.displayHeight * 0.80f).toInt()
 
     repeat(repeats) {
@@ -277,4 +309,3 @@ internal fun MacrobenchmarkScope.seedRealisticStartupDataIfEmpty() {
         "Benchmark data seeding broadcast failed. Output: $output"
     }
 }
-

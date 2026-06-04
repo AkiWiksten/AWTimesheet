@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsStateContentState
 import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
@@ -42,26 +44,28 @@ fun PreviewSettingsError() {
 private fun SettingsPreviewContent(uiState: SettingsUiState) {
     AWTimesheetTheme(dynamicColor = false) {
         SettingsStateContent(
-            uiState = uiState,
-            defaultWorkType = "Other",
-            onUnsavedChangesChanged = {},
-            registerUnsavedActions = { _, _ -> },
-            onDiscardChanges = {},
-            createActions = {
-                SettingsActions(
-                    onNameChange = {},
-                    onEmployerChange = {},
-                    onDailyWorkTimeEstimateChange = {},
-                    onDailyLunchTimeEstimateChange = {},
-                    onInitialFlexTimeTotalChange = {},
-                    onWorkTypeAdded = {},
-                    onWorkTypeRemoved = {},
-                    onSave = {},
-                    onGenerateXlsx = {},
-                    onGenerateWorkdaysForMonth = {},
-                    onGenerateWorkdaysForYear = {}
-                )
-            }
+            state = SettingsStateContentState(
+                uiState = uiState,
+                defaultWorkType = "Other",
+                onUnsavedChangesChanged = {},
+                registerUnsavedActions = { _, _ -> },
+                onDiscardChanges = {},
+                createActions = {
+                    SettingsActions(
+                        onNameChange = {},
+                        onEmployerChange = {},
+                        onDailyWorkTimeEstimateChange = {},
+                        onDailyLunchTimeEstimateChange = {},
+                        onInitialFlexTimeTotalChange = {},
+                        onWorkTypeAdded = {},
+                        onWorkTypeRemoved = {},
+                        onSave = {},
+                        onGenerateXlsx = {},
+                        onGenerateWorkdaysForMonth = {},
+                        onGenerateWorkdaysForYear = {}
+                    )
+                }
+            )
         )
     }
 }

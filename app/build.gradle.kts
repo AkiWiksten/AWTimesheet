@@ -1,6 +1,5 @@
 ﻿plugins {
     id("awtimesheet.android.compose.app")
-    alias(libs.plugins.detekt)
     kotlin("plugin.parcelize")
 }
 
@@ -38,12 +37,6 @@ android {
             enableSplit = false
         }
     }
-}
-
-
-detekt {
-    buildUponDefaultConfig = true
-    config.setFrom(file("$rootDir/config/detekt/detekt.yml"))
 }
 
 dependencies {
@@ -100,6 +93,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    detektPlugins(libs.detekt.formatting)
+
 }
 

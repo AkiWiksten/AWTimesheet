@@ -1,7 +1,7 @@
 package com.akiwiksten.awtimesheet.data.repository
 
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
 import com.akiwiksten.awtimesheet.data.mapper.toDomain
@@ -47,4 +47,3 @@ class ProjectRepositoryImpl @Inject constructor(
             WorkTimeCalculator.calculateFlexTime(acc, time)
         }
 }
-

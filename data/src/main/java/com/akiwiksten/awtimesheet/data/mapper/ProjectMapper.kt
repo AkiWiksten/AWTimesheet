@@ -25,4 +25,3 @@ fun SingleProjectState.toEntity(): ProjectEntity {
         workType = workType,
     )
 }
-

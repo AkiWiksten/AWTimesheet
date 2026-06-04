@@ -38,6 +38,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -87,13 +88,15 @@ internal fun CalendarContent(
     val scrollState = rememberScrollState()
 
     ScrollableScreenColumn(
-        scrollState = scrollState,
-        modifier = Modifier.fillMaxSize(),
-        columnModifier = Modifier
-            .fillMaxWidth()
-            .padding(all = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+        state = ScrollableScreenColumnState(
+            scrollState = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            columnModifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+        )
     ) {
         when (uiState) {
             is CalendarUiState.Initial -> CenteredLoadingBox(modifier = Modifier.fillMaxWidth(), fillMaxSize = false)

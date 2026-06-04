@@ -1,8 +1,8 @@
 package com.akiwiksten.awtimesheet.domain.usecase
 
 import com.akiwiksten.awtimesheet.core.DATE_FORMAT
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
@@ -10,9 +10,9 @@ import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 import kotlin.math.absoluteValue
 import kotlin.random.Random
-import javax.inject.Inject
 
 enum class WorkdayGenerationScope {
     MONTH,
@@ -184,7 +184,6 @@ class GenerateWorkdaysUseCase @Inject constructor(
             }
     }
 
-
     private suspend fun syncGeneratedProjects(
         date: String,
         mode: WorkdayGenerationMode,
@@ -210,7 +209,6 @@ class GenerateWorkdaysUseCase @Inject constructor(
             )
             return workTypeCursor
         }
-
 
         if (mode == WorkdayGenerationMode.UPSERT_ALL_WEEKDAYS) {
             generatedProjects.forEach { projectRepository.deleteProject(it) }
@@ -270,7 +268,7 @@ class GenerateWorkdaysUseCase @Inject constructor(
         val seed = date.hashCode().absoluteValue
         val requestedCount =
             (seed % GENERATED_PROJECTS_PER_DAY_VARIATION) +
-                    GENERATED_PROJECTS_PER_DAY_MIN // 1..3 generated projects per weekday
+                GENERATED_PROJECTS_PER_DAY_MIN // 1..3 generated projects per weekday
         val count = requestedCount.coerceAtMost(
             GENERATED_PROJECTS_PER_DAY_MAX.coerceAtMost(GENERATED_WORKDAY_PROJECT_NAMES.size)
         )
@@ -315,7 +313,7 @@ class GenerateWorkdaysUseCase @Inject constructor(
         return GeneratedProjectsForDate(
             projects = projectsForDate,
             nextWorkTypeCursor =
-                (workTypeCursor + projectsForDate.size) % GENERATED_WORKDAY_PROJECT_WORK_TYPES.size
+            (workTypeCursor + projectsForDate.size) % GENERATED_WORKDAY_PROJECT_WORK_TYPES.size
         )
     }
 
@@ -361,6 +359,3 @@ class GenerateWorkdaysUseCase @Inject constructor(
         val nextWorkTypeCursor: Int
     )
 }
-
-
-

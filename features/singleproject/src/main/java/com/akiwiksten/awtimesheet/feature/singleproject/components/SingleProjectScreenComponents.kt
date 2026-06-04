@@ -38,7 +38,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import com.akiwiksten.awtimesheet.feature.singleproject.R
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
@@ -51,6 +50,7 @@ import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.singleproject.R
 
 @Composable
 fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
@@ -335,4 +335,3 @@ internal fun SingleProjectDropdownFieldsSection(
         )
     }
 }
-

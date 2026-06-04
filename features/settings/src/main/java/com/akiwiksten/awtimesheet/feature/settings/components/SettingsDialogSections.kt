@@ -1,7 +1,5 @@
 package com.akiwiksten.awtimesheet.feature.settings.components
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
@@ -9,21 +7,23 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.akiwiksten.awtimesheet.core.DATE_FORMAT
-import com.akiwiksten.awtimesheet.core.R as CoreR
-import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.core.ui.AddTextFieldDialog
 import com.akiwiksten.awtimesheet.core.ui.MyAlertDialog
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.feature.settings.SettingsTimePickerDialogConfig
+import com.akiwiksten.awtimesheet.feature.settings.R
+import com.akiwiksten.awtimesheet.feature.settings.model.SettingsTimePickerDialogConfig
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun SettingsTimePickerDialogsSection(
@@ -92,7 +92,6 @@ internal fun SettingsAddWorkTypeDialogSection(
         )
     }
 }
-
 
 @Composable
 internal fun SettingsGenerateMonthConfirmDialogSection(
@@ -174,4 +173,3 @@ private fun formatMonthYear(selectedDate: String): String {
 
     return String.format(Locale.US, "%02d/%04d", parsedDate.monthValue, parsedDate.year)
 }
-

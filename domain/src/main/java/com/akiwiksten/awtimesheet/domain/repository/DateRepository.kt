@@ -12,4 +12,3 @@ interface DateRepository {
     fun addWorkTimeByDateChange(change: String)
     fun notifyCalendarDataChanged()
 }
-

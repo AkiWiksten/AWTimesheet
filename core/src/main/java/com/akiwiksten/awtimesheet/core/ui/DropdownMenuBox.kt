@@ -13,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +40,7 @@ fun DropdownMenuBox(
     labelId: Int,
     modifier: Modifier = Modifier,
     selectedText: String = "",
+    enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     var textFieldSize by remember { mutableStateOf(value = Size.Zero) }
@@ -56,13 +56,16 @@ fun DropdownMenuBox(
                 selectedText = selectedText,
                 expanded = expanded,
                 labelId = labelId,
+                enabled = enabled,
                 onSizeChanged = { textFieldSize = it }
             )
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable(onClick = { expanded = !expanded })
-            )
+            if (enabled) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable(onClick = { expanded = !expanded })
+                )
+            }
         }
 
         DropdownMenu(
@@ -89,6 +92,7 @@ private fun DropdownTextField(
     selectedText: String,
     expanded: Boolean,
     labelId: Int,
+    enabled: Boolean,
     onSizeChanged: (Size) -> Unit
 ) {
     OutlinedTextField(
@@ -113,13 +117,8 @@ private fun DropdownTextField(
             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         },
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        isError = selectedText.trim().isEmpty() && labelId == R.string.allowance,
-        enabled = true,
+        isError = enabled && selectedText.trim().isEmpty() && labelId == R.string.allowance,
+        enabled = enabled,
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     )
 }

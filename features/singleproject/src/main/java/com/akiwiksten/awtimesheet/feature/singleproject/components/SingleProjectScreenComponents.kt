@@ -135,6 +135,7 @@ internal fun SingleProjectUpperFieldsSection(
     state: SingleProjectState,
     isAddMode: Boolean,
     isDuplicateProjectName: Boolean,
+    isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
@@ -175,6 +176,7 @@ internal fun SingleProjectUpperFieldsSection(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isFlexDay,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
@@ -313,6 +315,7 @@ internal fun SingleProjectTimeSelectionSection(
 internal fun SingleProjectDropdownFieldsSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
+    isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
@@ -331,6 +334,7 @@ internal fun SingleProjectDropdownFieldsSection(
                 stringResource(id = R.string.half_day_allowance)
             ),
             selectedText = state.allowance,
+            enabled = !isFlexDay,
             onItemSelected = { onStateChange(state.copy(allowance = it)) }
         )
     }

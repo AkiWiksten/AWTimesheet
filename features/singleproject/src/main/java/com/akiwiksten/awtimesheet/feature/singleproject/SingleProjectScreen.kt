@@ -61,7 +61,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProject
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
 import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveFullInitialSingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.withAbsenceLogic
-import com.akiwiksten.awtimesheet.feature.singleproject.model.withDefaultWorkType
+import com.akiwiksten.awtimesheet.feature.singleproject.model.withFlexDayLogic
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,6 +108,7 @@ private fun SingleProjectScreenStateful(
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
     val absencePrefix = stringResource(id = R.string.absence_prefix)
+    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
 
     val initialUiState = remember(
         args,
@@ -151,7 +152,9 @@ private fun SingleProjectScreenStateful(
     val actions = SingleProjectActions(
         onStateChange = { newState ->
             val settings = (uiState as? SingleProjectUiState.Success)?.settings ?: args.initialSettings
-            state = newState.withAbsenceLogic(state, settings, absencePrefix)
+            state = newState
+                .withAbsenceLogic(state, settings, absencePrefix)
+                .withFlexDayLogic(previousState = state, noAllowanceText = noAllowanceText, flexDayWorkType = flexDayWorkType)
         },
         onOpenProjectDetails = { onOpenProjectDetails(state, args.initialProjectDetails) },
         onConfirm = {
@@ -413,6 +416,9 @@ private fun SingleProjectFormFields(
     workTypes: List<String>,
     actions: SingleProjectActions
 ) {
+    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+    val isFlexDay = screenState.state.workType == flexDayWorkType
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -424,6 +430,7 @@ private fun SingleProjectFormFields(
             state = screenState.state,
             isAddMode = screenState.isAddMode,
             isDuplicateProjectName = screenState.isDuplicateProjectName,
+            isFlexDay = isFlexDay,
             onStateChange = actions.onStateChange
         )
 
@@ -436,6 +443,7 @@ private fun SingleProjectFormFields(
         SingleProjectDropdownFieldsSection(
             state = screenState.state,
             workTypeDropDownList = workTypes,
+            isFlexDay = isFlexDay,
             onStateChange = actions.onStateChange
         )
 

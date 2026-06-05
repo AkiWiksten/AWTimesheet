@@ -14,6 +14,20 @@ internal fun SingleProjectState.withDefaultWorkType(defaultWorkType: String): Si
     return if (workType.isBlank()) copy(workType = defaultWorkType) else this
 }
 
+internal fun SingleProjectState.withFlexDayLogic(
+    previousState: SingleProjectState,
+    noAllowanceText: String,
+    flexDayWorkType: String
+): SingleProjectState {
+    val isFlexDay = workType.equals(flexDayWorkType, ignoreCase = true)
+    val workTypeChanged = workType != previousState.workType
+    return if (isFlexDay && workTypeChanged) {
+        copy(kilometres = "0", allowance = noAllowanceText)
+    } else {
+        this
+    }
+}
+
 internal fun SingleProjectState.withAbsenceLogic(
     previousState: SingleProjectState,
     settings: SettingsState?,

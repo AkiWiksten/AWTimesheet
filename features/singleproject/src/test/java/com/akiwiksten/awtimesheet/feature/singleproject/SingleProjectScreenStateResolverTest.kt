@@ -113,7 +113,8 @@ class SingleProjectScreenStateResolverTest {
         val singleProjectUiState = SingleProjectUiState.Success(
             data = projectState(index = 0, projectName = "Alpha", projectTime = "00:00"),
             workTimeByDate = "00:00",
-            workTypes = emptyList()
+            workTypes = emptyList(),
+            settings = null
         )
 
         val resolved = resolveInitialSingleProjectState(
@@ -132,7 +133,8 @@ class SingleProjectScreenStateResolverTest {
         val singleProjectUiState = SingleProjectUiState.Success(
             data = projectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
-            workTypes = emptyList()
+            workTypes = emptyList(),
+            settings = null
         )
 
         val resolved =
@@ -158,7 +160,8 @@ class SingleProjectScreenStateResolverTest {
         val singleProjectUiState = SingleProjectUiState.Success(
             data = projectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
-            workTypes = emptyList()
+            workTypes = emptyList(),
+            settings = null
         )
 
         val resolved = resolveInitialSingleProjectState(

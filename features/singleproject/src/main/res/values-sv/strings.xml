@@ -18,5 +18,6 @@
     <string name="allowance">Traktamente</string>
     <string name="full_allowance">Heldagstraktamente</string>
     <string name="half_day_allowance">Halvdagstraktamente</string>
+    <string name="absence_prefix">Frånvaro</string>
 </resources>
 

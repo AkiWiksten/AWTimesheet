@@ -49,4 +49,11 @@
     <string name="timesheet_start_date">Aloituspäivä</string>
     <string name="timesheet_end_date">Lopetuspäivä</string>
     <string name="timesheet_day_of_month">Kuukauden päivä</string>
+    <!-- Absence work types -->
+    <string name="absence_paid_vacation">Poissaolo-Palkallinen loma</string>
+    <string name="absence_unpaid_vacation">Poissaolo-Palkaton loma</string>
+    <string name="absence_sick_leave">Poissaolo-Sairasloma</string>
+    <string name="absence_parental_leave">Poissaolo-Vanhempainloma</string>
+    <string name="absence_other_leave">Poissaolo-Muu loma</string>
+    <string name="absence_flex_day">Poissaolo-Liukumapäivä</string>
 </resources>

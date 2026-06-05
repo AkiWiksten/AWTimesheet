@@ -106,25 +106,30 @@ Summarize benchmark output:
   + Unselect project from list
   + Select many in list
   + Select all in list
-  + Delete all in list
-  + Delete selected in list
-  + For Absence->Flex time, add "Flex time by date" by -"Work time by date estimate"
+  + Delete/Nullify all in list
+  + Delete/Nullify selected in list
+  + Recalculate flex time total by button press, if suspecting bug
 + ProjectDetailsScreen
   + "Lunch time estimate" Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
 + SettingsScreen
   + Absence.
     + Add/update/delete vacation range into database. Start and end date by picker
-    + Paid/unpaid/Sick leave/Flex day
-    + Show next in SettingsScreen, others in a list
-  + Translate fed "Work type"
+    + Paid/unpaid/Sick leave/Flex day. Localize:
+      + Absence-Paid vacation
+      + Absence-Unpaid vacation
+      + Absence-Sick leave
+      + Absence-Parental leave
+      + Absence-Other leave
+      + Absence-Flex day
+        + Flex time by date = -Work time by date estimate
   + App localization selection
 + Excel
   + Show start date in a month first, e.g. 15th.
   + Handle by selecting start date 
     + monthly reports 
     + weekly reports
-+ defaultGeneratedAllowanceLabels() localize
+  + defaultGeneratedAllowanceLabels() localize
 ## What to test constantly
 + Thorough regression testing of all features in all screens
     + Intro, 

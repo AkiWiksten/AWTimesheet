@@ -18,5 +18,6 @@
     <string name="allowance">Päiväraha</string>
     <string name="full_allowance">Täysi päiväraha</string>
     <string name="half_day_allowance">Puolipäiväraha</string>
+    <string name="absence_prefix">Poissaolo</string>
 </resources>
 

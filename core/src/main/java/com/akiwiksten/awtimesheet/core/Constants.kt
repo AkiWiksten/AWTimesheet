@@ -14,6 +14,17 @@ const val LOADING_INDICATOR_DELAY_MS = 1_000L
 const val APP_NAME_QUALIFIER = "app_name"
 const val LABEL_FONT_SIZE_SCALE = 1.08f
 
+// Default work types
+val DEFAULT_WORK_TYPES = listOf(
+    R.string.other,
+    R.string.work_type_paid_vacation,
+    R.string.work_type_unpaid_vacation,
+    R.string.work_type_sick_leave,
+    R.string.work_type_parental_leave,
+    R.string.work_type_other_leave,
+    R.string.work_type_flex_day
+)
+
 // Core / UI design constants
 val FIELD_CORNER_RADIUS = 12.dp
 val HEADER_CONTENT_PADDING = 12.dp

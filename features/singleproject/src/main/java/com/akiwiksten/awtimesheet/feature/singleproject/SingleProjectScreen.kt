@@ -59,8 +59,8 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScree
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProjectName
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
-import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveInitialSingleProjectState
-import com.akiwiksten.awtimesheet.feature.singleproject.model.withDefaultAllowance
+import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveFullInitialSingleProjectState
+import com.akiwiksten.awtimesheet.feature.singleproject.model.withAbsenceLogic
 import com.akiwiksten.awtimesheet.feature.singleproject.model.withDefaultWorkType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,26 +107,22 @@ private fun SingleProjectScreenStateful(
 ) {
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
+    val absencePrefix = stringResource(id = R.string.absence_prefix)
 
     val initialUiState = remember(
-        args.initialSingleProjectState.index,
-        args.initialSingleProjectState.date,
+        args,
         uiState,
-        args.initialSingleProjectState.projectTime,
-        args.initialSingleProjectState.projectName,
-        args.initialProjectDetails,
-        args.initialSettings,
         noAllowanceText,
-        defaultWorkTypeText
+        defaultWorkTypeText,
+        absencePrefix
     ) {
-        resolveInitialSingleProjectState(
-            initialSingleProjectState = args.initialSingleProjectState,
-            initialProjectDetails = args.initialProjectDetails,
-            initialSettings = args.initialSettings,
-            singleProjectUiState = uiState
+        resolveFullInitialSingleProjectState(
+            args = args,
+            uiState = uiState,
+            noAllowanceText = noAllowanceText,
+            defaultWorkTypeText = defaultWorkTypeText,
+            absencePrefix = absencePrefix
         )
-            .withDefaultAllowance(defaultAllowance = noAllowanceText)
-            .withDefaultWorkType(defaultWorkType = defaultWorkTypeText)
     }
 
     var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
@@ -153,10 +149,11 @@ private fun SingleProjectScreenStateful(
         isDuplicateProjectName = derived.isDuplicate
     )
     val actions = SingleProjectActions(
-        onStateChange = { state = it },
-        onOpenProjectDetails = {
-            onOpenProjectDetails(state, args.initialProjectDetails)
+        onStateChange = { newState ->
+            val settings = (uiState as? SingleProjectUiState.Success)?.settings ?: args.initialSettings
+            state = newState.withAbsenceLogic(state, settings, absencePrefix)
         },
+        onOpenProjectDetails = { onOpenProjectDetails(state, args.initialProjectDetails) },
         onConfirm = {
             onSave(state)
             onNavigateBack()

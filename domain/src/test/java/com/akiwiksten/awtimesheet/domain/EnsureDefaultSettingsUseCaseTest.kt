@@ -1,5 +1,7 @@
 package com.akiwiksten.awtimesheet.domain
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.usecase.EnsureDefaultSettingsUseCase
@@ -9,13 +11,18 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class EnsureDefaultSettingsUseCaseTest {
+
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
     fun invoke_insertsDefaultSettings_whenMissing() = runBlocking {
         val repository = FakeSettingsRepository()
-        val useCase = EnsureDefaultSettingsUseCase(repository)
+        val useCase = EnsureDefaultSettingsUseCase(repository, context)
 
         useCase()
 
@@ -39,7 +46,7 @@ class EnsureDefaultSettingsUseCaseTest {
         val repository = FakeSettingsRepository().apply {
             settings = existing
         }
-        val useCase = EnsureDefaultSettingsUseCase(repository)
+        val useCase = EnsureDefaultSettingsUseCase(repository, context)
 
         useCase()
 

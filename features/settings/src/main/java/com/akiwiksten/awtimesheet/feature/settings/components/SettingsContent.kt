@@ -33,7 +33,7 @@ internal fun SettingsContent(
     val dialogVisibility = rememberSettingsDialogVisibilityState()
     val workTypeUi = rememberSettingsWorkTypeUiState(
         workTypes = state.uiState.data.workTypes,
-        defaultWorkType = state.defaultWorkType,
+        protectedWorkTypes = state.defaultWorkTypes,
         onWorkTypeRemoved = state.actions.onWorkTypeRemoved,
         onWorkTypeAdded = state.actions.onWorkTypeAdded
     )
@@ -74,7 +74,7 @@ internal fun SettingsContent(
             settingsAddWorkTypeDialogState = workTypeUi.settingsAddWorkTypeDialogState,
             scrollState = rememberScrollState(),
             settingsSaveUi = saveUi,
-            defaultWorkType = state.defaultWorkType
+            defaultWorkTypes = state.defaultWorkTypes
         )
     )
 
@@ -200,7 +200,7 @@ private fun SettingsContentBody(
                 state = SettingsWorkTypeSectionState(
                     workTypes = state.uiState.data.workTypes,
                     settingsWorkTypeDialogState = state.settingsWorkTypeState,
-                    protectedWorkType = state.defaultWorkType
+                    protectedWorkTypes = state.defaultWorkTypes
                 )
             )
         }

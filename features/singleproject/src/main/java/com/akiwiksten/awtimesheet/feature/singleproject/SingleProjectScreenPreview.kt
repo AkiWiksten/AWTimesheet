@@ -53,6 +53,7 @@ fun PreviewSingleProjectSuccessAdd() {
                     workType = "Installation",
                 ),
                 workTimeByDate = "07:45",
+                settings = null
             ),
             isConfirmEnabled = false,
             isDuplicateProjectName = false
@@ -87,6 +88,7 @@ fun PreviewSingleProjectSuccessEdit() {
                     workType = "Installation",
                 ),
                 workTimeByDate = "07:45",
+                settings = null
             ),
             isConfirmEnabled = true,
             isDuplicateProjectName = false
@@ -118,6 +120,7 @@ fun PreviewSingleProjectDuplicateName() {
                     workType = "Installation",
                 ),
                 workTimeByDate = "07:45",
+                settings = null
             ),
             isConfirmEnabled = false,
             isDuplicateProjectName = true

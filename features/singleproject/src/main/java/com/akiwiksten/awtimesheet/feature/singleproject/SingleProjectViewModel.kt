@@ -27,6 +27,7 @@ sealed class SingleProjectUiState {
     data class Success(
         val workTimeByDate: String = ZERO_TIME,
         val workTypes: List<String> = emptyList(),
+        val settings: SettingsState? = null,
         val data: SingleProjectState
     ) : SingleProjectUiState()
 
@@ -56,6 +57,7 @@ class SingleProjectViewModel @Inject constructor(
                 projectName = selectedProjectName.value
             )
             val workTypes = settingsRepository.getWorkTypes()
+            val settings = settingsRepository.getSettings()
             val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
 
             _uiState.update { currentState ->
@@ -66,6 +68,7 @@ class SingleProjectViewModel @Inject constructor(
                 SingleProjectUiState.Success(
                     workTimeByDate = workTimeByDate,
                     workTypes = workTypes,
+                    settings = settings,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
                         projectTime = project?.projectTime ?: currentData.projectTime,

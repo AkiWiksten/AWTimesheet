@@ -21,18 +21,19 @@ import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeUiState
 @Composable
 internal fun rememberSettingsWorkTypeUiState(
     workTypes: List<String>,
-    defaultWorkType: String,
+    protectedWorkTypes: List<String>,
     onWorkTypeRemoved: (String) -> Unit,
     onWorkTypeAdded: (String) -> Unit
 ): SettingsWorkTypeUiState {
     val context = LocalContext.current
     val protectedMessage = stringResource(id = R.string.default_work_type_cannot_be_deleted)
     val showAddDialog = remember { mutableStateOf(value = false) }
-    val selectedWorkType = remember(defaultWorkType) { mutableStateOf(value = defaultWorkType) }
+    val defaultSelection = protectedWorkTypes.firstOrNull() ?: ""
+    val selectedWorkType = remember(defaultSelection) { mutableStateOf(value = defaultSelection) }
 
-    LaunchedEffect(workTypes, defaultWorkType, selectedWorkType.value) {
+    LaunchedEffect(workTypes, protectedWorkTypes, selectedWorkType.value) {
         if (selectedWorkType.value.isBlank() || selectedWorkType.value !in workTypes) {
-            selectedWorkType.value = defaultWorkType
+            selectedWorkType.value = defaultSelection
         }
     }
 
@@ -42,9 +43,9 @@ internal fun rememberSettingsWorkTypeUiState(
             onWorkTypeSelected = { selectedWorkType.value = it },
             onAddClick = { showAddDialog.value = true },
             onDeleteClick = {
-                if (selectedWorkType.value != defaultWorkType) {
+                if (selectedWorkType.value !in protectedWorkTypes) {
                     onWorkTypeRemoved(selectedWorkType.value)
-                    selectedWorkType.value = defaultWorkType
+                    selectedWorkType.value = defaultSelection
                 } else {
                     Toast.makeText(context, protectedMessage, Toast.LENGTH_SHORT).show()
                 }

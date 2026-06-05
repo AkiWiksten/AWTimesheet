@@ -72,6 +72,11 @@ fun SingleProjectScreen(
 ) {
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
+    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+
+    LaunchedEffect(flexDayWorkType) {
+        viewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
+    }
 
     LaunchedEffect(
         args.initialSingleProjectState.date,

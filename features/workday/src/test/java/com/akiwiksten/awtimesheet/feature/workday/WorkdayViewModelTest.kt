@@ -71,6 +71,7 @@ class WorkdayViewModelTest {
             settingsRepository,
             dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -113,6 +114,7 @@ class WorkdayViewModelTest {
             settingsRepository,
             dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
@@ -152,6 +154,7 @@ class WorkdayViewModelTest {
             settingsRepository,
             dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
@@ -192,6 +195,7 @@ class WorkdayViewModelTest {
                 settingsRepository,
                 dateRepository
             )
+            viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
             advanceUntilIdle()
 
             val state = viewModel.uiState.value as WorkdayUiState.Success
@@ -231,6 +235,7 @@ class WorkdayViewModelTest {
             settingsRepository,
             dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Frånvaro-Flexdag")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as WorkdayUiState.Success

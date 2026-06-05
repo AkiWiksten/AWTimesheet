@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.feature.workday
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -36,7 +37,7 @@ class WorkdayViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
-    private var localizedFlexDayWorkType = normalizeLabel("absence-flex day")
+    private var localizedFlexDayWorkType = ""
 
     private val refreshTrigger = MutableStateFlow(value = 0)
 
@@ -286,28 +287,11 @@ class WorkdayViewModel @Inject constructor(
     )
 
     private fun isAbsenceFlexDay(project: SingleProjectState): Boolean {
-        val normalizedWorkType = normalizeLabel(project.workType)
-        val normalizedProjectName = normalizeLabel(project.projectName)
-        return isLocalizedFlexLabel(normalizedWorkType) ||
-            isLocalizedFlexLabel(normalizedProjectName) ||
-            hasAbsenceFlexMarkers(normalizedWorkType) ||
-            hasAbsenceFlexMarkers(normalizedProjectName)
-    }
-
-    private fun isLocalizedFlexLabel(normalizedValue: String): Boolean {
-        return normalizedValue.isNotBlank() && normalizedValue == localizedFlexDayWorkType
-    }
-
-    private fun hasAbsenceFlexMarkers(normalizedValue: String): Boolean {
-        if (normalizedValue.isBlank()) return false
-        val hasAbsenceMarker = normalizedValue.contains("absence") ||
-            normalizedValue.contains("franvaro") ||
-            normalizedValue.contains("poissaolo")
-        val hasFlexMarker = normalizedValue.contains("flex") ||
-            normalizedValue.contains("komplediga") ||
-            normalizedValue.contains("saldovapaa") ||
-            normalizedValue.contains("liukumapaiva")
-        return hasAbsenceMarker && hasFlexMarker
+        return AbsenceFlexDayMatcher.isAbsenceFlexDay(
+            workType = project.workType,
+            projectName = project.projectName,
+            localizedFlexDayWorkType = localizedFlexDayWorkType
+        )
     }
 
     private fun normalizeLabel(value: String): String {

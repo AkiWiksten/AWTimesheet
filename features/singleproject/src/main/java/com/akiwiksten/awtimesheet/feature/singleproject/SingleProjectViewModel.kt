@@ -41,10 +41,16 @@ class SingleProjectViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
+    private var localizedFlexDayWorkType: String = ""
+
     private val selectedProjectName = MutableStateFlow("")
     private val selectedDate = MutableStateFlow("")
     private val _uiState = MutableStateFlow<SingleProjectUiState>(SingleProjectUiState.Loading)
     val uiState: StateFlow<SingleProjectUiState> = _uiState.asStateFlow()
+
+    fun setLocalizedFlexDayWorkType(workType: String) {
+        localizedFlexDayWorkType = workType
+    }
 
     fun initializeState(singleProjectState: SingleProjectState) {
         viewModelScope.launch {
@@ -91,14 +97,8 @@ class SingleProjectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val date = dateRepository.selectedDate.first()
-                val existingProject = selectedProjectName.value
-                    .takeIf { it.isNotBlank() }
-                    ?.let { projectRepository.getProject(date = date, projectName = it) }
                 val projectToSave = state.copy(date = date)
-                val workTimeByDateChange = WorkTimeCalculator.calculateWorkTimeByDateChange(
-                    previousProjectTime = existingProject?.projectTime ?: ZERO_TIME,
-                    newProjectTime = projectToSave.projectTime
-                )
+                val oldWorkTimeByDate = projectRepository.getWorkTimeByDate(date)
 
                 val projectDetailsToSave = projectDetails?.copy(
                     date = date,
@@ -112,7 +112,14 @@ class SingleProjectViewModel @Inject constructor(
 
                 saveWorkdayUseCase(
                     projectToSave = projectToSave,
-                    projectDetailsToSave = projectDetailsToSave
+                    projectDetailsToSave = projectDetailsToSave,
+                    localizedFlexDayWorkType = localizedFlexDayWorkType
+                )
+
+                val newWorkTimeByDate = projectRepository.getWorkTimeByDate(date)
+                val workTimeByDateChange = WorkTimeCalculator.calculateWorkTimeByDateChange(
+                    previousProjectTime = oldWorkTimeByDate,
+                    newProjectTime = newWorkTimeByDate
                 )
 
                 if (workTimeByDateChange != ZERO_TIME) {

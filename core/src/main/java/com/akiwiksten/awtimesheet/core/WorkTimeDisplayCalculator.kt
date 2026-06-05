@@ -14,10 +14,12 @@ object WorkTimeDisplayCalculator {
         persistedWorkTimeByDate: String,
         persistedFlexTimeByDate: String,
         editedWorkTimeByDateEstimate: String,
-        isEditedWorkTimeByDateEstimateValid: Boolean
+        isEditedWorkTimeByDateEstimateValid: Boolean,
+        usePersistedFlexTimeByDate: Boolean = false
     ): String {
         return when {
             !isEditedWorkTimeByDateEstimateValid -> persistedFlexTimeByDate
+            usePersistedFlexTimeByDate -> persistedFlexTimeByDate
             persistedWorkTimeByDate == ZERO_TIME -> ZERO_TIME
             else -> WorkTimeCalculator.calculateFlexTime(
                 initialTime = persistedWorkTimeByDate,

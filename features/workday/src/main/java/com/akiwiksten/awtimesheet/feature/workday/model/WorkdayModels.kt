@@ -12,6 +12,7 @@ sealed class WorkdayUiState {
         val workTimeByDate: String = ZERO_TIME,
         val workTimeByDateEstimate: String = ZERO_TIME,
         val flexTimeByDate: String = ZERO_TIME,
+        val isFlexTimeByDateSpecialRuleApplied: Boolean = false,
         val initialFlexTimeTotal: String = ZERO_TIME,
         val flexTimeTotal: String = ZERO_TIME,
         val projects: List<SingleProjectState> = emptyList(),

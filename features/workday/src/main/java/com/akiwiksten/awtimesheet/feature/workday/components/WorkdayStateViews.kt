@@ -154,7 +154,8 @@ private fun rememberWorkdayDisplayState(
             persistedWorkTimeByDate = state.workTimeByDate,
             persistedFlexTimeByDate = state.flexTimeByDate,
             editedWorkTimeByDateEstimate = estimateUiState.workTimeByDateEstimate,
-            isEditedWorkTimeByDateEstimateValid = estimateUiState.isWorkTimeByDateEstimateValid
+            isEditedWorkTimeByDateEstimateValid = estimateUiState.isWorkTimeByDateEstimateValid,
+            usePersistedFlexTimeByDate = state.isFlexTimeByDateSpecialRuleApplied
         )
     }
 

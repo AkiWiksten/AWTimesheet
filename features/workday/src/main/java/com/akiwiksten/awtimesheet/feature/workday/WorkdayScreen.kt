@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -35,6 +36,12 @@ fun WorkdayScreen(
     onNavigateToSingleProject: (SingleProjectState) -> Unit,
     workdayViewModel: WorkdayViewModel = hiltViewModel(),
 ) {
+    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+
+    LaunchedEffect(flexDayWorkType) {
+        workdayViewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
+    }
+
     val pendingOldFlexTimeByDateState = rememberSaveable { mutableStateOf<String?>(value = null) }
     val pendingOldWorkTimeByDateState = rememberSaveable { mutableStateOf<String?>(value = null) }
 

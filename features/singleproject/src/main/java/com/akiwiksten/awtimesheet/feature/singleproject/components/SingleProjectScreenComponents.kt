@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
@@ -56,7 +57,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.R
 @Composable
 fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -92,8 +93,8 @@ fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
 fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
+        tonalElevation = DEFAULT_ELEVATION,
+        shadowElevation = DEFAULT_ELEVATION
     ) {
         CenterAlignedTopAppBar(
             title = {
@@ -256,7 +257,7 @@ private fun ProjectTimeActionsColumn(
         Button(
             onClick = onOpenProjectDetails,
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.History, contentDescription = null)
             Spacer(modifier = Modifier.width(width = 4.dp))
@@ -274,7 +275,7 @@ private fun ProjectTimeActionsColumn(
             onClick = onOpenTimePicker,
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(
                 imageVector = Icons.Default.AccessTime,

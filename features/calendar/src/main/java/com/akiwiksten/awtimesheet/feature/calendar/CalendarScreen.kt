@@ -35,6 +35,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
+import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
+import com.akiwiksten.awtimesheet.core.SCREEN_SECTION_SPACING_LARGE
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -96,9 +99,9 @@ internal fun CalendarContent(
             modifier = Modifier.fillMaxSize(),
             columnModifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 20.dp),
+                .padding(all = SCREEN_SECTION_SPACING_LARGE),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+            verticalArrangement = Arrangement.spacedBy(space = SCREEN_SECTION_SPACING_LARGE)
         )
     ) {
         when (uiState) {
@@ -107,26 +110,21 @@ internal fun CalendarContent(
             is CalendarUiState.Success -> {
                 CalendarHeaderSection(selectedDate = uiState.date)
                 ElevatedCard(
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     CustomCalendar(
                         selectedDate = LocalDate.parse(uiState.date),
                         datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
-                        modifier = Modifier.padding(all = 8.dp),
+                        modifier = Modifier.padding(all = SCREEN_PAGE_PADDING),
                         monthConfig = CalendarVisibleMonthConfig(
                             visibleMonth = uiState.visibleMonth,
                             onVisibleMonthChanged = onVisibleMonthChanged
                         )
                     )
                 }
-                NoteBanner(
-                    text = stringResource(id = R.string.calendar_month_selection_hint),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
+                NoteBanner(text = stringResource(id = R.string.calendar_month_selection_hint),)
                 WorkTimeSummarySection(uiState = uiState)
                 Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }
@@ -142,7 +140,7 @@ internal fun CalendarContent(
 @Composable
 private fun CalendarHeaderSection(selectedDate: String) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -181,15 +179,15 @@ private fun CalendarHeaderSection(selectedDate: String) {
 @Composable
 internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
-                .padding(vertical = 20.dp)
+                .padding(vertical = SCREEN_SECTION_SPACING_LARGE)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+            verticalArrangement = Arrangement.spacedBy(space = SCREEN_PAGE_PADDING)
         ) {
             SummaryItem(
                 label = stringResource(id = R.string.selected_work_day),

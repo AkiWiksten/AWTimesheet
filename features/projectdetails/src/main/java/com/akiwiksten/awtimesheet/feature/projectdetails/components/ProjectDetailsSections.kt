@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
@@ -40,7 +41,7 @@ internal fun ProjectDetailsHeaderSection(
     helperTextResId: Int?
 ) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -84,7 +85,7 @@ internal fun ProjectDetailsNewDayForProjectSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         ElevatedCard(
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -147,7 +148,7 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
     }
 
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -189,7 +190,7 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
 @Composable
 private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -235,7 +236,7 @@ private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions
 @Composable
 private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -259,11 +260,9 @@ internal fun ProjectDetailsFooterSection(onConfirm: () -> Unit, isConfirmEnabled
     Button(
         onClick = onConfirm,
         enabled = isConfirmEnabled,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Text(text = stringResource(id = R.string.confirm), style = MaterialTheme.typography.titleLarge)
     }

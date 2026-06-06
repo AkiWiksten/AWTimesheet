@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.ACTION_BUTTON_FONT_SIZE
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
@@ -48,7 +49,7 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onSave,
             enabled = state.isSaveEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -56,7 +57,7 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onGenerateXlsx,
             enabled = state.isReportEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.generate_xlsx), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -64,7 +65,7 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onGenerateWorkdaysForMonth,
             enabled = state.isReportEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.generate_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -72,7 +73,7 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onGenerateWorkdaysForYear,
             enabled = state.isReportEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -89,7 +90,7 @@ internal fun SettingsHeaderSection(date: String) {
             .fillMaxWidth()
             .widthIn(max = FORM_MAX_WIDTH),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
             modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
@@ -139,7 +140,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
             Button(
                 onClick = state.settingsWorkTypeDialogState.onAddClick,
                 modifier = Modifier.weight(weight = 1f),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
             ) {
                 Text(text = stringResource(id = R.string.add))
             }
@@ -149,7 +150,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
                     state.settingsWorkTypeDialogState.selectedWorkType !in state.protectedWorkTypes,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
             ) {
                 Text(text = stringResource(id = R.string.delete))
             }

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
@@ -29,7 +30,7 @@ internal fun SettingsCard(title: String? = null, content: @Composable () -> Unit
             .fillMaxWidth()
             .widthIn(max = FORM_MAX_WIDTH),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
     ) {
         Column(
             modifier = Modifier.padding(all = FORM_SECTION_SPACING),

@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -218,8 +219,8 @@ internal fun ProjectDetailsUnsavedChangesDialog(
 @Composable
 internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
     Surface(
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
+        tonalElevation = DEFAULT_ELEVATION,
+        shadowElevation = DEFAULT_ELEVATION
     ) {
         CenterAlignedTopAppBar(
             title = {

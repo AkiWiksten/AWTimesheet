@@ -40,9 +40,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.SCREEN_EMPTY_STATE_PADDING
+import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
@@ -66,7 +69,7 @@ internal fun WorkdayHeaderSection(
     ) {
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Column(
                 modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
@@ -125,7 +128,7 @@ private fun WorkdayStatsSectionContent(
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
             modifier = Modifier
@@ -243,7 +246,7 @@ internal fun WorkdayActionButtonsSection(
             onClick = onAddClick,
             enabled = !state.isAddEditDisabled,
             modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
             Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
@@ -253,7 +256,7 @@ internal fun WorkdayActionButtonsSection(
             onClick = onEditClick,
             enabled = state.selectedIndex != -1 && !state.isAddEditDisabled,
             modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -267,7 +270,7 @@ internal fun WorkdayActionButtonsSection(
             onClick = onDeleteClick,
             enabled = state.selectedIndex != -1,
             modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -289,7 +292,7 @@ internal fun WorkdayListSection(
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
             modifier = Modifier
@@ -313,7 +316,7 @@ internal fun WorkdayListSection(
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(all = 32.dp)
+                        modifier = Modifier.padding(all = SCREEN_EMPTY_STATE_PADDING)
                     )
                 }
             } else {
@@ -356,7 +359,7 @@ private fun ProjectListItem(
         )
     ) {
         Column(
-            modifier = Modifier.padding(all = 16.dp),
+            modifier = Modifier.padding(all = SCREEN_PAGE_PADDING),
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
             if (item.isProjectNameOnlyPlaceholder) {

@@ -1,9 +1,11 @@
 package com.akiwiksten.awtimesheet.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,6 +19,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
@@ -72,18 +75,20 @@ internal fun MainAppScaffold(
                 )
             }
         }
-    ) { padding ->
-        PortraitWidthContainer(
-            portraitWidth = portraitWidth,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues = padding)
-        ) {
-            AppNavHost(
-                backStack = backStack,
-                settingsNavigationGuard = settingsNavigationGuard,
-                modifier = Modifier.fillMaxSize()
-            )
+    ) { innerPadding ->
+        CompositionLocalProvider(LocalContentBottomPadding provides innerPadding.calculateBottomPadding()) {
+            PortraitWidthContainer(
+                portraitWidth = portraitWidth,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .consumeWindowInsets(innerPadding)
+            ) {
+                AppNavHost(
+                    backStack = backStack,
+                    settingsNavigationGuard = settingsNavigationGuard,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 
@@ -50,9 +48,8 @@ internal fun AWTimesheetNavigationBar(
         )
     }
 
-    Surface(shadowElevation = 8.dp, tonalElevation = 8.dp) {
-        NavigationBar {
-            navigationScreens.forEach { screen ->
+    NavigationBar {
+        navigationScreens.forEach { screen ->
                 val isSelected = backStack.lastOrNull() == screen
                 NavigationBarItem(
                     selected = isSelected,
@@ -70,7 +67,6 @@ internal fun AWTimesheetNavigationBar(
                     label = { ScreenLabel(screen = screen) }
                 )
             }
-        }
     }
 }
 

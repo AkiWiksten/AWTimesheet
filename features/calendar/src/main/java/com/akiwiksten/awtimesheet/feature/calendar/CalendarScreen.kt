@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.calendar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,7 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
@@ -126,6 +128,7 @@ internal fun CalendarContent(
                         .padding(horizontal = 16.dp)
                 )
                 WorkTimeSummarySection(uiState = uiState)
+                Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }
             is CalendarUiState.Error -> CenteredErrorBox(
                 errorMessage = uiState.message,

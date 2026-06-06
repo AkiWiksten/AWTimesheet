@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.feature.workday.components
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
@@ -148,6 +150,8 @@ internal fun WorkdaySuccessContent(
             state.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
         }
     )
+
+    Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
 }
 
 @Composable

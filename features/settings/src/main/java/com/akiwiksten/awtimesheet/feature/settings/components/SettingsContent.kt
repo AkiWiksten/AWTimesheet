@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.settings.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.SCREEN_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
@@ -215,6 +217,8 @@ private fun SettingsContentBody(
                 isSaveEnabled = state.settingsSaveUi.isSaveEnabled
             )
         )
+
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
 
         SettingsAddWorkTypeDialogSection(
             isVisible = state.settingsAddWorkTypeDialogState.isVisible,

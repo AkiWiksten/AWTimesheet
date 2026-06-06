@@ -32,6 +32,7 @@ import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
@@ -244,6 +245,8 @@ private fun SingleProjectContent(
                 actions = actions
             )
         }
+
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
     }
 }
 

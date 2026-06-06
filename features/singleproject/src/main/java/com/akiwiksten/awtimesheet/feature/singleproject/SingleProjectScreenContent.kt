@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +30,6 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
@@ -264,8 +262,8 @@ private fun SingleProjectFormFields(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-                .padding(all = PADDING_SPACING),
-            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
+            .padding(all = PADDING_SPACING),
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         SingleProjectUpperFieldsSection(

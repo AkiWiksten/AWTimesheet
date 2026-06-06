@@ -50,23 +50,23 @@ internal fun AWTimesheetNavigationBar(
 
     NavigationBar {
         navigationScreens.forEach { screen ->
-                val isSelected = backStack.lastOrNull() == screen
-                NavigationBarItem(
-                    selected = isSelected,
-                    onClick = {
-                        if (isSelected) return@NavigationBarItem
+            val isSelected = backStack.lastOrNull() == screen
+            NavigationBarItem(
+                selected = isSelected,
+                onClick = {
+                    if (isSelected) return@NavigationBarItem
 
-                        val isLeavingSettings = backStack.lastOrNull() == Screen.Settings
-                        if (isLeavingSettings && settingsHasUnsavedChanges) {
-                            pendingScreen = screen
-                        } else {
-                            backStack.add(element = screen)
-                        }
-                    },
-                    icon = { ScreenIcon(screen = screen) },
-                    label = { ScreenLabel(screen = screen) }
-                )
-            }
+                    val isLeavingSettings = backStack.lastOrNull() == Screen.Settings
+                    if (isLeavingSettings && settingsHasUnsavedChanges) {
+                        pendingScreen = screen
+                    } else {
+                        backStack.add(element = screen)
+                    }
+                },
+                icon = { ScreenIcon(screen = screen) },
+                label = { ScreenLabel(screen = screen) }
+            )
+        }
     }
 }
 

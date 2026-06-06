@@ -12,7 +12,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState

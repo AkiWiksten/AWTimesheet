@@ -38,15 +38,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
+import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header

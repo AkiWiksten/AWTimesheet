@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
@@ -92,7 +91,6 @@ internal fun WorkdaySuccessContent(
         initialWorkTimeByDateEstimate = state.workTimeByDateEstimate,
         onSaveSettings = actions.onSaveSettings
     )
-
     val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
     val listItems = remember(state.projects) {
         state.projects
@@ -105,13 +103,10 @@ internal fun WorkdaySuccessContent(
     val selectedItemKey = remember(state.projects, selectedItemIndex) {
         state.projects.firstOrNull { it.index == selectedItemIndex }?.stableListItemKey()
     }
-
     WorkdayHeaderSection(date = state.date)
-
     if (state.isFlexTimeByDateSpecialRuleApplied) {
         NoteBanner(text = stringResource(id = R.string.flex_day_special_note))
     }
-
     WorkdayStatsSection(
         state = WorkdayStatsCardState(
             workTime = state.workTimeByDate,
@@ -122,13 +117,25 @@ internal fun WorkdaySuccessContent(
         ),
         headerActions = displayState.headerActions
     )
-
     WorkdayListSection(
         items = listItems,
         selectedItemKey = selectedItemKey,
         onItemSelected = actions.onSelectedItemIndexChange
     )
+    WorkdayActionButtons(
+        state = state,
+        selectedItemIndex = selectedItemIndex,
+        actions = actions
+    )
+    Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
+}
 
+@Composable
+private fun WorkdayActionButtons(
+    state: WorkdayUiState.Success,
+    selectedItemIndex: Int,
+    actions: WorkdayActions
+) {
     WorkdayActionButtonsSection(
         state = WorkdayActionButtonsState(
             items = state.projects,
@@ -151,8 +158,6 @@ internal fun WorkdaySuccessContent(
             state.projects.getOrNull(index = selectedItemIndex)?.let(actions.onDeleteProject)
         }
     )
-
-    Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
 }
 
 @Composable

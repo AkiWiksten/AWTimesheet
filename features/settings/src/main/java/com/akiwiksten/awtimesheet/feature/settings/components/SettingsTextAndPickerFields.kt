@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.feature.settings.R
 
 @Composable

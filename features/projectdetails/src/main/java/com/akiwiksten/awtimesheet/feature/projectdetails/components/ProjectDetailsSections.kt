@@ -18,13 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner

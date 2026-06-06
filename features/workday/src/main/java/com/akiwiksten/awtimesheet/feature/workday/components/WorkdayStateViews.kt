@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
@@ -105,7 +106,7 @@ internal fun WorkdaySuccessContent(
     WorkdayHeaderSection(date = state.date)
 
     if (state.isFlexTimeByDateSpecialRuleApplied) {
-        WorkdaySpecialNoteBanner(text = stringResource(id = R.string.flex_day_special_note))
+        NoteBanner(text = stringResource(id = R.string.flex_day_special_note))
     }
 
     WorkdayStatsSection(

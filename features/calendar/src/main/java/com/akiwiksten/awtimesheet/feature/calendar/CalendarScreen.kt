@@ -37,6 +37,7 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import java.time.LocalDate
@@ -118,14 +119,11 @@ internal fun CalendarContent(
                         )
                     )
                 }
-                Text(
+                NoteBanner(
                     text = stringResource(id = R.string.calendar_month_selection_hint),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    fontWeight = FontWeight.SemiBold
+                        .padding(horizontal = 16.dp)
                 )
                 WorkTimeSummarySection(uiState = uiState)
             }
@@ -181,9 +179,7 @@ private fun CalendarHeaderSection(selectedDate: String) {
 internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-        modifier = Modifier
-            .padding(vertical = 20.dp)
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier

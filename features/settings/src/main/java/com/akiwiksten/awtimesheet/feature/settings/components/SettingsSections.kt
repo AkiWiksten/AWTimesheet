@@ -29,6 +29,7 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeSectionState
@@ -76,11 +77,7 @@ internal fun SettingsActionButtonsSection(
             Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         if (state.isReportEnabled) {
-            Text(
-                text = stringResource(id = R.string.monthly_help_xlsx),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-            )
+            NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx))
         }
     }
 }

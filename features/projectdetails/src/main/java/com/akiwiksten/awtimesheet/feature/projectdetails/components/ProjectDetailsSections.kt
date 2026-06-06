@@ -26,6 +26,7 @@ import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsFieldActions
@@ -70,12 +71,7 @@ internal fun ProjectDetailsHeaderSection(
             ProjectDetailsNameField(name = projectName.orEmpty())
 
             helperTextResId?.let { textResId ->
-                Text(
-                    text = stringResource(id = textResId),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                NoteBanner(text = stringResource(id = textResId))
             }
         }
     }

@@ -28,12 +28,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
-import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING_LARGE
-import com.akiwiksten.awtimesheet.core.SCREEN_SECTION_SPACING_LARGE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
@@ -230,8 +228,8 @@ private fun SingleProjectContent(
                 .padding(paddingValues = padding),
             columnModifier = Modifier
                 .fillMaxWidth()
-                .padding(all = SCREEN_PAGE_PADDING_LARGE),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+                .padding(all = PADDING_SPACING),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         SingleProjectHeaderSection(
@@ -266,8 +264,8 @@ private fun SingleProjectFormFields(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-                .padding(all = SCREEN_PAGE_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = SCREEN_SECTION_SPACING_LARGE),
+                .padding(all = PADDING_SPACING),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         SingleProjectUpperFieldsSection(
@@ -290,8 +288,6 @@ private fun SingleProjectFormFields(
             isFlexDay = isFlexDay,
             onStateChange = actions.onStateChange
         )
-
-        Spacer(modifier = Modifier.height(height = SCREEN_PAGE_PADDING))
 
         Button(
             onClick = actions.onConfirm,

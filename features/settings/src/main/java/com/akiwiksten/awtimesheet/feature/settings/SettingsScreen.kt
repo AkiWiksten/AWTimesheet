@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
@@ -115,7 +115,7 @@ internal fun SettingsStateContent(
                 errorMessage = stringResource(id = R.string.error_message, state.uiState.message),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(all = FORM_SECTION_SPACING),
+                    .padding(all = PADDING_SPACING),
                 fillMaxSize = false
             )
         }
@@ -130,7 +130,7 @@ private fun SettingsLoadingContent(
         CenteredLoadingBox(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = FORM_SECTION_SPACING),
+                .padding(all = PADDING_SPACING),
             fillMaxSize = false
         )
     } else if (state.lastSuccessState != null) {

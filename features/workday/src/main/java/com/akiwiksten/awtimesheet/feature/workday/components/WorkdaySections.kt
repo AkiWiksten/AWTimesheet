@@ -43,9 +43,8 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.SCREEN_EMPTY_STATE_PADDING
-import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
@@ -132,9 +131,9 @@ private fun WorkdayStatsSectionContent(
     ) {
         Column(
             modifier = Modifier
-                .padding(all = FORM_SECTION_SPACING),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         ) {
             WorkdayStatsSummaryTexts(
                 workTime = params.workTime,
@@ -316,7 +315,7 @@ internal fun WorkdayListSection(
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(all = SCREEN_EMPTY_STATE_PADDING)
+                        modifier = Modifier.padding(all = PADDING_SPACING)
                     )
                 }
             } else {
@@ -359,7 +358,7 @@ private fun ProjectListItem(
         )
     ) {
         Column(
-            modifier = Modifier.padding(all = SCREEN_PAGE_PADDING),
+            modifier = Modifier.padding(all = PADDING_SPACING),
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
             if (item.isProjectNameOnlyPlaceholder) {

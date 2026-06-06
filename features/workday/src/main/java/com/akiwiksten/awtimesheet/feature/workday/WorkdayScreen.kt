@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
@@ -116,9 +116,9 @@ internal fun WorkdayContent(
             modifier = Modifier.fillMaxSize(),
             columnModifier = Modifier
                 .fillMaxSize()
-                .padding(all = SCREEN_PAGE_PADDING),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         when (workdayUiState) {
@@ -130,7 +130,7 @@ internal fun WorkdayContent(
             )
 
             is WorkdayUiState.Success -> Column(
-                verticalArrangement = Arrangement.spacedBy(FORM_SECTION_SPACING)
+                verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
             ) {
                 WorkdaySuccessContent(
                     state = workdayUiState,

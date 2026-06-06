@@ -23,7 +23,7 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
@@ -83,14 +83,14 @@ internal fun ProjectDetailsNewDayForProjectSection(
     uiState: ProjectDetailsUiState.Success,
     actions: ProjectDetailsFieldActions
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-                verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
             ) {
                 key("startTime") {
                     ProjectDetailsTimeRow(

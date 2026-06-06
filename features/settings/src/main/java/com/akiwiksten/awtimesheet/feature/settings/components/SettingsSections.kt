@@ -24,7 +24,6 @@ import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
@@ -41,8 +40,7 @@ internal fun SettingsActionButtonsSection(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = FORM_MAX_WIDTH),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
     ) {
         Button(
@@ -87,8 +85,7 @@ internal fun SettingsActionButtonsSection(
 internal fun SettingsHeaderSection(date: String) {
     ElevatedCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = FORM_MAX_WIDTH),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {

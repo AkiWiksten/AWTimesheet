@@ -43,7 +43,7 @@ import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
 import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
 import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
@@ -140,7 +140,7 @@ internal fun SingleProjectUpperFieldsSection(
     isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
         OutlinedTextField(
             value = state.projectName,
             onValueChange = { onStateChange(state.copy(projectName = it)) },
@@ -320,7 +320,7 @@ internal fun SingleProjectDropdownFieldsSection(
     isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
         DropdownMenuBox(
             items = workTypeDropDownList,
             field = DropdownMenuField(

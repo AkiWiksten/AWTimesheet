@@ -21,8 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
-import com.akiwiksten.awtimesheet.core.SCREEN_EMPTY_STATE_PADDING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
@@ -74,7 +74,7 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(all = SCREEN_EMPTY_STATE_PADDING)
+            modifier = Modifier.padding(all = PADDING_SPACING)
         )
         Button(onClick = onRetry) {
             Text(text = stringResource(id = R.string.retry))

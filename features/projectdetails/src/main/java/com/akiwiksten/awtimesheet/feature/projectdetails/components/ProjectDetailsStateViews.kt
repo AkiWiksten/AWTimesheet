@@ -11,8 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
-import com.akiwiksten.awtimesheet.core.SCREEN_SECTION_SPACING_LARGE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
@@ -64,9 +63,9 @@ internal fun ProjectDetailsSuccessState(
                 .padding(paddingValues = padding),
             columnModifier = Modifier
                 .fillMaxSize()
-                .padding(SCREEN_PAGE_PADDING, SCREEN_PAGE_PADDING, SCREEN_PAGE_PADDING, 0.dp),
+                .padding(PADDING_SPACING, PADDING_SPACING, PADDING_SPACING, 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = SCREEN_SECTION_SPACING_LARGE)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         ProjectDetailsHeaderSection(

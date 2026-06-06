@@ -36,8 +36,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.SCREEN_PAGE_PADDING
-import com.akiwiksten.awtimesheet.core.SCREEN_SECTION_SPACING_LARGE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -99,9 +98,9 @@ internal fun CalendarContent(
             modifier = Modifier.fillMaxSize(),
             columnModifier = Modifier
                 .fillMaxWidth()
-                .padding(all = SCREEN_SECTION_SPACING_LARGE),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = SCREEN_SECTION_SPACING_LARGE)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         when (uiState) {
@@ -117,7 +116,7 @@ internal fun CalendarContent(
                         selectedDate = LocalDate.parse(uiState.date),
                         datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
-                        modifier = Modifier.padding(all = SCREEN_PAGE_PADDING),
+                        modifier = Modifier.padding(all = PADDING_SPACING),
                         monthConfig = CalendarVisibleMonthConfig(
                             visibleMonth = uiState.visibleMonth,
                             onVisibleMonthChanged = onVisibleMonthChanged
@@ -184,10 +183,10 @@ internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     ) {
         Column(
             modifier = Modifier
-                .padding(vertical = SCREEN_SECTION_SPACING_LARGE)
+                .padding(vertical = PADDING_SPACING)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = SCREEN_PAGE_PADDING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         ) {
             SummaryItem(
                 label = stringResource(id = R.string.selected_work_day),

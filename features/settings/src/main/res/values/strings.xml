@@ -49,11 +49,4 @@
     <string name="timesheet_start_date">Start date</string>
     <string name="timesheet_end_date">End date</string>
     <string name="timesheet_day_of_month">Day of Month</string>
-    <!-- Absence work types -->
-    <string name="absence_paid_vacation">Absence-Paid vacation</string>
-    <string name="absence_unpaid_vacation">Absence-Unpaid vacation</string>
-    <string name="absence_sick_leave">Absence-Sick leave</string>
-    <string name="absence_parental_leave">Absence-Parental leave</string>
-    <string name="absence_other_leave">Absence-Other leave</string>
-    <string name="absence_flex_day">Absence-Flex day</string>
 </resources>

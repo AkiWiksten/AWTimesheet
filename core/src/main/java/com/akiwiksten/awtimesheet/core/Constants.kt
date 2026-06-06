@@ -50,6 +50,7 @@ const val LUNCH_TIME_ESTIMATE = "lunch_time_estimate"
 // App / navigation routes
 const val INTRO_SCREEN = "intro_screen"
 const val CALENDAR_SCREEN = "calendar_screen"
+const val ABSENCE_SCREEN = "absence_screen"
 const val PROJECT_DETAILS_SCREEN = "project_details_screen"
 const val PROJECTS_SCREEN = "projects_screen"
 const val SINGLE_PROJECT_SCREEN = "single_project_screen"

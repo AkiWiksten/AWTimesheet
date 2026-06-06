@@ -20,6 +20,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
+import com.akiwiksten.awtimesheet.feature.calendar.AbsenceScreen
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
 import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
@@ -144,7 +145,12 @@ internal fun WorkTimeNavDisplay(
             entry<Screen.Intro> {
                 IntroNavEntry(backStack = backStack)
             }
-            entry<Screen.Calendar> { CalendarScreen() }
+            entry<Screen.Calendar> {
+                CalendarScreen(onNavigateToAbsence = { backStack.add(element = Screen.Absence) })
+            }
+            entry<Screen.Absence> {
+                AbsenceScreen(onNavigateBack = { backStack.pop() })
+            }
             entry<Screen.Workday> {
                 WorkdayNavEntry(backStack = backStack)
             }

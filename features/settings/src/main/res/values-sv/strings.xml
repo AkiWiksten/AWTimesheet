@@ -49,11 +49,4 @@
     <string name="timesheet_start_date">Startdatum</string>
     <string name="timesheet_end_date">Slutdatum</string>
     <string name="timesheet_day_of_month">Dag i månaden</string>
-    <!-- Absence work types -->
-    <string name="absence_paid_vacation">Frånvaro-Betald semester</string>
-    <string name="absence_unpaid_vacation">Frånvaro-Obetald semester</string>
-    <string name="absence_sick_leave">Frånvaro-Sjukledighet</string>
-    <string name="absence_parental_leave">Frånvaro-Föräldraledighet</string>
-    <string name="absence_other_leave">Frånvaro-Annan ledighet</string>
-    <string name="absence_flex_day">Frånvaro-Flexdag</string>
 </resources>

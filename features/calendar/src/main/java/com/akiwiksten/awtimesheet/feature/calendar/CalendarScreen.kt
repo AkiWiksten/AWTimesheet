@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import java.time.YearMonth
 
 @Composable
 fun CalendarScreen(
+    onNavigateToAbsence: () -> Unit = {},
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
@@ -77,7 +79,8 @@ fun CalendarScreen(
     CalendarContent(
         uiState = uiState,
         onDateSelected = { calendarViewModel.onDateSelected(it) },
-        onVisibleMonthChanged = { calendarViewModel.onVisibleMonthChanged(it) }
+        onVisibleMonthChanged = { calendarViewModel.onVisibleMonthChanged(it) },
+        onNavigateToAbsence = onNavigateToAbsence
     )
 }
 
@@ -85,7 +88,8 @@ fun CalendarScreen(
 internal fun CalendarContent(
     uiState: CalendarUiState,
     onDateSelected: (String) -> Unit,
-    onVisibleMonthChanged: (YearMonth) -> Unit = {}
+    onVisibleMonthChanged: (YearMonth) -> Unit = {},
+    onNavigateToAbsence: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -122,6 +126,19 @@ internal fun CalendarContent(
                 }
                 NoteBanner(text = stringResource(id = R.string.calendar_month_selection_hint),)
                 WorkTimeSummarySection(uiState = uiState)
+                ElevatedCard(
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = onNavigateToAbsence,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = PADDING_SPACING)
+                    ) {
+                        Text(stringResource(id = R.string.absence))
+                    }
+                }
                 Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }
             is CalendarUiState.Error -> CenteredErrorBox(

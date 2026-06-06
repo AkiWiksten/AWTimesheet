@@ -57,7 +57,8 @@ internal data class WorkdayStatsCardState(
     val workTime: String,
     val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
-    val editorState: WorkdaySettingsEditorState
+    val editorState: WorkdaySettingsEditorState,
+    val isTimePickerEnabled: Boolean = true
 )
 
 internal data class WorkdayEstimateUiState(
@@ -78,7 +79,14 @@ internal data class WorkdayStatsCardContentParams(
     val flexTimeByDate: String,
     val calculatedFlexTimeTotal: String,
     val editorState: WorkdaySettingsEditorState,
+    val isTimePickerEnabled: Boolean,
     val onWorkTimeByDateEstimatePickerClick: () -> Unit
+)
+
+internal data class WorkdayActionButtonsState(
+    val items: List<SingleProjectState>,
+    val selectedIndex: Int,
+    val isAddEditDisabled: Boolean
 )
 
 internal val WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX = Regex(pattern = "(?:[1-9][0-9]+|0[0-9]):[0-5][0-9]")

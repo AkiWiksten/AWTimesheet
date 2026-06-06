@@ -49,8 +49,8 @@ import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.R
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayHeaderActions
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayListItemUiModel
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayStatsCardContentParams
@@ -106,15 +106,16 @@ internal fun WorkdayStatsSection(
         )
     }
 
-    WorkdayStatsSectionContent(
-        params = WorkdayStatsCardContentParams(
-            workTime = state.workTime,
-            flexTimeByDate = state.flexTimeByDate,
-            calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-            editorState = state.editorState,
-            onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
+        WorkdayStatsSectionContent(
+            params = WorkdayStatsCardContentParams(
+                workTime = state.workTime,
+                flexTimeByDate = state.flexTimeByDate,
+                calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+                editorState = state.editorState,
+                isTimePickerEnabled = state.isTimePickerEnabled,
+                onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
+            )
         )
-    )
 }
 
 @Composable
@@ -140,6 +141,7 @@ private fun WorkdayStatsSectionContent(
             WorkTimeByDateEstimatePickerRow(
                 workTimeByDateEstimate = params.editorState.workTimeByDateEstimate,
                 isError = params.editorState.isWorkTimeByDateEstimateError,
+                isEnabled = params.isTimePickerEnabled,
                 onPickerClick = params.onWorkTimeByDateEstimatePickerClick
             )
         }
@@ -183,6 +185,7 @@ private fun WorkdayStatsSummaryTexts(
 private fun WorkTimeByDateEstimatePickerRow(
     workTimeByDateEstimate: String,
     isError: Boolean,
+    isEnabled: Boolean,
     onPickerClick: () -> Unit
 ) {
     Row(
@@ -212,7 +215,7 @@ private fun WorkTimeByDateEstimatePickerRow(
             modifier = Modifier.weight(weight = 1f),
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
         )
-        IconButton(onClick = onPickerClick) {
+        IconButton(onClick = onPickerClick, enabled = isEnabled) {
             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
         }
     }
@@ -220,13 +223,12 @@ private fun WorkTimeByDateEstimatePickerRow(
 
 @Composable
 internal fun WorkdayActionButtonsSection(
-    items: List<SingleProjectState>,
-    selectedIndex: Int,
+    state: WorkdayActionButtonsState,
     onAddClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val selectedProject = items.getOrNull(index = selectedIndex)
+    val selectedProject = state.items.getOrNull(index = state.selectedIndex)
     val deleteButtonText = if (selectedProject?.projectTime != ZERO_TIME) {
         stringResource(id = R.string.nullify)
     } else {
@@ -239,6 +241,7 @@ internal fun WorkdayActionButtonsSection(
     ) {
         Button(
             onClick = onAddClick,
+            enabled = !state.isAddEditDisabled,
             modifier = Modifier.weight(weight = 1f),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
@@ -248,7 +251,7 @@ internal fun WorkdayActionButtonsSection(
         }
         Button(
             onClick = onEditClick,
-            enabled = selectedIndex != -1,
+            enabled = state.selectedIndex != -1 && !state.isAddEditDisabled,
             modifier = Modifier.weight(weight = 1f),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
             colors = ButtonDefaults.buttonColors(
@@ -262,7 +265,7 @@ internal fun WorkdayActionButtonsSection(
         }
         Button(
             onClick = onDeleteClick,
-            enabled = selectedIndex != -1,
+            enabled = state.selectedIndex != -1,
             modifier = Modifier.weight(weight = 1f),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
             colors = ButtonDefaults.buttonColors(

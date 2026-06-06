@@ -26,6 +26,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayDisplayState
@@ -107,7 +108,8 @@ internal fun WorkdaySuccessContent(
             workTime = state.workTimeByDate,
             flexTimeByDate = displayState.displayedFlexTimeByDate,
             calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
-            editorState = displayState.editorState
+            editorState = displayState.editorState,
+            isTimePickerEnabled = !state.isFlexTimeByDateSpecialRuleApplied
         ),
         headerActions = displayState.headerActions
     )
@@ -119,8 +121,11 @@ internal fun WorkdaySuccessContent(
     )
 
     WorkdayActionButtonsSection(
-        items = state.projects,
-        selectedIndex = selectedItemIndex,
+        state = WorkdayActionButtonsState(
+            items = state.projects,
+            selectedIndex = selectedItemIndex,
+            isAddEditDisabled = state.isFlexTimeByDateSpecialRuleApplied
+        ),
         onAddClick = {
             actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.workTimeByDate)
             actions.onNavigateToSingleProject(SingleProjectState(index = -1, date = state.date))

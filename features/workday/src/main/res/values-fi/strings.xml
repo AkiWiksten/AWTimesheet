@@ -17,5 +17,6 @@
     <string name="save_globally">Tallenna globaalisti</string>
     <string name="saved_today">Tallennettu vain tänään!</string>
     <string name="saved_globally">Tallennettu globaalisti!</string>
+    <string name="flex_day_special_note">Huom! Tämä on \'Poissaolo-Saldovapaa\'. Erityistoiminnot käytössä.</string>
 </resources>
 

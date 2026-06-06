@@ -27,6 +27,7 @@ import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
+import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
@@ -131,8 +132,10 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
         DropdownMenuBox(
             items = state.workTypes,
             onItemSelected = state.settingsWorkTypeDialogState.onWorkTypeSelected,
-            selectedText = state.settingsWorkTypeDialogState.selectedWorkType,
-            labelId = R.string.work_type,
+            field = DropdownMenuField(
+                labelId = R.string.work_type,
+                selectedText = state.settingsWorkTypeDialogState.selectedWorkType
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {

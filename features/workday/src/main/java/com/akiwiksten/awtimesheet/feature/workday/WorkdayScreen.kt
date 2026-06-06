@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.workday
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -127,11 +128,15 @@ internal fun WorkdayContent(
                 actions = actions
             )
 
-            is WorkdayUiState.Success -> WorkdaySuccessContent(
-                state = workdayUiState,
-                selectedItemIndex = selectedItemIndex,
-                actions = actions
-            )
+            is WorkdayUiState.Success -> Column(
+                verticalArrangement = Arrangement.spacedBy(FORM_SECTION_SPACING)
+            ) {
+                WorkdaySuccessContent(
+                    state = workdayUiState,
+                    selectedItemIndex = selectedItemIndex,
+                    actions = actions
+                )
+            }
 
             is WorkdayUiState.Error -> WorkdayErrorContent(
                 message = workdayUiState.message,

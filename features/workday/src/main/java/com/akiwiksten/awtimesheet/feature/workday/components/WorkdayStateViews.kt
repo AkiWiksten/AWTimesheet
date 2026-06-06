@@ -26,8 +26,8 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
-import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayDisplayState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayEstimateUiState
@@ -103,6 +103,11 @@ internal fun WorkdaySuccessContent(
     }
 
     WorkdayHeaderSection(date = state.date)
+
+    if (state.isFlexTimeByDateSpecialRuleApplied) {
+        WorkdaySpecialNoteBanner(text = stringResource(id = R.string.flex_day_special_note))
+    }
+
     WorkdayStatsSection(
         state = WorkdayStatsCardState(
             workTime = state.workTimeByDate,

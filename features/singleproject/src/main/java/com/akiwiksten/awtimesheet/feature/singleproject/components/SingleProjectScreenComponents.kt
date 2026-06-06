@@ -47,6 +47,7 @@ import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
 import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
+import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -320,21 +321,25 @@ internal fun SingleProjectDropdownFieldsSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
         DropdownMenuBox(
-            labelId = R.string.work_type,
             items = workTypeDropDownList,
-            selectedText = state.workType,
+            field = DropdownMenuField(
+                labelId = R.string.work_type,
+                selectedText = state.workType
+            ),
             onItemSelected = { onStateChange(state.copy(workType = it)) }
         )
 
         DropdownMenuBox(
-            labelId = R.string.allowance,
             items = listOf(
                 stringResource(id = R.string.no_allowance),
                 stringResource(id = R.string.full_allowance),
                 stringResource(id = R.string.half_day_allowance)
             ),
-            selectedText = state.allowance,
-            enabled = !isFlexDay,
+            field = DropdownMenuField(
+                labelId = R.string.allowance,
+                selectedText = state.allowance,
+                enabled = !isFlexDay
+            ),
             onItemSelected = { onStateChange(state.copy(allowance = it)) }
         )
     }

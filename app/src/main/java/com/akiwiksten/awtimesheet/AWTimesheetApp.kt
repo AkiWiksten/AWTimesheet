@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet
 
 import android.app.Application
+import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
 import com.akiwiksten.awtimesheet.domain.usecase.EnsureDefaultSettingsUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,11 @@ class AWTimesheetApp : Application() {
         super.onCreate()
 
         applicationScope.launch {
-            ensureDefaultSettingsUseCase()
+            ensureDefaultSettingsUseCase(resolveDefaultWorkTypeLabels())
         }
+    }
+
+    private fun resolveDefaultWorkTypeLabels(): List<String> {
+        return DEFAULT_WORK_TYPES.map { getString(it) }
     }
 }

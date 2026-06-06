@@ -1,8 +1,7 @@
 package com.akiwiksten.awtimesheet.domain
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
+import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.usecase.EnsureDefaultSettingsUseCase
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
@@ -17,14 +16,12 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class EnsureDefaultSettingsUseCaseTest {
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-
     @Test
     fun invoke_insertsDefaultSettings_whenMissing() = runBlocking {
         val repository = FakeSettingsRepository()
-        val useCase = EnsureDefaultSettingsUseCase(repository, context)
+        val useCase = EnsureDefaultSettingsUseCase(repository)
 
-        useCase()
+        useCase(defaultWorkTypeLabels())
 
         assertEquals(
             settingsState(
@@ -46,11 +43,15 @@ class EnsureDefaultSettingsUseCaseTest {
         val repository = FakeSettingsRepository().apply {
             settings = existing
         }
-        val useCase = EnsureDefaultSettingsUseCase(repository, context)
+        val useCase = EnsureDefaultSettingsUseCase(repository)
 
-        useCase()
+        useCase(defaultWorkTypeLabels())
 
         assertEquals(existing, repository.settings)
         assertNull(repository.insertedSettings)
+    }
+
+    private fun defaultWorkTypeLabels(): List<String> {
+        return DEFAULT_WORK_TYPES.map { it.toString() }
     }
 }

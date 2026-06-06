@@ -1,6 +1,5 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenArgs
 import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveFullInitialSingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.withAbsenceLogic

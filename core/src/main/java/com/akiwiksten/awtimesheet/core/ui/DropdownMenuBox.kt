@@ -37,10 +37,8 @@ import com.akiwiksten.awtimesheet.core.R
 fun DropdownMenuBox(
     items: List<String>,
     onItemSelected: (String) -> Unit,
-    labelId: Int,
+    field: DropdownMenuField,
     modifier: Modifier = Modifier,
-    selectedText: String = "",
-    enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     var textFieldSize by remember { mutableStateOf(value = Size.Zero) }
@@ -53,13 +51,13 @@ fun DropdownMenuBox(
     ) {
         Box {
             DropdownTextField(
-                selectedText = selectedText,
+                selectedText = field.selectedText,
                 expanded = expanded,
-                labelId = labelId,
-                enabled = enabled,
+                labelId = field.labelId,
+                enabled = field.enabled,
                 onSizeChanged = { textFieldSize = it }
             )
-            if (enabled) {
+            if (field.enabled) {
                 Box(
                     modifier = Modifier
                         .matchParentSize()
@@ -85,6 +83,12 @@ fun DropdownMenuBox(
         }
     }
 }
+
+data class DropdownMenuField(
+    val labelId: Int,
+    val selectedText: String = "",
+    val enabled: Boolean = true
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

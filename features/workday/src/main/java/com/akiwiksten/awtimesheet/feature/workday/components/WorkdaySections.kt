@@ -106,16 +106,16 @@ internal fun WorkdayStatsSection(
         )
     }
 
-        WorkdayStatsSectionContent(
-            params = WorkdayStatsCardContentParams(
-                workTime = state.workTime,
-                flexTimeByDate = state.flexTimeByDate,
-                calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
-                editorState = state.editorState,
-                isTimePickerEnabled = state.isTimePickerEnabled,
-                onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
-            )
+    WorkdayStatsSectionContent(
+        params = WorkdayStatsCardContentParams(
+            workTime = state.workTime,
+            flexTimeByDate = state.flexTimeByDate,
+            calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
+            editorState = state.editorState,
+            isTimePickerEnabled = state.isTimePickerEnabled,
+            onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
+    )
 }
 
 @Composable

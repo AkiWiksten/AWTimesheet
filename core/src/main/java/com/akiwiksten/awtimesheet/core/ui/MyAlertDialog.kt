@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.R
 
 @Composable
@@ -83,7 +84,7 @@ fun AddTextFieldDialog(
                 .fillMaxWidth()
                 .width(width = 280.dp)
                 .height(intrinsicSize = IntrinsicSize.Min)
-                .padding(all = 16.dp),
+                .padding(all = PADDING_SPACING),
             shape = RoundedCornerShape(size = 28.dp),
         ) {
             Column(
@@ -91,7 +92,7 @@ fun AddTextFieldDialog(
                     .padding(all = 24.dp)
                     .verticalScrollbar(scrollState = scrollState)
                     .verticalScroll(state = scrollState),
-                verticalArrangement = Arrangement.spacedBy(space = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(

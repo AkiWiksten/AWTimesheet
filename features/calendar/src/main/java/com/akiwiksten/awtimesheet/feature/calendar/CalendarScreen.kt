@@ -33,8 +33,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
@@ -143,9 +143,9 @@ private fun CalendarHeaderSection(selectedDate: String) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Header(title = stringResource(id = R.string.select_work_day_date))
 

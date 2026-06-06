@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 
 @Composable
 fun CenteredLoadingBox(
@@ -43,7 +44,7 @@ fun CenteredErrorBox(
             text = "Error: $errorMessage",
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(all = 32.dp)
+            modifier = Modifier.padding(all = PADDING_SPACING)
         )
     }
 }

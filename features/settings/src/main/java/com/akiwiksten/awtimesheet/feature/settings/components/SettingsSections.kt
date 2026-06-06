@@ -22,10 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.ACTION_BUTTON_FONT_SIZE
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -41,7 +41,7 @@ internal fun SettingsActionButtonsSection(
     Column(
         modifier = Modifier
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         Button(
             onClick = state.onSave,
@@ -90,9 +90,9 @@ internal fun SettingsHeaderSection(date: String) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
-            modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Header(title = stringResource(id = R.string.settings))
             Text(
@@ -112,7 +112,7 @@ internal fun SettingsProfileSection(
     onNameChange: (String) -> Unit,
     onEmployerChange: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         SettingsTextField(value = name, label = R.string.name, onValueChange = onNameChange)
         SettingsTextField(value = employer, label = R.string.employer, onValueChange = onEmployerChange)
     }
@@ -122,7 +122,7 @@ internal fun SettingsProfileSection(
 internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         DropdownMenuBox(
             items = state.workTypes,
@@ -133,7 +133,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
             Button(
                 onClick = state.settingsWorkTypeDialogState.onAddClick,
                 modifier = Modifier.weight(weight = 1f),

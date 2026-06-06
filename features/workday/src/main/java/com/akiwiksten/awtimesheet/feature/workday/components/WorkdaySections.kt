@@ -41,12 +41,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -64,16 +64,16 @@ internal fun WorkdayHeaderSection(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Column(
-                modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+                modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
             ) {
                 Header(title = stringResource(id = R.string.workday))
                 Text(
@@ -193,7 +193,7 @@ private fun WorkTimeByDateEstimatePickerRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         OutlinedTextField(
             value = workTimeByDateEstimate,
@@ -239,7 +239,7 @@ internal fun WorkdayActionButtonsSection(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         Button(
             onClick = onAddClick,
@@ -248,7 +248,7 @@ internal fun WorkdayActionButtonsSection(
             elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
+            Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = stringResource(id = R.string.add))
         }
         Button(
@@ -262,7 +262,7 @@ internal fun WorkdayActionButtonsSection(
             )
         ) {
             Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
+            Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = stringResource(id = R.string.edit))
         }
         Button(
@@ -276,7 +276,7 @@ internal fun WorkdayActionButtonsSection(
             )
         ) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
+            Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = deleteButtonText)
         }
     }

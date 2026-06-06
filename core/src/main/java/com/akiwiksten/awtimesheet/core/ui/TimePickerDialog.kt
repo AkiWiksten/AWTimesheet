@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.R
 import com.akiwiksten.awtimesheet.core.TIME_FORMAT
 import java.time.LocalTime
@@ -52,14 +53,14 @@ fun TimePickerDialog(
             modifier = modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(all = 16.dp),
+                .padding(all = PADDING_SPACING),
             shape = RoundedCornerShape(size = 28.dp),
         ) {
             Column(
                 modifier = Modifier
                     .verticalScroll(state = scrollState)
                     .padding(all = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(space = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(

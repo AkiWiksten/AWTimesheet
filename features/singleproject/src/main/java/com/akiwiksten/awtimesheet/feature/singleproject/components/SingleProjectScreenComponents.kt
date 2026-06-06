@@ -40,12 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
@@ -63,9 +63,9 @@ fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = HEADER_CONTENT_PADDING),
+                .padding(all = PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Text(
                 text = date,
@@ -202,8 +202,8 @@ private fun ProjectTimeSelectionRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = FORM_GROUP_PADDING),
-            horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING),
+                .padding(all = PADDING_SPACING_SMALL),
+            horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProjectTimeReadOnlyField(
@@ -253,7 +253,7 @@ private fun ProjectTimeActionsColumn(
     onOpenProjectDetails: () -> Unit,
     onOpenTimePicker: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         Button(
             onClick = onOpenProjectDetails,
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),

@@ -21,11 +21,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
@@ -47,9 +47,9 @@ internal fun ProjectDetailsHeaderSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(HEADER_CONTENT_PADDING),
+                .padding(PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Text(
                 text = date,
@@ -89,7 +89,7 @@ internal fun ProjectDetailsNewDayForProjectSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(all = FORM_GROUP_PADDING),
+                modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
                 verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
             ) {
                 key("startTime") {
@@ -130,7 +130,7 @@ internal fun ProjectDetailsExistingDayForProjectSection(
     uiState: ProjectDetailsUiState.Success,
     actions: ProjectDetailsFieldActions
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         MainWorkTimeSection(uiState = uiState, actions = actions)
 
         LunchAndBreakSection(uiState = uiState, actions = actions)
@@ -152,8 +152,8 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             key("startTime") {
                 ProjectDetailsTimeRow(
@@ -194,8 +194,8 @@ private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             key("lunchStart") {
                 ProjectDetailsTimeRow(
@@ -240,8 +240,8 @@ private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions:
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             key("lunchTimeEstimate") {
                 ProjectDetailsTimeRow(

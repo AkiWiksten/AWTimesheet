@@ -27,13 +27,9 @@ val DEFAULT_WORK_TYPES = listOf(
 
 // Core / UI design constants
 val DEFAULT_ELEVATION = 8.dp
-val PADDING_SPACING = 16.dp
 val FIELD_CORNER_RADIUS = 12.dp
-val HEADER_CONTENT_PADDING = 12.dp
-val HEADER_CONTENT_SPACING = 6.dp
-val FORM_GROUP_PADDING = 12.dp
-val FORM_GROUP_SPACING = 12.dp
-val FORM_INLINE_SPACING = 8.dp
+val PADDING_SPACING_SMALL = 12.dp
+val PADDING_SPACING = 16.dp
 val ACTION_BUTTON_FONT_SIZE = 18.sp
 
 // Domain / project details keys

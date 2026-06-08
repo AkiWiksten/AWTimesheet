@@ -1,15 +1,11 @@
 <resources>
+    <!-- Workday-specific strings -->
     <string name="workday">Workday</string>
     <string name="work_time_by_date_estimate">Work time by date estimate</string>
     <string name="work_time_by_date">Work time by date</string>
     <string name="flex_time_by_date">Flex time by date</string>
     <string name="flex_time_total_initial_calculated">Flex time total (Initial+calculated)</string>
-    <string name="add">Add</string>
-    <string name="edit">Edit</string>
-    <string name="delete">Delete</string>
     <string name="nullify">Nullify</string>
-    <string name="no_projects_available">No projects available. Add one with the button.</string>
-    <string name="retry">Retry</string>
     <string name="save_work_time_estimate">Save work time estimate</string>
     <string name="save_work_time_estimate_message">Do you want to save this as the global daily work time estimate also, or just for today?</string>
     <string name="save_today">Save today</string>
@@ -17,5 +13,12 @@
     <string name="saved_today">Saved for this day only!</string>
     <string name="saved_globally">Saved globally!</string>
     <string name="flex_day_special_note">Note! This is an \'Absence-Flex day\'. Special functionality applied.</string>
+
+    <!-- Centralized from core (duplicated for local reference) -->
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="no_projects_available">No projects available. Add one with the button.</string>
+    <string name="retry">Retry</string>
 </resources>
 

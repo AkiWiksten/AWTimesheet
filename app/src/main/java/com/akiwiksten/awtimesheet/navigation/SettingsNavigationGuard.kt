@@ -22,6 +22,7 @@ import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.calendar.AbsenceScreen
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
+import com.akiwiksten.awtimesheet.feature.calendar.CreateAbsenceScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
 import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
@@ -149,7 +150,19 @@ internal fun WorkTimeNavDisplay(
                 CalendarScreen(onNavigateToAbsence = { backStack.add(element = Screen.Absence) })
             }
             entry<Screen.Absence> {
-                AbsenceScreen(onNavigateBack = { backStack.pop() })
+                AbsenceScreen(
+                    onNavigateBack = { backStack.pop() },
+                    onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) }
+                )
+            }
+            entry<Screen.CreateAbsence> {
+                CreateAbsenceScreen(
+                    onNavigateBack = { backStack.pop() },
+                    onAbsenceCreated = { _, _, _ ->
+                        // Absence creation not yet implemented in ViewModel, 
+                        // just fulfilling the API requirement for now.
+                    }
+                )
             }
             entry<Screen.Workday> {
                 WorkdayNavEntry(backStack = backStack)

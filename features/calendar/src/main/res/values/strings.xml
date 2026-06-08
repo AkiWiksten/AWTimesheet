@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Calendar-specific strings -->
     <string name="select_work_day_date">Select workday date</string>
     <string name="selected_date">Selected date</string>
     <string name="select_date">Select date</string>
@@ -16,13 +17,15 @@
     <string name="new_absence">New</string>
     <string name="new_absence_title">New absence</string>
     <string name="saved_absences_title">Saved absences</string>
+    <string name="absence_work_type">Work type</string>
+    <string name="absence_weekends_title">Weekends?</string>
+
+    <!-- Centralized from core (duplicated for local reference) -->
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
-    <string name="absence_work_type">Work type*</string>
-    <string name="absence_weekends_title">Weekends?</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="dismiss">Dismiss</string>
     <string name="save">Save</string>
     <string name="confirm">Confirm</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

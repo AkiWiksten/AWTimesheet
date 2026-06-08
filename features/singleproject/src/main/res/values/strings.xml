@@ -1,22 +1,25 @@
 <resources>
-    <string name="saved">Saved!</string>
-    <string name="no_allowance">No allowance</string>
-    <string name="other">Other</string>
+    <!-- Single Project-specific strings -->
     <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
-    <string name="save">Save</string>
     <string name="work_time_by_date">Work time by date</string>
     <string name="project_customer">Project/Customer</string>
-    <string name="project_name">Project name</string>
     <string name="project_name_duplicate_error">Name already used today</string>
-    <string name="kilometres">Kilometres</string>
-    <string name="project_time">Project time</string>
     <string name="details">Details</string>
     <string name="or_text">OR</string>
     <string name="pick">Pick</string>
+    <string name="absence_prefix">Absence</string>
+
+    <!-- Centralized from core (duplicated for local reference) -->
+    <string name="saved">Saved!</string>
+    <string name="no_allowance">No allowance</string>
+    <string name="other">Other</string>
+    <string name="save">Save</string>
+    <string name="project_name">Project name</string>
+    <string name="kilometres">Kilometres</string>
+    <string name="project_time">Project time</string>
     <string name="work_type">Work type</string>
     <string name="allowance">Allowance</string>
     <string name="full_allowance">Full allowance</string>
     <string name="half_day_allowance">Half-day allowance</string>
-    <string name="absence_prefix">Absence</string>
 </resources>
 

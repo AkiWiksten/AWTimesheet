@@ -11,6 +11,12 @@
     <string name="no">No</string>
     <string name="saved">Saved!</string>
     <string name="retry">Retry</string>
+    <string name="select_date">Select date</string>
+
+    <!-- Navigation / Screen Titles -->
+    <string name="calendar">Calendar</string>
+    <string name="absence">Absence</string>
+    <string name="new_absence_title">New absence</string>
 
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Unsaved data!</string>

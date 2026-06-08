@@ -20,9 +20,11 @@ import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
-import com.akiwiksten.awtimesheet.feature.calendar.AbsenceScreen
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.akiwiksten.awtimesheet.feature.absence.AbsenceScreen
+import com.akiwiksten.awtimesheet.feature.absence.AbsenceViewModel
+import com.akiwiksten.awtimesheet.feature.absence.CreateAbsenceScreen
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
-import com.akiwiksten.awtimesheet.feature.calendar.CreateAbsenceScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
 import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
@@ -114,6 +116,7 @@ internal fun WorkTimeNavDisplay(
     modifier: Modifier = Modifier
 ) {
     var showUnsavedBackDialog by remember { mutableStateOf(value = false) }
+    val absenceViewModel: AbsenceViewModel = hiltViewModel()
 
     SettingsBackNavigationDialog(
         isVisible = showUnsavedBackDialog,
@@ -152,16 +155,14 @@ internal fun WorkTimeNavDisplay(
             entry<Screen.Absence> {
                 AbsenceScreen(
                     onNavigateBack = { backStack.pop() },
-                    onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) }
+                    onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) },
+                    viewModel = absenceViewModel
                 )
             }
             entry<Screen.CreateAbsence> {
                 CreateAbsenceScreen(
                     onNavigateBack = { backStack.pop() },
-                    onAbsenceCreated = { _, _, _ ->
-                        // Absence creation not yet implemented in ViewModel, 
-                        // just fulfilling the API requirement for now.
-                    }
+                    onAbsenceCreated = absenceViewModel::addAbsence
                 )
             }
             entry<Screen.Workday> {

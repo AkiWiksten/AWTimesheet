@@ -8,6 +8,11 @@
     <string name="discard">Förkasta</string>
     <string name="stay">Stanna</string>
     <string name="other">Övrigt</string>
+    <string name="select_date">Välj datum</string>
+
+    <string name="calendar">Kalender</string>
+    <string name="absence">Frånvaro</string>
+    <string name="new_absence_title">Ny frånvaro</string>
 
     <string name="work_type_paid_vacation">Frånvaro-Betald semester</string>
     <string name="work_type_unpaid_vacation">Frånvaro-Obetald semester</string>

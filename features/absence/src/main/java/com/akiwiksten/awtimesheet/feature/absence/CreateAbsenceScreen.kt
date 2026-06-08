@@ -1,11 +1,11 @@
-package com.akiwiksten.awtimesheet.feature.calendar
+package com.akiwiksten.awtimesheet.feature.absence
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
@@ -35,8 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import java.time.Instant
@@ -44,6 +44,8 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import androidx.compose.material3.rememberDatePickerState
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,29 +63,27 @@ fun CreateAbsenceScreen(
     if (showStartDatePicker) {
         AbsenceDatePickerDialog(
             initialDate = startDate,
-            onDismiss = { showStartDatePicker = false },
-            onDateSelected = {
-                startDate = it
-                showStartDatePicker = false
-            }
-        )
+            onDismiss = { showStartDatePicker = false }
+        ) {
+            startDate = it
+            showStartDatePicker = false
+        }
     }
 
     if (showEndDatePicker) {
         AbsenceDatePickerDialog(
             initialDate = endDate,
-            onDismiss = { showEndDatePicker = false },
-            onDateSelected = {
-                endDate = it
-                showEndDatePicker = false
-            }
-        )
+            onDismiss = { showEndDatePicker = false }
+        ) {
+            endDate = it
+            showEndDatePicker = false
+        }
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = R.string.new_absence_title)) },
+                title = { Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.new_absence_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
@@ -99,12 +99,14 @@ fun CreateAbsenceScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(innerPadding)
-                .padding(all = PADDING_SPACING),
+                .padding(all = PADDING_SPACING)
+                .padding(bottom = LocalContentBottomPadding.current),
             verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
             horizontalAlignment = Alignment.Start
         ) {
             ElevatedCard(
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
@@ -176,7 +178,7 @@ fun CreateAbsenceScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = workType.isNotBlank()
                 ) {
-                    Text(text = stringResource(id = R.string.save))
+                    Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.save))
                 }
             }
         }
@@ -230,7 +232,7 @@ private fun AbsenceDatePickerDialog(
                         ?: onDismiss()
                 }
             ) {
-                Text(text = stringResource(id = R.string.confirm))
+                Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.confirm))
             }
         },
         dismissButton = {
@@ -266,7 +268,7 @@ private fun DatePickerRow(
         IconButton(onClick = onPickDate) {
             Icon(
                 imageVector = Icons.Default.DateRange,
-                contentDescription = stringResource(id = R.string.select_date)
+                contentDescription = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.select_date)
             )
         }
     }
@@ -279,4 +281,3 @@ private fun LocalDate.toUtcMillis(): Long {
 private fun Long.toLocalDateUtc(): LocalDate {
     return Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 }
-

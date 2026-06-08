@@ -8,6 +8,11 @@
     <string name="discard">Hylkää</string>
     <string name="stay">Jää</string>
     <string name="other">Muu</string>
+    <string name="select_date">Valitse päivämäärä</string>
+
+    <string name="calendar">Kalenteri</string>
+    <string name="absence">Poissaolo</string>
+    <string name="new_absence_title">Uusi poissaolo</string>
 
     <string name="work_type_paid_vacation">Poissaolo-Palkallinen loma</string>
     <string name="work_type_unpaid_vacation">Poissaolo-Palkaton loma</string>

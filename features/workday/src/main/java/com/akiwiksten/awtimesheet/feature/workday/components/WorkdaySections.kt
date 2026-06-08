@@ -39,18 +39,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.R
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayHeaderActions
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayListItemUiModel
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayStatsCardContentParams
@@ -62,16 +60,16 @@ internal fun WorkdayHeaderSection(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Column(
-                modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+                modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
             ) {
                 Header(title = stringResource(id = R.string.workday))
                 Text(
@@ -112,6 +110,7 @@ internal fun WorkdayStatsSection(
             flexTimeByDate = state.flexTimeByDate,
             calculatedFlexTimeTotal = state.calculatedFlexTimeTotal,
             editorState = state.editorState,
+            isTimePickerEnabled = state.isTimePickerEnabled,
             onWorkTimeByDateEstimatePickerClick = { openWorkTimeByDateEstimatePicker.value = true }
         )
     )
@@ -124,13 +123,13 @@ private fun WorkdayStatsSectionContent(
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
             modifier = Modifier
-                .padding(all = FORM_SECTION_SPACING),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         ) {
             WorkdayStatsSummaryTexts(
                 workTime = params.workTime,
@@ -140,6 +139,7 @@ private fun WorkdayStatsSectionContent(
             WorkTimeByDateEstimatePickerRow(
                 workTimeByDateEstimate = params.editorState.workTimeByDateEstimate,
                 isError = params.editorState.isWorkTimeByDateEstimateError,
+                isEnabled = params.isTimePickerEnabled,
                 onPickerClick = params.onWorkTimeByDateEstimatePickerClick
             )
         }
@@ -183,12 +183,13 @@ private fun WorkdayStatsSummaryTexts(
 private fun WorkTimeByDateEstimatePickerRow(
     workTimeByDateEstimate: String,
     isError: Boolean,
+    isEnabled: Boolean,
     onPickerClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         OutlinedTextField(
             value = workTimeByDateEstimate,
@@ -212,7 +213,7 @@ private fun WorkTimeByDateEstimatePickerRow(
             modifier = Modifier.weight(weight = 1f),
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
         )
-        IconButton(onClick = onPickerClick) {
+        IconButton(onClick = onPickerClick, enabled = isEnabled) {
             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
         }
     }
@@ -220,13 +221,12 @@ private fun WorkTimeByDateEstimatePickerRow(
 
 @Composable
 internal fun WorkdayActionButtonsSection(
-    items: List<SingleProjectState>,
-    selectedIndex: Int,
+    state: WorkdayActionButtonsState,
     onAddClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val selectedProject = items.getOrNull(index = selectedIndex)
+    val selectedProject = state.items.getOrNull(index = state.selectedIndex)
     val deleteButtonText = if (selectedProject?.projectTime != ZERO_TIME) {
         stringResource(id = R.string.nullify)
     } else {
@@ -235,43 +235,44 @@ internal fun WorkdayActionButtonsSection(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         Button(
             onClick = onAddClick,
+            enabled = !state.isAddEditDisabled,
             modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
+            Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = stringResource(id = R.string.add))
         }
         Button(
             onClick = onEditClick,
-            enabled = selectedIndex != -1,
+            enabled = state.selectedIndex != -1 && !state.isAddEditDisabled,
             modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
             )
         ) {
             Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
+            Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = stringResource(id = R.string.edit))
         }
         Button(
             onClick = onDeleteClick,
-            enabled = selectedIndex != -1,
+            enabled = state.selectedIndex != -1,
             modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer
             )
         ) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(size = 18.dp))
-            Spacer(modifier = Modifier.width(width = FORM_INLINE_SPACING))
+            Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = deleteButtonText)
         }
     }
@@ -286,7 +287,7 @@ internal fun WorkdayListSection(
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
             modifier = Modifier
@@ -310,7 +311,7 @@ internal fun WorkdayListSection(
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(all = 32.dp)
+                        modifier = Modifier.padding(all = PADDING_SPACING)
                     )
                 }
             } else {
@@ -353,7 +354,7 @@ private fun ProjectListItem(
         )
     ) {
         Column(
-            modifier = Modifier.padding(all = 16.dp),
+            modifier = Modifier.padding(all = PADDING_SPACING),
             verticalArrangement = Arrangement.spacedBy(space = 4.dp)
         ) {
             if (item.isProjectNameOnlyPlaceholder) {

@@ -30,6 +30,7 @@ class SingleProjectViewModelTest {
             projectRepository = projectRepository,
             dateRepository = dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
         viewModel.initializeState(projectState())
         advanceUntilIdle()
@@ -79,6 +80,46 @@ class SingleProjectViewModelTest {
         advanceUntilIdle()
 
         Assert.assertEquals("03:30", dateRepository.workTimeByDateChange.value)
+    }
+
+    @Test
+    fun saveProject_absenceFlexDay_replacesSameDayProjects_andTracksTotalDayDelta() = runTest {
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
+        val projectRepository = FakeProjectRepository().apply {
+            insertProject(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = "02:00"
+                )
+            )
+            insertProject(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Beta",
+                    projectTime = "01:00"
+                )
+            )
+        }
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            dateRepository = dateRepository
+        )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
+
+        viewModel.initializeState(projectState())
+        advanceUntilIdle()
+
+        viewModel.saveProject(
+            state = projectState(
+                projectName = "Absence-Flex day",
+                projectTime = "07:30",
+                workType = "Absence-Flex day"
+            )
+        )
+        advanceUntilIdle()
+
+        Assert.assertEquals("04:30", dateRepository.workTimeByDateChange.value)
     }
 
     private fun createViewModel(

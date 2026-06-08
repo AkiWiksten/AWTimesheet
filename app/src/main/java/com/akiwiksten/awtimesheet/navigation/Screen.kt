@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.navigation
 
 import android.os.Parcelable
 import com.akiwiksten.awtimesheet.R
+import com.akiwiksten.awtimesheet.core.ABSENCE_SCREEN
 import com.akiwiksten.awtimesheet.core.CALENDAR_SCREEN
 import com.akiwiksten.awtimesheet.core.INTRO_SCREEN
 import com.akiwiksten.awtimesheet.core.PROJECTS_SCREEN
@@ -21,6 +22,12 @@ sealed interface Screen : Parcelable {
     data object Calendar : Screen {
         override val route: String get() = CALENDAR_SCREEN
         override val titleResId: Int get() = R.string.calendar
+    }
+
+    @Parcelize
+    data object Absence : Screen {
+        override val route: String get() = ABSENCE_SCREEN
+        override val titleResId: Int? get() = null
     }
 
     @Parcelize

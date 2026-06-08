@@ -14,16 +14,22 @@ const val LOADING_INDICATOR_DELAY_MS = 1_000L
 const val APP_NAME_QUALIFIER = "app_name"
 const val LABEL_FONT_SIZE_SCALE = 1.08f
 
+// Default work types
+val DEFAULT_WORK_TYPES = listOf(
+    R.string.other,
+    R.string.work_type_paid_vacation,
+    R.string.work_type_unpaid_vacation,
+    R.string.work_type_sick_leave,
+    R.string.work_type_parental_leave,
+    R.string.work_type_other_leave,
+    R.string.work_type_flex_day
+)
+
 // Core / UI design constants
+val DEFAULT_ELEVATION = 8.dp
 val FIELD_CORNER_RADIUS = 12.dp
-val HEADER_CONTENT_PADDING = 12.dp
-val HEADER_CONTENT_SPACING = 6.dp
-val FORM_GROUP_PADDING = 12.dp
-val FORM_GROUP_SPACING = 12.dp
-val FORM_SECTION_SPACING = 16.dp
-val FORM_INLINE_SPACING = 8.dp
-val SCREEN_CONTENT_SPACING = 24.dp
-val FORM_MAX_WIDTH = 600.dp
+val PADDING_SPACING_SMALL = 12.dp
+val PADDING_SPACING = 16.dp
 val ACTION_BUTTON_FONT_SIZE = 18.sp
 
 // Domain / project details keys
@@ -44,6 +50,7 @@ const val LUNCH_TIME_ESTIMATE = "lunch_time_estimate"
 // App / navigation routes
 const val INTRO_SCREEN = "intro_screen"
 const val CALENDAR_SCREEN = "calendar_screen"
+const val ABSENCE_SCREEN = "absence_screen"
 const val PROJECT_DETAILS_SCREEN = "project_details_screen"
 const val PROJECTS_SCREEN = "projects_screen"
 const val SINGLE_PROJECT_SCREEN = "single_project_screen"

@@ -38,15 +38,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
+import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -55,15 +53,15 @@ import com.akiwiksten.awtimesheet.feature.singleproject.R
 @Composable
 fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = HEADER_CONTENT_PADDING),
+                .padding(all = PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Text(
                 text = date,
@@ -91,8 +89,8 @@ fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
 fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
+        tonalElevation = DEFAULT_ELEVATION,
+        shadowElevation = DEFAULT_ELEVATION
     ) {
         CenterAlignedTopAppBar(
             title = {
@@ -135,9 +133,10 @@ internal fun SingleProjectUpperFieldsSection(
     state: SingleProjectState,
     isAddMode: Boolean,
     isDuplicateProjectName: Boolean,
+    isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
         OutlinedTextField(
             value = state.projectName,
             onValueChange = { onStateChange(state.copy(projectName = it)) },
@@ -175,6 +174,7 @@ internal fun SingleProjectUpperFieldsSection(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isFlexDay,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
@@ -198,8 +198,8 @@ private fun ProjectTimeSelectionRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = FORM_GROUP_PADDING),
-            horizontalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING),
+                .padding(all = PADDING_SPACING_SMALL),
+            horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProjectTimeReadOnlyField(
@@ -249,11 +249,11 @@ private fun ProjectTimeActionsColumn(
     onOpenProjectDetails: () -> Unit,
     onOpenTimePicker: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         Button(
             onClick = onOpenProjectDetails,
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.History, contentDescription = null)
             Spacer(modifier = Modifier.width(width = 4.dp))
@@ -271,7 +271,7 @@ private fun ProjectTimeActionsColumn(
             onClick = onOpenTimePicker,
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(
                 imageVector = Icons.Default.AccessTime,
@@ -313,24 +313,30 @@ internal fun SingleProjectTimeSelectionSection(
 internal fun SingleProjectDropdownFieldsSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
+    isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
         DropdownMenuBox(
-            labelId = R.string.work_type,
             items = workTypeDropDownList,
-            selectedText = state.workType,
+            field = DropdownMenuField(
+                labelId = R.string.work_type,
+                selectedText = state.workType
+            ),
             onItemSelected = { onStateChange(state.copy(workType = it)) }
         )
 
         DropdownMenuBox(
-            labelId = R.string.allowance,
             items = listOf(
                 stringResource(id = R.string.no_allowance),
                 stringResource(id = R.string.full_allowance),
                 stringResource(id = R.string.half_day_allowance)
             ),
-            selectedText = state.allowance,
+            field = DropdownMenuField(
+                labelId = R.string.allowance,
+                selectedText = state.allowance,
+                enabled = !isFlexDay
+            ),
             onItemSelected = { onStateChange(state.copy(allowance = it)) }
         )
     }

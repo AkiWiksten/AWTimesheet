@@ -54,7 +54,7 @@ private fun SettingsConstrainedPreviewContent() {
                 SettingsStateContent(
                     state = SettingsStateContentState(
                         uiState = PreviewUiState,
-                        defaultWorkType = "Other",
+                        defaultWorkTypes = listOf("Other"),
                         onUnsavedChangesChanged = {},
                         registerUnsavedActions = { _, _ -> },
                         onDiscardChanges = {},

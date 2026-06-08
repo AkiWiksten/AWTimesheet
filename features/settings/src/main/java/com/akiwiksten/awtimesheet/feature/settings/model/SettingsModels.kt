@@ -30,7 +30,7 @@ internal data class SettingsWorkTypeDialogState(
 internal data class SettingsWorkTypeSectionState(
     val workTypes: List<String>,
     val settingsWorkTypeDialogState: SettingsWorkTypeDialogState,
-    val protectedWorkType: String
+    val protectedWorkTypes: List<String>
 )
 
 internal data class SettingsAddWorkTypeDialogState(
@@ -52,7 +52,7 @@ internal data class SettingsContentBodyState(
     val settingsAddWorkTypeDialogState: SettingsAddWorkTypeDialogState,
     val scrollState: ScrollState,
     val settingsSaveUi: SettingsSaveUi,
-    val defaultWorkType: String
+    val defaultWorkTypes: List<String>
 )
 
 internal data class SettingsWorkTypeUiState(
@@ -76,7 +76,7 @@ internal data class SettingsSaveUi(
 
 internal data class SettingsScreenBodyState(
     val uiState: SettingsUiState,
-    val defaultWorkType: String,
+    val defaultWorkTypes: List<String>,
     val generatedAllowanceLabels: GeneratedAllowanceLabels,
     val onUnsavedChangesChanged: (Boolean) -> Unit,
     val registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
@@ -86,7 +86,7 @@ internal data class SettingsScreenBodyState(
 
 internal data class SettingsStateContentState(
     val uiState: SettingsUiState,
-    val defaultWorkType: String,
+    val defaultWorkTypes: List<String>,
     val onUnsavedChangesChanged: (Boolean) -> Unit,
     val registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
     val onDiscardChanges: () -> Unit,
@@ -96,7 +96,7 @@ internal data class SettingsStateContentState(
 internal data class SettingsLoadingContentState(
     val showLoadingIndicator: Boolean,
     val lastSuccessState: SettingsUiState.Success?,
-    val defaultWorkType: String,
+    val defaultWorkTypes: List<String>,
     val onUnsavedChangesChanged: (Boolean) -> Unit,
     val registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit,
     val onDiscardChanges: () -> Unit,
@@ -115,7 +115,7 @@ internal data class SettingsActionButtonsSectionState(
 internal data class SettingsContentState(
     val uiState: SettingsUiState.Success,
     val actions: SettingsActions,
-    val defaultWorkType: String,
+    val defaultWorkTypes: List<String>,
     val onUnsavedChangesChanged: (Boolean) -> Unit = {},
     val registerUnsavedActions: (onSave: (() -> Unit)?, onDiscard: (() -> Unit)?) -> Unit = { _, _ -> },
     val onDiscardChanges: () -> Unit = {}

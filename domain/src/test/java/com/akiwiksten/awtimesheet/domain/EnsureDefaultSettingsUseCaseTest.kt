@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.domain
 
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
+import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.usecase.EnsureDefaultSettingsUseCase
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
@@ -9,7 +10,10 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class EnsureDefaultSettingsUseCaseTest {
 
     @Test
@@ -17,7 +21,7 @@ class EnsureDefaultSettingsUseCaseTest {
         val repository = FakeSettingsRepository()
         val useCase = EnsureDefaultSettingsUseCase(repository)
 
-        useCase()
+        useCase(defaultWorkTypeLabels())
 
         assertEquals(
             settingsState(
@@ -41,9 +45,13 @@ class EnsureDefaultSettingsUseCaseTest {
         }
         val useCase = EnsureDefaultSettingsUseCase(repository)
 
-        useCase()
+        useCase(defaultWorkTypeLabels())
 
         assertEquals(existing, repository.settings)
         assertNull(repository.insertedSettings)
+    }
+
+    private fun defaultWorkTypeLabels(): List<String> {
+        return DEFAULT_WORK_TYPES.map { it.toString() }
     }
 }

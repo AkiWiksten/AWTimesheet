@@ -17,5 +17,6 @@
     <string name="allowance">Allowance</string>
     <string name="full_allowance">Full allowance</string>
     <string name="half_day_allowance">Half-day allowance</string>
+    <string name="absence_prefix">Absence</string>
 </resources>
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -15,10 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentBodyState
 
@@ -26,14 +24,13 @@ import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentBodyStat
 internal fun SettingsCard(title: String? = null, content: @Composable () -> Unit) {
     ElevatedCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = FORM_MAX_WIDTH),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_SECTION_SPACING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         ) {
             if (!title.isNullOrBlank()) {
                 Text(

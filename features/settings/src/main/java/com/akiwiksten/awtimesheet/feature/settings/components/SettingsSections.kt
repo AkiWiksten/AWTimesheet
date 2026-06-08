@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,16 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.ACTION_BUTTON_FONT_SIZE
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_MAX_WIDTH
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
+import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeSectionState
@@ -38,15 +35,14 @@ internal fun SettingsActionButtonsSection(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = FORM_MAX_WIDTH),
-        verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         Button(
             onClick = state.onSave,
             enabled = state.isSaveEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -54,7 +50,7 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onGenerateXlsx,
             enabled = state.isReportEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.generate_xlsx), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -62,7 +58,7 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onGenerateWorkdaysForMonth,
             enabled = state.isReportEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.generate_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -70,16 +66,12 @@ internal fun SettingsActionButtonsSection(
             onClick = state.onGenerateWorkdaysForYear,
             enabled = state.isReportEnabled,
             modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         if (state.isReportEnabled) {
-            Text(
-                text = stringResource(id = R.string.monthly_help_xlsx),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
-            )
+            NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx))
         }
     }
 }
@@ -88,15 +80,14 @@ internal fun SettingsActionButtonsSection(
 internal fun SettingsHeaderSection(date: String) {
     ElevatedCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = FORM_MAX_WIDTH),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Column(
-            modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Header(title = stringResource(id = R.string.settings))
             Text(
@@ -116,7 +107,7 @@ internal fun SettingsProfileSection(
     onNameChange: (String) -> Unit,
     onEmployerChange: (String) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         SettingsTextField(value = name, label = R.string.name, onValueChange = onNameChange)
         SettingsTextField(value = employer, label = R.string.employer, onValueChange = onEmployerChange)
     }
@@ -126,30 +117,32 @@ internal fun SettingsProfileSection(
 internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         DropdownMenuBox(
             items = state.workTypes,
             onItemSelected = state.settingsWorkTypeDialogState.onWorkTypeSelected,
-            selectedText = state.settingsWorkTypeDialogState.selectedWorkType,
-            labelId = R.string.work_type,
+            field = DropdownMenuField(
+                labelId = R.string.work_type,
+                selectedText = state.settingsWorkTypeDialogState.selectedWorkType
+            ),
             modifier = Modifier.fillMaxWidth()
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
             Button(
                 onClick = state.settingsWorkTypeDialogState.onAddClick,
                 modifier = Modifier.weight(weight = 1f),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
             ) {
                 Text(text = stringResource(id = R.string.add))
             }
             Button(
                 onClick = state.settingsWorkTypeDialogState.onDeleteClick,
                 enabled = state.settingsWorkTypeDialogState.selectedWorkType.isNotEmpty() &&
-                    state.settingsWorkTypeDialogState.selectedWorkType != state.protectedWorkType,
+                    state.settingsWorkTypeDialogState.selectedWorkType !in state.protectedWorkTypes,
                 modifier = Modifier.weight(weight = 1f),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
             ) {
                 Text(text = stringResource(id = R.string.delete))
             }

@@ -7,4 +7,12 @@
     <string name="save">Tallenna</string>
     <string name="discard">Hylkää</string>
     <string name="stay">Jää</string>
+    <string name="other">Muu</string>
+
+    <string name="work_type_paid_vacation">Poissaolo-Palkallinen loma</string>
+    <string name="work_type_unpaid_vacation">Poissaolo-Palkaton loma</string>
+    <string name="work_type_sick_leave">Poissaolo-Sairausloma</string>
+    <string name="work_type_parental_leave">Poissaolo-Vanhempainvapaa</string>
+    <string name="work_type_other_leave">Poissaolo-Muu vapaa</string>
+    <string name="work_type_flex_day">Poissaolo-Saldovapaa</string>
 </resources>

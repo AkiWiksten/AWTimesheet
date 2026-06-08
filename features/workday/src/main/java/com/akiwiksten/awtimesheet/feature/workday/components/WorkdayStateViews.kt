@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.feature.workday.components
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -19,14 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
 import com.akiwiksten.awtimesheet.feature.workday.model.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayDisplayState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayEstimateUiState
@@ -69,7 +73,7 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(all = 32.dp)
+            modifier = Modifier.padding(all = PADDING_SPACING)
         )
         Button(onClick = onRetry) {
             Text(text = stringResource(id = R.string.retry))
@@ -87,7 +91,6 @@ internal fun WorkdaySuccessContent(
         initialWorkTimeByDateEstimate = state.workTimeByDateEstimate,
         onSaveSettings = actions.onSaveSettings
     )
-
     val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
     val listItems = remember(state.projects) {
         state.projects
@@ -100,27 +103,45 @@ internal fun WorkdaySuccessContent(
     val selectedItemKey = remember(state.projects, selectedItemIndex) {
         state.projects.firstOrNull { it.index == selectedItemIndex }?.stableListItemKey()
     }
-
     WorkdayHeaderSection(date = state.date)
+    if (state.isFlexTimeByDateSpecialRuleApplied) {
+        NoteBanner(text = stringResource(id = R.string.flex_day_special_note))
+    }
     WorkdayStatsSection(
         state = WorkdayStatsCardState(
             workTime = state.workTimeByDate,
             flexTimeByDate = displayState.displayedFlexTimeByDate,
             calculatedFlexTimeTotal = displayState.displayedCalculatedFlexTimeTotal,
-            editorState = displayState.editorState
+            editorState = displayState.editorState,
+            isTimePickerEnabled = !state.isFlexTimeByDateSpecialRuleApplied
         ),
         headerActions = displayState.headerActions
     )
-
     WorkdayListSection(
         items = listItems,
         selectedItemKey = selectedItemKey,
         onItemSelected = actions.onSelectedItemIndexChange
     )
+    WorkdayActionButtons(
+        state = state,
+        selectedItemIndex = selectedItemIndex,
+        actions = actions
+    )
+    Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
+}
 
+@Composable
+private fun WorkdayActionButtons(
+    state: WorkdayUiState.Success,
+    selectedItemIndex: Int,
+    actions: WorkdayActions
+) {
     WorkdayActionButtonsSection(
-        items = state.projects,
-        selectedIndex = selectedItemIndex,
+        state = WorkdayActionButtonsState(
+            items = state.projects,
+            selectedIndex = selectedItemIndex,
+            isAddEditDisabled = state.isFlexTimeByDateSpecialRuleApplied
+        ),
         onAddClick = {
             actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.workTimeByDate)
             actions.onNavigateToSingleProject(SingleProjectState(index = -1, date = state.date))
@@ -154,7 +175,8 @@ private fun rememberWorkdayDisplayState(
             persistedWorkTimeByDate = state.workTimeByDate,
             persistedFlexTimeByDate = state.flexTimeByDate,
             editedWorkTimeByDateEstimate = estimateUiState.workTimeByDateEstimate,
-            isEditedWorkTimeByDateEstimateValid = estimateUiState.isWorkTimeByDateEstimateValid
+            isEditedWorkTimeByDateEstimateValid = estimateUiState.isWorkTimeByDateEstimateValid,
+            usePersistedFlexTimeByDate = state.isFlexTimeByDateSpecialRuleApplied
         )
     }
 

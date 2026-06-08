@@ -46,7 +46,7 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
         SettingsStateContent(
             state = SettingsStateContentState(
                 uiState = uiState,
-                defaultWorkType = "Other",
+                defaultWorkTypes = listOf("Other"),
                 onUnsavedChangesChanged = {},
                 registerUnsavedActions = { _, _ -> },
                 onDiscardChanges = {},

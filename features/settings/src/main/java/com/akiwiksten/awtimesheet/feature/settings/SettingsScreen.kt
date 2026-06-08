@@ -16,7 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
@@ -37,20 +38,20 @@ fun SettingsScreen(
 ) {
     val uiState by settingsViewModel.uiState.collectAsState()
     val ctx = LocalContext.current
-    val defaultWorkType = stringResource(id = R.string.other)
+    val defaultWorkTypes = DEFAULT_WORK_TYPES.map { stringResource(id = it) }
     val generatedAllowanceLabels = rememberGeneratedAllowanceLabels()
 
     SettingsScreenEffects(
         settingsViewModel = settingsViewModel,
         uiState = uiState,
-        defaultWorkType = defaultWorkType,
+        defaultWorkTypes = defaultWorkTypes,
         ctx = ctx
     )
 
     SettingsStateContent(
         state = SettingsStateContentState(
             uiState = uiState,
-            defaultWorkType = defaultWorkType,
+            defaultWorkTypes = defaultWorkTypes,
             onUnsavedChangesChanged = onUnsavedChangesChanged,
             registerUnsavedActions = registerUnsavedActions,
             onDiscardChanges = settingsViewModel::loadSettings,
@@ -85,7 +86,7 @@ internal fun SettingsStateContent(
             state = SettingsLoadingContentState(
                 showLoadingIndicator = showLoadingIndicator,
                 lastSuccessState = lastSuccessState,
-                defaultWorkType = state.defaultWorkType,
+                defaultWorkTypes = state.defaultWorkTypes,
                 onUnsavedChangesChanged = state.onUnsavedChangesChanged,
                 registerUnsavedActions = state.registerUnsavedActions,
                 onDiscardChanges = state.onDiscardChanges,
@@ -98,7 +99,7 @@ internal fun SettingsStateContent(
                 state = SettingsContentState(
                     uiState = state.uiState,
                     actions = actions,
-                    defaultWorkType = state.defaultWorkType,
+                    defaultWorkTypes = state.defaultWorkTypes,
                     onUnsavedChangesChanged = state.onUnsavedChangesChanged,
                     registerUnsavedActions = state.registerUnsavedActions,
                     onDiscardChanges = state.onDiscardChanges
@@ -114,7 +115,7 @@ internal fun SettingsStateContent(
                 errorMessage = stringResource(id = R.string.error_message, state.uiState.message),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(all = FORM_SECTION_SPACING),
+                    .padding(all = PADDING_SPACING),
                 fillMaxSize = false
             )
         }
@@ -129,7 +130,7 @@ private fun SettingsLoadingContent(
         CenteredLoadingBox(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = FORM_SECTION_SPACING),
+                .padding(all = PADDING_SPACING),
             fillMaxSize = false
         )
     } else if (state.lastSuccessState != null) {
@@ -138,7 +139,7 @@ private fun SettingsLoadingContent(
             state = SettingsContentState(
                 uiState = state.lastSuccessState,
                 actions = actions,
-                defaultWorkType = state.defaultWorkType,
+                defaultWorkTypes = state.defaultWorkTypes,
                 onUnsavedChangesChanged = state.onUnsavedChangesChanged,
                 registerUnsavedActions = state.registerUnsavedActions,
                 onDiscardChanges = state.onDiscardChanges
@@ -157,7 +158,7 @@ private fun SettingsLoadingContent(
 internal fun SettingsScreenEffects(
     settingsViewModel: SettingsViewModel,
     uiState: SettingsUiState,
-    defaultWorkType: String,
+    defaultWorkTypes: List<String>,
     ctx: android.content.Context
 ) {
     val noProjectsMessage = stringResource(id = R.string.no_projects_available)
@@ -168,9 +169,9 @@ internal fun SettingsScreenEffects(
         settingsViewModel.loadSettings()
     }
 
-    LaunchedEffect(uiState, defaultWorkType) {
+    LaunchedEffect(uiState, defaultWorkTypes) {
         if (uiState is SettingsUiState.Success) {
-            settingsViewModel.ensureDefaultWorkType(defaultWorkType)
+            settingsViewModel.ensureDefaultWorkTypes(defaultWorkTypes)
         }
     }
 

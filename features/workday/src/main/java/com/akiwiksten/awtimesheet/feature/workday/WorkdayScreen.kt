@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.workday
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,11 +15,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
@@ -35,6 +36,12 @@ fun WorkdayScreen(
     onNavigateToSingleProject: (SingleProjectState) -> Unit,
     workdayViewModel: WorkdayViewModel = hiltViewModel(),
 ) {
+    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+
+    LaunchedEffect(flexDayWorkType) {
+        workdayViewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
+    }
+
     val pendingOldFlexTimeByDateState = rememberSaveable { mutableStateOf<String?>(value = null) }
     val pendingOldWorkTimeByDateState = rememberSaveable { mutableStateOf<String?>(value = null) }
 
@@ -107,9 +114,9 @@ internal fun WorkdayContent(
             modifier = Modifier.fillMaxSize(),
             columnModifier = Modifier
                 .fillMaxSize()
-                .padding(all = 16.dp),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         when (workdayUiState) {
@@ -120,11 +127,15 @@ internal fun WorkdayContent(
                 actions = actions
             )
 
-            is WorkdayUiState.Success -> WorkdaySuccessContent(
-                state = workdayUiState,
-                selectedItemIndex = selectedItemIndex,
-                actions = actions
-            )
+            is WorkdayUiState.Success -> Column(
+                verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
+            ) {
+                WorkdaySuccessContent(
+                    state = workdayUiState,
+                    selectedItemIndex = selectedItemIndex,
+                    actions = actions
+                )
+            }
 
             is WorkdayUiState.Error -> WorkdayErrorContent(
                 message = workdayUiState.message,

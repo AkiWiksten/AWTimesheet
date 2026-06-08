@@ -2,16 +2,17 @@ package com.akiwiksten.awtimesheet.feature.calendar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,17 +27,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import java.time.LocalDate
@@ -44,6 +47,7 @@ import java.time.YearMonth
 
 @Composable
 fun CalendarScreen(
+    onNavigateToAbsence: () -> Unit = {},
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsState()
@@ -75,7 +79,8 @@ fun CalendarScreen(
     CalendarContent(
         uiState = uiState,
         onDateSelected = { calendarViewModel.onDateSelected(it) },
-        onVisibleMonthChanged = { calendarViewModel.onVisibleMonthChanged(it) }
+        onVisibleMonthChanged = { calendarViewModel.onVisibleMonthChanged(it) },
+        onNavigateToAbsence = onNavigateToAbsence
     )
 }
 
@@ -83,7 +88,8 @@ fun CalendarScreen(
 internal fun CalendarContent(
     uiState: CalendarUiState,
     onDateSelected: (String) -> Unit,
-    onVisibleMonthChanged: (YearMonth) -> Unit = {}
+    onVisibleMonthChanged: (YearMonth) -> Unit = {},
+    onNavigateToAbsence: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -93,9 +99,9 @@ internal fun CalendarContent(
             modifier = Modifier.fillMaxSize(),
             columnModifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 20.dp),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         when (uiState) {
@@ -104,30 +110,36 @@ internal fun CalendarContent(
             is CalendarUiState.Success -> {
                 CalendarHeaderSection(selectedDate = uiState.date)
                 ElevatedCard(
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     CustomCalendar(
                         selectedDate = LocalDate.parse(uiState.date),
                         datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
-                        modifier = Modifier.padding(all = 8.dp),
+                        modifier = Modifier.padding(all = PADDING_SPACING),
                         monthConfig = CalendarVisibleMonthConfig(
                             visibleMonth = uiState.visibleMonth,
                             onVisibleMonthChanged = onVisibleMonthChanged
                         )
                     )
                 }
-                Text(
-                    text = stringResource(id = R.string.calendar_month_selection_hint),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    fontWeight = FontWeight.SemiBold
-                )
+                NoteBanner(text = stringResource(id = R.string.calendar_month_selection_hint),)
                 WorkTimeSummarySection(uiState = uiState)
+                ElevatedCard(
+                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = onNavigateToAbsence,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = PADDING_SPACING)
+                    ) {
+                        Text(stringResource(id = R.string.absence))
+                    }
+                }
+                Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }
             is CalendarUiState.Error -> CenteredErrorBox(
                 errorMessage = uiState.message,
@@ -141,13 +153,13 @@ internal fun CalendarContent(
 @Composable
 private fun CalendarHeaderSection(selectedDate: String) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = HEADER_CONTENT_PADDING),
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Header(title = stringResource(id = R.string.select_work_day_date))
 
@@ -180,17 +192,15 @@ private fun CalendarHeaderSection(selectedDate: String) {
 @Composable
 internal fun WorkTimeSummarySection(uiState: CalendarUiState.Success) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
-        modifier = Modifier
-            .padding(vertical = 20.dp)
-            .fillMaxWidth()
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
-                .padding(vertical = 20.dp)
+                .padding(vertical = PADDING_SPACING)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 10.dp)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         ) {
             SummaryItem(
                 label = stringResource(id = R.string.selected_work_day),

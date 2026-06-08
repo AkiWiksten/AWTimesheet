@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.feature.workday
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -23,9 +24,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.text.Normalizer
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("detekt.TooManyFunctions")
 @HiltViewModel
 class WorkdayViewModel @Inject constructor(
     private val getWorkdayScreenDataUseCase: GetWorkdayScreenDataUseCase,
@@ -34,6 +37,8 @@ class WorkdayViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
+    private var localizedFlexDayWorkType = ""
+
     private val refreshTrigger = MutableStateFlow(value = 0)
 
     val uiState: StateFlow<WorkdayUiState> = refreshTrigger
@@ -53,7 +58,8 @@ class WorkdayViewModel @Inject constructor(
                 .mapIndexed { index, project -> project.copy(index = index) }
 
             val workTypes = settingsRepository.getWorkTypes()
-            val flexTimeByDate = WorkTimeCalculator.calculateFlexTimeByDate(
+            val flexByDateResult = calculateFlexTimeByDate(
+                projects = data.projects,
                 workTimeByDate = data.workTimeByDate,
                 workTimeByDateEstimate = data.workTimeByDateEstimate
             )
@@ -62,7 +68,8 @@ class WorkdayViewModel @Inject constructor(
                 date = date,
                 workTimeByDate = data.workTimeByDate,
                 workTimeByDateEstimate = data.workTimeByDateEstimate,
-                flexTimeByDate = flexTimeByDate,
+                flexTimeByDate = flexByDateResult.value,
+                isFlexTimeByDateSpecialRuleApplied = flexByDateResult.isSpecialRuleApplied,
                 initialFlexTimeTotal = data.initialFlexTimeTotal,
                 flexTimeTotal = data.flexTimeTotal,
                 projects = allProjects,
@@ -78,6 +85,15 @@ class WorkdayViewModel @Inject constructor(
 
     fun retryLoad() {
         requestReload()
+    }
+
+    @Suppress("unused")
+    fun setLocalizedFlexDayWorkType(workType: String) {
+        val normalized = normalizeLabel(workType)
+        if (normalized.isNotEmpty() && normalized != localizedFlexDayWorkType) {
+            localizedFlexDayWorkType = normalized
+            requestReload()
+        }
     }
 
     private fun requestReload() {
@@ -161,17 +177,21 @@ class WorkdayViewModel @Inject constructor(
         workTimeByDate: String,
         newWorkTimeByDateEstimate: String
     ) {
-        val newFlexTimeByDate = WorkTimeCalculator.calculateFlexTimeByDate(
-            workTimeByDate = workTimeByDate,
+        val date = dateRepository.selectedDate.value
+        val latestData = getWorkdayScreenDataUseCase(date)
+        val latestWorkTimeByDate = latestData.workTimeByDate
+        val newFlexTimeByDate = calculateFlexTimeByDate(
+            projects = latestData.projects,
+            workTimeByDate = latestWorkTimeByDate,
             workTimeByDateEstimate = newWorkTimeByDateEstimate
-        )
+        ).value
         val oldFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = oldFlexTimeByDate,
             workTimeByDate = workTimeByDate
         )
         val newFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = newFlexTimeByDate,
-            workTimeByDate = workTimeByDate
+            workTimeByDate = latestWorkTimeByDate
         )
         val flexTimeByDateDelta = WorkTimeCalculator.calculateFlexTime(
             initialTime = newFlexContribution,
@@ -202,10 +222,11 @@ class WorkdayViewModel @Inject constructor(
 
         val latestData = getWorkdayScreenDataUseCase(date)
         val newWorkTimeByDate = latestData.workTimeByDate
-        val newFlexTimeByDate = WorkTimeCalculator.calculateFlexTimeByDate(
+        val newFlexTimeByDate = calculateFlexTimeByDate(
+            projects = latestData.projects,
             workTimeByDate = latestData.workTimeByDate,
             workTimeByDateEstimate = latestData.workTimeByDateEstimate
-        )
+        ).value
         val oldFlexContribution = WorkTimeCalculator.resolveFlexContribution(
             flexTimeByDate = oldFlexTimeByDate,
             workTimeByDate = oldWorkTimeByDate
@@ -229,5 +250,56 @@ class WorkdayViewModel @Inject constructor(
         }
 
         requestReload()
+    }
+
+    private fun calculateFlexTimeByDate(
+        projects: List<SingleProjectState>,
+        workTimeByDate: String,
+        workTimeByDateEstimate: String
+    ): FlexByDateResult {
+        val flexDayProjectTime = projects
+            .filter { project -> isAbsenceFlexDay(project) }
+            .fold(ZERO_TIME) { total, project ->
+                WorkTimeCalculator.calculateFlexTime(
+                    initialTime = total,
+                    addedTime = project.projectTime
+                )
+            }
+
+        if (flexDayProjectTime != ZERO_TIME) {
+            return FlexByDateResult(
+                value = WorkTimeCalculator.normalizeDuplicateMinus("-$flexDayProjectTime"),
+                isSpecialRuleApplied = true
+            )
+        }
+
+        return FlexByDateResult(
+            value = WorkTimeCalculator.calculateFlexTimeByDate(
+                workTimeByDate = workTimeByDate,
+                workTimeByDateEstimate = workTimeByDateEstimate
+            )
+        )
+    }
+
+    private data class FlexByDateResult(
+        val value: String,
+        val isSpecialRuleApplied: Boolean = false
+    )
+
+    private fun isAbsenceFlexDay(project: SingleProjectState): Boolean {
+        return AbsenceFlexDayMatcher.isAbsenceFlexDay(
+            workType = project.workType,
+            projectName = project.projectName,
+            localizedFlexDayWorkType = localizedFlexDayWorkType
+        )
+    }
+
+    private fun normalizeLabel(value: String): String {
+        val withoutDiacritics = Normalizer
+            .normalize(value.trim().lowercase(), Normalizer.Form.NFD)
+            .replace("\\p{M}+".toRegex(), "")
+        return withoutDiacritics
+            .replace("[^a-z0-9]+".toRegex(), " ")
+            .trim()
     }
 }

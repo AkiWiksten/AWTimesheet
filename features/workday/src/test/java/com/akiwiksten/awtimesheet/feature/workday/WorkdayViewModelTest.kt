@@ -71,6 +71,7 @@ class WorkdayViewModelTest {
             settingsRepository,
             dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -113,11 +114,133 @@ class WorkdayViewModelTest {
             settingsRepository,
             dateRepository
         )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value as WorkdayUiState.Success
         Assert.assertEquals(ZERO_TIME, state.workTimeByDate)
         Assert.assertEquals(ZERO_TIME, state.flexTimeByDate)
+    }
+
+    @Test
+    fun selectedDate_withAbsenceFlexDay_setsFlexTimeByDateToNegativeProjectTime() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Absence-Flex day",
+                    projectTime = "07:30",
+                    workType = "Absence-Flex day"
+                )
+            )
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            workTypes = listOf("Absence-Flex day")
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
+        viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("07:30", state.workTimeByDate)
+        Assert.assertEquals("-07:30", state.flexTimeByDate)
+    }
+
+    @Test
+    fun selectedDate_withAbsenceFlexDayProjectNameAndEmptyWorkType_setsFlexTimeByDateToNegativeProjectTime() =
+        runTest {
+            val projectRepository = FakeProjectRepository().apply {
+                projectsByDateRange = listOf(
+                    projectState(
+                        date = "2026-04-10",
+                        projectName = "Absence-Flex day",
+                        projectTime = "07:30",
+                        workType = ""
+                    )
+                )
+            }
+            val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+                settings = settingsState(
+                    dailyWorkTimeEstimate = "07:30",
+                    dailyLunchTimeEstimate = "00:30",
+                    initialFlexTimeTotal = ZERO_TIME
+                )
+            }
+            val settingsRepository = FakeSettingsRepository().apply {
+                workTypes = listOf("Absence-Flex day")
+            }
+            val dateRepository = InMemoryDateRepository().apply {
+                updateDate("2026-04-10")
+            }
+
+            val viewModel = createViewModel(
+                projectRepository,
+                projectDetailsRepository,
+                settingsRepository,
+                dateRepository
+            )
+            viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value as WorkdayUiState.Success
+            Assert.assertEquals("07:30", state.workTimeByDate)
+            Assert.assertEquals("-07:30", state.flexTimeByDate)
+        }
+
+    @Test
+    fun selectedDate_withSwedishAbsenceFlexdagLabel_setsFlexTimeByDateToNegativeProjectTime() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Frånvaro-Flexdag",
+                    projectTime = "07:30",
+                    workType = "Frånvaro-Flexdag"
+                )
+            )
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            workTypes = listOf("Frånvaro-Flexdag")
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository,
+            projectDetailsRepository,
+            settingsRepository,
+            dateRepository
+        )
+        viewModel.setLocalizedFlexDayWorkType("Frånvaro-Flexdag")
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("07:30", state.workTimeByDate)
+        Assert.assertEquals("-07:30", state.flexTimeByDate)
     }
 
     @Test

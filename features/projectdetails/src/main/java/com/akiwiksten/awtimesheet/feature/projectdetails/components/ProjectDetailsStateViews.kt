@@ -2,6 +2,7 @@
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -9,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
@@ -60,9 +63,9 @@ internal fun ProjectDetailsSuccessState(
                 .padding(paddingValues = padding),
             columnModifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp, 16.dp, 16.dp, 0.dp),
+                .padding(PADDING_SPACING, PADDING_SPACING, PADDING_SPACING, 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 20.dp)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         ProjectDetailsHeaderSection(
@@ -79,5 +82,6 @@ internal fun ProjectDetailsSuccessState(
         }
 
         ProjectDetailsFooterSection(onConfirm = actions.onConfirm, isConfirmEnabled = isConfirmEnabled)
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
     }
 }

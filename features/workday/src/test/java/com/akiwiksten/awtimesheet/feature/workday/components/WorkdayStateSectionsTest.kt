@@ -32,6 +32,19 @@ class WorkdayStateSectionsTest {
     }
 
     @Test
+    fun calculateDisplayedFlexTimeByDate_whenSpecialRuleApplied_returnsPersistedFlexTime() {
+        val result = WorkTimeDisplayCalculator.calculateDisplayedFlexTimeByDate(
+            persistedWorkTimeByDate = "07:30",
+            persistedFlexTimeByDate = "-07:30",
+            editedWorkTimeByDateEstimate = "07:30",
+            isEditedWorkTimeByDateEstimateValid = true,
+            usePersistedFlexTimeByDate = true
+        )
+
+        assertEquals("-07:30", result)
+    }
+
+    @Test
     fun calculateDisplayedCalculatedFlexTimeTotal_usesPersistedInitialFlexTimeTotal() {
         val result = WorkTimeDisplayCalculator.calculateDisplayedCalculatedFlexTimeTotal(
             persistedInitialFlexTimeTotal = "+01:00",

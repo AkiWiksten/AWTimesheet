@@ -109,6 +109,10 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
+    fun setProjectTime(projectTime: String) {
+        updateTime(ProjectDetailsField.PROJECT_TIME, projectTime)
+    }
+
     val updateTime: (ProjectDetailsField, String) -> Unit = { field, time ->
         _uiState.update { currentState ->
             val successState = currentState as? ProjectDetailsUiState.Success

@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.domain.usecase
 
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
+import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
@@ -9,7 +10,7 @@ import javax.inject.Inject
 class EnsureDefaultSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
-    suspend operator fun invoke() {
+    suspend operator fun invoke(defaultWorkTypeLabels: List<String>) {
         val existing = settingsRepository.getSettings()
         if (existing != null) return
 
@@ -20,5 +21,10 @@ class EnsureDefaultSettingsUseCase @Inject constructor(
                 initialFlexTimeTotal = ZERO_TIME
             )
         )
+
+        // Insert default work types
+        DEFAULT_WORK_TYPES.zip(defaultWorkTypeLabels).forEach { (_, label) ->
+            settingsRepository.insertWorkType(label)
+        }
     }
 }

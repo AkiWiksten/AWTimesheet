@@ -146,23 +146,22 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun ensureDefaultWorkType(defaultWorkType: String) {
+    fun ensureDefaultWorkTypes(defaultWorkTypes: List<String>) {
         val currentState = _uiState.value
-        if (
-            defaultWorkType.isBlank() ||
-            currentState !is SettingsUiState.Success ||
-            defaultWorkType in currentState.data.workTypes
-        ) {
-            return
-        }
+        if (currentState !is SettingsUiState.Success) return
 
-        val updatedWorkTypes = (currentState.data.workTypes + defaultWorkType).sorted()
+        val missingWorkTypes = defaultWorkTypes.filter { it.isNotBlank() && it !in currentState.data.workTypes }
+        if (missingWorkTypes.isEmpty()) return
+
+        val updatedWorkTypes = (currentState.data.workTypes + missingWorkTypes).sorted()
         _uiState.value = currentState.copy(
             data = currentState.data.copy(workTypes = updatedWorkTypes)
         )
 
         viewModelScope.launch {
-            settingsRepository.insertWorkType(defaultWorkType)
+            missingWorkTypes.forEach {
+                settingsRepository.insertWorkType(it)
+            }
         }
     }
 

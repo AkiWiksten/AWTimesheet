@@ -7,4 +7,12 @@
     <string name="save">Save</string>
     <string name="discard">Discard</string>
     <string name="stay">Stay</string>
+    <string name="other">Other</string>
+
+    <string name="work_type_paid_vacation">Absence-Paid vacation</string>
+    <string name="work_type_unpaid_vacation">Absence-Unpaid vacation</string>
+    <string name="work_type_sick_leave">Absence-Sick leave</string>
+    <string name="work_type_parental_leave">Absence-Parental leave</string>
+    <string name="work_type_other_leave">Absence-Other leave</string>
+    <string name="work_type_flex_day">Absence-Flex day</string>
 </resources>

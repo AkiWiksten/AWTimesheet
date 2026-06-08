@@ -13,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,10 +26,10 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,9 +37,8 @@ import com.akiwiksten.awtimesheet.core.R
 fun DropdownMenuBox(
     items: List<String>,
     onItemSelected: (String) -> Unit,
-    labelId: Int,
+    field: DropdownMenuField,
     modifier: Modifier = Modifier,
-    selectedText: String = "",
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     var textFieldSize by remember { mutableStateOf(value = Size.Zero) }
@@ -49,20 +47,23 @@ fun DropdownMenuBox(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = PADDING_SPACING_SMALL)
     ) {
         Box {
             DropdownTextField(
-                selectedText = selectedText,
+                selectedText = field.selectedText,
                 expanded = expanded,
-                labelId = labelId,
+                labelId = field.labelId,
+                enabled = field.enabled,
                 onSizeChanged = { textFieldSize = it }
             )
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable(onClick = { expanded = !expanded })
-            )
+            if (field.enabled) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable(onClick = { expanded = !expanded })
+                )
+            }
         }
 
         DropdownMenu(
@@ -83,12 +84,19 @@ fun DropdownMenuBox(
     }
 }
 
+data class DropdownMenuField(
+    val labelId: Int,
+    val selectedText: String = "",
+    val enabled: Boolean = true
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DropdownTextField(
     selectedText: String,
     expanded: Boolean,
     labelId: Int,
+    enabled: Boolean,
     onSizeChanged: (Size) -> Unit
 ) {
     OutlinedTextField(
@@ -113,13 +121,8 @@ private fun DropdownTextField(
             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         },
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-        isError = selectedText.trim().isEmpty() && labelId == R.string.allowance,
-        enabled = true,
+        isError = enabled && selectedText.trim().isEmpty() && labelId == R.string.allowance,
+        enabled = enabled,
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     )
 }

@@ -7,4 +7,12 @@
     <string name="save">Spara</string>
     <string name="discard">Förkasta</string>
     <string name="stay">Stanna</string>
+    <string name="other">Övrigt</string>
+
+    <string name="work_type_paid_vacation">Frånvaro-Betald semester</string>
+    <string name="work_type_unpaid_vacation">Frånvaro-Obetald semester</string>
+    <string name="work_type_sick_leave">Frånvaro-Sjukfrånvaro</string>
+    <string name="work_type_parental_leave">Frånvaro-Föräldraledighet</string>
+    <string name="work_type_other_leave">Frånvaro-Annan ledighet</string>
+    <string name="work_type_flex_day">Frånvaro-Komplediga</string>
 </resources>

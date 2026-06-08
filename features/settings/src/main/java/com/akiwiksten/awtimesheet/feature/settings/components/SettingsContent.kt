@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.settings.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,8 +11,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.SCREEN_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
@@ -33,7 +34,7 @@ internal fun SettingsContent(
     val dialogVisibility = rememberSettingsDialogVisibilityState()
     val workTypeUi = rememberSettingsWorkTypeUiState(
         workTypes = state.uiState.data.workTypes,
-        defaultWorkType = state.defaultWorkType,
+        protectedWorkTypes = state.defaultWorkTypes,
         onWorkTypeRemoved = state.actions.onWorkTypeRemoved,
         onWorkTypeAdded = state.actions.onWorkTypeAdded
     )
@@ -74,7 +75,7 @@ internal fun SettingsContent(
             settingsAddWorkTypeDialogState = workTypeUi.settingsAddWorkTypeDialogState,
             scrollState = rememberScrollState(),
             settingsSaveUi = saveUi,
-            defaultWorkType = state.defaultWorkType
+            defaultWorkTypes = state.defaultWorkTypes
         )
     )
 
@@ -177,9 +178,9 @@ private fun SettingsContentBody(
             modifier = Modifier.fillMaxSize(),
             columnModifier = Modifier
                 .fillMaxWidth()
-                .padding(all = FORM_SECTION_SPACING),
+                .padding(all = PADDING_SPACING),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = SCREEN_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
         )
     ) {
         SettingsHeaderSection(date = state.uiState.selectedDate)
@@ -200,7 +201,7 @@ private fun SettingsContentBody(
                 state = SettingsWorkTypeSectionState(
                     workTypes = state.uiState.data.workTypes,
                     settingsWorkTypeDialogState = state.settingsWorkTypeState,
-                    protectedWorkType = state.defaultWorkType
+                    protectedWorkTypes = state.defaultWorkTypes
                 )
             )
         }
@@ -215,6 +216,8 @@ private fun SettingsContentBody(
                 isSaveEnabled = state.settingsSaveUi.isSaveEnabled
             )
         )
+
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
 
         SettingsAddWorkTypeDialogSection(
             isVisible = state.settingsAddWorkTypeDialogState.isVisible,

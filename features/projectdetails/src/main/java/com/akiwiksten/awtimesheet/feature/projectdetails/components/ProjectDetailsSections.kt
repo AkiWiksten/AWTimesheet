@@ -18,14 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_PADDING
-import com.akiwiksten.awtimesheet.core.FORM_GROUP_SPACING
-import com.akiwiksten.awtimesheet.core.FORM_SECTION_SPACING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_PADDING
-import com.akiwiksten.awtimesheet.core.HEADER_CONTENT_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsFieldActions
@@ -39,15 +37,15 @@ internal fun ProjectDetailsHeaderSection(
     helperTextResId: Int?
 ) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(HEADER_CONTENT_PADDING),
+                .padding(PADDING_SPACING_SMALL),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = HEADER_CONTENT_SPACING)
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Text(
                 text = date,
@@ -70,12 +68,7 @@ internal fun ProjectDetailsHeaderSection(
             ProjectDetailsNameField(name = projectName.orEmpty())
 
             helperTextResId?.let { textResId ->
-                Text(
-                    text = stringResource(id = textResId),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                NoteBanner(text = stringResource(id = textResId))
             }
         }
     }
@@ -86,14 +79,14 @@ internal fun ProjectDetailsNewDayForProjectSection(
     uiState: ProjectDetailsUiState.Success,
     actions: ProjectDetailsFieldActions
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
         ElevatedCard(
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-                verticalArrangement = Arrangement.spacedBy(space = FORM_SECTION_SPACING)
+                modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
             ) {
                 key("startTime") {
                     ProjectDetailsTimeRow(
@@ -133,7 +126,7 @@ internal fun ProjectDetailsExistingDayForProjectSection(
     uiState: ProjectDetailsUiState.Success,
     actions: ProjectDetailsFieldActions
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)) {
+    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         MainWorkTimeSection(uiState = uiState, actions = actions)
 
         LunchAndBreakSection(uiState = uiState, actions = actions)
@@ -151,12 +144,12 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
     }
 
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             key("startTime") {
                 ProjectDetailsTimeRow(
@@ -193,12 +186,12 @@ private fun MainWorkTimeSection(uiState: ProjectDetailsUiState.Success, actions:
 @Composable
 private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             key("lunchStart") {
                 ProjectDetailsTimeRow(
@@ -239,12 +232,12 @@ private fun LunchAndBreakSection(uiState: ProjectDetailsUiState.Success, actions
 @Composable
 private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions: ProjectDetailsFieldActions) {
     ElevatedCard(
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(all = FORM_GROUP_PADDING),
-            verticalArrangement = Arrangement.spacedBy(space = FORM_GROUP_SPACING)
+            modifier = Modifier.padding(all = PADDING_SPACING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             key("lunchTimeEstimate") {
                 ProjectDetailsTimeRow(
@@ -263,11 +256,9 @@ internal fun ProjectDetailsFooterSection(onConfirm: () -> Unit, isConfirmEnabled
     Button(
         onClick = onConfirm,
         enabled = isConfirmEnabled,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
     ) {
         Text(text = stringResource(id = R.string.confirm), style = MaterialTheme.typography.titleLarge)
     }

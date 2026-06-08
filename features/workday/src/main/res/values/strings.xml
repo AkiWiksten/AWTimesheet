@@ -16,5 +16,6 @@
     <string name="save_globally">Save globally</string>
     <string name="saved_today">Saved for this day only!</string>
     <string name="saved_globally">Saved globally!</string>
+    <string name="flex_day_special_note">Note! This is an \'Absence-Flex day\'. Special functionality applied.</string>
 </resources>
 

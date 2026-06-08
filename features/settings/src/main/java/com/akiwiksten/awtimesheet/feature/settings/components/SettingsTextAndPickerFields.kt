@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.FORM_INLINE_SPACING
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.feature.settings.R
 
 @Composable
@@ -56,7 +56,7 @@ internal fun SettingsDailyWorkTimePickerRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         OutlinedTextField(
             value = dailyWorkTime,
@@ -90,7 +90,7 @@ internal fun SettingsDailyLunchTimeEstimatePickerRow(
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = FORM_INLINE_SPACING)
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         OutlinedTextField(
             value = dailyLunchTimeEstimate,

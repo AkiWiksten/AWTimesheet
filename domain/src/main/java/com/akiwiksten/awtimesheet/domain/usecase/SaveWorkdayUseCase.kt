@@ -1,5 +1,6 @@
 package com.akiwiksten.awtimesheet.domain.usecase
 
+import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
@@ -19,8 +20,13 @@ class SaveWorkdayUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         projectToSave: SingleProjectState,
-        projectDetailsToSave: ProjectDetailsState? = null
+        projectDetailsToSave: ProjectDetailsState? = null,
+        localizedFlexDayWorkType: String = ""
     ) {
+        if (isAbsenceFlexDay(projectToSave, localizedFlexDayWorkType)) {
+            clearOtherProjectsForDate(projectToSave)
+        }
+
         projectRepository.insertProjectName(projectToSave.projectName)
         projectRepository.insertProject(projectToSave)
 
@@ -41,5 +47,34 @@ class SaveWorkdayUseCase @Inject constructor(
                 workTimeByDateEstimate = existing.dailyWorkTimeEstimate
             )
         }
+    }
+
+    private suspend fun clearOtherProjectsForDate(projectToSave: SingleProjectState) {
+        if (projectToSave.date.isBlank()) return
+
+        val sameDayProjects = projectRepository.getProjectsByDateRange(
+            start = projectToSave.date,
+            end = projectToSave.date
+        )
+
+        sameDayProjects
+            .filterNot { it.projectName == projectToSave.projectName }
+            .forEach { project ->
+                projectRepository.deleteProject(project)
+                projectDetailsRepository.deleteProjectDetails(
+                    ProjectDetailsState(
+                        date = project.date,
+                        projectName = project.projectName
+                    )
+                )
+            }
+    }
+
+    private fun isAbsenceFlexDay(project: SingleProjectState, localizedFlexDayWorkType: String): Boolean {
+        return AbsenceFlexDayMatcher.isAbsenceFlexDay(
+            workType = project.workType,
+            projectName = project.projectName,
+            localizedFlexDayWorkType = localizedFlexDayWorkType
+        )
     }
 }

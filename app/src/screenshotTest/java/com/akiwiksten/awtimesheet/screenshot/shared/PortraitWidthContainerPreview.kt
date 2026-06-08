@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.android.tools.screenshot.PreviewTest
 
 private val PreviewPortraitWidth = 411.dp
@@ -45,8 +47,8 @@ private fun PortraitWidthConstraintPreviewContent() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = Color(0xFFCFD8E3))
-                    .padding(all = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+                    .padding(all = PADDING_SPACING),
+                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
             ) {
                 Text(text = "Portrait constrained content")
                 repeat(4) {

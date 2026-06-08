@@ -68,6 +68,11 @@ const val WORK_TYPE = "workType"
 const val NAME = "name"
 const val EMPLOYER = "employer"
 
+//Domain / absence entity keys
+const val START_DATE = "start_date"
+const val END_DATE = "end_date"
+const val ABSENCE_TYPE = "absence_type"
+
 // Data / Room table names and shared ids
 const val PROJECT_DETAILS_TABLE = "project_details"
 const val PROJECT_TABLE = "project"
@@ -76,4 +81,5 @@ const val PROJECT_NAME_TABLE = "project_name"
 const val SETTINGS_TABLE = "settings"
 const val WORK_TYPE_TABLE = "work_type"
 const val CALCULATED_FLEXTIME_TOTAL_TABLE = "calculated_flextime_total"
+const val ABSENCE_TABLE = "absence"
 const val ID = "id"

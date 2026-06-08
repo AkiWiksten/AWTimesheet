@@ -9,9 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,18 +60,11 @@ fun AbsenceScreen(
             verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
             horizontalAlignment = Alignment.Start
         ) {
-            ElevatedCard(
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+            AwtButton(
+                onClick = onNavigateToCreateAbsence,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
-                    onClick = onNavigateToCreateAbsence,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = PADDING_SPACING)
-                ) {
-                    Text(text = stringResource(id = R.string.new_absence))
-                }
+                Text(text = stringResource(id = R.string.new_absence))
             }
 
             if (savedAbsences.isNotEmpty()) {

@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
@@ -35,6 +31,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
@@ -287,12 +284,10 @@ private fun SingleProjectFormFields(
             onStateChange = actions.onStateChange
         )
 
-        Button(
+        AwtButton(
             onClick = actions.onConfirm,
             enabled = screenState.isConfirmEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
         }

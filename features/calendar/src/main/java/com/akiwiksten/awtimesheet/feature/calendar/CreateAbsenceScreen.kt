@@ -3,7 +3,6 @@ package com.akiwiksten.awtimesheet.feature.calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,10 +11,11 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,12 +36,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import androidx.compose.material3.rememberDatePickerState
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,74 +97,83 @@ fun CreateAbsenceScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(innerPadding)
                 .padding(all = PADDING_SPACING),
             verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
             horizontalAlignment = Alignment.Start
         ) {
-            DatePickerRow(
-                labelId = R.string.start_date,
-                dateText = startDate.toString(),
-                onPickDate = { showStartDatePicker = true }
-            )
-            DatePickerRow(
-                labelId = R.string.end_date,
-                dateText = endDate.toString(),
-                onPickDate = { showEndDatePicker = true }
-            )
-
-            DropdownMenuBox(
-                items = listOf(
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_paid_vacation),
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_unpaid_vacation),
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_sick_leave),
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_parental_leave),
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_other_leave),
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
-                ),
-                onItemSelected = { workType = it },
-                field = DropdownMenuField(
-                    labelId = R.string.absence_work_type,
-                    selectedText = workType,
-                    enabled = true
-                )
-            )
-
-            Column(
+            ElevatedCard(
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .selectableGroup(),
-                verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
             ) {
-                Text(text = stringResource(id = R.string.absence_weekends_title))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = PADDING_SPACING),
+                    verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                DatePickerRow(
+                    labelId = R.string.start_date,
+                    dateText = startDate.toString(),
+                    onPickDate = { showStartDatePicker = true }
+                )
+                DatePickerRow(
+                    labelId = R.string.end_date,
+                    dateText = endDate.toString(),
+                    onPickDate = { showEndDatePicker = true }
+                )
 
-                WeekendsOptionRow(
-                    text = stringResource(id = R.string.no),
-                    selected = !includeWeekends,
-                    onClick = { includeWeekends = false }
+                DropdownMenuBox(
+                    items = listOf(
+                        stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_paid_vacation),
+                        stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_unpaid_vacation),
+                        stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_sick_leave),
+                        stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_parental_leave),
+                        stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_other_leave),
+                        stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+                    ),
+                    onItemSelected = { workType = it },
+                    field = DropdownMenuField(
+                        labelId = R.string.absence_work_type,
+                        selectedText = workType,
+                        enabled = true
+                    )
                 )
-                WeekendsOptionRow(
-                    text = stringResource(id = R.string.yes),
-                    selected = includeWeekends,
-                    onClick = { includeWeekends = true }
-                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectableGroup(),
+                    verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
+                ) {
+                    Text(text = stringResource(id = R.string.absence_weekends_title))
+
+                    WeekendsOptionRow(
+                        text = stringResource(id = R.string.no),
+                        selected = !includeWeekends,
+                        onClick = { includeWeekends = false }
+                    )
+                    WeekendsOptionRow(
+                        text = stringResource(id = R.string.yes),
+                        selected = includeWeekends,
+                        onClick = { includeWeekends = true }
+                    )
+                }
+                }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL, alignment = Alignment.End)
             ) {
-                TextButton(onClick = onNavigateBack) {
-                    Text(text = stringResource(id = R.string.dismiss))
-                }
-                Button(
+                AwtButton(
                     onClick = {
                         onAbsenceCreated(workType, startDate.toString(), endDate.toString())
                         onNavigateBack()
                     },
+                    modifier = Modifier.fillMaxWidth(),
                     enabled = workType.isNotBlank()
                 ) {
                     Text(text = stringResource(id = R.string.save))

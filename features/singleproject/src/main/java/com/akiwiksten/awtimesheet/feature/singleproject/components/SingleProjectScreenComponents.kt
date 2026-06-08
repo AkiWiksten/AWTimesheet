@@ -14,8 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
@@ -43,6 +41,7 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -250,10 +249,8 @@ private fun ProjectTimeActionsColumn(
     onOpenTimePicker: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
-        Button(
+        AwtButton(
             onClick = onOpenProjectDetails,
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.History, contentDescription = null)
             Spacer(modifier = Modifier.width(width = 4.dp))
@@ -267,11 +264,9 @@ private fun ProjectTimeActionsColumn(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         )
 
-        Button(
+        AwtButton(
             onClick = onOpenTimePicker,
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         ) {
             Icon(
                 imageVector = Icons.Default.AccessTime,

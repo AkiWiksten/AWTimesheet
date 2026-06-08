@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +21,7 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
@@ -55,13 +54,8 @@ internal fun ProjectDetailsHeaderSection(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
-            Button(
+            AwtButton(
                 onClick = onClearDetails,
-                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
             ) {
                 Text(text = stringResource(id = R.string.clear_details))
             }
@@ -253,12 +247,10 @@ private fun DailySummarySection(uiState: ProjectDetailsUiState.Success, actions:
 
 @Composable
 internal fun ProjectDetailsFooterSection(onConfirm: () -> Unit, isConfirmEnabled: Boolean) {
-    Button(
+    AwtButton(
         onClick = onConfirm,
         enabled = isConfirmEnabled,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = stringResource(id = R.string.confirm), style = MaterialTheme.typography.titleLarge)
     }

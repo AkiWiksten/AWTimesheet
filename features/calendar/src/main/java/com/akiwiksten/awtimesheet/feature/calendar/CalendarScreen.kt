@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -40,6 +39,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import java.time.LocalDate
@@ -126,18 +126,13 @@ internal fun CalendarContent(
                 }
                 NoteBanner(text = stringResource(id = R.string.calendar_month_selection_hint),)
                 WorkTimeSummarySection(uiState = uiState)
-                ElevatedCard(
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
-                    modifier = Modifier.fillMaxWidth()
+                AwtButton(
+                    onClick = onNavigateToAbsence,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = PADDING_SPACING)
                 ) {
-                    Button(
-                        onClick = onNavigateToAbsence,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = PADDING_SPACING)
-                    ) {
-                        Text(stringResource(id = R.string.absence))
-                    }
+                    Text(stringResource(id = R.string.absence))
                 }
                 Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }

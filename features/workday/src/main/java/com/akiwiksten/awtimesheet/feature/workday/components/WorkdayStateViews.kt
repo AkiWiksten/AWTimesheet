@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +25,7 @@ import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
@@ -75,7 +75,7 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier.padding(all = PADDING_SPACING)
         )
-        Button(onClick = onRetry) {
+        AwtButton(onClick = onRetry) {
             Text(text = stringResource(id = R.string.retry))
         }
     }
@@ -271,12 +271,12 @@ private fun SaveWorkTimeEstimateDialog(
             )
         },
         confirmButton = {
-            Button(onClick = onSaveGlobally) {
+            AwtButton(onClick = onSaveGlobally) {
                 Text(text = stringResource(id = R.string.save_globally))
             }
         },
         dismissButton = {
-            Button(onClick = onSaveToday) {
+            AwtButton(onClick = onSaveToday) {
                 Text(text = stringResource(id = R.string.save_today))
             }
         }

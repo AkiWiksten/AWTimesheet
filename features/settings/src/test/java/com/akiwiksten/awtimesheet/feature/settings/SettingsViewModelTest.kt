@@ -157,6 +157,44 @@ class SettingsViewModelTest {
         assertTrue(settingsRepository.insertedWorkTypes.any { it == "Office" })
     }
 
+    @Test
+    fun saveSettings_notifiesCalendarRefresh() = runTest {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = settingsState(name = "Aki", employer = "Company")
+        }
+        val projectRepository = FakeProjectRepository()
+        val dateRepository = InMemoryDateRepository()
+        val workdayRepository = FakeWorkdayRepository()
+        val viewModel = SettingsViewModel(
+            getSettingsUseCase = GetSettingsUseCase(settingsRepository),
+            saveSettingsUseCase = SaveSettingsUseCase(
+                settingsRepository = settingsRepository,
+                workdayRepository = workdayRepository,
+                projectRepository = projectRepository,
+                dateRepository = dateRepository
+            ),
+            getProjectsByMonthUseCase = GetProjectsByMonthUseCase(
+                projectRepository = projectRepository,
+                settingsRepository = settingsRepository
+            ),
+            generateWorkdaysUseCase = GenerateWorkdaysUseCase(
+                workdayRepository = workdayRepository,
+                settingsRepository = settingsRepository,
+                projectRepository = projectRepository
+            ),
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+
+        val before = dateRepository.calendarRefreshVersion.value
+        viewModel.loadSettings()
+        advanceUntilIdle()
+        viewModel.saveSettings()
+        advanceUntilIdle()
+
+        assertEquals(before + 1, dateRepository.calendarRefreshVersion.value)
+    }
+
     private fun createViewModel(
         settingsRepository: FakeSettingsRepository,
         projectRepository: FakeProjectRepository,

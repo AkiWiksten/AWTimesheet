@@ -295,6 +295,7 @@ class SettingsViewModel @Inject constructor(
                     saveSettingsUseCase(
                         settings = currentState.data
                     )
+                    dateRepository.notifyCalendarDataChanged()
                 }
             } catch (e: IllegalArgumentException) {
                 _uiState.handleException(e, "Failed to save settings")

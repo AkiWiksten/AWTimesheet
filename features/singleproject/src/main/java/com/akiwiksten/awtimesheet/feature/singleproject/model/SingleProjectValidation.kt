@@ -9,7 +9,7 @@ internal fun isDuplicateProjectName(
     singleProjectState: SingleProjectState?,
 ): Boolean {
     if (projectName.isBlank() || currentIndex != -1) return false
-    return singleProjectState?.index != currentIndex &&
+    return singleProjectState?.listIndex != currentIndex &&
         singleProjectState?.projectName.equals(projectName, ignoreCase = true)
 }
 

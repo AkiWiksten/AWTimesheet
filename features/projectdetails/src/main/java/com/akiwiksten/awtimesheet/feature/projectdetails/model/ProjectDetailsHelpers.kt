@@ -11,44 +11,6 @@ import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsViewModel
 
-@Composable
-internal fun rememberBaselineData(
-    uiState: ProjectDetailsUiState,
-    isInitialLoadComplete: Boolean,
-    projectDetails: ProjectDetailsState,
-): ProjectDetailsState? {
-    var initialData by remember { mutableStateOf<ProjectDetailsState?>(value = null) }
-    var isBaselineInitialized by remember { mutableStateOf(value = false) }
-
-    LaunchedEffect(uiState, isInitialLoadComplete) {
-        val successState = uiState as? ProjectDetailsUiState.Success ?: return@LaunchedEffect
-        if (isBaselineInitialized || !isInitialLoadComplete) return@LaunchedEffect
-        val data = successState.details
-        if (data.date.isNotBlank() && data.matchesInitialProjectDetails(projectDetails = projectDetails)) {
-            initialData = data
-            isBaselineInitialized = true
-        }
-    }
-
-    return initialData
-}
-
-internal fun ProjectDetailsState.matchesInitialProjectDetails(projectDetails: ProjectDetailsState): Boolean {
-    val expectedProjectTime = ProjectDetailsUiMapper.normalizeProjectTimeOnOpen(
-        startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },
-        endTime = projectDetails.endTime.ifEmpty { ZERO_TIME },
-        projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME }
-    )
-    val matchesDetails = startTime == projectDetails.startTime &&
-        endTime == projectDetails.endTime &&
-        lunchStart == projectDetails.lunchStart &&
-        lunchEnd == projectDetails.lunchEnd &&
-        breakStart == projectDetails.breakStart &&
-        breakEnd == projectDetails.breakEnd &&
-        projectTime == expectedProjectTime
-    return matchesDetails
-}
-
 fun createProjectDetailsScreenActions(
     viewModel: ProjectDetailsViewModel,
     onConfirm: () -> Unit

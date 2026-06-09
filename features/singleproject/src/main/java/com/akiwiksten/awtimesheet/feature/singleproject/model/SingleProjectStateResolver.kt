@@ -1,7 +1,6 @@
 ﻿package com.akiwiksten.awtimesheet.feature.singleproject.model
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectUiState
@@ -67,42 +66,35 @@ internal fun SingleProjectState.withInitialAbsenceLogic(
 }
 
 internal fun resolveFullInitialSingleProjectState(
-    args: SingleProjectScreenArgs,
     uiState: SingleProjectUiState,
     noAllowanceText: String,
     defaultWorkTypeText: String,
     absencePrefix: String
 ): SingleProjectState {
     val settings = (uiState as? SingleProjectUiState.Success)?.settings
-        ?: args.initialSettings
     return resolveInitialSingleProjectState(
-        initialSingleProjectState = args.initialSingleProjectState,
-        initialProjectDetails = args.initialProjectDetails,
-        initialSettings = settings,
+        initialSingleProjectState = (uiState as? SingleProjectUiState.Success)?.data,
         singleProjectUiState = uiState
     )
         .withDefaultAllowance(defaultAllowance = noAllowanceText)
         .withDefaultWorkType(defaultWorkType = defaultWorkTypeText)
         .withInitialAbsenceLogic(
-            isAddMode = args.initialSingleProjectState.index == -1,
+            isAddMode = (uiState as SingleProjectUiState.Success).data.isAddMode,
             settings = settings,
             absencePrefix = absencePrefix
         )
 }
 
 internal fun resolveInitialSingleProjectState(
-    initialSingleProjectState: SingleProjectState,
-    initialProjectDetails: ProjectDetailsState?,
-    initialSettings: SettingsState?,
+    initialSingleProjectState: SingleProjectState?,
     singleProjectUiState: SingleProjectUiState
 ): SingleProjectState {
-    val hasNavigationPayload = initialSingleProjectState.projectName.isNotBlank() ||
-        initialSingleProjectState.projectTime != ZERO_TIME ||
-        initialProjectDetails != null ||
-        initialSettings != null
+    val hasNavigationPayload = initialSingleProjectState?.projectName?.isNotBlank() == true ||
+        initialSingleProjectState?.projectTime != ZERO_TIME
 
     return when {
-        initialSingleProjectState.index == -1 || hasNavigationPayload -> initialSingleProjectState
+        initialSingleProjectState?.isAddMode == true || hasNavigationPayload ->
+            initialSingleProjectState ?: SingleProjectState()
         else -> (singleProjectUiState as? SingleProjectUiState.Success)
             ?.data!!
     }

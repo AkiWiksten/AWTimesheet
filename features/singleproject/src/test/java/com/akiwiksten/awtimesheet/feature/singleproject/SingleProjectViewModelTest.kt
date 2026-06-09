@@ -32,7 +32,7 @@ class SingleProjectViewModelTest {
         )
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
-        viewModel.initializeState(projectState())
+        viewModel.initializeState(projectState(),)
         advanceUntilIdle()
 
         viewModel.saveProject(
@@ -67,7 +67,7 @@ class SingleProjectViewModelTest {
             projectState(
                 projectName = "Alpha",
                 date = "2026-04-10"
-            )
+            ),
         )
         advanceUntilIdle()
 
@@ -107,7 +107,7 @@ class SingleProjectViewModelTest {
         )
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
-        viewModel.initializeState(projectState())
+        viewModel.initializeState(projectState(),)
         advanceUntilIdle()
 
         viewModel.saveProject(

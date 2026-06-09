@@ -2,6 +2,7 @@
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.awtimesheet.core.TIME_FORMAT
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.EndTimeUpdateParams
@@ -58,12 +59,16 @@ class ProjectDetailsViewModel @Inject constructor(
     private var loadProjectDetailsJob: Job? = null
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
-    fun observeDateRepository(projectDetails: ProjectDetailsState) {
+    fun observeDateRepository(projectName: String, projectTime: String) {
         dateObserverJob?.cancel()
         dateObserverJob = viewModelScope.launch {
             dateRepository.selectedDate.collectLatest { date ->
                 val currentDetails = (uiState.value as? ProjectDetailsUiState.Success)?.details
-                    ?: projectDetails
+                    ?: ProjectDetailsState(
+                        date = date,
+                        projectName = projectName,
+                        projectTime = projectTime
+                    )
                 loadProjectDetails(
                     date = date,
                     projectName = currentDetails.projectName,
@@ -411,6 +416,12 @@ class ProjectDetailsViewModel @Inject constructor(
                     lunchTimeEstimate = successState.settings.dailyLunchTimeEstimate
                 )
             )
+        }
+    }
+
+    fun saveProjectDetails(projectToSave: ProjectDetailsState) {
+        viewModelScope.launch {
+            projectDetailsRepository.insertProjectDetails(projectToSave)
         }
     }
 }

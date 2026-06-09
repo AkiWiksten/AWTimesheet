@@ -51,7 +51,8 @@ sealed interface Screen : Parcelable {
 
     @Parcelize
     data class ProjectDetails(
-        val projectDetails: ProjectDetailsState = ProjectDetailsState()
+        val projectName: String? = null,
+        val projectTime: String? = null,
     ) : Screen {
         override val route: String get() = PROJECT_DETAILS_SCREEN
         override val titleResId: Int get() = R.string.project_details
@@ -65,15 +66,10 @@ sealed interface Screen : Parcelable {
 
     @Parcelize
     data class SingleProject(
-        val index: Int = -1,
+        val listIndex: Int = -1,
         val date: String? = null,
         val projectName: String? = null,
         val projectTime: String? = null,
-        val kilometres: String? = null,
-        val allowance: String? = null,
-        val workType: String? = null,
-        val projectDetails: ProjectDetailsState? = null,
-        val settingsEstimates: SettingsState? = null
     ) : Screen {
         override val route: String get() = SINGLE_PROJECT_SCREEN
         override val titleResId: Int? get() = null

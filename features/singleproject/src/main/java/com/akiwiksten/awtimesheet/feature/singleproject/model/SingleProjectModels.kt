@@ -13,7 +13,7 @@ data class SingleProjectScreenArgs(
 
 data class SingleProjectNavigationActions(
     val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit
+    val onOpenProjectDetails: (SingleProjectState) -> Unit
 )
 
 data class SingleProjectDerivedState(

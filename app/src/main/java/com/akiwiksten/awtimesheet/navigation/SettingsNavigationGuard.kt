@@ -192,13 +192,9 @@ private fun WorkdayNavEntry(backStack: SnapshotStateList<Any>) {
         onNavigateToSingleProject = { project ->
             backStack.add(
                 element = Screen.SingleProject(
-                    index = project.index,
+                    listIndex = project.listIndex,
                     date = project.date,
-                    projectName = project.projectName,
-                    projectTime = project.projectTime,
-                    kilometres = project.kilometres,
-                    allowance = project.allowance,
-                    workType = project.workType
+                    projectName = project.projectName
                 )
             )
         }

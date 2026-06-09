@@ -93,52 +93,38 @@ internal fun PortraitWidthContainer(
 @Composable
 internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
-        projectDetails = screen.projectDetails,
+        projectName = screen.projectName ?: "",
+        projectTime = screen.projectTime ?: "",
         onNavigateBack = { backStack.pop() },
-        onConfirm = { projectDetails, settings ->
-            backStack.updateSingleProjectWorkTime(projectDetails = projectDetails, settings = settings)
+        onConfirm = { projectName, projectTime ->
+            backStack.updateSingleProjectWorkTime(
+                projectName = projectName,
+                projectTime = projectTime
+            )
         }
     )
 }
 
 @Composable
 internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
-    val initialSingleProjectState = SingleProjectState(
-        index = screen.index,
-        projectName = screen.projectName ?: "",
-        projectTime = screen.projectTime ?: ZERO_TIME,
-        kilometres = screen.kilometres ?: "",
-        allowance = screen.allowance
-            .takeUnless { it.isNullOrBlank() }
-            ?: stringResource(id = R.string.no_allowance),
-        workType = screen.workType ?: "",
-        date = screen.date ?: ""
-    )
     SingleProjectScreen(
-        args = SingleProjectScreenArgs(
-            initialSingleProjectState = initialSingleProjectState,
-            initialProjectDetails = screen.projectDetails,
-            initialSettings = screen.settingsEstimates
-        ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
-            onOpenProjectDetails = { singleProject, projectDetails ->
+            onOpenProjectDetails = { singleProject ->
                 backStack.updateSingleProjectState(
                     singleProject = singleProject,
-                    projectDetails = projectDetails
                 )
                 backStack.add(
                     element = Screen.ProjectDetails(
-                        projectDetails = projectDetails ?: ProjectDetailsState()
-                            .copy(
-                                date = singleProject.date,
-                                projectName = singleProject.projectName,
-                                projectTime = singleProject.projectTime
-                            )
+                        projectTime = singleProject.projectTime ?: ZERO_TIME,
+                        projectName = singleProject.projectName
                     )
                 )
             }
-        )
+        ),
+        projectName = screen.projectName ?: "",
+        isAddMode = screen.listIndex == -1,
+        listIndex = screen.listIndex,
     )
 }
 
@@ -149,34 +135,27 @@ internal fun SnapshotStateList<Any>.pop() {
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
-    projectDetails: ProjectDetailsState,
-    settings: SettingsState
+    projectName: String,
+    projectTime: String,
 ) {
     pop()
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
-            projectTime = projectDetails.projectTime,
-            projectDetails = projectDetails,
-            settingsEstimates = settings
+            projectName = projectName,
+            projectTime = projectTime
         )
     }
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectState(
     singleProject: SingleProjectState,
-    projectDetails: ProjectDetailsState?
 ) {
     val index = size - 1
     val current = getOrNull(index = index)
     if (current is Screen.SingleProject) {
         this[index] = current.copy(
             projectName = singleProject.projectName,
-            projectTime = singleProject.projectTime,
-            kilometres = singleProject.kilometres,
-            allowance = singleProject.allowance,
-            workType = singleProject.workType,
-            projectDetails = projectDetails
         )
     }
 }

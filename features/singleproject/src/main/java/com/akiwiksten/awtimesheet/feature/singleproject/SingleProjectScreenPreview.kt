@@ -71,7 +71,7 @@ fun PreviewSingleProjectSuccessEdit() {
             date = PREVIEW_DATE,
             editedProjectIndex = -1,
             state = SingleProjectState(
-                index = 0,
+                listIndex = 0,
                 projectName = "Beta Support",
                 projectTime = "03:30",
                 kilometres = "18",
@@ -106,7 +106,7 @@ fun PreviewSingleProjectDuplicateName() {
             date = PREVIEW_DATE,
             editedProjectIndex = 0,
             state = SingleProjectState(
-                index = -1,
+                listIndex = -1,
                 projectName = "Alpha Site",
                 projectTime = "01:00",
             ),

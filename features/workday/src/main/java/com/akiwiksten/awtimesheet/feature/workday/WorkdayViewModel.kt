@@ -55,7 +55,7 @@ class WorkdayViewModel @Inject constructor(
 
             val allProjects = (data.projects + unrecordedProjects)
                 .sortedBy { it.projectName }
-                .mapIndexed { index, project -> project.copy(index = index) }
+                .mapIndexed { listIndex, project -> project.copy(listIndex = listIndex) }
 
             val workTypes = settingsRepository.getWorkTypes()
             val flexByDateResult = calculateFlexTimeByDate(

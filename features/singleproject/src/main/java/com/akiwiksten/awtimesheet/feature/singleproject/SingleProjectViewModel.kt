@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
@@ -52,11 +51,11 @@ class SingleProjectViewModel @Inject constructor(
         localizedFlexDayWorkType = workType
     }
 
-    fun initializeState(singleProjectState: SingleProjectState) {
+    fun initializeState(projectName: String, isAddMode: Boolean, listIndex: Int,) {
         viewModelScope.launch {
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
-            selectedProjectName.value = singleProjectState.projectName
+            selectedProjectName.value = projectName
 
             val project = projectRepository.getProject(
                 date = effectiveDate,
@@ -78,11 +77,12 @@ class SingleProjectViewModel @Inject constructor(
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
                         projectTime = project?.projectTime ?: currentData.projectTime,
-                        index = project?.index ?: currentData.index,
                         kilometres = project?.kilometres ?: currentData.kilometres,
                         allowance = project?.allowance ?: currentData.allowance,
                         workType = project?.workType ?: currentData.workType,
-                        date = projectDate
+                        date = projectDate,
+                        isAddMode = isAddMode,
+                        listIndex = listIndex
                     )
                 )
             }
@@ -91,7 +91,6 @@ class SingleProjectViewModel @Inject constructor(
 
     fun saveProject(
         state: SingleProjectState,
-        projectDetails: ProjectDetailsState? = null,
         settings: SettingsState? = null
     ) {
         viewModelScope.launch {
@@ -100,19 +99,8 @@ class SingleProjectViewModel @Inject constructor(
                 val projectToSave = state.copy(date = date)
                 val oldWorkTimeByDate = projectRepository.getWorkTimeByDate(date)
 
-                val projectDetailsToSave = projectDetails?.copy(
-                    date = date,
-                    projectName = state.projectName,
-                    projectTime = state.projectTime
-                ) ?: ProjectDetailsState(
-                    date = date,
-                    projectName = state.projectName,
-                    projectTime = state.projectTime
-                )
-
                 saveWorkdayUseCase(
                     projectToSave = projectToSave,
-                    projectDetailsToSave = projectDetailsToSave,
                     localizedFlexDayWorkType = localizedFlexDayWorkType
                 )
 

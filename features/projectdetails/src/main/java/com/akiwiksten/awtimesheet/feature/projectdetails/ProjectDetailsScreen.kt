@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
@@ -30,14 +29,14 @@ import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetai
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsUnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.createProjectDetailsScreenActions
-import com.akiwiksten.awtimesheet.feature.projectdetails.model.rememberBaselineData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsScreen(
-    projectDetails: ProjectDetailsState,
+    projectName: String,
+    projectTime: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
+    onConfirm: (String, String) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -45,21 +44,8 @@ fun ProjectDetailsScreen(
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
-    LaunchedEffect(projectDetails) {
-        viewModel.observeDateRepository(projectDetails)
-    }
-
-    val baselineData = rememberBaselineData(
-        uiState = uiState,
-        isInitialLoadComplete = isInitialLoadComplete,
-        projectDetails = projectDetails
-    )
-
-    val hasUnsavedChanges = remember(baselineData, uiState) {
-        baselineData != null &&
-            (uiState as? ProjectDetailsUiState.Success)?.details?.let { current ->
-                hasChanges(current = current, baseline = baselineData)
-            } == true
+    LaunchedEffect(projectName, projectTime) {
+        viewModel.observeDateRepository(projectName, projectTime)
     }
 
     val shouldEnableConfirmForInitialProjectTime = remember(uiState) {
@@ -69,11 +55,7 @@ fun ProjectDetailsScreen(
             ?.let { it.isNotBlank() && it != ZERO_TIME } == true
     }
 
-    val guardedNavigateBack = {
-        if (hasUnsavedChanges) showUnsavedDialogState.value = true else onNavigateBack()
-    }
-
-    BackHandler(onBack = guardedNavigateBack)
+    BackHandler(onBack = onNavigateBack)
 
     ProjectDetailsUnsavedChangesDialog(
         showState = showUnsavedDialogState,
@@ -84,17 +66,16 @@ fun ProjectDetailsScreen(
     )
 
     Scaffold(
-        topBar = { ProjectDetailsTopBar(onNavigateBack = guardedNavigateBack) }
+        topBar = { ProjectDetailsTopBar(onNavigateBack = onNavigateBack) }
     ) { padding ->
         val actions = remember(viewModel, onConfirm) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success
                     ?: return@createProjectDetailsScreenActions
+                viewModel.saveProjectDetails(successState.details)
                 onConfirm(
-                    successState.details,
-                    successState.settings.copy(
-                        dailyLunchTimeEstimate = successState.details.lunchTimeEstimate
-                    )
+                    successState.details.projectName,
+                    successState.details.projectTime
                 )
             }
         }
@@ -103,7 +84,7 @@ fun ProjectDetailsScreen(
             padding = padding,
             uiState = uiState,
             actions = actions,
-            isConfirmEnabled = hasUnsavedChanges || shouldEnableConfirmForInitialProjectTime
+            isConfirmEnabled = true// shouldEnableConfirmForInitialProjectTime
         )
     }
 }

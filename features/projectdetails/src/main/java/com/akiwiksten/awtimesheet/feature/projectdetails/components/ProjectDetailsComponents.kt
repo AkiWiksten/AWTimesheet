@@ -196,7 +196,7 @@ internal fun ProjectDetailsUnsavedChangesDialog(
     uiState: ProjectDetailsUiState,
     unsavedMessage: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
+    onConfirm: (String, String) -> Unit,
 ) {
     if (!showState.value) return
     val successState = uiState as? ProjectDetailsUiState.Success
@@ -206,8 +206,8 @@ internal fun ProjectDetailsUnsavedChangesDialog(
         onSave = successState?.let {
             {
                 onConfirm(
-                    it.details,
-                    it.settings.copy(dailyLunchTimeEstimate = it.details.lunchTimeEstimate)
+                    it.details.projectName,
+                    it.details.projectTime
                 )
             }
         },

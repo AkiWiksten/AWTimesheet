@@ -82,14 +82,6 @@ object ProjectDetailsUiMapper {
         )
     }
 
-    fun normalizeProjectTimeOnOpen(startTime: String, endTime: String, projectTime: String): String {
-        return if (startTime == ZERO_TIME && endTime == ZERO_TIME && projectTime != ZERO_TIME) {
-            ZERO_TIME
-        } else {
-            projectTime
-        }
-    }
-
     fun normalizeProjectDetails(
         projectDetails: ProjectDetailsState?,
         settings: SettingsState?

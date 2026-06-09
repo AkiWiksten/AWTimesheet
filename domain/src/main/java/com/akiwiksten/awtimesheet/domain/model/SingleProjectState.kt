@@ -6,7 +6,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SingleProjectState(
-    val index: Int = -1,
+    val listIndex: Int = -1,
+    val isAddMode: Boolean = true,
     val projectName: String = "",
     val projectTime: String = ZERO_TIME,
     val kilometres: String = "0",

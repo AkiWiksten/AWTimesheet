@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 class SaveWorkdayUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
-    private val projectDetailsRepository: ProjectDetailsRepository,
     private val settingsRepository: SettingsRepository,
     private val workdayRepository: WorkdayRepository
 ) {
@@ -29,10 +28,6 @@ class SaveWorkdayUseCase @Inject constructor(
 
         projectRepository.insertProjectName(projectToSave.projectName)
         projectRepository.insertProject(projectToSave)
-
-        projectDetailsToSave?.let {
-            projectDetailsRepository.insertProjectDetails(it)
-        }
 
         if (projectToSave.date.isNotEmpty()) {
             val existing = settingsRepository.getEffectiveSettingsForDate(projectToSave.date)
@@ -61,12 +56,6 @@ class SaveWorkdayUseCase @Inject constructor(
             .filterNot { it.projectName == projectToSave.projectName }
             .forEach { project ->
                 projectRepository.deleteProject(project)
-                projectDetailsRepository.deleteProjectDetails(
-                    ProjectDetailsState(
-                        date = project.date,
-                        projectName = project.projectName
-                    )
-                )
             }
     }
 

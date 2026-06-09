@@ -30,7 +30,9 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.withFlexDayLogic
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
-    args: SingleProjectScreenArgs,
+    projectName: String,
+    isAddMode: Boolean,
+    listIndex: Int,
     navigationActions: SingleProjectNavigationActions,
     viewModel: SingleProjectViewModel = hiltViewModel(),
 ) {
@@ -42,36 +44,42 @@ fun SingleProjectScreen(
         viewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
     }
 
-    LaunchedEffect(
-        args.initialSingleProjectState.date,
-        args.initialSingleProjectState.projectName,
-        args.initialSingleProjectState.projectTime
-    ) {
+    LaunchedEffect(projectName, isAddMode, listIndex) {
         viewModel.initializeState(
-            singleProjectState = args.initialSingleProjectState,
+            projectName = projectName,
+            isAddMode = isAddMode,
+            listIndex = listIndex
         )
     }
 
     val uiState by viewModel.uiState.collectAsState()
 
-    SingleProjectScreenStateful(
-        args = args,
-        uiState = uiState,
-        onNavigateBack = navigationActions.onNavigateBack,
-        onOpenProjectDetails = navigationActions.onOpenProjectDetails,
-        onSave = { state ->
-            viewModel.saveProject(state, args.initialProjectDetails, args.initialSettings)
-            Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+    when (uiState) {
+        is SingleProjectUiState.Success -> {
+            SingleProjectScreenStateful(
+                uiState = uiState,
+                onNavigateBack = navigationActions.onNavigateBack,
+                onOpenProjectDetails = navigationActions.onOpenProjectDetails,
+                onSave = { state ->
+                    viewModel.saveProject(state)
+                    Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+                }
+            )
         }
-    )
+        is SingleProjectUiState.Loading -> {
+            // Show loading state or do nothing, don't try to render stateful yet
+        }
+        is SingleProjectUiState.Error -> {
+            // Handle error state
+        }
+    }
 }
 
 @Composable
 private fun SingleProjectScreenStateful(
-    args: SingleProjectScreenArgs,
     uiState: SingleProjectUiState,
     onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    onOpenProjectDetails: (SingleProjectState) -> Unit,
     onSave: (SingleProjectState) -> Unit
 ) {
     val noAllowanceText = stringResource(id = R.string.no_allowance)
@@ -80,14 +88,12 @@ private fun SingleProjectScreenStateful(
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
 
     val initialUiState = remember(
-        args,
         uiState,
         noAllowanceText,
         defaultWorkTypeText,
         absencePrefix
     ) {
         resolveFullInitialSingleProjectState(
-            args = args,
             uiState = uiState,
             noAllowanceText = noAllowanceText,
             defaultWorkTypeText = defaultWorkTypeText,
@@ -104,19 +110,17 @@ private fun SingleProjectScreenStateful(
         state = state,
         initialUiState = initialUiState,
         singleProjectUiState = uiState,
-        currentIndex = args.initialSingleProjectState.index
     )
 
     // Build screen state from form state and derived flags
     val screenState = createSingleProjectScreenState(
-        args = args,
         uiState = uiState,
         state = state,
         derived = derived
     )
     val actions = SingleProjectActions(
         onStateChange = { newState ->
-            val settings = (uiState as? SingleProjectUiState.Success)?.settings ?: args.initialSettings
+            val settings = (uiState as? SingleProjectUiState.Success)?.settings
             state = newState
                 .withAbsenceLogic(state, settings, absencePrefix)
                 .withFlexDayLogic(
@@ -125,7 +129,7 @@ private fun SingleProjectScreenStateful(
                     flexDayWorkType = flexDayWorkType
                 )
         },
-        onOpenProjectDetails = { onOpenProjectDetails(state, args.initialProjectDetails) },
+        onOpenProjectDetails = { onOpenProjectDetails(state) },
         onConfirm = {
             onSave(state)
             onNavigateBack()
@@ -133,15 +137,14 @@ private fun SingleProjectScreenStateful(
     )
 
     SingleProjectScreenContent(
-        screenState = screenState,
-        actions = actions,
-        hasUnsavedChanges = derived.hasUnsavedChanges,
-        onNavigateBack = onNavigateBack
-    )
+         screenState = screenState,
+         actions = actions,
+         hasUnsavedChanges = derived.hasUnsavedChanges,
+         onNavigateBack = onNavigateBack
+     )
 }
 
 private fun createSingleProjectScreenState(
-    args: SingleProjectScreenArgs,
     uiState: SingleProjectUiState,
     state: SingleProjectState,
     derived: SingleProjectDerivedState
@@ -149,9 +152,9 @@ private fun createSingleProjectScreenState(
     val successData = (uiState as? SingleProjectUiState.Success)?.data
     return SingleProjectScreenState(
         date = successData?.date ?: "",
-        editedProjectIndex = args.initialSingleProjectState.index,
+        editedProjectIndex = successData?.listIndex ?: -1,
         state = state,
-        isAddMode = args.initialSingleProjectState.index == -1,
+        isAddMode = successData?.isAddMode ?: true,
         uiState = uiState,
         isConfirmEnabled = derived.isConfirmEnabled,
         isDuplicateProjectName = derived.isDuplicate
@@ -162,28 +165,27 @@ private fun createSingleProjectScreenState(
 private fun rememberSingleProjectDerivedState(
     state: SingleProjectState,
     initialUiState: SingleProjectState,
-    currentIndex: Int,
     singleProjectUiState: SingleProjectUiState
 ): SingleProjectDerivedState {
     val hasUnsavedChanges by remember(state, initialUiState) {
         derivedStateOf { hasChanges(current = state, baseline = initialUiState) }
     }
-    val isDuplicate by remember(state.projectName, singleProjectUiState, currentIndex) {
+    val isDuplicate by remember(state.projectName, singleProjectUiState, initialUiState.listIndex) {
         derivedStateOf {
             isDuplicateProjectName(
                 projectName = state.projectName,
-                currentIndex = currentIndex,
+                currentIndex = initialUiState.listIndex,
                 singleProjectState = (singleProjectUiState as? SingleProjectUiState.Success)?.data
             )
         }
     }
-    val isConfirmEnabled by remember(state, hasUnsavedChanges, isDuplicate, currentIndex) {
+    val isConfirmEnabled by remember(state, hasUnsavedChanges, isDuplicate, initialUiState.listIndex) {
         derivedStateOf {
             isSingleProjectConfirmEnabled(
                 state = state,
                 hasUnsavedChanges = hasUnsavedChanges,
                 isDuplicateProjectName = isDuplicate,
-                isAddMode = currentIndex == -1
+                isAddMode = initialUiState.isAddMode
             )
         }
     }

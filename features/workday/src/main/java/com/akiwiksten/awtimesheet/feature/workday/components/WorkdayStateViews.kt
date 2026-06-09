@@ -101,7 +101,7 @@ internal fun WorkdaySuccessContent(
             .map { it.toListItemUiModel() }
     }
     val selectedItemKey = remember(state.projects, selectedItemIndex) {
-        state.projects.firstOrNull { it.index == selectedItemIndex }?.stableListItemKey()
+        state.projects.firstOrNull { it.listIndex == selectedItemIndex }?.stableListItemKey()
     }
     WorkdayHeaderSection(date = state.date)
     if (state.isFlexTimeByDateSpecialRuleApplied) {
@@ -144,7 +144,7 @@ private fun WorkdayActionButtons(
         ),
         onAddClick = {
             actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.workTimeByDate)
-            actions.onNavigateToSingleProject(SingleProjectState(index = -1, date = state.date))
+            actions.onNavigateToSingleProject(SingleProjectState(listIndex = -1, date = state.date))
         },
         onEditClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let { selectedProject ->
@@ -285,7 +285,7 @@ private fun SaveWorkTimeEstimateDialog(
 
 private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
     return WorkdayListItemUiModel(
-        index = index,
+        index = listIndex,
         projectName = projectName,
         projectTime = projectTime,
         kilometres = kilometres,
@@ -299,5 +299,5 @@ private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
 
 private fun SingleProjectState.stableListItemKey(): String {
     val datePart = if (date.isNotBlank()) date else "<no-date>"
-    return "$datePart|index:$index|$projectName|$projectTime|$kilometres|$allowance|$workType"
+    return "$datePart|index:$listIndex|$projectName|$projectTime|$kilometres|$allowance|$workType"
 }

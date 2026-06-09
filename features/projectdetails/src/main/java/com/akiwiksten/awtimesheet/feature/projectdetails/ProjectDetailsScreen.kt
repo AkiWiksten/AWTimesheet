@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,20 +44,38 @@ fun ProjectDetailsScreen(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by viewModel.uiState.collectAsState()
+    val latestUiState by rememberUpdatedState(uiState)
+    var skipDeleteDraftOnExit by rememberSaveable { mutableStateOf(false) }
     val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
-    DisposableEffect(lifecycleOwner) {
+    val navigateBackToSingleProject = {
+        skipDeleteDraftOnExit = true
+        onNavigateBack()
+    }
+
+    val confirmAndNavigateBackToSingleProject: (String, String) -> Unit = {
+        confirmedProjectName, confirmedProjectTime ->
+            skipDeleteDraftOnExit = true
+            onConfirm(confirmedProjectName, confirmedProjectTime)
+    }
+
+    DisposableEffect(lifecycleOwner, projectName, projectTime) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
-                    // Screen no longer visible (navigated away, app background, etc.)
-                    viewModel.deleteDraftProject(
-                        projectName = (uiState as? ProjectDetailsUiState.Success)?.details?.projectName ?: ""
-                    )
+                    // Keep draft when intentionally returning to SingleProject.
+                    if (!skipDeleteDraftOnExit) {
+                        viewModel.deleteDraftProject(
+                            projectName = (latestUiState as? ProjectDetailsUiState.Success)?.details?.projectName
+                                ?: ""
+                        )
+                    }
                 }
-
+                Lifecycle.Event.ON_START -> {
+                    viewModel.observeDateRepository(projectName = projectName, projectTime = projectTime)
+                }
                 else -> Unit
             }
         }
@@ -69,18 +88,6 @@ fun ProjectDetailsScreen(
         }
     }
 
-    DisposableEffect(lifecycleOwner, projectName, projectTime) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START) {
-                viewModel.observeDateRepository(projectName = projectName, projectTime = projectTime)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
     val shouldEnableConfirmForInitialProjectTime = remember(uiState) {
         (uiState as? ProjectDetailsUiState.Success)
             ?.details
@@ -88,14 +95,14 @@ fun ProjectDetailsScreen(
             ?.let { it.isNotBlank() && it != ZERO_TIME } == true
     }
 
-    BackHandler(onBack = onNavigateBack)
+    BackHandler(onBack = navigateBackToSingleProject)
 
     ProjectDetailsUnsavedChangesDialog(
         showState = showUnsavedDialogState,
         uiState = uiState,
         unsavedMessage = unsavedMessage,
-        onNavigateBack = onNavigateBack,
-        onConfirm = onConfirm
+        onNavigateBack = navigateBackToSingleProject,
+        onConfirm = confirmAndNavigateBackToSingleProject
     )
 
     Scaffold(
@@ -106,7 +113,7 @@ fun ProjectDetailsScreen(
                 val successState = uiState as? ProjectDetailsUiState.Success
                     ?: return@createProjectDetailsScreenActions
                 viewModel.saveProjectDetails(successState.details)
-                onConfirm(
+                confirmAndNavigateBackToSingleProject(
                     successState.details.projectName,
                     successState.details.projectTime
                 )

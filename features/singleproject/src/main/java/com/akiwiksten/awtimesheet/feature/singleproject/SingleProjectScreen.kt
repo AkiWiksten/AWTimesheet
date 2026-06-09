@@ -10,6 +10,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -44,15 +45,35 @@ fun SingleProjectScreen(
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+    var skipDeleteDraftOnExit by rememberSaveable { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val openProjectDetails: (SingleProjectState) -> Unit = { state ->
+        skipDeleteDraftOnExit = true
+        viewModel.saveProject(state = state, isDraft = true)
+        navigationActions.onOpenProjectDetails(state)
+    }
+
+    val saveAndNavigateBackToWorkday: (SingleProjectState) -> Unit = { state ->
+        skipDeleteDraftOnExit = true
+        viewModel.saveProject(state)
+        Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
+        navigationActions.onNavigateBack()
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
+                Lifecycle.Event.ON_START -> {
+                    // Reset when returning so future exits can clean up drafts normally.
+                    skipDeleteDraftOnExit = false
+                }
                 Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
-                    // Screen no longer visible (navigated away, app background, etc.)
-                    viewModel.deleteDraftProject()
+                    if (!skipDeleteDraftOnExit) {
+                        // Screen no longer visible (navigated away, app background, etc.)
+                        viewModel.deleteDraftProject()
+                    }
                 }
 
                 else -> Unit
@@ -87,14 +108,8 @@ fun SingleProjectScreen(
             SingleProjectScreenStateful(
                 uiState = uiState,
                 onNavigateBack = navigationActions.onNavigateBack,
-                onOpenProjectDetails = { state ->
-                    viewModel.saveProject(state = state, isDraft = true)
-                    navigationActions.onOpenProjectDetails(state)
-                },
-                onSave = { state ->
-                    viewModel.saveProject(state)
-                    Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
-                }
+                onOpenProjectDetails = openProjectDetails,
+                onSaveAndNavigateBack = saveAndNavigateBackToWorkday
             )
         }
         is SingleProjectUiState.Loading -> {
@@ -111,7 +126,7 @@ private fun SingleProjectScreenStateful(
     uiState: SingleProjectUiState,
     onNavigateBack: () -> Unit,
     onOpenProjectDetails: (SingleProjectState) -> Unit,
-    onSave: (SingleProjectState) -> Unit
+    onSaveAndNavigateBack: (SingleProjectState) -> Unit
 ) {
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
@@ -161,10 +176,7 @@ private fun SingleProjectScreenStateful(
                 )
         },
         onOpenProjectDetails = { onOpenProjectDetails(state) },
-        onConfirm = {
-            onSave(state)
-            onNavigateBack()
-        }
+        onConfirm = { onSaveAndNavigateBack(state) }
     )
 
     SingleProjectScreenContent(

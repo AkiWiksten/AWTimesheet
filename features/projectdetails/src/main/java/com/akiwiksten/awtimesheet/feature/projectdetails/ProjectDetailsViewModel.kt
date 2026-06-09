@@ -17,6 +17,7 @@ import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
+import com.akiwiksten.awtimesheet.domain.usecase.DeleteDraftProjectUseCase
 import com.akiwiksten.awtimesheet.feature.projectdetails.calculator.ProjectDetailsTimeUpdateCalculator
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsField
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsUiMapper
@@ -51,7 +52,8 @@ class ProjectDetailsViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val projectDetailsRepository: ProjectDetailsRepository,
     private val settingsRepository: SettingsRepository,
-    private val dateRepository: DateRepository
+    private val dateRepository: DateRepository,
+    private val deleteDraftProjectUseCase: DeleteDraftProjectUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProjectDetailsUiState>(ProjectDetailsUiState.Loading)
@@ -427,19 +429,7 @@ class ProjectDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val date = dateRepository.selectedDate.value
-                val projectToDelete = projectRepository.getProject(
-                    date = date,
-                    projectName = projectName
-                )
-                if (projectToDelete?.isDraft == true) {
-                    projectRepository.deleteProject(projectToDelete)
-                    projectDetailsRepository.deleteProjectDetails(
-                        ProjectDetailsState(
-                            date = date,
-                            projectName = projectName
-                        )
-                    )
-                }
+                deleteDraftProjectUseCase(date = date, projectName = projectName)
             } catch (e: IllegalArgumentException) {
                 Log.e("SingleProjectViewModel", "deleteDraftProject: ", e)
             } catch (e: IllegalStateException) {

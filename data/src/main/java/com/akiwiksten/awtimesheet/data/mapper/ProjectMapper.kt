@@ -12,6 +12,7 @@ fun ProjectEntity.toDomain(): SingleProjectState {
         kilometres = kilometres.toString(),
         allowance = allowance,
         workType = workType,
+        isDraft = isDraft
     )
 }
 

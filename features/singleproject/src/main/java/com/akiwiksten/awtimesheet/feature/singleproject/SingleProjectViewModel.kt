@@ -12,6 +12,7 @@ import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
+import com.akiwiksten.awtimesheet.domain.usecase.DeleteDraftProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,8 +39,8 @@ sealed class SingleProjectUiState {
 @HiltViewModel
 class SingleProjectViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
-    private val projectDetailsRepository: ProjectDetailsRepository,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
+    private val deleteDraftProjectUseCase: DeleteDraftProjectUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -80,7 +81,7 @@ class SingleProjectViewModel @Inject constructor(
                     settings = settings,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
-                        projectTime = project?.projectTime ?: currentData.projectTime,
+                        projectTime = projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },
                         kilometres = project?.kilometres ?: currentData.kilometres,
                         allowance = project?.allowance ?: currentData.allowance,
                         workType = project?.workType ?: currentData.workType,
@@ -133,19 +134,7 @@ class SingleProjectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val date = dateRepository.selectedDate.value
-                val projectToDelete = projectRepository.getProject(
-                    date = date,
-                    projectName = selectedProjectName.value
-                )
-                if (projectToDelete?.isDraft == true) {
-                    projectRepository.deleteProject(projectToDelete)
-                    projectDetailsRepository.deleteProjectDetails(
-                        ProjectDetailsState(
-                            date = date,
-                            projectName = selectedProjectName.value
-                        )
-                    )
-                }
+                deleteDraftProjectUseCase(date = date, projectName = selectedProjectName.value)
             } catch (e: IllegalArgumentException) {
                 Log.e("SingleProjectViewModel", "deleteDraftProject: ", e)
             } catch (e: IllegalStateException) {

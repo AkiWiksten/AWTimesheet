@@ -193,7 +193,6 @@ private fun WorkdayNavEntry(backStack: SnapshotStateList<Any>) {
             backStack.add(
                 element = Screen.SingleProject(
                     listIndex = project.listIndex,
-                    date = project.date,
                     projectName = project.projectName
                 )
             )

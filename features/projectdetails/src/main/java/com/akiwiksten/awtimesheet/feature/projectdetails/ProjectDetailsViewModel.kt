@@ -10,10 +10,12 @@ import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.hasOnlyProjectTime
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
+import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.feature.projectdetails.calculator.ProjectDetailsTimeUpdateCalculator
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsField
@@ -46,6 +48,7 @@ sealed class ProjectDetailsUiState {
  */
 @HiltViewModel
 class ProjectDetailsViewModel @Inject constructor(
+    private val projectRepository: ProjectRepository,
     private val projectDetailsRepository: ProjectDetailsRepository,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
@@ -71,7 +74,6 @@ class ProjectDetailsViewModel @Inject constructor(
                     )
                 loadProjectDetails(
                     date = date,
-                    projectName = currentDetails.projectName,
                     projectDetailsArg = currentDetails.copy(date = date)
                 )
             }
@@ -283,7 +285,6 @@ class ProjectDetailsViewModel @Inject constructor(
 
     fun loadProjectDetails(
         date: String,
-        projectName: String,
         projectDetailsArg: ProjectDetailsState? = null
     ) {
         if (date.isBlank()) {
@@ -298,10 +299,10 @@ class ProjectDetailsViewModel @Inject constructor(
         }
         val baseState = (currentState as? ProjectDetailsUiState.Success)
             ?.let { successState ->
-                successState.copy(details = successState.details.copy(date = date, projectName = projectName))
+                successState.copy(details = successState.details.copy(date = date, projectName = projectDetailsArg?.projectName ?: ""))
             }
             ?: ProjectDetailsUiState.Success(
-                details = ProjectDetailsState(date = date, projectName = projectName)
+                details = ProjectDetailsState(date = date, projectName = projectDetailsArg?.projectName ?: "")
             )
         // Cancel any in-flight load so rapid date changes always keep the latest result.
         loadProjectDetailsJob?.cancel()
@@ -309,7 +310,7 @@ class ProjectDetailsViewModel @Inject constructor(
             loadProjectDetailsInternal(
                 baseState = baseState,
                 date = date,
-                projectName = projectName,
+                projectName = projectDetailsArg?.projectName ?: "",
                 projectDetailsArg = projectDetailsArg,
                 showLoading = showLoading
             )
@@ -328,14 +329,13 @@ class ProjectDetailsViewModel @Inject constructor(
         }
 
         try {
-            val loadedProjectDetails = resolveLoadedProjectDetails(
-                date = date,
-                projectName = projectName,
-                projectDetailsArg = projectDetailsArg
-            )
-            val settings = resolveSettings(loadedProjectDetails, date)
+            val projectDetails = projectDetailsRepository.getProjectDetails(
+                date,
+                projectName
+            ) ?: projectDetailsArg
+            val settings = resolveSettings(projectDetails, date)
             val normalizedProjectDetails = ProjectDetailsUiMapper.normalizeProjectDetails(
-                loadedProjectDetails,
+                projectDetails,
                 settings
             )
 
@@ -353,21 +353,6 @@ class ProjectDetailsViewModel @Inject constructor(
         } finally {
             _isInitialLoadComplete.value = true
         }
-    }
-
-    private suspend fun resolveLoadedProjectDetails(
-        date: String,
-        projectName: String,
-        projectDetailsArg: ProjectDetailsState?
-    ): ProjectDetailsState? {
-        if (projectDetailsArg != null && !projectDetailsArg.hasOnlyProjectTime()) {
-            return projectDetailsArg
-        }
-
-        return projectDetailsRepository.getProjectDetails(
-            date,
-            projectName
-        ) ?: projectDetailsArg
     }
 
     private suspend fun resolveSettings(
@@ -422,6 +407,15 @@ class ProjectDetailsViewModel @Inject constructor(
     fun saveProjectDetails(projectToSave: ProjectDetailsState) {
         viewModelScope.launch {
             projectDetailsRepository.insertProjectDetails(projectToSave)
+            val project = projectRepository.getProject(
+                date = projectToSave.date,
+                projectName = projectToSave.projectName
+            )
+            projectRepository.insertProject(
+                project?.copy(
+                    projectTime = projectToSave.projectTime
+                ) ?: SingleProjectState()
+            )
         }
     }
 }

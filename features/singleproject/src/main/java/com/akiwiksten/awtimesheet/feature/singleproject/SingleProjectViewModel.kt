@@ -57,6 +57,7 @@ class SingleProjectViewModel @Inject constructor(
             selectedDate.value = effectiveDate
             selectedProjectName.value = projectName
 
+
             val project = projectRepository.getProject(
                 date = effectiveDate,
                 projectName = selectedProjectName.value
@@ -76,9 +77,7 @@ class SingleProjectViewModel @Inject constructor(
                     settings = settings,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
-                        projectTime = projectTime.ifEmpty {
-                            project?.projectTime ?: currentData.projectTime
-                        },
+                        projectTime = project?.projectTime ?: currentData.projectTime,
                         kilometres = project?.kilometres ?: currentData.kilometres,
                         allowance = project?.allowance ?: currentData.allowance,
                         workType = project?.workType ?: currentData.workType,

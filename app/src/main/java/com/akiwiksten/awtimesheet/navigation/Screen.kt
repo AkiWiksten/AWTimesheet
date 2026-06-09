@@ -10,6 +10,7 @@ import com.akiwiksten.awtimesheet.core.PROJECTS_SCREEN
 import com.akiwiksten.awtimesheet.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.awtimesheet.core.SETTINGS_SCREEN
 import com.akiwiksten.awtimesheet.core.SINGLE_PROJECT_SCREEN
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import kotlinx.parcelize.Parcelize
@@ -67,9 +68,12 @@ sealed interface Screen : Parcelable {
     @Parcelize
     data class SingleProject(
         val listIndex: Int = -1,
-        val date: String? = null,
         val projectName: String? = null,
         val projectTime: String? = null,
+        val isAddMode: Boolean = true,
+        val kilometres: String = "0",
+        val allowance: String? = null,
+        val workType: String? = null,
     ) : Screen {
         override val route: String get() = SINGLE_PROJECT_SCREEN
         override val titleResId: Int? get() = null

@@ -61,7 +61,10 @@ fun SingleProjectScreen(
             SingleProjectScreenStateful(
                 uiState = uiState,
                 onNavigateBack = navigationActions.onNavigateBack,
-                onOpenProjectDetails = navigationActions.onOpenProjectDetails,
+                onOpenProjectDetails = { state ->
+                    viewModel.saveProject(state)
+                    navigationActions.onOpenProjectDetails(state)
+                },
                 onSave = { state ->
                     viewModel.saveProject(state)
                     Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()

@@ -111,9 +111,6 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
             onOpenProjectDetails = { singleProject ->
-                backStack.updateSingleProjectState(
-                    singleProject = singleProject,
-                )
                 backStack.add(
                     element = Screen.ProjectDetails(
                         projectTime = singleProject.projectTime ?: ZERO_TIME,
@@ -157,6 +154,10 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
     if (current is Screen.SingleProject) {
         this[index] = current.copy(
             projectName = singleProject.projectName,
+            projectTime = singleProject.projectTime,
+            kilometres = singleProject.kilometres,
+            allowance = singleProject.allowance,
+            workType = singleProject.workType
         )
     }
 }

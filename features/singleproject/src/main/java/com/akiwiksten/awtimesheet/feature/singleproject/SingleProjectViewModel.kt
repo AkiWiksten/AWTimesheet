@@ -51,7 +51,7 @@ class SingleProjectViewModel @Inject constructor(
         localizedFlexDayWorkType = workType
     }
 
-    fun initializeState(projectName: String, isAddMode: Boolean, listIndex: Int,) {
+    fun initializeState(projectName: String, projectTime: String, isAddMode: Boolean, listIndex: Int,) {
         viewModelScope.launch {
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
@@ -76,7 +76,9 @@ class SingleProjectViewModel @Inject constructor(
                     settings = settings,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
-                        projectTime = project?.projectTime ?: currentData.projectTime,
+                        projectTime = projectTime.ifEmpty {
+                            project?.projectTime ?: currentData.projectTime
+                        },
                         kilometres = project?.kilometres ?: currentData.kilometres,
                         allowance = project?.allowance ?: currentData.allowance,
                         workType = project?.workType ?: currentData.workType,

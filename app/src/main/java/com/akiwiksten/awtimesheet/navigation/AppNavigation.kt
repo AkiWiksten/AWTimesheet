@@ -123,6 +123,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             }
         ),
         projectName = screen.projectName ?: "",
+        projectTime = screen.projectTime ?: "",
         isAddMode = screen.listIndex == -1,
         listIndex = screen.listIndex,
     )

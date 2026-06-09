@@ -31,6 +31,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.withFlexDayLogic
 @Composable
 fun SingleProjectScreen(
     projectName: String,
+    projectTime: String,
     isAddMode: Boolean,
     listIndex: Int,
     navigationActions: SingleProjectNavigationActions,
@@ -44,9 +45,10 @@ fun SingleProjectScreen(
         viewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
     }
 
-    LaunchedEffect(projectName, isAddMode, listIndex) {
+    LaunchedEffect(projectName, projectTime, isAddMode, listIndex) {
         viewModel.initializeState(
             projectName = projectName,
+            projectTime = projectTime,
             isAddMode = isAddMode,
             listIndex = listIndex
         )

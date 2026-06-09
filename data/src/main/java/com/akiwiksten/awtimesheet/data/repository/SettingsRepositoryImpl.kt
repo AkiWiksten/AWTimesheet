@@ -26,9 +26,12 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun insertSettings(settings: SettingsState) {
         val existing = settingsDao.loadSettings()?.toDomain()
-        val shouldUpdateEstimates = settings.dailyWorkTimeEstimate.isNotEmpty() ||
-            settings.dailyLunchTimeEstimate != ZERO_TIME ||
-            settings.initialFlexTimeTotal != ZERO_TIME
+        val isStatsOnlyUpdate = settings.name.isEmpty() && settings.employer.isEmpty()
+        val shouldUpdateEstimates =
+            isStatsOnlyUpdate ||
+                settings.dailyWorkTimeEstimate.isNotEmpty() ||
+                settings.dailyLunchTimeEstimate != ZERO_TIME ||
+                settings.initialFlexTimeTotal != ZERO_TIME
 
         settingsDao.insertSettings(
             SettingsState(

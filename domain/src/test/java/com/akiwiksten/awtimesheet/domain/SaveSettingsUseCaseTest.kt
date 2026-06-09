@@ -172,4 +172,28 @@ class SaveSettingsUseCaseTest {
         assertEquals("08:00", settingsRepository.insertedSettings?.dailyWorkTimeEstimate)
         assertNull(workdayRepository.upsertedWorkdayDate)
     }
+
+    @Test
+    fun invoke_whenInitialFlexTimeIsResetToZero_persistsZeroValue() = runBlocking {
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = settingsState(initialFlexTimeTotal = "+100:00")
+        }
+        val useCase = SaveSettingsUseCase(
+            settingsRepository = settingsRepository,
+            workdayRepository = FakeWorkdayRepository(),
+            projectRepository = FakeProjectRepository(),
+            dateRepository = InMemoryDateRepository()
+        )
+
+        useCase(
+            settings = settingsState(
+                name = "Aki",
+                employer = "WorkTime",
+                workTypes = emptyList(),
+                initialFlexTimeTotal = "00:00"
+            )
+        )
+
+        assertEquals("00:00", settingsRepository.insertedSettings?.initialFlexTimeTotal)
+    }
 }

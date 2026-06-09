@@ -13,7 +13,8 @@ data class SingleProjectState(
     val kilometres: String = "0",
     val allowance: String = "",
     val workType: String = "",
-    val date: String = ""
+    val date: String = "",
+    val isDraft: Boolean = false
 ) : Parcelable
 
 fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {

@@ -299,7 +299,11 @@ class ProjectDetailsViewModel @Inject constructor(
         }
         val baseState = (currentState as? ProjectDetailsUiState.Success)
             ?.let { successState ->
-                successState.copy(details = successState.details.copy(date = date, projectName = projectDetailsArg?.projectName ?: ""))
+                successState.copy(
+                    details = successState.details.copy(
+                    date = date,
+                    projectName = projectDetailsArg?.projectName ?: "")
+                )
             }
             ?: ProjectDetailsUiState.Success(
                 details = ProjectDetailsState(date = date, projectName = projectDetailsArg?.projectName ?: "")

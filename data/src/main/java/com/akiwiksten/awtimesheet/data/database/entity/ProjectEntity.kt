@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import com.akiwiksten.awtimesheet.core.ALLOWANCE
 import com.akiwiksten.awtimesheet.core.DATE
+import com.akiwiksten.awtimesheet.core.IS_DRAFT
 import com.akiwiksten.awtimesheet.core.KILOMETRES
 import com.akiwiksten.awtimesheet.core.PROJECT_NAME
 import com.akiwiksten.awtimesheet.core.PROJECT_TABLE
@@ -25,4 +26,5 @@ data class ProjectEntity(
     @ColumnInfo(name = KILOMETRES) val kilometres: Int = 0,
     @ColumnInfo(name = ALLOWANCE) val allowance: String = "",
     @ColumnInfo(name = WORK_TYPE) val workType: String = "",
+    @ColumnInfo(name = IS_DRAFT) val isDraft: Boolean = false,
 )

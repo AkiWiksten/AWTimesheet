@@ -92,12 +92,13 @@ class SingleProjectViewModel @Inject constructor(
 
     fun saveProject(
         state: SingleProjectState,
+        isDraft: Boolean = false,
         settings: SettingsState? = null
     ) {
         viewModelScope.launch {
             try {
                 val date = dateRepository.selectedDate.first()
-                val projectToSave = state.copy(date = date)
+                val projectToSave = state.copy(date = date, isDraft = isDraft)
                 val oldWorkTimeByDate = projectRepository.getWorkTimeByDate(date)
 
                 saveWorkdayUseCase(

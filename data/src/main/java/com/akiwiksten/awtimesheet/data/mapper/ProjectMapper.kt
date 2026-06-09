@@ -23,5 +23,6 @@ fun SingleProjectState.toEntity(): ProjectEntity {
         kilometres = kilometres.toIntOrNull() ?: 0,
         allowance = allowance,
         workType = workType,
+        isDraft = isDraft
     )
 }

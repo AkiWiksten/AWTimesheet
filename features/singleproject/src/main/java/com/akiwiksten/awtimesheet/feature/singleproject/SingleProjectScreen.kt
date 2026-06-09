@@ -62,7 +62,7 @@ fun SingleProjectScreen(
                 uiState = uiState,
                 onNavigateBack = navigationActions.onNavigateBack,
                 onOpenProjectDetails = { state ->
-                    viewModel.saveProject(state)
+                    viewModel.saveProject(state = state, isDraft = true)
                     navigationActions.onOpenProjectDetails(state)
                 },
                 onSave = { state ->

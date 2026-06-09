@@ -130,7 +130,7 @@ fun SingleProjectTimePickerDialogSection(
 @Composable
 internal fun SingleProjectUpperFieldsSection(
     state: SingleProjectState,
-    isAddMode: Boolean,
+    isProjectNameEditable: Boolean,
     isDuplicateProjectName: Boolean,
     isFlexDay: Boolean,
     onStateChange: (SingleProjectState) -> Unit
@@ -149,7 +149,7 @@ internal fun SingleProjectUpperFieldsSection(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = isAddMode,
+            enabled = isProjectNameEditable,
             singleLine = true,
             isError = isDuplicateProjectName,
             supportingText = if (isDuplicateProjectName) {

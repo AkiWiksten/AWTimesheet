@@ -107,6 +107,7 @@ fun SingleProjectScreen(
         is SingleProjectUiState.Success -> {
             SingleProjectScreenStateful(
                 uiState = uiState,
+                initialProjectNameArg = projectName,
                 onNavigateBack = navigationActions.onNavigateBack,
                 onOpenProjectDetails = openProjectDetails,
                 onSaveAndNavigateBack = saveAndNavigateBackToWorkday
@@ -124,6 +125,7 @@ fun SingleProjectScreen(
 @Composable
 private fun SingleProjectScreenStateful(
     uiState: SingleProjectUiState,
+    initialProjectNameArg: String,
     onNavigateBack: () -> Unit,
     onOpenProjectDetails: (SingleProjectState) -> Unit,
     onSaveAndNavigateBack: (SingleProjectState) -> Unit
@@ -162,7 +164,8 @@ private fun SingleProjectScreenStateful(
     val screenState = createSingleProjectScreenState(
         uiState = uiState,
         state = state,
-        derived = derived
+        derived = derived,
+        isProjectNameEditable = initialProjectNameArg.isBlank()
     )
     val actions = SingleProjectActions(
         onStateChange = { newState ->
@@ -190,7 +193,8 @@ private fun SingleProjectScreenStateful(
 private fun createSingleProjectScreenState(
     uiState: SingleProjectUiState,
     state: SingleProjectState,
-    derived: SingleProjectDerivedState
+    derived: SingleProjectDerivedState,
+    isProjectNameEditable: Boolean
 ): SingleProjectScreenState {
     val successData = (uiState as? SingleProjectUiState.Success)?.data
     return SingleProjectScreenState(
@@ -198,6 +202,7 @@ private fun createSingleProjectScreenState(
         editedProjectIndex = successData?.listIndex ?: -1,
         state = state,
         isAddMode = successData?.isAddMode ?: true,
+        isProjectNameEditable = isProjectNameEditable,
         uiState = uiState,
         isConfirmEnabled = derived.isConfirmEnabled,
         isDuplicateProjectName = derived.isDuplicate

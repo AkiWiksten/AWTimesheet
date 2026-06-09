@@ -32,6 +32,7 @@ import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
@@ -232,6 +233,10 @@ private fun SingleProjectContent(
             workTimeByDate = workTimeByDate
         )
 
+        if (screenState.isAddMode) {
+            NoteBanner(stringResource(id = R.string.project_name_note))
+        }
+
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             modifier = Modifier.fillMaxWidth()
@@ -265,7 +270,7 @@ private fun SingleProjectFormFields(
     ) {
         SingleProjectUpperFieldsSection(
             state = screenState.state,
-            isAddMode = screenState.isAddMode,
+            isProjectNameEditable = screenState.isProjectNameEditable,
             isDuplicateProjectName = screenState.isDuplicateProjectName,
             isFlexDay = isFlexDay,
             onStateChange = actions.onStateChange

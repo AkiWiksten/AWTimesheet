@@ -21,6 +21,7 @@ fun PreviewSingleProjectLoading() {
             editedProjectIndex = 0,
             state = SingleProjectState(),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Loading,
             isConfirmEnabled = false,
             isDuplicateProjectName = false
@@ -44,6 +45,7 @@ fun PreviewSingleProjectSuccessAdd() {
                 workType = "Installation",
             ),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
@@ -79,6 +81,7 @@ fun PreviewSingleProjectSuccessEdit() {
                 workType = "Maintenance",
             ),
             isAddMode = false,
+            isProjectNameEditable = false,
             uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
@@ -111,6 +114,7 @@ fun PreviewSingleProjectDuplicateName() {
                 projectTime = "01:00",
             ),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
@@ -139,6 +143,7 @@ fun PreviewSingleProjectError() {
             editedProjectIndex = -1,
             state = SingleProjectState(),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,
             isDuplicateProjectName = false

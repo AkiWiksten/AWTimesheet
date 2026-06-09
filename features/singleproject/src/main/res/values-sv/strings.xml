@@ -19,5 +19,6 @@
     <string name="full_allowance">Heldagstraktamente</string>
     <string name="half_day_allowance">Halvdagstraktamente</string>
     <string name="absence_prefix">Frånvaro</string>
+    <string name="project_name_note">Välj projektnamnet noggrant. Du kan inte ändra det efter att du lämnar den här skärmen.</string>
 </resources>
 

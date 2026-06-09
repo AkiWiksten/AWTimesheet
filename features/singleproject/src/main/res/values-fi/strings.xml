@@ -19,5 +19,6 @@
     <string name="full_allowance">Täysi päiväraha</string>
     <string name="half_day_allowance">Puolipäiväraha</string>
     <string name="absence_prefix">Poissaolo</string>
+    <string name="project_name_note">Valitse projektinimen huolella. Et voi muuttaa sitä poistuttuasi tältä näytöltä.</string>
 </resources>
 

@@ -27,6 +27,7 @@ data class SingleProjectScreenState(
     val editedProjectIndex: Int,
     val state: SingleProjectState,
     val isAddMode: Boolean,
+    val isProjectNameEditable: Boolean,
     val uiState: SingleProjectUiState,
     val isConfirmEnabled: Boolean,
     val isDuplicateProjectName: Boolean

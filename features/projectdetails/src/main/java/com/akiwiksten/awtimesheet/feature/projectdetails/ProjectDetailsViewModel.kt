@@ -1,8 +1,8 @@
 ﻿package com.akiwiksten.awtimesheet.feature.projectdetails
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
 import com.akiwiksten.awtimesheet.core.TIME_FORMAT
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.EndTimeUpdateParams
@@ -422,4 +422,30 @@ class ProjectDetailsViewModel @Inject constructor(
             )
         }
     }
+
+    fun deleteDraftProject(projectName: String) {
+        viewModelScope.launch {
+            try {
+                val date = dateRepository.selectedDate.value
+                val projectToDelete = projectRepository.getProject(
+                    date = date,
+                    projectName = projectName
+                )
+                if (projectToDelete?.isDraft == true) {
+                    projectRepository.deleteProject(projectToDelete)
+                    projectDetailsRepository.deleteProjectDetails(
+                        ProjectDetailsState(
+                            date = date,
+                            projectName = projectName
+                        )
+                    )
+                }
+            } catch (e: IllegalArgumentException) {
+                Log.e("SingleProjectViewModel", "deleteDraftProject: ", e)
+            } catch (e: IllegalStateException) {
+                Log.e("SingleProjectViewModel", "deleteDraftProject: ", e)
+            }
+        }
+    }
 }
+

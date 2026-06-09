@@ -24,8 +24,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsSuccessState
@@ -48,6 +46,28 @@ fun ProjectDetailsScreen(
     val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
+                    // Screen no longer visible (navigated away, app background, etc.)
+                    viewModel.deleteDraftProject(
+                        projectName = (uiState as? ProjectDetailsUiState.Success)?.details?.projectName ?: ""
+                    )
+                }
+
+                else -> Unit
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            // Composable left composition (route popped/replaced, etc.)
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     DisposableEffect(lifecycleOwner, projectName, projectTime) {
         val observer = LifecycleEventObserver { _, event ->

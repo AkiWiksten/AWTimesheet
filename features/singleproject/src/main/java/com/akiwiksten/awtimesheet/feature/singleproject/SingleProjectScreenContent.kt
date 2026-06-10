@@ -48,7 +48,8 @@ internal fun SingleProjectScreenContent(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     hasUnsavedChanges: Boolean,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onDiscardAndNavigateBack: () -> Unit = onNavigateBack
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = screenState.uiState is SingleProjectUiState.Loading
@@ -74,7 +75,7 @@ internal fun SingleProjectScreenContent(
     if (showUnsavedDialogState.value) {
         UnsavedChangesDialog(
             onDismiss = { showUnsavedDialogState.value = false },
-            onDiscard = onNavigateBack,
+            onDiscard = onDiscardAndNavigateBack,
             onSave = actions.onConfirm,
             dialogText = unsavedMessage,
             isSaveEnabled = screenState.isConfirmEnabled

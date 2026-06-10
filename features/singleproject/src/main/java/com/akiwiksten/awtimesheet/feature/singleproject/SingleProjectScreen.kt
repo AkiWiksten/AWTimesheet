@@ -209,11 +209,17 @@ private fun SingleProjectScreenStateful(
         onConfirm = { onSaveAndNavigateBack(state) }
     )
 
+    val onDiscardAndNavigateBack = {
+        state = initialUiState
+        onNavigateBack()
+    }
+
     SingleProjectScreenContent(
         screenState = screenState,
         actions = actions,
         hasUnsavedChanges = derived.hasUnsavedChanges,
-        onNavigateBack = onNavigateBack
+        onNavigateBack = onNavigateBack,
+        onDiscardAndNavigateBack = onDiscardAndNavigateBack
     )
 }
 

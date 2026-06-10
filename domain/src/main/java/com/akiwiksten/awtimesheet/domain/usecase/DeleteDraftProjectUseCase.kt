@@ -15,8 +15,8 @@ class DeleteDraftProjectUseCase @Inject constructor(
         val projectToDelete = projectRepository.getProject(
             date = date,
             projectName = projectName
-        ) ?: SingleProjectState(isDraft = true)
-        if (projectToDelete.isDraft) {
+        )
+        if (projectToDelete?.isDraft == true) {
             projectRepository.deleteProjectName(projectName)
             projectRepository.deleteProject(projectToDelete)
             projectDetailsRepository.deleteProjectDetails(

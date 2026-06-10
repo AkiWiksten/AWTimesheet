@@ -60,14 +60,18 @@ class SingleProjectStateResolverTest {
     @Test
     fun resolveFullInitialSingleProjectState_inAddMode_withAbsenceWorkType_setsInitialTimeAndName() {
         val args = SingleProjectScreenArgs(
-            initialSingleProjectState = projectState(index = -1, workType = "Absence-Sick")
+            initialSingleProjectState = projectState(listIndex = -1, workType = "Absence-Sick")
         )
         val settings = settingsState(dailyWorkTimeEstimate = "07:30")
         val argsWithSettings = args.copy(initialSettings = settings)
 
         val result = resolveFullInitialSingleProjectState(
-            args = argsWithSettings,
-            uiState = SingleProjectUiState.Loading,
+            uiState = SingleProjectUiState.Success(
+                data = argsWithSettings.initialSingleProjectState,
+                workTimeByDate = "00:00",
+                settings = argsWithSettings.initialSettings,
+                workTypes = emptyList()
+            ),
             noAllowanceText = "None",
             defaultWorkTypeText = "Other",
             absencePrefix = "Absence"

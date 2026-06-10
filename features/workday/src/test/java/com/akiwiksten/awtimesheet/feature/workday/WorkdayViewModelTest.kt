@@ -814,7 +814,6 @@ class WorkdayViewModelTest {
         }
         val saveWorkdayUseCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
-            projectDetailsRepository = projectDetailsRepository,
             settingsRepository = settingsRepository,
             workdayRepository = workdayRepository
         )

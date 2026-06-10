@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.domain.usecase.DeleteDraftProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
@@ -32,7 +33,12 @@ class SingleProjectViewModelTest {
         )
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
-        viewModel.initializeState(projectState(),)
+        viewModel.initializeState(
+            projectName = "",
+            projectTime = "",
+            isAddMode = true,
+            listIndex = 0,
+        )
         advanceUntilIdle()
 
         viewModel.saveProject(
@@ -64,10 +70,10 @@ class SingleProjectViewModelTest {
         )
 
         viewModel.initializeState(
-            projectState(
-                projectName = "Alpha",
-                date = "2026-04-10"
-            ),
+            projectName = "Alpha",
+            projectTime = "",
+            isAddMode = false,
+            listIndex = 0,
         )
         advanceUntilIdle()
 
@@ -107,7 +113,12 @@ class SingleProjectViewModelTest {
         )
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
-        viewModel.initializeState(projectState(),)
+        viewModel.initializeState(
+            projectName = "",
+            projectTime = "",
+            isAddMode = true,
+            listIndex = 0,
+        )
         advanceUntilIdle()
 
         viewModel.saveProject(
@@ -127,13 +138,17 @@ class SingleProjectViewModelTest {
         dateRepository: DateRepository
     ): SingleProjectViewModel {
         val settingsRepository = FakeSettingsRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         return SingleProjectViewModel(
             projectRepository = projectRepository,
             saveWorkdayUseCase = SaveWorkdayUseCase(
                 projectRepository = projectRepository,
-                projectDetailsRepository = FakeProjectDetailsRepository(),
                 settingsRepository = settingsRepository,
                 workdayRepository = FakeWorkdayRepository()
+            ),
+            deleteDraftProjectUseCase = DeleteDraftProjectUseCase(
+                projectRepository = projectRepository,
+                projectDetailsRepository = projectDetailsRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository

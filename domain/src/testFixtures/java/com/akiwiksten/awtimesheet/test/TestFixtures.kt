@@ -28,7 +28,7 @@ fun settingsState(
 }
 
 fun projectState(
-    index: Int = -1,
+    listIndex: Int = -1,
     date: String = "",
     projectName: String = "",
     projectTime: String = "00:00",
@@ -37,7 +37,7 @@ fun projectState(
     workType: String = "",
 ): SingleProjectState {
     return SingleProjectState(
-        index = index,
+        listIndex = listIndex,
         date = date,
         projectName = projectName,
         projectTime = projectTime,

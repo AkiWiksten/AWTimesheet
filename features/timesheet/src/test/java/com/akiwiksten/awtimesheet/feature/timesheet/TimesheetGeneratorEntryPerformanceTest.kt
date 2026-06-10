@@ -79,7 +79,7 @@ class TimesheetGeneratorEntryPerformanceTest {
 
                 projects.add(
                     projectState(
-                        index = projIndex,
+                        listIndex = projIndex,
                         date = date,
                         projectName = projectName,
                         projectTime = projectTime,

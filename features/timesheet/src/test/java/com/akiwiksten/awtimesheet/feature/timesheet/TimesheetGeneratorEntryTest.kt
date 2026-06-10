@@ -403,7 +403,7 @@ class TimesheetGeneratorEntryTest {
     )
 
     private fun sampleProject(spec: ProjectSpec) = projectState(
-        index = spec.index,
+        listIndex = spec.index,
         date = spec.date,
         projectName = spec.name,
         projectTime = spec.time,
@@ -524,7 +524,7 @@ class TimesheetGeneratorEntryExcelInspectionTest {
             params = createParams(
                 startProjects.map { spec ->
                     projectState(
-                        index = spec.index,
+                        listIndex = spec.index,
                         date = spec.date,
                         projectName = spec.name,
                         projectTime = spec.time,

@@ -113,7 +113,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             onOpenProjectDetails = { singleProject ->
                 backStack.add(
                     element = Screen.ProjectDetails(
-                        projectTime = singleProject.projectTime ?: ZERO_TIME,
+                        projectTime = singleProject.projectTime,
                         projectName = singleProject.projectName
                     )
                 )

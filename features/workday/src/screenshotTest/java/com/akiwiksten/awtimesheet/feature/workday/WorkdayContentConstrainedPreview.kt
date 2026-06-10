@@ -28,7 +28,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
     flexTimeTotal = "+09:45",
     projects = listOf(
         SingleProjectState(
-            index = 0,
+            listIndex = 0,
             date = "2026-05-14",
             projectName = "Alpha Site Visit",
             projectTime = "03:30",
@@ -37,7 +37,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
             workType = "Field work"
         ),
         SingleProjectState(
-            index = 1,
+            listIndex = 1,
             date = "2026-05-14",
             projectName = "Beta Planning",
             projectTime = "05:45",
@@ -46,7 +46,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
             workType = "Office"
         ),
         SingleProjectState(
-            index = 2,
+            listIndex = 2,
             date = "2026-05-14",
             projectName = "Gamma Notes"
         )

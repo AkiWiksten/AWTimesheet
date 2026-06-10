@@ -25,7 +25,7 @@ private val PreviewScreenState = SingleProjectScreenState(
     date = PREVIEW_DATE,
     editedProjectIndex = -1,
     state = SingleProjectState(
-        index = 0,
+        listIndex = 0,
         date = PREVIEW_DATE,
         projectName = "Beta Support",
         projectTime = "03:30",
@@ -45,7 +45,8 @@ private val PreviewScreenState = SingleProjectScreenState(
         workTimeByDate = "07:45"
     ),
     isConfirmEnabled = true,
-    isDuplicateProjectName = false
+    isDuplicateProjectName = false,
+    isProjectNameEditable = true
 )
 
 @PreviewTest

@@ -135,7 +135,8 @@ fun UnsavedChangesDialog(
     onDismiss: () -> Unit,
     onDiscard: () -> Unit,
     dialogText: String,
-    onSave: (() -> Unit)? = null
+    onSave: (() -> Unit)? = null,
+    isSaveEnabled: Boolean = true
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -145,7 +146,7 @@ fun UnsavedChangesDialog(
         confirmButton = {
             Row {
                 if (onSave != null) {
-                    TextButton(onClick = onSave) {
+                    TextButton(onClick = onSave, enabled = isSaveEnabled) {
                         Text(text = stringResource(id = R.string.save))
                     }
                 }

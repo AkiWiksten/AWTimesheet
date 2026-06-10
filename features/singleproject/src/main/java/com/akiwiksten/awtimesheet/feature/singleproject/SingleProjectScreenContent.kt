@@ -76,7 +76,8 @@ internal fun SingleProjectScreenContent(
             onDismiss = { showUnsavedDialogState.value = false },
             onDiscard = onNavigateBack,
             onSave = actions.onConfirm,
-            dialogText = unsavedMessage
+            dialogText = unsavedMessage,
+            isSaveEnabled = screenState.isConfirmEnabled
         )
     }
 

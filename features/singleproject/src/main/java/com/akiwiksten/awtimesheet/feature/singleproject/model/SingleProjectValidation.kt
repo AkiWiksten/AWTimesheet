@@ -1,5 +1,6 @@
 ﻿package com.akiwiksten.awtimesheet.feature.singleproject.model
 
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
@@ -20,7 +21,10 @@ internal fun isSingleProjectConfirmEnabled(
     isAddMode: Boolean
 ): Boolean {
     if (isDuplicateProjectName) return false
-    val hasProjectNameAndTime = state.projectName.isNotBlank() && state.projectTime.isNotBlank()
+    val hasProjectNameAndTime =
+        state.projectName.isNotBlank() &&
+            state.projectTime.isNotBlank() &&
+            state.projectTime != ZERO_TIME
     val hasRequiredFields = hasProjectNameAndTime &&
         (state.kilometres.isBlank() || state.kilometres.all(Char::isDigit))
     return isActionEnabled(

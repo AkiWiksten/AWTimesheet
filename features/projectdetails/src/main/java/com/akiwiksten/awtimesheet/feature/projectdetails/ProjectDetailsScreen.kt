@@ -1,5 +1,8 @@
 ﻿package com.akiwiksten.awtimesheet.feature.projectdetails
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +21,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -46,6 +50,7 @@ fun ProjectDetailsScreen(
     onConfirm: (String, String) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
     val latestUiState by rememberUpdatedState(uiState)
@@ -74,6 +79,7 @@ fun ProjectDetailsScreen(
         routeArgs = routeArgs,
         latestUiState = latestUiState,
         skipDeleteDraftOnExit = skipDeleteDraftOnExit,
+        isChangingConfigurations = { context.findActivity()?.isChangingConfigurations == true },
         viewModel = viewModel
     )
 
@@ -101,14 +107,15 @@ private fun ProjectDetailsLifecycleObserver(
     routeArgs: ProjectDetailsRouteArgs,
     latestUiState: ProjectDetailsUiState,
     skipDeleteDraftOnExit: Boolean,
+    isChangingConfigurations: () -> Boolean,
     viewModel: ProjectDetailsViewModel
 ) {
-    DisposableEffect(lifecycleOwner, routeArgs, skipDeleteDraftOnExit, latestUiState) {
+    DisposableEffect(lifecycleOwner, routeArgs, skipDeleteDraftOnExit, latestUiState, isChangingConfigurations) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
-                    // Keep draft when intentionally returning to SingleProject.
-                    if (!skipDeleteDraftOnExit) {
+                Lifecycle.Event.ON_STOP -> {
+                    // Keep draft when intentionally returning or when Activity restarts on configuration change.
+                    if (!skipDeleteDraftOnExit && !isChangingConfigurations()) {
                         viewModel.deleteDraftProject(
                             (latestUiState as? ProjectDetailsUiState.Success)?.details?.projectName ?: ""
                         )
@@ -127,6 +134,14 @@ private fun ProjectDetailsLifecycleObserver(
             // Composable left composition (route popped/replaced, etc.)
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+}
+
+private tailrec fun Context.findActivity(): Activity? {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
     }
 }
 

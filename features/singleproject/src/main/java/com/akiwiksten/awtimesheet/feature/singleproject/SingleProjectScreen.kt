@@ -41,7 +41,8 @@ fun SingleProjectScreen(
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
-    var skipDeleteDraftOnExit by rememberSaveable { mutableStateOf(false) }
+    // Keep this ephemeral so a recreated screen does not keep an old skip flag.
+    var skipDeleteDraftOnExit by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -177,10 +178,8 @@ private fun SingleProjectScreenStateful(
         )
     }
 
-    var state by remember(initialUiState) { mutableStateOf(value = initialUiState) }
-
-    // Mutable state for form edits; updates when ViewModel data changes (e.g., returning from ProjectDetailsScreen)
-    LaunchedEffect(initialUiState) { state = initialUiState }
+    // Keep in-progress form edits through configuration changes, but reset when baseline data changes.
+    var state by rememberSaveable(initialUiState) { mutableStateOf(value = initialUiState) }
 
     val derived = rememberSingleProjectDerivedState(
         state = state,

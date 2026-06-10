@@ -184,6 +184,7 @@ internal fun SingleProjectUpperFieldsSection(
 @Composable
 private fun ProjectTimeSelectionRow(
     state: SingleProjectState,
+    isProjectDetailsEnabled: Boolean,
     onOpenProjectDetails: () -> Unit,
     onOpenTimePicker: () -> Unit,
     onStateChange: (SingleProjectState) -> Unit
@@ -207,6 +208,7 @@ private fun ProjectTimeSelectionRow(
             )
 
             ProjectTimeActionsColumn(
+                isProjectDetailsEnabled = isProjectDetailsEnabled,
                 onOpenProjectDetails = onOpenProjectDetails,
                 onOpenTimePicker = onOpenTimePicker
             )
@@ -245,12 +247,14 @@ private fun RowScope.ProjectTimeReadOnlyField(
 
 @Composable
 private fun ProjectTimeActionsColumn(
+    isProjectDetailsEnabled: Boolean,
     onOpenProjectDetails: () -> Unit,
     onOpenTimePicker: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         AwtButton(
             onClick = onOpenProjectDetails,
+            enabled = isProjectDetailsEnabled,
         ) {
             Icon(imageVector = Icons.Default.History, contentDescription = null)
             Spacer(modifier = Modifier.width(width = 4.dp))
@@ -298,6 +302,7 @@ internal fun SingleProjectTimeSelectionSection(
 
     ProjectTimeSelectionRow(
         state = state,
+        isProjectDetailsEnabled = state.projectName.isNotBlank(),
         onOpenProjectDetails = onOpenProjectDetails,
         onOpenTimePicker = { openTimePickerDialogState.value = true },
         onStateChange = onStateChange

@@ -13,6 +13,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -20,7 +21,6 @@ import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.feature.absence.AbsenceScreen
 import com.akiwiksten.awtimesheet.feature.absence.AbsenceViewModel
 import com.akiwiksten.awtimesheet.feature.absence.CreateAbsenceScreen
@@ -86,7 +86,7 @@ internal fun MainAppScaffold(
                     .fillMaxSize()
                     .consumeWindowInsets(innerPadding)
             ) {
-                AppNavHost(
+                WorkTimeNavDisplay(
                     backStack = backStack,
                     settingsNavigationGuard = settingsNavigationGuard,
                     modifier = Modifier.fillMaxSize()
@@ -94,19 +94,6 @@ internal fun MainAppScaffold(
             }
         }
     }
-}
-
-@Composable
-internal fun AppNavHost(
-    backStack: SnapshotStateList<Any>,
-    settingsNavigationGuard: SettingsNavigationGuard,
-    modifier: Modifier = Modifier
-) {
-    WorkTimeNavDisplay(
-        backStack = backStack,
-        settingsNavigationGuard = settingsNavigationGuard,
-        modifier = modifier
-    )
 }
 
 @Composable
@@ -133,52 +120,79 @@ internal fun WorkTimeNavDisplay(
         }
     )
 
+    MainNavDisplayContent(
+        backStack = backStack,
+        settingsNavigationGuard = settingsNavigationGuard,
+        absenceViewModel = absenceViewModel,
+        onUnsavedChangesBlocked = { showUnsavedBackDialog = true },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun MainNavDisplayContent(
+    backStack: SnapshotStateList<Any>,
+    settingsNavigationGuard: SettingsNavigationGuard,
+    absenceViewModel: AbsenceViewModel,
+    onUnsavedChangesBlocked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     NavDisplay(
         backStack = backStack,
         onBack = createGuardedBackAction(
             backStack = backStack,
             hasUnsavedChanges = settingsNavigationGuard.hasUnsavedChanges,
-            onUnsavedChangesBlocked = { showUnsavedBackDialog = true }
+            onUnsavedChangesBlocked = onUnsavedChangesBlocked
         ),
         modifier = modifier,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
         ),
-        entryProvider = entryProvider {
-            entry<Screen.Intro> {
-                IntroNavEntry(backStack = backStack)
-            }
-            entry<Screen.Calendar> {
-                CalendarScreen(onNavigateToAbsence = { backStack.add(element = Screen.Absence) })
-            }
-            entry<Screen.Absence> {
-                AbsenceScreen(
-                    onNavigateBack = { backStack.pop() },
-                    onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) },
-                    viewModel = absenceViewModel
-                )
-            }
-            entry<Screen.CreateAbsence> {
-                CreateAbsenceScreen(
-                    onNavigateBack = { backStack.pop() },
-                    onAbsenceCreated = absenceViewModel::addAbsence
-                )
-            }
-            entry<Screen.Workday> {
-                WorkdayNavEntry(backStack = backStack)
-            }
-            entry<Screen.Settings> {
-                SettingsNavEntry(settingsNavigationGuard = settingsNavigationGuard)
-            }
-            entry<Screen.ProjectDetails> { screen ->
-                ProjectDetailsEntry(screen = screen, backStack = backStack)
-            }
-            entry<Screen.SingleProject> { screen ->
-                SingleProjectEntry(screen = screen, backStack = backStack)
-            }
-        }
+        entryProvider = appEntryProvider(
+            backStack = backStack,
+            settingsNavigationGuard = settingsNavigationGuard,
+            absenceViewModel = absenceViewModel
+        )
     )
+}
+
+private fun appEntryProvider(
+    backStack: SnapshotStateList<Any>,
+    settingsNavigationGuard: SettingsNavigationGuard,
+    absenceViewModel: AbsenceViewModel
+) = entryProvider<Any> {
+    entry<Screen.Intro> {
+        IntroNavEntry(backStack = backStack)
+    }
+    entry<Screen.Calendar> {
+        CalendarScreen(onNavigateToAbsence = { backStack.add(element = Screen.Absence) })
+    }
+    entry<Screen.Absence> {
+        AbsenceScreen(
+            onNavigateBack = { backStack.pop() },
+            onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) },
+            viewModel = absenceViewModel
+        )
+    }
+    entry<Screen.CreateAbsence> {
+        CreateAbsenceScreen(
+            onNavigateBack = { backStack.pop() },
+            onAbsenceCreated = absenceViewModel::addAbsence
+        )
+    }
+    entry<Screen.Workday> {
+        WorkdayNavEntry(backStack = backStack)
+    }
+    entry<Screen.Settings> {
+        SettingsNavEntry(settingsNavigationGuard = settingsNavigationGuard)
+    }
+    entry<Screen.ProjectDetails> { screen ->
+        ProjectDetailsEntry(screen = screen, backStack = backStack)
+    }
+    entry<Screen.SingleProject> { screen ->
+        SingleProjectEntry(screen = screen, backStack = backStack)
+    }
 }
 
 @Composable

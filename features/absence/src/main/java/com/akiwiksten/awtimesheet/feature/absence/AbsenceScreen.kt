@@ -41,7 +41,6 @@ fun AbsenceScreen(
     viewModel: AbsenceViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val savedAbsences = uiState.savedAbsences
 
     Scaffold(
         topBar = {
@@ -58,46 +57,59 @@ fun AbsenceScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        AbsenceContent(
+            savedAbsences = uiState.savedAbsences,
+            onNavigateToCreateAbsence = onNavigateToCreateAbsence,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(all = PADDING_SPACING)
                 .padding(bottom = LocalContentBottomPadding.current),
-            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
-            horizontalAlignment = Alignment.Start
+        )
+    }
+}
+
+@Composable
+private fun AbsenceContent(
+    savedAbsences: List<SavedAbsence>,
+    onNavigateToCreateAbsence: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
+        horizontalAlignment = Alignment.Start
+    ) {
+        AwtButton(
+            onClick = onNavigateToCreateAbsence,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            AwtButton(
-                onClick = onNavigateToCreateAbsence,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = stringResource(id = R.string.new_absence))
-            }
-            Text(text = stringResource(id = R.string.saved_absences_title))
-            ElevatedCard(
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
-                shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(weight = 1f)
-            ) {
-                if (savedAbsences.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = stringResource(id = R.string.no_absences))
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(all = PADDING_SPACING_SMALL),
-                        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
-                    ) {
-                        items(items = savedAbsences) { savedAbsence ->
-                            SavedAbsenceListItem(savedAbsence = savedAbsence)
-                        }
+            Text(text = stringResource(id = R.string.new_absence))
+        }
+        Text(text = stringResource(id = R.string.saved_absences_title))
+        ElevatedCard(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(weight = 1f)
+        ) {
+            if (savedAbsences.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = stringResource(id = R.string.no_absences))
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(all = PADDING_SPACING_SMALL),
+                    verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
+                ) {
+                    items(items = savedAbsences) { savedAbsence ->
+                        SavedAbsenceListItem(savedAbsence = savedAbsence)
                     }
                 }
             }

@@ -19,12 +19,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.awtimesheet.core.hasChanges
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectDerivedState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenArgs
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProjectName
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
@@ -35,10 +34,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.withFlexDayLogic
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleProjectScreen(
-    projectName: String,
-    projectTime: String,
-    isAddMode: Boolean,
-    listIndex: Int,
+    routeArgs: SingleProjectRouteArgs,
     navigationActions: SingleProjectNavigationActions,
     viewModel: SingleProjectViewModel = hiltViewModel(),
 ) {
@@ -62,17 +58,55 @@ fun SingleProjectScreen(
         navigationActions.onNavigateBack()
     }
 
-    DisposableEffect(lifecycleOwner) {
+    SingleProjectLifecycleObserver(
+        lifecycleOwner = lifecycleOwner,
+        skipDeleteDraftOnExit = skipDeleteDraftOnExit,
+        onSkipDeleteDraftOnExitChanged = { skipDeleteDraftOnExit = it },
+        onDeleteDraft = viewModel::deleteDraftProject
+    )
+
+    LaunchedEffect(flexDayWorkType) {
+        viewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
+    }
+
+    LaunchedEffect(routeArgs) {
+        viewModel.initializeState(
+            projectName = routeArgs.projectName,
+            projectTime = routeArgs.projectTime,
+            isAddMode = routeArgs.isAddMode,
+            listIndex = routeArgs.listIndex
+        )
+    }
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    SingleProjectUiStateContent(
+        uiState = uiState,
+        initialProjectNameArg = routeArgs.projectName,
+        onNavigateBack = navigationActions.onNavigateBack,
+        onOpenProjectDetails = openProjectDetails,
+        onSaveAndNavigateBack = saveAndNavigateBackToWorkday
+    )
+}
+
+@Composable
+private fun SingleProjectLifecycleObserver(
+    lifecycleOwner: androidx.lifecycle.LifecycleOwner,
+    skipDeleteDraftOnExit: Boolean,
+    onSkipDeleteDraftOnExitChanged: (Boolean) -> Unit,
+    onDeleteDraft: () -> Unit
+) {
+    DisposableEffect(lifecycleOwner, skipDeleteDraftOnExit) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
                     // Reset when returning so future exits can clean up drafts normally.
-                    skipDeleteDraftOnExit = false
+                    onSkipDeleteDraftOnExitChanged(false)
                 }
                 Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
                     if (!skipDeleteDraftOnExit) {
                         // Screen no longer visible (navigated away, app background, etc.)
-                        viewModel.deleteDraftProject()
+                        onDeleteDraft()
                     }
                 }
 
@@ -87,30 +121,24 @@ fun SingleProjectScreen(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+}
 
-    LaunchedEffect(flexDayWorkType) {
-        viewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
-    }
-
-    LaunchedEffect(projectName, projectTime, isAddMode, listIndex) {
-        viewModel.initializeState(
-            projectName = projectName,
-            projectTime = projectTime,
-            isAddMode = isAddMode,
-            listIndex = listIndex
-        )
-    }
-
-    val uiState by viewModel.uiState.collectAsState()
-
+@Composable
+private fun SingleProjectUiStateContent(
+    uiState: SingleProjectUiState,
+    initialProjectNameArg: String,
+    onNavigateBack: () -> Unit,
+    onOpenProjectDetails: (SingleProjectState) -> Unit,
+    onSaveAndNavigateBack: (SingleProjectState) -> Unit
+) {
     when (uiState) {
         is SingleProjectUiState.Success -> {
             SingleProjectScreenStateful(
                 uiState = uiState,
-                initialProjectNameArg = projectName,
-                onNavigateBack = navigationActions.onNavigateBack,
-                onOpenProjectDetails = openProjectDetails,
-                onSaveAndNavigateBack = saveAndNavigateBackToWorkday
+                initialProjectNameArg = initialProjectNameArg,
+                onNavigateBack = onNavigateBack,
+                onOpenProjectDetails = onOpenProjectDetails,
+                onSaveAndNavigateBack = onSaveAndNavigateBack
             )
         }
         is SingleProjectUiState.Loading -> {
@@ -183,11 +211,11 @@ private fun SingleProjectScreenStateful(
     )
 
     SingleProjectScreenContent(
-         screenState = screenState,
-         actions = actions,
-         hasUnsavedChanges = derived.hasUnsavedChanges,
-         onNavigateBack = onNavigateBack
-     )
+        screenState = screenState,
+        actions = actions,
+        hasUnsavedChanges = derived.hasUnsavedChanges,
+        onNavigateBack = onNavigateBack
+    )
 }
 
 private fun createSingleProjectScreenState(

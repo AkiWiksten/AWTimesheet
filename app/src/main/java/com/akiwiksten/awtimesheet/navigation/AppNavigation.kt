@@ -14,17 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import com.akiwiksten.awtimesheet.R
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenArgs
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import kotlinx.parcelize.Parcelize
 import kotlin.math.min
 
@@ -48,7 +43,7 @@ fun AWTimesheetApp() {
     val portraitWidth = rememberPortraitWidthDp()
 
     if (isIntroRoute) {
-        AppNavHost(
+        WorkTimeNavDisplay(
             backStack = backStack,
             settingsNavigationGuard = settingsNavigationGuard,
             modifier = Modifier.fillMaxSize()
@@ -108,6 +103,12 @@ internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snaps
 @Composable
 internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
     SingleProjectScreen(
+        routeArgs = SingleProjectRouteArgs(
+            projectName = screen.projectName ?: "",
+            projectTime = screen.projectTime ?: "",
+            isAddMode = screen.listIndex == -1,
+            listIndex = screen.listIndex
+        ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
             onOpenProjectDetails = { singleProject ->
@@ -118,11 +119,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
                     )
                 )
             }
-        ),
-        projectName = screen.projectName ?: "",
-        projectTime = screen.projectTime ?: "",
-        isAddMode = screen.listIndex == -1,
-        listIndex = screen.listIndex,
+        )
     )
 }
 

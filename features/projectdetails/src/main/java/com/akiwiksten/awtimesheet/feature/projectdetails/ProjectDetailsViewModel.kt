@@ -303,8 +303,9 @@ class ProjectDetailsViewModel @Inject constructor(
             ?.let { successState ->
                 successState.copy(
                     details = successState.details.copy(
-                    date = date,
-                    projectName = projectDetailsArg?.projectName ?: "")
+                        date = date,
+                        projectName = projectDetailsArg?.projectName ?: ""
+                    )
                 )
             }
             ?: ProjectDetailsUiState.Success(
@@ -438,4 +439,3 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 }
-

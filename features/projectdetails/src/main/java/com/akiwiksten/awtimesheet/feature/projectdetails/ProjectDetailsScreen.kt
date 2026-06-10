@@ -23,7 +23,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
@@ -32,6 +31,11 @@ import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetai
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsUnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.createProjectDetailsScreenActions
+
+private data class ProjectDetailsRouteArgs(
+    val projectName: String,
+    val projectTime: String
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,13 +46,15 @@ fun ProjectDetailsScreen(
     onConfirm: (String, String) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by viewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val latestUiState by rememberUpdatedState(uiState)
     var skipDeleteDraftOnExit by rememberSaveable { mutableStateOf(false) }
-    val isInitialLoadComplete by viewModel.isInitialLoadComplete.collectAsState()
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
+    val routeArgs = remember(projectName, projectTime) {
+        ProjectDetailsRouteArgs(projectName = projectName, projectTime = projectTime)
+    }
 
     val navigateBackToSingleProject = {
         skipDeleteDraftOnExit = true
@@ -56,25 +62,60 @@ fun ProjectDetailsScreen(
     }
 
     val confirmAndNavigateBackToSingleProject: (String, String) -> Unit = {
-        confirmedProjectName, confirmedProjectTime ->
-            skipDeleteDraftOnExit = true
-            onConfirm(confirmedProjectName, confirmedProjectTime)
+            confirmedProjectName,
+            confirmedProjectTime,
+        ->
+        skipDeleteDraftOnExit = true
+        onConfirm(confirmedProjectName, confirmedProjectTime)
     }
 
-    DisposableEffect(lifecycleOwner, projectName, projectTime) {
+    ProjectDetailsLifecycleObserver(
+        lifecycleOwner = lifecycleOwner,
+        routeArgs = routeArgs,
+        latestUiState = latestUiState,
+        skipDeleteDraftOnExit = skipDeleteDraftOnExit,
+        viewModel = viewModel
+    )
+
+    BackHandler(onBack = navigateBackToSingleProject)
+
+    ProjectDetailsUnsavedChangesDialog(
+        showState = showUnsavedDialogState,
+        uiState = uiState,
+        unsavedMessage = unsavedMessage,
+        onNavigateBack = navigateBackToSingleProject,
+        onConfirm = confirmAndNavigateBackToSingleProject
+    )
+
+    ProjectDetailsScaffold(
+        uiState = uiState,
+        viewModel = viewModel,
+        onConfirmAndNavigateBack = confirmAndNavigateBackToSingleProject,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@Composable
+private fun ProjectDetailsLifecycleObserver(
+    lifecycleOwner: androidx.lifecycle.LifecycleOwner,
+    routeArgs: ProjectDetailsRouteArgs,
+    latestUiState: ProjectDetailsUiState,
+    skipDeleteDraftOnExit: Boolean,
+    viewModel: ProjectDetailsViewModel
+) {
+    DisposableEffect(lifecycleOwner, routeArgs, skipDeleteDraftOnExit, latestUiState) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
                     // Keep draft when intentionally returning to SingleProject.
                     if (!skipDeleteDraftOnExit) {
                         viewModel.deleteDraftProject(
-                            projectName = (latestUiState as? ProjectDetailsUiState.Success)?.details?.projectName
-                                ?: ""
+                            (latestUiState as? ProjectDetailsUiState.Success)?.details?.projectName ?: ""
                         )
                     }
                 }
                 Lifecycle.Event.ON_START -> {
-                    viewModel.observeDateRepository(projectName = projectName, projectTime = projectTime)
+                    viewModel.observeDateRepository(routeArgs.projectName, routeArgs.projectTime)
                 }
                 else -> Unit
             }
@@ -87,33 +128,24 @@ fun ProjectDetailsScreen(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+}
 
-    val shouldEnableConfirmForInitialProjectTime = remember(uiState) {
-        (uiState as? ProjectDetailsUiState.Success)
-            ?.details
-            ?.projectTime
-            ?.let { it.isNotBlank() && it != ZERO_TIME } == true
-    }
-
-    BackHandler(onBack = navigateBackToSingleProject)
-
-    ProjectDetailsUnsavedChangesDialog(
-        showState = showUnsavedDialogState,
-        uiState = uiState,
-        unsavedMessage = unsavedMessage,
-        onNavigateBack = navigateBackToSingleProject,
-        onConfirm = confirmAndNavigateBackToSingleProject
-    )
-
+@Composable
+private fun ProjectDetailsScaffold(
+    uiState: ProjectDetailsUiState,
+    viewModel: ProjectDetailsViewModel,
+    onConfirmAndNavigateBack: (String, String) -> Unit,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = { ProjectDetailsTopBar(onNavigateBack = onNavigateBack) }
     ) { padding ->
-        val actions = remember(viewModel, onConfirm) {
+        val actions = remember(viewModel, onConfirmAndNavigateBack, uiState) {
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success
                     ?: return@createProjectDetailsScreenActions
                 viewModel.saveProjectDetails(successState.details)
-                confirmAndNavigateBackToSingleProject(
+                onConfirmAndNavigateBack(
                     successState.details.projectName,
                     successState.details.projectTime
                 )
@@ -124,7 +156,7 @@ fun ProjectDetailsScreen(
             padding = padding,
             uiState = uiState,
             actions = actions,
-            isConfirmEnabled = true// shouldEnableConfirmForInitialProjectTime
+            isConfirmEnabled = true // shouldEnableConfirmForInitialProjectTime
         )
     }
 }

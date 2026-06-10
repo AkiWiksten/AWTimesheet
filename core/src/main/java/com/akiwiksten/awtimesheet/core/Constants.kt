@@ -69,7 +69,7 @@ const val IS_DRAFT = "isDraft"
 const val NAME = "name"
 const val EMPLOYER = "employer"
 
-//Domain / absence entity keys
+// Domain / absence entity keys
 const val START_DATE = "start_date"
 const val END_DATE = "end_date"
 const val ABSENCE_TYPE = "absence_type"

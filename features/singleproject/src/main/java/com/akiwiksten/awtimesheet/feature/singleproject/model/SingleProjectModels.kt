@@ -11,6 +11,13 @@ data class SingleProjectScreenArgs(
     val initialSettings: SettingsState? = null
 )
 
+data class SingleProjectRouteArgs(
+    val projectName: String,
+    val projectTime: String,
+    val isAddMode: Boolean,
+    val listIndex: Int
+)
+
 data class SingleProjectNavigationActions(
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: (SingleProjectState) -> Unit

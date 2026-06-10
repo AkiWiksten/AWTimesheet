@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.akiwiksten.awtimesheet.data.database.entity.AbsenceEntity
-import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 
 @Dao
 interface AbsenceDao {

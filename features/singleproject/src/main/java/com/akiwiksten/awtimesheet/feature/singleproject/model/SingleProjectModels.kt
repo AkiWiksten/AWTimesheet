@@ -16,7 +16,7 @@ data class SingleProjectRouteArgs(
     val projectTime: String,
     val isAddMode: Boolean,
     val listIndex: Int,
-    val kilometres: String = "0",
+    val kilometres: String? = null,
     val allowance: String? = null,
     val workType: String? = null,
     val projectDetails: ProjectDetailsState? = null
@@ -24,7 +24,7 @@ data class SingleProjectRouteArgs(
 
 data class SingleProjectNavigationActions(
     val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState) -> Unit
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit
 )
 
 data class SingleProjectDerivedState(

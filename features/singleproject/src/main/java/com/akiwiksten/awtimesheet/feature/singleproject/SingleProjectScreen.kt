@@ -43,7 +43,7 @@ fun SingleProjectScreen(
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
 
     val openProjectDetails: (SingleProjectState) -> Unit = { state ->
-        navigationActions.onOpenProjectDetails(state)
+        navigationActions.onOpenProjectDetails(state, routeArgs.projectDetails)
     }
 
     val saveAndNavigateBackToWorkday: (SingleProjectState) -> Unit = { state ->
@@ -58,13 +58,7 @@ fun SingleProjectScreen(
 
     LaunchedEffect(routeArgs) {
         viewModel.initializeState(
-            projectName = routeArgs.projectName,
-            projectTime = routeArgs.projectTime,
-            isAddMode = routeArgs.isAddMode,
-            listIndex = routeArgs.listIndex,
-            kilometres = routeArgs.kilometres,
-            allowance = routeArgs.allowance,
-            workType = routeArgs.workType
+            routeArgs
         )
     }
 

@@ -12,6 +12,7 @@ import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,8 @@ sealed class SingleProjectUiState {
         val workTimeByDate: String = ZERO_TIME,
         val workTypes: List<String> = emptyList(),
         val settings: SettingsState? = null,
-        val data: SingleProjectState
+        val data: SingleProjectState,
+        val projectDetails: ProjectDetailsState? = null
     ) : SingleProjectUiState()
 
     data class Error(val message: String) : SingleProjectUiState()
@@ -53,18 +55,12 @@ class SingleProjectViewModel @Inject constructor(
     }
 
     fun initializeState(
-        projectName: String,
-        projectTime: String,
-        isAddMode: Boolean,
-        listIndex: Int,
-        kilometres: String = "0",
-        allowance: String? = null,
-        workType: String? = null
+        args: SingleProjectRouteArgs,
     ) {
         viewModelScope.launch {
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
-            selectedProjectName.value = projectName
+            selectedProjectName.value = args.projectName
 
             val project = projectRepository.getProject(
                 date = effectiveDate,
@@ -78,20 +74,20 @@ class SingleProjectViewModel @Inject constructor(
                 val currentSuccess = currentState as? SingleProjectUiState.Success
                 val currentData = currentSuccess?.data ?: SingleProjectState()
                 val projectDate = project?.date?.ifBlank { effectiveDate } ?: effectiveDate
-
                 SingleProjectUiState.Success(
                     workTimeByDate = workTimeByDate,
                     workTypes = workTypes,
                     settings = settings,
+                    projectDetails = args.projectDetails,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
-                        projectTime = projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },
-                        kilometres = project?.kilometres ?: kilometres,
-                        allowance = project?.allowance ?: allowance ?: currentData.allowance,
-                        workType = project?.workType ?: workType ?: currentData.workType,
+                        projectTime = args.projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },
+                        kilometres = args.kilometres ?: project?.kilometres ?: currentData.kilometres,
+                        allowance = args.allowance ?: project?.allowance ?: currentData.allowance,
+                        workType = args.workType ?: project?.workType ?: currentData.workType,
                         date = projectDate,
-                        isAddMode = isAddMode,
-                        listIndex = listIndex
+                        isAddMode = args.isAddMode,
+                        listIndex = args.listIndex
                     )
                 )
             }

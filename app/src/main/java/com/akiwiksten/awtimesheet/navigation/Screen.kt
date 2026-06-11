@@ -77,7 +77,7 @@ sealed interface Screen : Parcelable {
         val projectName: String? = null,
         val projectTime: String? = null,
         val isAddMode: Boolean = true,
-        val kilometres: String = "0",
+        val kilometres: String? = null,
         val allowance: String? = null,
         val workType: String? = null,
         val details: ProjectDetails? = null

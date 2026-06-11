@@ -81,8 +81,7 @@ internal object ProjectDetailsTimeUpdateCalculator {
         } else {
             val newProjectTime = projectTime.subtract(lunchEnd).add(oldLunchEnd)
             WorkTimeCalculator.TimeUpdateResult(
-                projectTime = newProjectTime.toString(),
-                shouldRecalculateFlexTime = true
+                projectTime = newProjectTime.toString()
             )
         }
     }
@@ -119,8 +118,7 @@ internal object ProjectDetailsTimeUpdateCalculator {
             else -> {
                 val newProjectTime = projectTime.subtract(oldBreakStart).add(breakStart)
                 WorkTimeCalculator.TimeUpdateResult(
-                    projectTime = newProjectTime.toString(),
-                    shouldRecalculateFlexTime = true
+                    projectTime = newProjectTime.toString()
                 )
             }
         }
@@ -138,8 +136,7 @@ internal object ProjectDetailsTimeUpdateCalculator {
         } else {
             val newProjectTime = projectTime.subtract(breakEnd).add(oldBreakEnd)
             WorkTimeCalculator.TimeUpdateResult(
-                projectTime = newProjectTime.toString(),
-                shouldRecalculateFlexTime = true
+                projectTime = newProjectTime.toString()
             )
         }
     }

@@ -66,8 +66,6 @@ class ProjectDetailsViewModel @Inject constructor(
         dateObserverJob?.cancel()
         dateObserverJob = viewModelScope.launch {
             dateRepository.selectedDate.collectLatest { date ->
-                val currentDetails = (uiState.value as? ProjectDetailsUiState.Success)?.details
-                    ?: detailsArgs
                 loadProjectDetails(
                     date = date,
                     projectDetailsArg = detailsArgs.copy(date = date)
@@ -293,25 +291,19 @@ class ProjectDetailsViewModel @Inject constructor(
         if (showLoading) {
             _isInitialLoadComplete.value = false
         }
-        val baseState = (currentState as? ProjectDetailsUiState.Success)
-            ?.let { successState ->
-                successState.copy(
-                    details = successState.details.copy(
-                        date = date,
-                        projectName = projectDetailsArg?.projectName ?: ""
-                    )
-                )
-            }
-            ?: ProjectDetailsUiState.Success(
-                details = ProjectDetailsState(date = date, projectName = projectDetailsArg?.projectName ?: "")
-            )
+
+        val baseState = currentState as? ProjectDetailsUiState.Success
+            ?: ProjectDetailsUiState.Success(details = ProjectDetailsState())
+
+        val projectName = projectDetailsArg?.projectName ?: ""
+
         // Cancel any in-flight load so rapid date changes always keep the latest result.
         loadProjectDetailsJob?.cancel()
         loadProjectDetailsJob = viewModelScope.launch {
             loadProjectDetailsInternal(
                 baseState = baseState,
                 date = date,
-                projectName = projectDetailsArg?.projectName ?: "",
+                projectName = projectName,
                 projectDetailsArg = projectDetailsArg,
                 showLoading = showLoading
             )
@@ -334,7 +326,7 @@ class ProjectDetailsViewModel @Inject constructor(
                 date,
                 projectName
             ) ?: projectDetailsArg
-            val settings = resolveSettings(projectDetails, date)
+            val settings = settingsRepository.getEffectiveSettingsForDate(date)
             val normalizedProjectDetails = ProjectDetailsUiMapper.normalizeProjectDetails(
                 projectDetails,
                 settings
@@ -353,16 +345,6 @@ class ProjectDetailsViewModel @Inject constructor(
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid state")
         } finally {
             _isInitialLoadComplete.value = true
-        }
-    }
-
-    private suspend fun resolveSettings(
-        projectDetails: ProjectDetailsState?,
-        date: String
-    ): SettingsState? {
-        return when {
-            projectDetails == null -> settingsRepository.getEffectiveSettingsForDate(date)
-            else -> settingsRepository.getSettings()
         }
     }
 

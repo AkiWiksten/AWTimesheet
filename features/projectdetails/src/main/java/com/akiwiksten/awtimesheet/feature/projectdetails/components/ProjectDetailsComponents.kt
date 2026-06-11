@@ -33,6 +33,7 @@ import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
+import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsTimeRowLabels
@@ -194,7 +195,7 @@ internal fun ProjectDetailsUnsavedChangesDialog(
     uiState: ProjectDetailsUiState,
     unsavedMessage: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (String, String) -> Unit,
+    onConfirm: (ProjectDetailsState) -> Unit,
 ) {
     if (!showState.value) return
     val successState = uiState as? ProjectDetailsUiState.Success
@@ -204,8 +205,7 @@ internal fun ProjectDetailsUnsavedChangesDialog(
         onSave = successState?.let {
             {
                 onConfirm(
-                    it.details.projectName,
-                    it.details.projectTime
+                    successState.details
                 )
             }
         },

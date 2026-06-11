@@ -76,7 +76,7 @@ internal fun SingleProjectScreenContent(
         UnsavedChangesDialog(
             onDismiss = { showUnsavedDialogState.value = false },
             onDiscard = onDiscardAndNavigateBack,
-            onSave = actions.onConfirm,
+            onSave = actions.onSave,
             dialogText = unsavedMessage,
             isSaveEnabled = screenState.isConfirmEnabled
         )
@@ -292,7 +292,7 @@ private fun SingleProjectFormFields(
         )
 
         AwtButton(
-            onClick = actions.onConfirm,
+            onClick = actions.onSave,
             enabled = screenState.isConfirmEnabled,
             modifier = Modifier.fillMaxWidth()
         ) {

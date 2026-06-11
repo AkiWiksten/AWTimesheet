@@ -10,7 +10,7 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
-import com.akiwiksten.awtimesheet.domain.usecase.DeleteDraftProjectUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +38,6 @@ sealed class SingleProjectUiState {
 class SingleProjectViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
-    private val deleteDraftProjectUseCase: DeleteDraftProjectUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
 ) : ViewModel() {
@@ -99,7 +98,7 @@ class SingleProjectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val date = dateRepository.selectedDate.first()
-                val projectToSave = state.copy(date = date, isDraft = isDraft)
+                val projectToSave = state.copy(date = date)
                 val oldWorkTimeByDate = projectRepository.getWorkTimeByDate(date)
 
                 saveWorkdayUseCase(
@@ -127,16 +126,4 @@ class SingleProjectViewModel @Inject constructor(
         }
     }
 
-    fun deleteDraftProject() {
-        viewModelScope.launch {
-            try {
-                val date = dateRepository.selectedDate.value
-                deleteDraftProjectUseCase(date = date, projectName = selectedProjectName.value)
-            } catch (e: IllegalArgumentException) {
-                Log.e("SingleProjectViewModel", "deleteDraftProject: ", e)
-            } catch (e: IllegalStateException) {
-                Log.e("SingleProjectViewModel", "deleteDraftProject: ", e)
-            }
-        }
-    }
 }

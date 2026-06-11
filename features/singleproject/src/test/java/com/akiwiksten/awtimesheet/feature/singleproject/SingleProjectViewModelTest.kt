@@ -1,7 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.domain.usecase.DeleteDraftProjectUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
@@ -146,7 +146,7 @@ class SingleProjectViewModelTest {
                 settingsRepository = settingsRepository,
                 workdayRepository = FakeWorkdayRepository()
             ),
-            deleteDraftProjectUseCase = DeleteDraftProjectUseCase(
+            deleteProjectUseCase = DeleteProjectUseCase(
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             ),

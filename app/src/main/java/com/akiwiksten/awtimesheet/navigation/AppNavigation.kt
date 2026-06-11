@@ -91,10 +91,10 @@ internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snaps
         projectName = screen.projectName ?: "",
         projectTime = screen.projectTime ?: "",
         onNavigateBack = { backStack.pop() },
-        onConfirm = { projectName, projectTime ->
+        onConfirm = { details ->
             backStack.updateSingleProjectWorkTime(
-                projectName = projectName,
-                projectTime = projectTime
+                projectName = details.projectName,
+                projectTime = details.projectTime
             )
         }
     )

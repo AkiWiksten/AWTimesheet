@@ -163,7 +163,7 @@ private fun SingleProjectPreviewContent(
             actions = SingleProjectActions(
                 onStateChange = {},
                 onOpenProjectDetails = {},
-                onConfirm = {}
+                onSave = {}
             ),
             hasUnsavedChanges = hasUnsavedChanges,
             onNavigateBack = {}

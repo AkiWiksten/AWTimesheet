@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.data.di
 import android.content.Context
 import androidx.room.Room
 import com.akiwiksten.awtimesheet.data.database.AppDatabase
+import com.akiwiksten.awtimesheet.data.database.dao.AbsenceDao
 import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDetailsDao
@@ -87,5 +88,8 @@ abstract class DatabaseModule {
         @Provides
         fun provideCalculatedFlexTimeTotalDao(database: AppDatabase): CalculatedFlexTimeTotalDao =
             database.calculatedFlexTimeTotalDao()
+
+        @Provides
+        fun provideAbsenceDao(database: AppDatabase): AbsenceDao = database.absenceDao()
     }
 }

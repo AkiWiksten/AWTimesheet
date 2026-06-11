@@ -2,7 +2,7 @@ package com.akiwiksten.awtimesheet.feature.projectdetails
 
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
-import com.akiwiksten.awtimesheet.domain.usecase.DeleteDraftProjectUseCase
+import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
@@ -541,7 +541,7 @@ class ProjectDetailsViewModelTest {
             projectDetailsRepository = projectDetailsRepository,
             settingsRepository = settingsRepository,
             dateRepository = dateRepository,
-            deleteDraftProjectUseCase = DeleteDraftProjectUseCase(
+            deleteProjectUseCase = DeleteProjectUseCase(
                 projectRepository = projectRepository,
                 projectDetailsRepository = projectDetailsRepository
             )

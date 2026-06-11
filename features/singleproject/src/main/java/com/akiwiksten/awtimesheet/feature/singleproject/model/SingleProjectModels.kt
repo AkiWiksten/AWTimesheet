@@ -43,5 +43,5 @@ data class SingleProjectScreenState(
 data class SingleProjectActions(
     val onStateChange: (SingleProjectState) -> Unit,
     val onOpenProjectDetails: () -> Unit,
-    val onConfirm: () -> Unit
+    val onSave: () -> Unit
 )

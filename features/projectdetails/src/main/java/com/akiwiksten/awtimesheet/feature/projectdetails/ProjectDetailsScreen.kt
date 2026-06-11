@@ -28,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsSuccessState
@@ -36,60 +37,33 @@ import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetai
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.createProjectDetailsScreenActions
 
-private data class ProjectDetailsRouteArgs(
-    val projectName: String,
-    val projectTime: String
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsScreen(
     projectName: String,
     projectTime: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (String, String) -> Unit,
+    onConfirm: (ProjectDetailsState) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val latestUiState by rememberUpdatedState(uiState)
-    var skipDeleteDraftOnExit by rememberSaveable { mutableStateOf(false) }
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
-    val routeArgs = remember(projectName, projectTime) {
-        ProjectDetailsRouteArgs(projectName = projectName, projectTime = projectTime)
-    }
 
-    val navigateBackToSingleProject = {
-        skipDeleteDraftOnExit = true
-        onNavigateBack()
-    }
 
-    val confirmAndNavigateBackToSingleProject: (String, String) -> Unit = {
-            confirmedProjectName,
-            confirmedProjectTime,
+    val confirmAndNavigateBackToSingleProject: (ProjectDetailsState) -> Unit = {
+            projectDetails,
         ->
-        skipDeleteDraftOnExit = true
-        onConfirm(confirmedProjectName, confirmedProjectTime)
+        onConfirm(projectDetails)
     }
 
-    ProjectDetailsLifecycleObserver(
-        lifecycleOwner = lifecycleOwner,
-        routeArgs = routeArgs,
-        latestUiState = latestUiState,
-        skipDeleteDraftOnExit = skipDeleteDraftOnExit,
-        isChangingConfigurations = { context.findActivity()?.isChangingConfigurations == true },
-        viewModel = viewModel
-    )
-
-    BackHandler(onBack = navigateBackToSingleProject)
+    BackHandler(onBack = onNavigateBack)
 
     ProjectDetailsUnsavedChangesDialog(
         showState = showUnsavedDialogState,
         uiState = uiState,
         unsavedMessage = unsavedMessage,
-        onNavigateBack = navigateBackToSingleProject,
+        onNavigateBack = onNavigateBack,
         onConfirm = confirmAndNavigateBackToSingleProject
     )
 
@@ -99,42 +73,6 @@ fun ProjectDetailsScreen(
         onConfirmAndNavigateBack = confirmAndNavigateBackToSingleProject,
         onNavigateBack = onNavigateBack
     )
-}
-
-@Composable
-private fun ProjectDetailsLifecycleObserver(
-    lifecycleOwner: androidx.lifecycle.LifecycleOwner,
-    routeArgs: ProjectDetailsRouteArgs,
-    latestUiState: ProjectDetailsUiState,
-    skipDeleteDraftOnExit: Boolean,
-    isChangingConfigurations: () -> Boolean,
-    viewModel: ProjectDetailsViewModel
-) {
-    DisposableEffect(lifecycleOwner, routeArgs, skipDeleteDraftOnExit, latestUiState, isChangingConfigurations) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_STOP -> {
-                    // Keep draft when intentionally returning or when Activity restarts on configuration change.
-                    if (!skipDeleteDraftOnExit && !isChangingConfigurations()) {
-                        viewModel.deleteDraftProject(
-                            (latestUiState as? ProjectDetailsUiState.Success)?.details?.projectName ?: ""
-                        )
-                    }
-                }
-                Lifecycle.Event.ON_START -> {
-                    viewModel.observeDateRepository(routeArgs.projectName, routeArgs.projectTime)
-                }
-                else -> Unit
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            // Composable left composition (route popped/replaced, etc.)
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 }
 
 private tailrec fun Context.findActivity(): Activity? {
@@ -149,7 +87,7 @@ private tailrec fun Context.findActivity(): Activity? {
 private fun ProjectDetailsScaffold(
     uiState: ProjectDetailsUiState,
     viewModel: ProjectDetailsViewModel,
-    onConfirmAndNavigateBack: (String, String) -> Unit,
+    onConfirmAndNavigateBack: (ProjectDetailsState) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
@@ -159,10 +97,8 @@ private fun ProjectDetailsScaffold(
             createProjectDetailsScreenActions(viewModel = viewModel) {
                 val successState = uiState as? ProjectDetailsUiState.Success
                     ?: return@createProjectDetailsScreenActions
-                viewModel.saveProjectDetails(successState.details)
                 onConfirmAndNavigateBack(
-                    successState.details.projectName,
-                    successState.details.projectTime
+                    successState.details,
                 )
             }
         }

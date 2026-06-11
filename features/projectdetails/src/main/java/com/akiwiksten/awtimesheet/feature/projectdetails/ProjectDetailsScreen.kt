@@ -40,8 +40,7 @@ import com.akiwiksten.awtimesheet.feature.projectdetails.model.createProjectDeta
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsScreen(
-    projectName: String,
-    projectTime: String,
+    detailsArgs: ProjectDetailsState,
     onNavigateBack: () -> Unit,
     onConfirm: (ProjectDetailsState) -> Unit,
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
@@ -50,8 +49,8 @@ fun ProjectDetailsScreen(
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
-    LaunchedEffect(projectName, projectTime) {
-        viewModel.observeDateRepository(projectName, projectTime)
+    LaunchedEffect(detailsArgs) {
+        viewModel.observeDateRepository(detailsArgs)
     }
 
     val confirmAndNavigateBackToSingleProject: (ProjectDetailsState) -> Unit = {

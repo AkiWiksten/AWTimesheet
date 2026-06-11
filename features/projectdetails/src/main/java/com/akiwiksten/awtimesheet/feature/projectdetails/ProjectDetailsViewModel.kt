@@ -62,19 +62,15 @@ class ProjectDetailsViewModel @Inject constructor(
     private var loadProjectDetailsJob: Job? = null
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
 
-    fun observeDateRepository(projectName: String, projectTime: String) {
+    fun observeDateRepository(detailsArgs: ProjectDetailsState) {
         dateObserverJob?.cancel()
         dateObserverJob = viewModelScope.launch {
             dateRepository.selectedDate.collectLatest { date ->
                 val currentDetails = (uiState.value as? ProjectDetailsUiState.Success)?.details
-                    ?: ProjectDetailsState(
-                        date = date,
-                        projectName = projectName,
-                        projectTime = projectTime
-                    )
+                    ?: detailsArgs
                 loadProjectDetails(
                     date = date,
-                    projectDetailsArg = currentDetails.copy(date = date)
+                    projectDetailsArg = detailsArgs.copy(date = date)
                 )
             }
         }
@@ -405,21 +401,6 @@ class ProjectDetailsViewModel @Inject constructor(
                     projectTime = ZERO_TIME,
                     lunchTimeEstimate = successState.settings.dailyLunchTimeEstimate
                 )
-            )
-        }
-    }
-
-    fun saveProjectDetails(projectToSave: ProjectDetailsState) {
-        viewModelScope.launch {
-            projectDetailsRepository.insertProjectDetails(projectToSave)
-            val project = projectRepository.getProject(
-                date = projectToSave.date,
-                projectName = projectToSave.projectName
-            )
-            projectRepository.insertProject(
-                project?.copy(
-                    projectTime = projectToSave.projectTime
-                ) ?: SingleProjectState()
             )
         }
     }

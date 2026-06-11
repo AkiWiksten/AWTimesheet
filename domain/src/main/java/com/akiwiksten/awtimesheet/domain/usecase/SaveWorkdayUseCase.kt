@@ -29,7 +29,7 @@ class SaveWorkdayUseCase @Inject constructor(
 
         projectRepository.insertProjectName(projectToSave.projectName)
         projectRepository.insertProject(projectToSave)
-        //projectDetailsRepository.insertProjectDetails(projectDetailsToSave)
+        if (projectDetailsToSave != null) projectDetailsRepository.insertProjectDetails(projectDetailsToSave)
 
         if (projectToSave.date.isNotEmpty()) {
             val existing = settingsRepository.getEffectiveSettingsForDate(projectToSave.date)

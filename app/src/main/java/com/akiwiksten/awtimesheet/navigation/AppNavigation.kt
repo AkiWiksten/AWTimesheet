@@ -89,12 +89,21 @@ internal fun PortraitWidthContainer(
 @Composable
 internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
-        projectName = screen.projectName ?: "",
-        projectTime = screen.projectTime ?: "",
+        detailsArgs = ProjectDetailsState(
+            projectName = screen.projectName,
+            projectTime = screen.projectTime,
+            startTime = screen.startTime,
+            endTime = screen.endTime,
+            lunchStart = screen.lunchStart,
+            lunchEnd = screen.lunchEnd,
+            breakStart = screen.breakStart,
+            breakEnd = screen.breakEnd,
+        ),
         onNavigateBack = { backStack.pop() },
         onConfirm = { details ->
             backStack.updateSingleProjectWorkTime(
                 details = Screen.ProjectDetails(
+                    date = details.date,
                     projectName = details.projectName,
                     projectTime = details.projectTime,
                     startTime = details.startTime,
@@ -121,6 +130,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             allowance = screen.allowance,
             workType = screen.workType,
             projectDetails = ProjectDetailsState(
+                date = screen.details?.date ?: "",
                 projectName = screen.details?.projectName ?: "",
                 projectTime = screen.details?.projectTime ?: "",
                 startTime = screen.details?.startTime ?: "",
@@ -159,6 +169,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
+            projectTime = details.projectTime,
             details = details
         )
     }

@@ -177,11 +177,12 @@ private fun SingleProjectScreenStateful(
     )
 
     // Build screen state from form state and derived flags
+    val isAddMode = (uiState as? SingleProjectUiState.Success)?.data?.isAddMode ?: true
     val screenState = createSingleProjectScreenState(
         uiState = uiState,
         state = state,
         derived = derived,
-        isProjectNameEditable = initialProjectNameArg.isBlank()
+        isProjectNameEditable = isAddMode || initialProjectNameArg.isBlank()
     )
     val actions = SingleProjectActions(
         onStateChange = { newState ->

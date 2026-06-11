@@ -117,6 +117,9 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             projectTime = screen.projectTime ?: "",
             isAddMode = screen.listIndex == -1,
             listIndex = screen.listIndex,
+            kilometres = screen.kilometres,
+            allowance = screen.allowance,
+            workType = screen.workType,
             projectDetails = ProjectDetailsState(
                 projectName = screen.details?.projectName ?: "",
                 projectTime = screen.details?.projectTime ?: "",
@@ -131,6 +134,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
             onOpenProjectDetails = { singleProject ->
+                backStack.updateSingleProjectState(singleProject)
                 backStack.add(
                     element = Screen.ProjectDetails(
                         projectTime = singleProject.projectTime,

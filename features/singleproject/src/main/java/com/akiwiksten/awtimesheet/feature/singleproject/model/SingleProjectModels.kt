@@ -16,6 +16,9 @@ data class SingleProjectRouteArgs(
     val projectTime: String,
     val isAddMode: Boolean,
     val listIndex: Int,
+    val kilometres: String = "0",
+    val allowance: String? = null,
+    val workType: String? = null,
     val projectDetails: ProjectDetailsState? = null
 )
 

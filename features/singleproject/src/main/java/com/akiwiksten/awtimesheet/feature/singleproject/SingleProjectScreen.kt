@@ -61,7 +61,10 @@ fun SingleProjectScreen(
             projectName = routeArgs.projectName,
             projectTime = routeArgs.projectTime,
             isAddMode = routeArgs.isAddMode,
-            listIndex = routeArgs.listIndex
+            listIndex = routeArgs.listIndex,
+            kilometres = routeArgs.kilometres,
+            allowance = routeArgs.allowance,
+            workType = routeArgs.workType
         )
     }
 

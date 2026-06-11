@@ -15,7 +15,8 @@ data class SingleProjectRouteArgs(
     val projectName: String,
     val projectTime: String,
     val isAddMode: Boolean,
-    val listIndex: Int
+    val listIndex: Int,
+    val projectDetails: ProjectDetailsState? = null
 )
 
 data class SingleProjectNavigationActions(

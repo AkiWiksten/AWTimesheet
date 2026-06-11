@@ -50,6 +50,9 @@ fun ProjectDetailsScreen(
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
+    LaunchedEffect(projectName, projectTime) {
+        viewModel.observeDateRepository(projectName, projectTime)
+    }
 
     val confirmAndNavigateBackToSingleProject: (ProjectDetailsState) -> Unit = {
             projectDetails,

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
+import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
@@ -93,8 +94,16 @@ internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snaps
         onNavigateBack = { backStack.pop() },
         onConfirm = { details ->
             backStack.updateSingleProjectWorkTime(
-                projectName = details.projectName,
-                projectTime = details.projectTime
+                details = Screen.ProjectDetails(
+                    projectName = details.projectName,
+                    projectTime = details.projectTime,
+                    startTime = details.startTime,
+                    endTime = details.endTime,
+                    lunchStart = details.lunchStart,
+                    lunchEnd = details.lunchEnd,
+                    breakStart = details.breakStart,
+                    breakEnd = details.breakEnd,
+                )
             )
         }
     )
@@ -107,7 +116,17 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             projectName = screen.projectName ?: "",
             projectTime = screen.projectTime ?: "",
             isAddMode = screen.listIndex == -1,
-            listIndex = screen.listIndex
+            listIndex = screen.listIndex,
+            projectDetails = ProjectDetailsState(
+                projectName = screen.details?.projectName ?: "",
+                projectTime = screen.details?.projectTime ?: "",
+                startTime = screen.details?.startTime ?: "",
+                endTime = screen.details?.endTime ?: "",
+                lunchStart = screen.details?.lunchStart ?: "",
+                lunchEnd = screen.details?.lunchEnd ?: "",
+                breakStart = screen.details?.breakStart ?: "",
+                breakEnd = screen.details?.breakEnd ?: ""
+            )
         ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
@@ -130,15 +149,13 @@ internal fun SnapshotStateList<Any>.pop() {
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
-    projectName: String,
-    projectTime: String,
+    details: Screen.ProjectDetails
 ) {
     pop()
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
-            projectName = projectName,
-            projectTime = projectTime
+            details = details
         )
     }
 }

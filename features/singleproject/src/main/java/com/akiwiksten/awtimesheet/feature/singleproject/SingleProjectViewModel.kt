@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
@@ -91,7 +92,7 @@ class SingleProjectViewModel @Inject constructor(
 
     fun saveProject(
         state: SingleProjectState,
-        isDraft: Boolean = false,
+        details: ProjectDetailsState? = null,
         settings: SettingsState? = null
     ) {
         viewModelScope.launch {
@@ -102,6 +103,7 @@ class SingleProjectViewModel @Inject constructor(
 
                 saveWorkdayUseCase(
                     projectToSave = projectToSave,
+                    projectDetailsToSave = details,
                     localizedFlexDayWorkType = localizedFlexDayWorkType
                 )
 

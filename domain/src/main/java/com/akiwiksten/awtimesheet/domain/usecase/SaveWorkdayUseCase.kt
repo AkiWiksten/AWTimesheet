@@ -6,6 +6,7 @@ import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 class SaveWorkdayUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
+    private val projectDetailsRepository: ProjectDetailsRepository,
     private val settingsRepository: SettingsRepository,
     private val workdayRepository: WorkdayRepository
 ) {
@@ -27,6 +29,7 @@ class SaveWorkdayUseCase @Inject constructor(
 
         projectRepository.insertProjectName(projectToSave.projectName)
         projectRepository.insertProject(projectToSave)
+        //projectDetailsRepository.insertProjectDetails(projectDetailsToSave)
 
         if (projectToSave.date.isNotEmpty()) {
             val existing = settingsRepository.getEffectiveSettingsForDate(projectToSave.date)

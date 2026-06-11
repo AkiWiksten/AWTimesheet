@@ -41,18 +41,13 @@ fun SingleProjectScreen(
     val context = LocalContext.current
     val savedText = stringResource(id = R.string.saved)
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
-    // Keep this ephemeral so a recreated screen does not keep an old skip flag.
-    //var skipDeleteDraftOnExit by remember { mutableStateOf(false) }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
 
     val openProjectDetails: (SingleProjectState) -> Unit = { state ->
         navigationActions.onOpenProjectDetails(state)
     }
 
     val saveAndNavigateBackToWorkday: (SingleProjectState) -> Unit = { state ->
-        //skipDeleteDraftOnExit = true
-        viewModel.saveProject(state)
+        viewModel.saveProject(state, routeArgs.projectDetails)
         Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
         navigationActions.onNavigateBack()
     }

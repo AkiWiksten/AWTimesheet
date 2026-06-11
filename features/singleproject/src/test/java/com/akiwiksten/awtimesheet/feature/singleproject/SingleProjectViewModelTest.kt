@@ -1,9 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
-import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
-import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
@@ -138,17 +136,12 @@ class SingleProjectViewModelTest {
         dateRepository: DateRepository
     ): SingleProjectViewModel {
         val settingsRepository = FakeSettingsRepository()
-        val projectDetailsRepository = FakeProjectDetailsRepository()
         return SingleProjectViewModel(
             projectRepository = projectRepository,
             saveWorkdayUseCase = SaveWorkdayUseCase(
                 projectRepository = projectRepository,
                 settingsRepository = settingsRepository,
                 workdayRepository = FakeWorkdayRepository()
-            ),
-            deleteProjectUseCase = DeleteProjectUseCase(
-                projectRepository = projectRepository,
-                projectDetailsRepository = projectDetailsRepository
             ),
             settingsRepository = settingsRepository,
             dateRepository = dateRepository

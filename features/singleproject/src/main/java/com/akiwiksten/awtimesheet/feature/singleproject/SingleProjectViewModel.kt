@@ -107,7 +107,7 @@ class SingleProjectViewModel @Inject constructor(
 
                 saveWorkdayUseCase(
                     projectToSave = projectToSave,
-                    projectDetailsToSave = details,
+                    projectDetailsToSave = details?.copy(projectName = projectToSave.projectName),
                     localizedFlexDayWorkType = localizedFlexDayWorkType
                 )
 

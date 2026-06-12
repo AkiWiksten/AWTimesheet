@@ -8,9 +8,9 @@ import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.StartTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
-import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.model.hasOnlyProjectTime
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
@@ -48,7 +48,6 @@ sealed class ProjectDetailsUiState {
  */
 @HiltViewModel
 class ProjectDetailsViewModel @Inject constructor(
-    private val projectRepository: ProjectRepository,
     private val projectDetailsRepository: ProjectDetailsRepository,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository,
@@ -58,6 +57,10 @@ class ProjectDetailsViewModel @Inject constructor(
     val uiState: StateFlow<ProjectDetailsUiState> = _uiState.asStateFlow()
     private val _isInitialLoadComplete = MutableStateFlow(false)
     val isInitialLoadComplete: StateFlow<Boolean> = _isInitialLoadComplete.asStateFlow()
+    private val _hasUnsavedChanges = MutableStateFlow(false)
+    val hasUnsavedChanges: StateFlow<Boolean> = _hasUnsavedChanges.asStateFlow()
+
+    private var initialDetails: ProjectDetailsState? = null
     private var dateObserverJob: Job? = null
     private var loadProjectDetailsJob: Job? = null
     private val timeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT)
@@ -78,8 +81,10 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is ProjectDetailsUiState.Success -> {
+                    val nextDetails = currentState.details.copy(date = date)
+                    _hasUnsavedChanges.value = hasChanges(current = nextDetails, baseline = initialDetails)
                     currentState.copy(
-                        details = currentState.details.copy(date = date)
+                        details = nextDetails
                     )
                 }
 
@@ -96,8 +101,10 @@ class ProjectDetailsViewModel @Inject constructor(
         _uiState.update { currentState ->
             when (currentState) {
                 is ProjectDetailsUiState.Success -> {
+                    val nextDetails = currentState.details.copy(projectName = projectName)
+                    _hasUnsavedChanges.value = hasChanges(current = nextDetails, baseline = initialDetails)
                     currentState.copy(
-                        details = currentState.details.copy(projectName = projectName)
+                        details = nextDetails
                     )
                 }
 
@@ -237,7 +244,9 @@ class ProjectDetailsViewModel @Inject constructor(
                 ProjectDetailsField.PROJECT_TIME -> successState.details.copy(projectTime = time)
             }
 
-            applyUpdateToState(successState.copy(details = nextDetails), update)
+            val nextState = applyUpdateToState(successState.copy(details = nextDetails), update)
+            _hasUnsavedChanges.value = hasChanges(current = nextState.details, baseline = initialDetails)
+            nextState
         }
     }
 
@@ -332,13 +341,16 @@ class ProjectDetailsViewModel @Inject constructor(
                 settings
             )
 
-            _uiState.value = createNextState(
+            val nextState = createNextState(
                 baseState = baseState,
                 date = date,
                 projectName = projectName,
                 projectDetails = normalizedProjectDetails,
                 settings = settings
             )
+            initialDetails = nextState.details
+            _hasUnsavedChanges.value = false
+            _uiState.value = nextState
         } catch (e: IllegalArgumentException) {
             _uiState.value = ProjectDetailsUiState.Error(e.message ?: "Invalid argument")
         } catch (e: IllegalStateException) {
@@ -372,18 +384,18 @@ class ProjectDetailsViewModel @Inject constructor(
             val successState = currentState as? ProjectDetailsUiState.Success
                 ?: return@update currentState
 
-            successState.copy(
-                details = successState.details.copy(
-                    startTime = ZERO_TIME,
-                    endTime = ZERO_TIME,
-                    lunchStart = ZERO_TIME,
-                    lunchEnd = ZERO_TIME,
-                    breakStart = ZERO_TIME,
-                    breakEnd = ZERO_TIME,
-                    projectTime = ZERO_TIME,
-                    lunchTimeEstimate = successState.settings.dailyLunchTimeEstimate
-                )
+            val nextDetails = successState.details.copy(
+                startTime = ZERO_TIME,
+                endTime = ZERO_TIME,
+                lunchStart = ZERO_TIME,
+                lunchEnd = ZERO_TIME,
+                breakStart = ZERO_TIME,
+                breakEnd = ZERO_TIME,
+                projectTime = ZERO_TIME,
+                lunchTimeEstimate = successState.settings.dailyLunchTimeEstimate
             )
+            _hasUnsavedChanges.value = hasChanges(current = nextDetails, baseline = initialDetails)
+            successState.copy(details = nextDetails)
         }
     }
 }

@@ -21,8 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
-import com.akiwiksten.awtimesheet.core.isActionEnabled
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
@@ -112,26 +110,11 @@ private fun ProjectDetailsScaffold(
             }
         }
 
-        val isConfirmEnabled = remember(uiState, hasUnsavedChanges) {
-            val successState = uiState as? ProjectDetailsUiState.Success
-            val details = successState?.details
-            val hasRequiredFields = details != null &&
-                details.projectName.isNotBlank() &&
-                details.projectTime.isNotBlank() &&
-                details.projectTime != ZERO_TIME
-
-            isActionEnabled(
-                hasRequiredFields = hasRequiredFields,
-                hasUnsavedChanges = hasUnsavedChanges,
-                allowWithoutChanges = true
-            )
-        }
-
         ProjectDetailsStateContent(
             padding = padding,
             uiState = uiState,
             actions = actions,
-            isConfirmEnabled = isConfirmEnabled
+            isConfirmEnabled = hasUnsavedChanges
         )
     }
 }

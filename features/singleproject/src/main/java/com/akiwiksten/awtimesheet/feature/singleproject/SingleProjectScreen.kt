@@ -74,40 +74,6 @@ fun SingleProjectScreen(
 }
 
 @Composable
-private fun SingleProjectLifecycleObserver(
-    lifecycleOwner: androidx.lifecycle.LifecycleOwner,
-    skipDeleteDraftOnExit: Boolean,
-    onSkipDeleteDraftOnExitChanged: (Boolean) -> Unit,
-    onDeleteDraft: () -> Unit
-) {
-    DisposableEffect(lifecycleOwner, skipDeleteDraftOnExit) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> {
-                    // Reset when returning so future exits can clean up drafts normally.
-                    onSkipDeleteDraftOnExitChanged(false)
-                }
-                Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY -> {
-                    if (!skipDeleteDraftOnExit) {
-                        // Screen no longer visible (navigated away, app background, etc.)
-                        onDeleteDraft()
-                    }
-                }
-
-                else -> Unit
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            // Composable left composition (route popped/replaced, etc.)
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-}
-
-@Composable
 private fun SingleProjectUiStateContent(
     uiState: SingleProjectUiState,
     initialProjectNameArg: String,

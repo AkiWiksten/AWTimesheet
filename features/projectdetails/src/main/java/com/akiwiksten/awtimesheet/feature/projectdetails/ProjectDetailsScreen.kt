@@ -18,18 +18,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.akiwiksten.awtimesheet.core.TIME_FORMAT
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
+import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsSuccessState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsTopBar
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsUnsavedChangesDialog
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsField
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsFieldActions
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
-import com.akiwiksten.awtimesheet.feature.projectdetails.model.createProjectDetailsScreenActions
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsTimeFieldAction
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.updateTimeField
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,20 +50,71 @@ fun ProjectDetailsScreen(
     viewModel: ProjectDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val hasUnsavedChanges by viewModel.hasUnsavedChanges.collectAsState()
-    val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
-    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
 
     LaunchedEffect(detailsArgs) {
         viewModel.observeDateRepository(detailsArgs)
     }
 
-    val confirmAndNavigateBackToSingleProject: (ProjectDetailsState) -> Unit = {
-            projectDetails,
-        ->
-        onConfirm(projectDetails)
+    ProjectDetailsUiStateContent(
+        uiState = uiState,
+        onNavigateBack = onNavigateBack,
+        onConfirm = onConfirm
+    )
+}
+
+@Composable
+private fun ProjectDetailsUiStateContent(
+    uiState: ProjectDetailsUiState,
+    onNavigateBack: () -> Unit,
+    onConfirm: (ProjectDetailsState) -> Unit
+) {
+    when (uiState) {
+        is ProjectDetailsUiState.Success -> {
+            ProjectDetailsScreenStateful(
+                uiState = uiState,
+                onNavigateBack = onNavigateBack,
+                onConfirm = onConfirm
+            )
+        }
+        else -> {
+            ProjectDetailsScaffold(
+                uiState = uiState,
+                state = ProjectDetailsState(),
+                actions = ProjectDetailsScreenActions(),
+                hasUnsavedChanges = false,
+                onNavigateBack = onNavigateBack
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProjectDetailsScreenStateful(
+    uiState: ProjectDetailsUiState.Success,
+    onNavigateBack: () -> Unit,
+    onConfirm: (ProjectDetailsState) -> Unit
+) {
+    val initialDetails = uiState.details
+    val settings = uiState.settings
+    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
+    val timeFormatter = remember { DateTimeFormatter.ofPattern(TIME_FORMAT) }
+
+    // Keep in-progress edits through configuration changes, reset when baseline data changes.
+    var state by rememberSaveable(initialDetails) { mutableStateOf(value = initialDetails) }
+
+    val hasUnsavedChanges by remember(state, initialDetails) {
+        derivedStateOf { hasChanges(current = state, baseline = initialDetails) }
     }
 
+    val actions = rememberProjectDetailsActions(
+        state = state,
+        settings = settings,
+        timeFormatter = timeFormatter,
+        onStateChange = { state = it },
+        onConfirm = { onConfirm(state) }
+    )
+
+    val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
     val handleBack: () -> Unit = {
         if (hasUnsavedChanges) {
             showUnsavedDialogState.value = true
@@ -69,15 +130,87 @@ fun ProjectDetailsScreen(
         uiState = uiState,
         unsavedMessage = unsavedMessage,
         onNavigateBack = onNavigateBack,
-        onConfirm = confirmAndNavigateBackToSingleProject
+        onConfirm = onConfirm
     )
 
     ProjectDetailsScaffold(
         uiState = uiState,
-        viewModel = viewModel,
+        state = state,
+        actions = actions,
         hasUnsavedChanges = hasUnsavedChanges,
-        onConfirmAndNavigateBack = confirmAndNavigateBackToSingleProject,
         onNavigateBack = handleBack
+    )
+}
+
+@Composable
+private fun rememberProjectDetailsActions(
+    state: ProjectDetailsState,
+    settings: SettingsState,
+    timeFormatter: DateTimeFormatter,
+    onStateChange: (ProjectDetailsState) -> Unit,
+    onConfirm: () -> Unit
+): ProjectDetailsScreenActions {
+    return remember(state, settings) {
+        ProjectDetailsScreenActions(
+            onClearDetails = {
+                onStateChange(
+                    state.copy(
+                        startTime = ZERO_TIME,
+                        endTime = ZERO_TIME,
+                        lunchStart = ZERO_TIME,
+                        lunchEnd = ZERO_TIME,
+                        breakStart = ZERO_TIME,
+                        breakEnd = ZERO_TIME,
+                        projectTime = ZERO_TIME,
+                        lunchTimeEstimate = settings.dailyLunchTimeEstimate
+                    )
+                )
+            },
+            onConfirm = onConfirm,
+            fieldActions = ProjectDetailsFieldActions(
+                startTime = createTimeFieldAction(
+                    ProjectDetailsField.START_TIME, state, settings, timeFormatter, onStateChange
+                ),
+                lunchTime = createTimeFieldAction(
+                    ProjectDetailsField.LUNCH_TIME, state, settings, timeFormatter, onStateChange
+                ),
+                endTime = createTimeFieldAction(
+                    ProjectDetailsField.END_TIME, state, settings, timeFormatter, onStateChange
+                ),
+                projectTime = createTimeFieldAction(
+                    ProjectDetailsField.PROJECT_TIME, state, settings, timeFormatter, onStateChange
+                ),
+                lunchStart = createTimeFieldAction(
+                    ProjectDetailsField.LUNCH_START, state, settings, timeFormatter, onStateChange
+                ),
+                lunchEnd = createTimeFieldAction(
+                    ProjectDetailsField.LUNCH_END, state, settings, timeFormatter, onStateChange
+                ),
+                breakStart = createTimeFieldAction(
+                    ProjectDetailsField.BREAK_START, state, settings, timeFormatter, onStateChange
+                ),
+                breakEnd = createTimeFieldAction(
+                    ProjectDetailsField.BREAK_END, state, settings, timeFormatter, onStateChange
+                )
+            )
+        )
+    }
+}
+
+private fun createTimeFieldAction(
+    field: ProjectDetailsField,
+    state: ProjectDetailsState,
+    settings: SettingsState,
+    timeFormatter: DateTimeFormatter,
+    onStateChange: (ProjectDetailsState) -> Unit
+): ProjectDetailsTimeFieldAction {
+    return ProjectDetailsTimeFieldAction(
+        onCurrent = {
+            onStateChange(state.updateTimeField(field, LocalTime.now().format(timeFormatter), settings))
+        },
+        onSet = {
+            onStateChange(state.updateTimeField(field, it, settings))
+        }
     )
 }
 
@@ -92,27 +225,18 @@ private tailrec fun Context.findActivity(): Activity? {
 @Composable
 private fun ProjectDetailsScaffold(
     uiState: ProjectDetailsUiState,
-    viewModel: ProjectDetailsViewModel,
+    state: ProjectDetailsState,
+    actions: ProjectDetailsScreenActions,
     hasUnsavedChanges: Boolean,
-    onConfirmAndNavigateBack: (ProjectDetailsState) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
         topBar = { ProjectDetailsTopBar(onNavigateBack = onNavigateBack) }
     ) { padding ->
-        val actions = remember(viewModel, onConfirmAndNavigateBack, uiState) {
-            createProjectDetailsScreenActions(viewModel = viewModel) {
-                val successState = uiState as? ProjectDetailsUiState.Success
-                    ?: return@createProjectDetailsScreenActions
-                onConfirmAndNavigateBack(
-                    successState.details,
-                )
-            }
-        }
-
         ProjectDetailsStateContent(
             padding = padding,
             uiState = uiState,
+            state = state,
             actions = actions,
             isConfirmEnabled = hasUnsavedChanges
         )
@@ -123,6 +247,7 @@ private fun ProjectDetailsScaffold(
 internal fun ProjectDetailsStateContent(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState,
+    state: ProjectDetailsState,
     actions: ProjectDetailsScreenActions,
     isConfirmEnabled: Boolean
 ) {
@@ -130,7 +255,7 @@ internal fun ProjectDetailsStateContent(
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = uiState is ProjectDetailsUiState.Loading
     )
-    var lastSuccessState by remember { mutableStateOf<ProjectDetailsUiState.Success?>(value = null) }
+    var lastSuccessState by rememberSaveable { mutableStateOf<ProjectDetailsUiState.Success?>(value = null) }
 
     LaunchedEffect(uiState) {
         if (uiState is ProjectDetailsUiState.Success) {
@@ -146,7 +271,7 @@ internal fun ProjectDetailsStateContent(
                 lastSuccessState?.let { cachedState ->
                     ProjectDetailsSuccessState(
                         padding = contentPadding,
-                        uiState = cachedState,
+                        uiState = cachedState.copy(details = state),
                         actions = actions,
                         isConfirmEnabled = isConfirmEnabled
                     )
@@ -159,7 +284,7 @@ internal fun ProjectDetailsStateContent(
         }
         is ProjectDetailsUiState.Success -> ProjectDetailsSuccessState(
             padding = contentPadding,
-            uiState = uiState,
+            uiState = uiState.copy(details = state),
             actions = actions,
             isConfirmEnabled = isConfirmEnabled
         )

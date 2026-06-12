@@ -63,6 +63,7 @@ private fun ProjectDetailsConstrainedPreviewContent() {
                 ProjectDetailsStateContent(
                     padding = PaddingValues(0.dp),
                     uiState = PreviewUiState,
+                    state = PreviewUiState.details,
                     actions = ProjectDetailsScreenActions(),
                     isConfirmEnabled = true
                 )

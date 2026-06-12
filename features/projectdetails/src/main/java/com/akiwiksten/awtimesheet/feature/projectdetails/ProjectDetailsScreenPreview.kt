@@ -75,10 +75,12 @@ fun PreviewProjectDetailsError() {
 private fun ProjectDetailsPreviewContent(
     uiState: ProjectDetailsUiState
 ) {
+    val state = (uiState as? ProjectDetailsUiState.Success)?.details ?: ProjectDetailsState()
     AWTimesheetTheme(dynamicColor = false) {
         ProjectDetailsStateContent(
             padding = PaddingValues(0.dp),
             uiState = uiState,
+            state = state,
             actions = ProjectDetailsScreenActions(),
             isConfirmEnabled = uiState is ProjectDetailsUiState.Success
         )

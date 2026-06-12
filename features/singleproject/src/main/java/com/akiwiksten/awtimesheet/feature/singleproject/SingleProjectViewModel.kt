@@ -130,5 +130,4 @@ class SingleProjectViewModel @Inject constructor(
             }
         }
     }
-
 }

@@ -129,17 +129,21 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             kilometres = screen.kilometres,
             allowance = screen.allowance,
             workType = screen.workType,
-            projectDetails = if (screen.details == null) null else ProjectDetailsState(
-                date = screen.details.date,
-                projectName = screen.details.projectName,
-                projectTime = screen.details.projectTime,
-                startTime = screen.details.startTime,
-                endTime = screen.details.endTime,
-                lunchStart = screen.details.lunchStart,
-                lunchEnd = screen.details.lunchEnd,
-                breakStart = screen.details.breakStart,
-                breakEnd = screen.details.breakEnd
-            )
+            projectDetails = if (screen.details == null) {
+                null
+            } else {
+                ProjectDetailsState(
+                    date = screen.details.date,
+                    projectName = screen.details.projectName,
+                    projectTime = screen.details.projectTime,
+                    startTime = screen.details.startTime,
+                    endTime = screen.details.endTime,
+                    lunchStart = screen.details.lunchStart,
+                    lunchEnd = screen.details.lunchEnd,
+                    breakStart = screen.details.breakStart,
+                    breakEnd = screen.details.breakEnd
+                )
+            }
         ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },

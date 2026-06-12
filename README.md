@@ -102,6 +102,7 @@ Summarize benchmark output:
   + Add full flex time day (Zero time project, add work type "Absence->Flex time")
   + Add Text field for comments. Expandable when clicked. 
     + Show in  excel.
+  + On save, check for duplicate project names in same day.
 + WorkdayScreen 
   + Unselect project from list
   + Select many in list

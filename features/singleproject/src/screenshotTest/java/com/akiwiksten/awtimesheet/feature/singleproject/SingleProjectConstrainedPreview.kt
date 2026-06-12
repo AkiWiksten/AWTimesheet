@@ -76,7 +76,7 @@ private fun SingleProjectConstrainedPreviewContent() {
                     actions = SingleProjectActions(
                         onStateChange = {},
                         onOpenProjectDetails = {},
-                        onConfirm = {}
+                        onSave = {}
                     ),
                     hasUnsavedChanges = true,
                     onNavigateBack = {}

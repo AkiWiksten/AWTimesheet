@@ -13,12 +13,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -167,34 +167,40 @@ private fun rememberProjectDetailsActions(
                 )
             },
             onConfirm = onConfirm,
-            fieldActions = ProjectDetailsFieldActions(
-                startTime = createTimeFieldAction(
-                    ProjectDetailsField.START_TIME, state, settings, timeFormatter, onStateChange
-                ),
-                lunchTime = createTimeFieldAction(
-                    ProjectDetailsField.LUNCH_TIME, state, settings, timeFormatter, onStateChange
-                ),
-                endTime = createTimeFieldAction(
-                    ProjectDetailsField.END_TIME, state, settings, timeFormatter, onStateChange
-                ),
-                projectTime = createTimeFieldAction(
-                    ProjectDetailsField.PROJECT_TIME, state, settings, timeFormatter, onStateChange
-                ),
-                lunchStart = createTimeFieldAction(
-                    ProjectDetailsField.LUNCH_START, state, settings, timeFormatter, onStateChange
-                ),
-                lunchEnd = createTimeFieldAction(
-                    ProjectDetailsField.LUNCH_END, state, settings, timeFormatter, onStateChange
-                ),
-                breakStart = createTimeFieldAction(
-                    ProjectDetailsField.BREAK_START, state, settings, timeFormatter, onStateChange
-                ),
-                breakEnd = createTimeFieldAction(
-                    ProjectDetailsField.BREAK_END, state, settings, timeFormatter, onStateChange
-                )
+            fieldActions = createProjectDetailsFieldActions(
+                state,
+                settings,
+                timeFormatter,
+                onStateChange
             )
         )
     }
+}
+
+private fun createProjectDetailsFieldActions(
+    state: ProjectDetailsState,
+    settings: SettingsState,
+    timeFormatter: DateTimeFormatter,
+    onStateChange: (ProjectDetailsState) -> Unit
+): ProjectDetailsFieldActions {
+    fun createAction(field: ProjectDetailsField) = createTimeFieldAction(
+        field,
+        state,
+        settings,
+        timeFormatter,
+        onStateChange
+    )
+
+    return ProjectDetailsFieldActions(
+        startTime = createAction(ProjectDetailsField.START_TIME),
+        lunchTime = createAction(ProjectDetailsField.LUNCH_TIME),
+        endTime = createAction(ProjectDetailsField.END_TIME),
+        projectTime = createAction(ProjectDetailsField.PROJECT_TIME),
+        lunchStart = createAction(ProjectDetailsField.LUNCH_START),
+        lunchEnd = createAction(ProjectDetailsField.LUNCH_END),
+        breakStart = createAction(ProjectDetailsField.BREAK_START),
+        breakEnd = createAction(ProjectDetailsField.BREAK_END)
+    )
 }
 
 private fun createTimeFieldAction(

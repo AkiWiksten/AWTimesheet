@@ -17,7 +17,30 @@ internal fun ProjectDetailsState.updateTimeField(
     val isNewDay = isNewDayForProject()
     val currentLunchEstimate = if (isNewDay) settings.dailyLunchTimeEstimate else lunchTimeEstimate
 
-    val update = when (field) {
+    if (field == ProjectDetailsField.PROJECT_TIME) {
+        val nextDetails = copy(projectTime = time)
+        if (nextDetails.hasOnlyProjectTime()) {
+            return ProjectDetailsUiMapper.normalizeProjectDetails(
+                nextDetails,
+                settings
+            ) ?: nextDetails
+        }
+    }
+
+    val update = calculateUpdate(field, time, settings, currentLunchEstimate, isNewDay)
+    val baseDetails = updateBaseFields(field, time, currentLunchEstimate, isNewDay)
+
+    return baseDetails.applyUpdate(update)
+}
+
+private fun ProjectDetailsState.calculateUpdate(
+    field: ProjectDetailsField,
+    time: String,
+    settings: SettingsState,
+    currentLunchEstimate: String,
+    isNewDay: Boolean
+): WorkTimeCalculator.TimeUpdateResult {
+    return when (field) {
         ProjectDetailsField.START_TIME -> {
             ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
                 StartTimeUpdateParams(
@@ -62,6 +85,17 @@ internal fun ProjectDetailsState.updateTimeField(
             )
         }
 
+        else -> calculateRemainingUpdates(field, time, settings, currentLunchEstimate)
+    }
+}
+
+private fun ProjectDetailsState.calculateRemainingUpdates(
+    field: ProjectDetailsField,
+    time: String,
+    settings: SettingsState,
+    currentLunchEstimate: String
+): WorkTimeCalculator.TimeUpdateResult {
+    return when (field) {
         ProjectDetailsField.LUNCH_END -> {
             ProjectDetailsTimeUpdateCalculator.calculateLunchEndUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(endTime),
@@ -103,14 +137,6 @@ internal fun ProjectDetailsState.updateTimeField(
         }
 
         ProjectDetailsField.PROJECT_TIME -> {
-            val nextDetails = copy(projectTime = time)
-            if (nextDetails.hasOnlyProjectTime()) {
-                return ProjectDetailsUiMapper.normalizeProjectDetails(
-                    nextDetails,
-                    settings
-                ) ?: nextDetails
-            }
-
             ProjectDetailsTimeUpdateCalculator.calculateProjectTimeUpdate(
                 end = WorkTimeCalculator.stringToLocalTime(endTime),
                 dailyWorkTimeEstimate = WorkTimeCalculator.stringToLocalTime(
@@ -120,9 +146,18 @@ internal fun ProjectDetailsState.updateTimeField(
                 oldProjectTime = WorkTimeCalculator.stringToLocalTime(projectTime)
             )
         }
-    }
 
-    val baseDetails = when (field) {
+        else -> WorkTimeCalculator.TimeUpdateResult()
+    }
+}
+
+private fun ProjectDetailsState.updateBaseFields(
+    field: ProjectDetailsField,
+    time: String,
+    currentLunchEstimate: String,
+    isNewDay: Boolean
+): ProjectDetailsState {
+    return when (field) {
         ProjectDetailsField.START_TIME -> {
             if (isNewDay) {
                 copy(startTime = time, lunchTimeEstimate = currentLunchEstimate)
@@ -139,8 +174,6 @@ internal fun ProjectDetailsState.updateTimeField(
         ProjectDetailsField.BREAK_END -> copy(breakEnd = time)
         ProjectDetailsField.PROJECT_TIME -> copy(projectTime = time)
     }
-
-    return baseDetails.applyUpdate(update)
 }
 
 private fun ProjectDetailsState.applyUpdate(

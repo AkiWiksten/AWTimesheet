@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="new_absence">Ny</string>
+    <string name="select_date">Välj datum</string>
     <string name="saved_absences_title">Sparade frånvaror</string>
     <string name="no_absences">Inga frånvaron</string>
     <string name="start_date">Startdatum</string>

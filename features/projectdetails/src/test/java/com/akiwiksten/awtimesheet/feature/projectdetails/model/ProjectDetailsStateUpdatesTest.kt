@@ -12,9 +12,8 @@ class ProjectDetailsStateUpdatesTest {
     fun `updateTimeField START_TIME for new day updates dependent fields`() {
         val initial = projectDetailsState()
         val settings = settingsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30")
-        
         val result = initial.updateTimeField(ProjectDetailsField.START_TIME, "08:00", settings)
-        
+
         assertEquals("08:00", result.startTime)
         assertEquals("16:00", result.endTime)
         assertEquals("11:45", result.lunchStart)
@@ -27,9 +26,9 @@ class ProjectDetailsStateUpdatesTest {
     fun `updateTimeField PROJECT_TIME when only project time normalization works`() {
         val initial = projectDetailsState(projectName = "Alpha")
         val settings = settingsState(dailyWorkTimeEstimate = "07:30", dailyLunchTimeEstimate = "00:30")
-        
+
         val result = initial.updateTimeField(ProjectDetailsField.PROJECT_TIME, "02:00", settings)
-        
+
         assertEquals("02:00", result.projectTime)
         assertEquals("02:30", result.endTime)
         assertEquals(ZERO_TIME, result.startTime)

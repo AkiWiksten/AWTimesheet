@@ -21,6 +21,6 @@
     <string name="allowance">Allowance</string>
     <string name="full_allowance">Full allowance</string>
     <string name="half_day_allowance">Half-day allowance</string>
-    <string name="project_name_note">Add a good project name. You cannot change it after you leave this screen.</string>
+    <string name="project_name_note">Add a good project name. You cannot change it after you press \'Save\' in here.</string>
 </resources>
 

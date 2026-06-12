@@ -11,7 +11,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_withFilledProjectName_andBlankKilometres_enablesConfirm() {
-        val initialState = projectState(listIndex = -1)
+        val initialState = projectState(listIndex = -1, projectTime = "01:00")
         val editedState = initialState.copy(projectName = "Alpha", kilometres = "")
 
         val isEnabled = isSingleProjectConfirmEnabled(

@@ -14,6 +14,9 @@ internal fun ProjectDetailsState.updateTimeField(
     time: String,
     settings: SettingsState
 ): ProjectDetailsState {
+    val isNewDay = isNewDayForProject()
+    val currentLunchEstimate = if (isNewDay) settings.dailyLunchTimeEstimate else lunchTimeEstimate
+
     val update = when (field) {
         ProjectDetailsField.START_TIME -> {
             ProjectDetailsTimeUpdateCalculator.calculateStartTimeUpdate(
@@ -23,11 +26,11 @@ internal fun ProjectDetailsState.updateTimeField(
                         settings.dailyWorkTimeEstimate
                     ),
                     dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                        lunchTimeEstimate
+                        currentLunchEstimate
                     ),
                     projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                     oldStartTime = WorkTimeCalculator.stringToLocalTime(startTime),
-                    isNewDayForProject = isNewDayForProject()
+                    isNewDayForProject = isNewDay
                 )
             )
         }
@@ -51,7 +54,7 @@ internal fun ProjectDetailsState.updateTimeField(
             ProjectDetailsTimeUpdateCalculator.calculateLunchStartUpdate(
                 lunchStart = WorkTimeCalculator.stringToLocalTime(time),
                 dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    lunchTimeEstimate
+                    currentLunchEstimate
                 ),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldLunchStart = WorkTimeCalculator.stringToLocalTime(lunchStart),
@@ -75,7 +78,7 @@ internal fun ProjectDetailsState.updateTimeField(
                 dailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(time),
                 projectTime = WorkTimeCalculator.stringToLocalTime(projectTime),
                 oldDailyLunchTimeEstimate = WorkTimeCalculator.stringToLocalTime(
-                    lunchTimeEstimate
+                    currentLunchEstimate
                 )
             )
         }
@@ -120,7 +123,14 @@ internal fun ProjectDetailsState.updateTimeField(
     }
 
     val baseDetails = when (field) {
-        ProjectDetailsField.START_TIME -> copy(startTime = time)
+        ProjectDetailsField.START_TIME -> {
+            if (isNewDay) {
+                copy(startTime = time, lunchTimeEstimate = currentLunchEstimate)
+            } else {
+                copy(startTime = time)
+            }
+        }
+
         ProjectDetailsField.END_TIME -> copy(endTime = time)
         ProjectDetailsField.LUNCH_START -> copy(lunchStart = time)
         ProjectDetailsField.LUNCH_END -> copy(lunchEnd = time)

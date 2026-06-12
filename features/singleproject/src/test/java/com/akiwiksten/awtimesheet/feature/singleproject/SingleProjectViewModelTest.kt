@@ -2,6 +2,8 @@ package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
+import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
@@ -32,15 +34,17 @@ class SingleProjectViewModelTest {
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
         viewModel.initializeState(
-            projectName = "",
-            projectTime = "",
-            isAddMode = true,
-            listIndex = 0,
+            args = SingleProjectRouteArgs(
+                projectName = "",
+                projectTime = "",
+                isAddMode = true,
+                listIndex = 0,
+            )
         )
         advanceUntilIdle()
 
         viewModel.saveProject(
-            state = projectState(
+            singleProject = projectState(
                 projectName = "Alpha",
                 projectTime = "02:30"
             )
@@ -68,15 +72,17 @@ class SingleProjectViewModelTest {
         )
 
         viewModel.initializeState(
-            projectName = "Alpha",
-            projectTime = "",
-            isAddMode = false,
-            listIndex = 0,
+            args = SingleProjectRouteArgs(
+                projectName = "Alpha",
+                projectTime = "",
+                isAddMode = false,
+                listIndex = 0,
+            )
         )
         advanceUntilIdle()
 
         viewModel.saveProject(
-            state = projectState(
+            singleProject = projectState(
                 projectName = "Alpha",
                 projectTime = "05:30"
             )
@@ -112,15 +118,17 @@ class SingleProjectViewModelTest {
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
         viewModel.initializeState(
-            projectName = "",
-            projectTime = "",
-            isAddMode = true,
-            listIndex = 0,
+            args = SingleProjectRouteArgs(
+                projectName = "",
+                projectTime = "",
+                isAddMode = true,
+                listIndex = 0,
+            )
         )
         advanceUntilIdle()
 
         viewModel.saveProject(
-            state = projectState(
+            singleProject = projectState(
                 projectName = "Absence-Flex day",
                 projectTime = "07:30",
                 workType = "Absence-Flex day"
@@ -140,6 +148,7 @@ class SingleProjectViewModelTest {
             projectRepository = projectRepository,
             saveWorkdayUseCase = SaveWorkdayUseCase(
                 projectRepository = projectRepository,
+                projectDetailsRepository = FakeProjectDetailsRepository(),
                 settingsRepository = settingsRepository,
                 workdayRepository = FakeWorkdayRepository()
             ),

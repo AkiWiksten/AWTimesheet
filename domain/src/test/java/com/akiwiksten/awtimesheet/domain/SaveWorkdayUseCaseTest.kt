@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.domain
 
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
 import com.akiwiksten.awtimesheet.test.FakeWorkdayRepository
@@ -17,10 +18,12 @@ class SaveWorkdayUseCaseTest {
         val projectRepository = FakeProjectRepository()
         val settingsRepository = FakeSettingsRepository()
         val workdayRepository = FakeWorkdayRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         val useCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
             settingsRepository = settingsRepository,
-            workdayRepository = workdayRepository
+            workdayRepository = workdayRepository,
+            projectDetailsRepository = projectDetailsRepository
         )
 
         useCase(
@@ -42,10 +45,12 @@ class SaveWorkdayUseCaseTest {
         val projectRepository = FakeProjectRepository()
         val settingsRepository = FakeSettingsRepository()
         val workdayRepository = FakeWorkdayRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         val useCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
             settingsRepository = settingsRepository,
-            workdayRepository = workdayRepository
+            workdayRepository = workdayRepository,
+            projectDetailsRepository = projectDetailsRepository
         )
 
         useCase(
@@ -88,10 +93,12 @@ class SaveWorkdayUseCaseTest {
         }
         val settingsRepository = FakeSettingsRepository()
         val workdayRepository = FakeWorkdayRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         val useCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
             settingsRepository = settingsRepository,
-            workdayRepository = workdayRepository
+            workdayRepository = workdayRepository,
+            projectDetailsRepository = projectDetailsRepository
         )
 
         useCase(

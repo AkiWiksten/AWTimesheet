@@ -24,6 +24,8 @@ class SingleProjectStateResolverTest {
 
         Assert.assertEquals("07:30", result.projectTime)
         Assert.assertEquals("Absence-Sick", result.projectName)
+        Assert.assertEquals("", result.kilometres)
+        Assert.assertEquals("", result.allowance)
     }
 
     @Test
@@ -40,6 +42,8 @@ class SingleProjectStateResolverTest {
 
         Assert.assertEquals("07:30", result.projectTime)
         Assert.assertEquals("Poissaolo-Sairas", result.projectName)
+        Assert.assertEquals("", result.kilometres)
+        Assert.assertEquals("", result.allowance)
     }
 
     @Test
@@ -80,5 +84,7 @@ class SingleProjectStateResolverTest {
 
         Assert.assertEquals("07:30", result.projectTime)
         Assert.assertEquals("Absence-Sick", result.projectName)
+        Assert.assertEquals("", result.kilometres)
+        Assert.assertEquals("", result.allowance)
     }
 }

@@ -21,7 +21,7 @@ internal fun SingleProjectState.withFlexDayLogic(
     val isFlexDay = workType.equals(flexDayWorkType, ignoreCase = true)
     val workTypeChanged = workType != previousState.workType
     return if (isFlexDay && workTypeChanged) {
-        copy(kilometres = "0", allowance = noAllowanceText)
+        copy(kilometres = "", allowance = noAllowanceText)
     } else {
         this
     }
@@ -36,11 +36,13 @@ internal fun SingleProjectState.withAbsenceLogic(
     val workTypeChanged = workType != previousState.workType
     return if (isAbsence && workTypeChanged) {
         val estimate = settings?.dailyWorkTimeEstimate
-        if (!estimate.isNullOrBlank()) {
-            copy(projectTime = estimate, projectName = workType)
-        } else {
-            copy(projectName = workType)
-        }
+        val updatedTime = if (!estimate.isNullOrBlank()) estimate else projectTime
+        copy(
+            projectTime = updatedTime,
+            projectName = workType,
+            kilometres = "",
+            allowance = ""
+        )
     } else {
         this
     }
@@ -59,7 +61,12 @@ internal fun SingleProjectState.withInitialAbsenceLogic(
             projectTime
         }
         val updatedName = projectName.ifBlank { workType }
-        copy(projectTime = updatedTime, projectName = updatedName)
+        copy(
+            projectTime = updatedTime,
+            projectName = updatedName,
+            kilometres = "",
+            allowance = ""
+        )
     } else {
         this
     }

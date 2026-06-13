@@ -9,6 +9,7 @@ fun AbsenceEntity.toDomain(): AbsenceState {
         absenceType = absenceType,
         startDate = startDate,
         endDate = endDate,
+        hasWeekends = hasWeekends
     )
 }
 
@@ -18,5 +19,6 @@ fun AbsenceState.toEntity(): AbsenceEntity {
         absenceType = absenceType,
         startDate = startDate,
         endDate = endDate,
+        hasWeekends = hasWeekends
     )
 }

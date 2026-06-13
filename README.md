@@ -113,6 +113,7 @@ Summarize benchmark output:
 + ProjectDetailsScreen
   + "Lunch time estimate" Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
+  + Absence* -> Red circle, other -> green circle
 + SettingsScreen
   + App localization selection
 + AbsenceScreen

@@ -1,8 +1,10 @@
 package com.akiwiksten.awtimesheet.feature.absence
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
@@ -80,33 +85,43 @@ private fun AbsenceContent(
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.Start
     ) {
-        AwtButton(
-            onClick = onNavigateToCreateAbsence,
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL),
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(text = stringResource(id = R.string.new_absence))
+            AwtButton(
+                onClick = onNavigateToCreateAbsence,
+                modifier = Modifier.weight(weight = 1f)
+            ) {
+                Text(text = stringResource(id = R.string.new_absence))
+            }
+            AwtButton(
+                onClick = {},
+                modifier = Modifier.weight(weight = 1f)
+            ) {
+                Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.delete))
+            }
         }
-        Text(text = stringResource(id = R.string.saved_absences_title))
+        Text(text = stringResource(id = R.string.saved_absences_title), fontWeight = FontWeight.Bold)
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(weight = 1f)
         ) {
             if (savedAbsences.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = stringResource(id = R.string.no_absences))
+                    Text(text = stringResource(id = R.string.no_absences), fontWeight = FontWeight.Bold)
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(all = PADDING_SPACING_SMALL),
-                    verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.secondary),
+                    verticalArrangement = Arrangement.spacedBy(space = 2.dp)
                 ) {
                     items(items = savedAbsences) { savedAbsence ->
                         SavedAbsenceListItem(savedAbsence = savedAbsence)
@@ -118,21 +133,27 @@ private fun AbsenceContent(
 }
 
 @Composable
-private fun SavedAbsenceListItem(savedAbsence: SavedAbsence) {
+private fun SavedAbsenceListItem(savedAbsence: SavedAbsence, isSelected: Boolean = false) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
+        ),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = PADDING_SPACING),
+                .padding(all = PADDING_SPACING_SMALL),
             verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
-            Text(text = savedAbsence.workType)
-            Text(text = "${stringResource(id = R.string.start_date)}: ${savedAbsence.startDate}")
-            Text(text = "${stringResource(id = R.string.end_date)}: ${savedAbsence.endDate}")
+            Text(text = savedAbsence.absenceType, fontWeight = FontWeight.Bold)
+            Text(text = "${savedAbsence.startDate} - ${savedAbsence.endDate}", fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -197,12 +197,12 @@ private fun rememberSingleProjectDerivedState(
     val hasUnsavedChanges by remember(state, initialUiState) {
         derivedStateOf { hasChanges(current = state, baseline = initialUiState) }
     }
-    val isDuplicate by remember(state.projectName, singleProjectUiState, initialUiState.listIndex) {
+    val isDuplicate by remember(state.projectName, singleProjectUiState) {
         derivedStateOf {
             isDuplicateProjectName(
                 projectName = state.projectName,
-                currentIndex = initialUiState.listIndex,
-                singleProjectState = (singleProjectUiState as? SingleProjectUiState.Success)?.data
+                otherProjectNames = (singleProjectUiState as? SingleProjectUiState.Success)
+                    ?.otherProjectNames ?: emptyList()
             )
         }
     }

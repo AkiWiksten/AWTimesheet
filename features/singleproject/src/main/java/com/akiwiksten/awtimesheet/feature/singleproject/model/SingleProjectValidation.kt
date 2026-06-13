@@ -6,12 +6,10 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 
 internal fun isDuplicateProjectName(
     projectName: String,
-    currentIndex: Int,
-    singleProjectState: SingleProjectState?,
+    otherProjectNames: List<String>,
 ): Boolean {
-    if (projectName.isBlank() || currentIndex != -1) return false
-    return singleProjectState?.listIndex != currentIndex &&
-        singleProjectState?.projectName.equals(projectName, ignoreCase = true)
+    if (projectName.isBlank()) return false
+    return otherProjectNames.any { it.equals(projectName, ignoreCase = true) }
 }
 
 internal fun isSingleProjectConfirmEnabled(

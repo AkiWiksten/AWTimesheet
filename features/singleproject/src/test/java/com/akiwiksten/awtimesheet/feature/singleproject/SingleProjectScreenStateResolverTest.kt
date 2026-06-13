@@ -74,34 +74,33 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun isDuplicate_addMode_matchesCaseInsensitive() {
-        val existingAlpha = projectState(listIndex = 0, projectName = "Alpha")
-        val existingBeta = projectState(listIndex = 1, projectName = "Beta")
+        val otherProjectNames = listOf("Alpha", "Beta")
 
         Assert.assertEquals(
             true,
-            isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha)
+            isDuplicateProjectName("alpha", otherProjectNames = otherProjectNames)
         )
         Assert.assertEquals(
             true,
-            isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta)
+            isDuplicateProjectName("BETA", otherProjectNames = otherProjectNames)
         )
         Assert.assertEquals(
             false,
-            isDuplicateProjectName("Gamma", currentIndex = -1, singleProjectState = existingAlpha)
+            isDuplicateProjectName("Gamma", otherProjectNames = otherProjectNames)
         )
     }
 
     @Test
-    fun isDuplicate_editMode_ignoresOwnIndex() {
-        val existing = projectState(listIndex = 0, projectName = "Alpha")
+    fun isDuplicate_editMode_ignoresOwnName() {
+        val otherProjectNames = listOf("Beta")
 
         Assert.assertEquals(
             false,
-            isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing)
+            isDuplicateProjectName("Alpha", otherProjectNames = otherProjectNames)
         )
         Assert.assertEquals(
-            false,
-            isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing)
+            true,
+            isDuplicateProjectName("Beta", otherProjectNames = otherProjectNames)
         )
     }
 
@@ -112,7 +111,8 @@ class SingleProjectScreenStateResolverTest {
             data = projectState(listIndex = 0, projectName = "Alpha", projectTime = "00:00"),
             workTimeByDate = "00:00",
             workTypes = emptyList(),
-            settings = null
+            settings = null,
+            otherProjectNames = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(
@@ -130,7 +130,8 @@ class SingleProjectScreenStateResolverTest {
             data = projectState(listIndex = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
             workTypes = emptyList(),
-            settings = null
+            settings = null,
+            otherProjectNames = emptyList()
         )
 
         val resolved =
@@ -157,7 +158,8 @@ class SingleProjectScreenStateResolverTest {
             data = projectState(listIndex = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
             workTypes = emptyList(),
-            settings = null
+            settings = null,
+            otherProjectNames = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(

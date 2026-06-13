@@ -30,7 +30,8 @@ sealed class SingleProjectUiState {
         val workTypes: List<String> = emptyList(),
         val settings: SettingsState? = null,
         val data: SingleProjectState,
-        val projectDetails: ProjectDetailsState? = null
+        val projectDetails: ProjectDetailsState? = null,
+        val otherProjectNames: List<String> = emptyList()
     ) : SingleProjectUiState()
 
     data class Error(val message: String) : SingleProjectUiState()
@@ -66,6 +67,11 @@ class SingleProjectViewModel @Inject constructor(
                 date = effectiveDate,
                 projectName = selectedProjectName.value
             )
+            val projectsForDate = projectRepository.getProjectsByDateRange(effectiveDate, effectiveDate)
+            val otherProjectNames = projectsForDate
+                .filter { it.projectName != selectedProjectName.value }
+                .map { it.projectName }
+
             val workTypes = settingsRepository.getWorkTypes()
             val settings = settingsRepository.getSettings()
             val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
@@ -79,6 +85,7 @@ class SingleProjectViewModel @Inject constructor(
                     workTypes = workTypes,
                     settings = settings,
                     projectDetails = args.projectDetails,
+                    otherProjectNames = otherProjectNames,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,
                         projectTime = args.projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },

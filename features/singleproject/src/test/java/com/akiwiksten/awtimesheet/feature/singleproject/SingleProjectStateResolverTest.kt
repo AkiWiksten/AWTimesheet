@@ -70,7 +70,8 @@ class SingleProjectStateResolverTest {
                 data = argsWithSettings.initialSingleProjectState,
                 workTimeByDate = "00:00",
                 settings = argsWithSettings.initialSettings,
-                workTypes = emptyList()
+                workTypes = emptyList(),
+                otherProjectNames = emptyList()
             ),
             noAllowanceText = "None",
             defaultWorkTypeText = "Other",

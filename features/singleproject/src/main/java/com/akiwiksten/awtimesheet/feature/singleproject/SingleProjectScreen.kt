@@ -106,7 +106,7 @@ private fun SingleProjectScreenStateful(
 ) {
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
-    val absencePrefix = stringResource(id = R.string.absence_prefix)
+    val absencePrefix = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence_prefix)
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
 
     val initialUiState = remember(

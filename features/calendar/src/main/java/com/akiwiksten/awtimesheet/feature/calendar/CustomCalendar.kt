@@ -75,6 +75,7 @@ data class CalendarVisibleMonthConfig(
 fun CustomCalendar(
     selectedDate: LocalDate,
     datesWithWork: Set<String>,
+    datesWithAbsence: Set<String> = emptySet(),
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     monthConfig: CalendarVisibleMonthConfig = CalendarVisibleMonthConfig(
@@ -86,16 +87,24 @@ fun CustomCalendar(
     }
     val isYearPickerOpenState = remember { mutableStateOf(false) }
     val monthMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
+    val monthAbsenceMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
     val today = LocalDate.now()
 
-    LaunchedEffect(monthConfig.visibleMonth, datesWithWork) {
+    LaunchedEffect(monthConfig.visibleMonth, datesWithWork, datesWithAbsence) {
         monthMarkers[monthConfig.visibleMonth] = datesWithWork.toSet()
+        monthAbsenceMarkers[monthConfig.visibleMonth] = datesWithAbsence.toSet()
     }
 
     val displayedMonthMarkers = if (displayedMonth == monthConfig.visibleMonth) {
         datesWithWork
     } else {
         monthMarkers[displayedMonth].orEmpty()
+    }
+
+    val displayedAbsenceMarkers = if (displayedMonth == monthConfig.visibleMonth) {
+        datesWithAbsence
+    } else {
+        monthAbsenceMarkers[displayedMonth].orEmpty()
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -119,6 +128,7 @@ fun CustomCalendar(
             selectedDate = selectedDate,
             today = today,
             datesWithWork = displayedMonthMarkers,
+            datesWithAbsence = displayedAbsenceMarkers,
             onDateSelected = onDateSelected
         )
     }
@@ -249,6 +259,7 @@ private fun CalendarGrid(
     selectedDate: LocalDate,
     today: LocalDate,
     datesWithWork: Set<String>,
+    datesWithAbsence: Set<String>,
     onDateSelected: (LocalDate) -> Unit
 ) {
     // Monday-first offset: Monday=1 → 0, Sunday=7 → 6
@@ -269,7 +280,8 @@ private fun CalendarGrid(
                         cellState = DayCellState(
                             isSelected = date == selectedDate,
                             isToday = date == today,
-                            hasWork = date.toString() in datesWithWork
+                            hasWork = date.toString() in datesWithWork,
+                            hasAbsence = date.toString() in datesWithAbsence
                         ),
                         onClick = { onDateSelected(date) },
                         modifier = Modifier.weight(1f)
@@ -283,7 +295,8 @@ private fun CalendarGrid(
 private data class DayCellState(
     val isSelected: Boolean,
     val isToday: Boolean,
-    val hasWork: Boolean
+    val hasWork: Boolean,
+    val hasAbsence: Boolean
 )
 
 @Composable
@@ -296,9 +309,16 @@ private fun DayCell(
     val isSelected = cellState.isSelected
     val isToday = cellState.isToday
     val hasWork = cellState.hasWork
+    val hasAbsence = cellState.hasAbsence
     val backgroundColor = resolveDayCellBackground(isSelected, isToday)
-    val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork)
-    val workBorderColor = MaterialTheme.colorScheme.onSurface
+    val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork || hasAbsence)
+    
+    val workBorderColor = when {
+        hasAbsence -> MaterialTheme.colorScheme.error
+        hasWork -> Color(0xFF4CAF50) // Green 500
+        else -> Color.Transparent
+    }
+    
     val todayBorderColor = if (isSelected) {
         MaterialTheme.colorScheme.onPrimary
     } else {
@@ -310,13 +330,13 @@ private fun DayCell(
             .aspectRatio(1f)
             .padding(2.dp)
             .then(
-                if (hasWork) {
+                if (hasWork || hasAbsence) {
                     Modifier.border(BorderStroke(1.5.dp, workBorderColor), CircleShape)
                 } else {
                     Modifier
                 }
             )
-            .padding(if (hasWork) 1.dp else 0.dp)
+            .padding(if (hasWork || hasAbsence) 1.dp else 0.dp)
             .then(
                 if (isToday) {
                     Modifier.border(BorderStroke(1.5.dp, todayBorderColor), CircleShape)
@@ -333,7 +353,7 @@ private fun DayCell(
             text = day.toString(),
             color = textColor,
             fontSize = 14.sp,
-            fontWeight = if (isSelected || isToday || hasWork) FontWeight.Bold else FontWeight.Normal
+            fontWeight = if (isSelected || isToday || hasWork || hasAbsence) FontWeight.Bold else FontWeight.Normal
         )
     }
 }

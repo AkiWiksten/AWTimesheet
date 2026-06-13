@@ -40,6 +40,7 @@
     <string name="no_projects_available">No projects available. Add one with the button.</string>
 
     <!-- Work Type Absence Prefixes -->
+    <string name="absence_prefix">Absence</string>
     <string name="work_type_paid_vacation">Absence-Paid vacation</string>
     <string name="work_type_unpaid_vacation">Absence-Unpaid vacation</string>
     <string name="work_type_sick_leave">Absence-Sick leave</string>

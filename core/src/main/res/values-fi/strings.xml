@@ -40,6 +40,7 @@
     <string name="no_projects_available">Ei projekteja saatavilla. Lisää uusi painikkeella.</string>
 
     <!-- Work Type Absence Prefixes -->
+    <string name="absence_prefix">Poissaolo</string>
     <string name="work_type_paid_vacation">Poissaolo-Palkallinen loma</string>
     <string name="work_type_unpaid_vacation">Poissaolo-Palkaton loma</string>
     <string name="work_type_sick_leave">Poissaolo-Sairasloma</string>

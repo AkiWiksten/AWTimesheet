@@ -54,6 +54,11 @@ fun CalendarScreen(
     val isInitialLoadComplete by calendarViewModel.isInitialLoadComplete.collectAsStateWithLifecycle()
     val latestIsInitialLoadComplete by rememberUpdatedState(isInitialLoadComplete)
     val lifecycleOwner = LocalLifecycleOwner.current
+    val absencePrefix = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence_prefix)
+
+    LaunchedEffect(absencePrefix) {
+        calendarViewModel.setLocalizedAbsencePrefix(absencePrefix)
+    }
 
     // OPTIMIZATION: Start auto-reload AFTER first frame is drawn.
     // This defers database queries off the critical startup path, reducing jank.
@@ -116,6 +121,7 @@ internal fun CalendarContent(
                     CustomCalendar(
                         selectedDate = LocalDate.parse(uiState.date),
                         datesWithWork = uiState.datesWithWork,
+                        datesWithAbsence = uiState.datesWithAbsence,
                         onDateSelected = { onDateSelected(it.toString()) },
                         modifier = Modifier.padding(all = PADDING_SPACING),
                         monthConfig = CalendarVisibleMonthConfig(

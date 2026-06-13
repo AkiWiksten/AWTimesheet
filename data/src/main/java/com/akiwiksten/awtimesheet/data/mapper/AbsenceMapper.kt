@@ -5,6 +5,7 @@ import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 
 fun AbsenceEntity.toDomain(): AbsenceState {
     return AbsenceState(
+        id = id,
         absenceType = absenceType,
         startDate = startDate,
         endDate = endDate,
@@ -13,6 +14,7 @@ fun AbsenceEntity.toDomain(): AbsenceState {
 
 fun AbsenceState.toEntity(): AbsenceEntity {
     return AbsenceEntity(
+        id = id,
         absenceType = absenceType,
         startDate = startDate,
         endDate = endDate,

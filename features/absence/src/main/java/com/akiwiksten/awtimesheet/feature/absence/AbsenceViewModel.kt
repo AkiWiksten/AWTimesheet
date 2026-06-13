@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.absence
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveAbsenceUseCase
@@ -9,12 +10,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AbsenceViewModel @Inject constructor(
-    private val getCalendarDataUseCase: SaveAbsenceUseCase,
+    private val saveAbsenceUseCase: SaveAbsenceUseCase,
     private val absenceRepository: AbsenceRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AbsenceUiState())
@@ -26,39 +28,54 @@ class AbsenceViewModel @Inject constructor(
 
     fun addAbsence(absenceType: String, startDate: String, endDate: String) {
         viewModelScope.launch {
-            getCalendarDataUseCase(absenceType, startDate, endDate)
+            saveAbsenceUseCase(absenceType, startDate, endDate)
+            initData()
         }
-        val newAbsence = SavedAbsence(
-            absenceType = absenceType,
-            startDate = startDate,
-            endDate = endDate
-        )
-        _uiState.value = _uiState.value.copy(
-            savedAbsences = _uiState.value.savedAbsences + newAbsence
-        )
     }
 
     fun initData() {
         viewModelScope.launch {
             val absences = absenceRepository.getAll().map {
                 SavedAbsence(
+                    id = it.id,
                     absenceType = it.absenceType,
                     startDate = it.startDate,
                     endDate = it.endDate
                 )
             }
-            _uiState.value = _uiState.value.copy(
-                savedAbsences = absences
+            _uiState.update { it.copy(savedAbsences = absences) }
+        }
+    }
+
+    fun selectAbsence(id: Int?) {
+        _uiState.update { it.copy(selectedAbsenceId = id) }
+    }
+
+    fun deleteSelectedAbsence() {
+        val selectedId = _uiState.value.selectedAbsenceId ?: return
+        val selected = _uiState.value.savedAbsences.find { it.id == selectedId } ?: return
+        viewModelScope.launch {
+            absenceRepository.delete(
+                AbsenceState(
+                    id = selected.id,
+                    absenceType = selected.absenceType,
+                    startDate = selected.startDate,
+                    endDate = selected.endDate
+                )
             )
+            initData()
+            selectAbsence(null)
         }
     }
 }
 
 data class AbsenceUiState(
-    val savedAbsences: List<SavedAbsence> = emptyList()
+    val savedAbsences: List<SavedAbsence> = emptyList(),
+    val selectedAbsenceId: Int? = null
 )
 
 data class SavedAbsence(
+    val id: Int,
     val absenceType: String,
     val startDate: String,
     val endDate: String,

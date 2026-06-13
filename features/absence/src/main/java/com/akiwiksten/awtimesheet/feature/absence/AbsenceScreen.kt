@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.absence
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,9 @@ fun AbsenceScreen(
     ) { innerPadding ->
         AbsenceContent(
             savedAbsences = uiState.savedAbsences,
+            selectedAbsenceId = uiState.selectedAbsenceId,
+            onSelectAbsence = viewModel::selectAbsence,
+            onDeleteSelectedAbsence = viewModel::deleteSelectedAbsence,
             onNavigateToCreateAbsence = onNavigateToCreateAbsence,
             modifier = Modifier
                 .fillMaxSize()
@@ -77,6 +81,9 @@ fun AbsenceScreen(
 @Composable
 private fun AbsenceContent(
     savedAbsences: List<SavedAbsence>,
+    selectedAbsenceId: Int?,
+    onSelectAbsence: (Int?) -> Unit,
+    onDeleteSelectedAbsence: () -> Unit,
     onNavigateToCreateAbsence: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -96,7 +103,8 @@ private fun AbsenceContent(
                 Text(text = stringResource(id = R.string.new_absence))
             }
             AwtButton(
-                onClick = {},
+                onClick = onDeleteSelectedAbsence,
+                enabled = selectedAbsenceId != null,
                 modifier = Modifier.weight(weight = 1f)
             ) {
                 Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.delete))
@@ -123,8 +131,21 @@ private fun AbsenceContent(
                         .background(MaterialTheme.colorScheme.secondary),
                     verticalArrangement = Arrangement.spacedBy(space = 2.dp)
                 ) {
-                    items(items = savedAbsences) { savedAbsence ->
-                        SavedAbsenceListItem(savedAbsence = savedAbsence)
+                    items(
+                        items = savedAbsences,
+                        key = { it.id }
+                    ) { savedAbsence ->
+                        SavedAbsenceListItem(
+                            savedAbsence = savedAbsence,
+                            isSelected = savedAbsence.id == selectedAbsenceId,
+                            onClick = {
+                                if (selectedAbsenceId == savedAbsence.id) {
+                                    onSelectAbsence(null)
+                                } else {
+                                    onSelectAbsence(savedAbsence.id)
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -133,7 +154,11 @@ private fun AbsenceContent(
 }
 
 @Composable
-private fun SavedAbsenceListItem(savedAbsence: SavedAbsence, isSelected: Boolean = false) {
+private fun SavedAbsenceListItem(
+    savedAbsence: SavedAbsence,
+    isSelected: Boolean = false,
+    onClick: () -> Unit
+) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
@@ -144,7 +169,9 @@ private fun SavedAbsenceListItem(savedAbsence: SavedAbsence, isSelected: Boolean
                 MaterialTheme.colorScheme.surface
             }
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
     ) {
         Column(
             modifier = Modifier

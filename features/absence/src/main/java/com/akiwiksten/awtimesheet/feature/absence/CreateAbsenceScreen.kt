@@ -35,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
@@ -255,7 +257,7 @@ private fun WeekendsSection(
             .selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
-        Text(text = stringResource(id = R.string.absence_weekends_title))
+        Text(text = stringResource(id = R.string.absence_weekends_title), fontWeight = FontWeight.Bold)
         WeekendsOptionRow(
             text = stringResource(id = R.string.no),
             selected = !includeWeekends,
@@ -287,7 +289,7 @@ private fun WeekendsOptionRow(
         horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         RadioButton(selected = selected, onClick = onClick)
-        Text(text = text)
+        Text(text = text, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -341,8 +343,12 @@ private fun DatePickerRow(
             value = dateText,
             onValueChange = {},
             readOnly = true,
-            label = { Text(text = stringResource(id = labelId)) },
-            modifier = Modifier.weight(weight = 1f)
+            label = { Text(text = stringResource(id = labelId), fontWeight = FontWeight.Bold) },
+            modifier = Modifier.weight(weight = 1f),
+            textStyle = TextStyle(
+                fontWeight = FontWeight.Bold
+            )
+
         )
         IconButton(onClick = onPickDate) {
             Icon(

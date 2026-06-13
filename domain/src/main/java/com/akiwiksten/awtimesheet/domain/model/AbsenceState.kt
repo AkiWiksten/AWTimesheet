@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class AbsenceState(
+    val id: Int = 0,
     val absenceType: String = "",
     val startDate: String = "",
     val endDate: String = "",

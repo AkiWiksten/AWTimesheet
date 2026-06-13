@@ -15,7 +15,7 @@ class GetSettingsUseCase @Inject constructor(
             name = settings?.name ?: "",
             employer = settings?.employer ?: "",
             // Settings screen should show global defaults only.
-            dailyWorkTimeEstimate = settings?.dailyWorkTimeEstimate ?: "",
+            dailyWorkTimeEstimate = settings?.dailyWorkTimeEstimate ?: ZERO_TIME,
             dailyLunchTimeEstimate = settings?.dailyLunchTimeEstimate ?: ZERO_TIME,
             initialFlexTimeTotal = settings?.initialFlexTimeTotal ?: ZERO_TIME,
             workTypes = workTypes

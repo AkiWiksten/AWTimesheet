@@ -10,7 +10,7 @@ data class SingleProjectState(
     val isAddMode: Boolean = true,
     val projectName: String = "",
     val projectTime: String = ZERO_TIME,
-    val kilometres: String = "0",
+    val kilometres: String = "",
     val allowance: String = "",
     val workType: String = "",
     val date: String = "",
@@ -19,7 +19,7 @@ data class SingleProjectState(
 fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {
     return date.isBlank() &&
         projectTime == ZERO_TIME &&
-        kilometres == "0" &&
+        kilometres.isBlank() &&
         allowance.isBlank() &&
         workType.isBlank()
 }

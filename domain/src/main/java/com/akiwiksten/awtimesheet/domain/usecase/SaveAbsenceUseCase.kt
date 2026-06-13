@@ -1,5 +1,7 @@
 package com.akiwiksten.awtimesheet.domain.usecase
 
+import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
@@ -29,7 +31,9 @@ class SaveAbsenceUseCase @Inject constructor(
             hasWeekends = hasWeekends
         ))
         
-        val dailyWorkTimeEstimate = settingsRepository.getSettings()?.dailyWorkTimeEstimate ?: ""
+        val dailyWorkTimeEstimate = settingsRepository.getSettings()?.dailyWorkTimeEstimate
+            ?.takeIf { it != ZERO_TIME && it.isNotEmpty() }
+            ?: DEFAULT_DAILY_WORK_TIME
 
         projectRepository.insertProjectName(absenceType)
 

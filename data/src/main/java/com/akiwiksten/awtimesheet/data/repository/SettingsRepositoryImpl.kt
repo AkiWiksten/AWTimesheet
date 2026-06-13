@@ -29,7 +29,7 @@ class SettingsRepositoryImpl @Inject constructor(
         val isStatsOnlyUpdate = settings.name.isEmpty() && settings.employer.isEmpty()
         val shouldUpdateEstimates =
             isStatsOnlyUpdate ||
-                settings.dailyWorkTimeEstimate.isNotEmpty() ||
+                settings.dailyWorkTimeEstimate != ZERO_TIME ||
                 settings.dailyLunchTimeEstimate != ZERO_TIME ||
                 settings.initialFlexTimeTotal != ZERO_TIME
 
@@ -40,7 +40,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 dailyWorkTimeEstimate = if (shouldUpdateEstimates) {
                     settings.dailyWorkTimeEstimate
                 } else {
-                    existing?.dailyWorkTimeEstimate.orEmpty()
+                    existing?.dailyWorkTimeEstimate ?: ZERO_TIME
                 },
                 dailyLunchTimeEstimate = if (shouldUpdateEstimates) {
                     settings.dailyLunchTimeEstimate
@@ -69,7 +69,8 @@ class SettingsRepositoryImpl @Inject constructor(
         return if (workday != null) {
             (fallback ?: SettingsState()).copy(
                 dailyWorkTimeEstimate = workday.workTimeByDateEstimate
-                    .ifEmpty { fallback?.dailyWorkTimeEstimate.orEmpty() },
+                    .takeIf { it != ZERO_TIME && it.isNotEmpty() }
+                    ?: (fallback?.dailyWorkTimeEstimate ?: ZERO_TIME),
                 dailyLunchTimeEstimate = fallback?.dailyLunchTimeEstimate ?: ZERO_TIME,
                 initialFlexTimeTotal = fallback?.initialFlexTimeTotal ?: ZERO_TIME
             )

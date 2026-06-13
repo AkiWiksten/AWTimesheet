@@ -9,7 +9,7 @@ fun ProjectEntity.toDomain(): SingleProjectState {
         listIndex = -1,
         projectName = projectName,
         projectTime = projectTime,
-        kilometres = kilometres.toString(),
+        kilometres = if (kilometres == 0) "" else kilometres.toString(),
         allowance = allowance,
         workType = workType,
     )

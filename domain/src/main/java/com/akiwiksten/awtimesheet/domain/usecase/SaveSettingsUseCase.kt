@@ -24,7 +24,7 @@ class SaveSettingsUseCase @Inject constructor(
 
         val existingGlobalStats = settingsRepository.getSettings()
         val shouldPersistGlobalStats =
-            settings.dailyWorkTimeEstimate != existingGlobalStats?.dailyWorkTimeEstimate.orEmpty() ||
+            settings.dailyWorkTimeEstimate != (existingGlobalStats?.dailyWorkTimeEstimate ?: ZERO_TIME) ||
                 settings.dailyLunchTimeEstimate != (existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME) ||
                 settings.initialFlexTimeTotal != (existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME)
 
@@ -51,7 +51,7 @@ class SaveSettingsUseCase @Inject constructor(
                 isCurrentDay &&
                     workTimeByDate == ZERO_TIME &&
                     selectedDate.isNotEmpty() &&
-                    settings.dailyWorkTimeEstimate.isNotEmpty()
+                    settings.dailyWorkTimeEstimate != ZERO_TIME
 
             if (shouldUpdateCurrentDayEstimate) {
                 workdayRepository.upsertWorkdayStats(

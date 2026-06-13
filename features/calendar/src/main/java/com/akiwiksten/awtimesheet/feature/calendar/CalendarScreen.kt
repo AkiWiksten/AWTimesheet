@@ -130,7 +130,6 @@ internal fun CalendarContent(
                         )
                     )
                 }
-                NoteBanner(text = stringResource(id = R.string.calendar_month_selection_hint),)
                 WorkTimeSummarySection(uiState = uiState)
                 AwtButton(
                     onClick = onNavigateToAbsence,

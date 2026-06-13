@@ -101,31 +101,10 @@ class CalendarViewModel @Inject constructor(
     }
 
     /**
-     * Updates marker days for the currently visible calendar month without changing selected date.
+     * Updates the visible month and pre-selects the first day of that month.
      */
     fun onVisibleMonthChanged(month: YearMonth) {
-        val currentState = _uiState.value as? CalendarUiState.Success ?: return
-
-        viewModelScope.launch {
-            try {
-                val monthDate = month.atDay(1).toString()
-                // Check cache first before fetching
-                val monthData = getCalendarDataUseCase(
-                    date = monthDate,
-                    absencePrefix = localizedAbsencePrefix
-                )
-
-                _uiState.value = currentState.copy(
-                    datesWithWork = monthData.datesWithWork,
-                    datesWithAbsence = monthData.datesWithAbsence,
-                    visibleMonth = month
-                )
-            } catch (_: IllegalArgumentException) {
-                // Keep current UI state if month marker refresh fails.
-            } catch (_: IllegalStateException) {
-                // Keep current UI state if month marker refresh fails.
-            }
-        }
+        onDateSelected(month.atDay(1).toString())
     }
 
     /**

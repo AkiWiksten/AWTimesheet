@@ -49,3 +49,8 @@ data class SingleProjectActions(
     val onOpenProjectDetails: () -> Unit,
     val onSave: () -> Unit
 )
+
+data class SingleProjectConfiguration(
+    val absencePrefix: String,
+    val flexDayWorkType: String
+)

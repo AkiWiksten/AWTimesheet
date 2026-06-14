@@ -12,7 +12,7 @@
     <string name="save_globally">Save globally</string>
     <string name="saved_today">Saved for this day only!</string>
     <string name="saved_globally">Saved globally!</string>
-    <string name="flex_day_special_note">Note! This is an \'Absence-Flex day\'. Special functionality applied.</string>
+    <string name="flex_day_special_note">Note! This is an \'Absence-Flex day\'. Flex time negative. You cannot add other projects.</string>
 
     <!-- Centralized from core (duplicated for local reference) -->
     <string name="add">Add</string>

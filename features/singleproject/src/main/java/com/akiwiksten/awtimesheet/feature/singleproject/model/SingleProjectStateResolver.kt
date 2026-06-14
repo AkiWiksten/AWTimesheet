@@ -13,28 +13,18 @@ internal fun SingleProjectState.withDefaultWorkType(defaultWorkType: String): Si
     return if (workType.isBlank()) copy(workType = defaultWorkType) else this
 }
 
-internal fun SingleProjectState.withFlexDayLogic(
-    previousState: SingleProjectState,
-    noAllowanceText: String,
-    flexDayWorkType: String
-): SingleProjectState {
-    val isFlexDay = workType.equals(flexDayWorkType, ignoreCase = true)
-    val workTypeChanged = workType != previousState.workType
-    return if (isFlexDay && workTypeChanged) {
-        copy(kilometres = "", allowance = noAllowanceText)
-    } else {
-        this
-    }
-}
-
 internal fun SingleProjectState.withAbsenceLogic(
     previousState: SingleProjectState,
     settings: SettingsState?,
-    absencePrefix: String
+    absencePrefix: String,
+    flexDayWorkType: String
 ): SingleProjectState {
-    val isAbsence = workType.startsWith(prefix = absencePrefix, ignoreCase = true)
+    val isFlexDay = workType.equals(flexDayWorkType, ignoreCase = true)
+    val isAbsence = absencePrefix.isNotEmpty() && workType.startsWith(prefix = absencePrefix, ignoreCase = true)
+    val isAnyAbsence = isFlexDay || isAbsence
+    
     val workTypeChanged = workType != previousState.workType
-    return if (isAbsence && workTypeChanged) {
+    return if (isAnyAbsence && workTypeChanged) {
         val estimate = settings?.dailyWorkTimeEstimate
         val updatedTime = if (!estimate.isNullOrBlank()) estimate else projectTime
         copy(

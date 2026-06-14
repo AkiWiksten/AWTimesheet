@@ -41,6 +41,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProject
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectUpperFieldsSection
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 
 @Composable
@@ -48,6 +49,7 @@ internal fun SingleProjectScreenContent(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     hasUnsavedChanges: Boolean,
+    config: SingleProjectConfiguration,
     onNavigateBack: () -> Unit,
     onDiscardAndNavigateBack: () -> Unit = onNavigateBack
 ) {
@@ -92,7 +94,8 @@ internal fun SingleProjectScreenContent(
             screenState = screenState,
             actions = actions,
             showLoadingIndicator = showLoadingIndicator,
-            cachedSuccessState = lastSuccessState.value
+            cachedSuccessState = lastSuccessState.value,
+            config = config
         )
     }
 }
@@ -103,7 +106,8 @@ private fun SingleProjectContentByUiState(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: SingleProjectUiState.Success?
+    cachedSuccessState: SingleProjectUiState.Success?,
+    config: SingleProjectConfiguration
 ) {
     when (screenState.uiState) {
         is SingleProjectUiState.Loading -> SingleProjectLoadingContent(
@@ -111,14 +115,16 @@ private fun SingleProjectContentByUiState(
             screenState = screenState,
             actions = actions,
             showLoadingIndicator = showLoadingIndicator,
-            cachedSuccessState = cachedSuccessState
+            cachedSuccessState = cachedSuccessState,
+            config = config
         )
 
         is SingleProjectUiState.Success -> SingleProjectSuccessContent(
             padding = padding,
             screenState = screenState,
             actions = actions,
-            uiState = screenState.uiState
+            uiState = screenState.uiState,
+            config = config
         )
 
         is SingleProjectUiState.Error -> CenteredErrorBox(
@@ -136,7 +142,8 @@ private fun SingleProjectLoadingContent(
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: SingleProjectUiState.Success?
+    cachedSuccessState: SingleProjectUiState.Success?,
+    config: SingleProjectConfiguration
 ) {
     if (showLoadingIndicator) {
         CenteredLoadingBox(
@@ -155,7 +162,8 @@ private fun SingleProjectLoadingContent(
             data = (screenState.uiState as? SingleProjectUiState.Success)?.data ?: screenState.state,
             workTimeByDate = ZERO_TIME,
             workTypes = (screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()
-        )
+        ),
+        config = config
     )
 }
 
@@ -164,7 +172,8 @@ private fun SingleProjectSuccessContent(
     padding: PaddingValues,
     screenState: SingleProjectScreenState,
     actions: SingleProjectActions,
-    uiState: SingleProjectUiState
+    uiState: SingleProjectUiState,
+    config: SingleProjectConfiguration
 ) {
     val successState = uiState as? SingleProjectUiState.Success
     val originalProjectTime = successState?.data?.projectTime ?: ""
@@ -181,7 +190,8 @@ private fun SingleProjectSuccessContent(
         padding = padding,
         workTimeByDate = workTimeByDate,
         screenState = screenState.copy(uiState = uiState),
-        actions = actions
+        actions = actions,
+        config = config
     )
 }
 
@@ -206,7 +216,8 @@ private fun SingleProjectContent(
     padding: PaddingValues,
     workTimeByDate: String,
     screenState: SingleProjectScreenState,
-    actions: SingleProjectActions
+    actions: SingleProjectActions,
+    config: SingleProjectConfiguration
 ) {
     val scrollState = rememberScrollState()
     val defaultWorkTypeText = stringResource(id = R.string.other)
@@ -246,7 +257,8 @@ private fun SingleProjectContent(
             SingleProjectFormFields(
                 screenState = screenState,
                 workTypes = workTypes,
-                actions = actions
+                actions = actions,
+                config = config
             )
         }
 
@@ -258,10 +270,13 @@ private fun SingleProjectContent(
 private fun SingleProjectFormFields(
     screenState: SingleProjectScreenState,
     workTypes: List<String>,
-    actions: SingleProjectActions
+    actions: SingleProjectActions,
+    config: SingleProjectConfiguration
 ) {
-    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
-    val isFlexDay = screenState.state.workType == flexDayWorkType
+    val isFlexDay = screenState.state.workType.equals(config.flexDayWorkType, ignoreCase = true)
+    val isAbsence = config.absencePrefix.isNotEmpty() &&
+        screenState.state.workType.startsWith(prefix = config.absencePrefix, ignoreCase = true)
+    val isAnyAbsence = isFlexDay || isAbsence
 
     Column(
         modifier = Modifier
@@ -274,7 +289,7 @@ private fun SingleProjectFormFields(
             state = screenState.state,
             isProjectNameEditable = screenState.isProjectNameEditable,
             isDuplicateProjectName = screenState.isDuplicateProjectName,
-            isFlexDay = isFlexDay,
+            isAbsence = isAnyAbsence,
             onStateChange = actions.onStateChange
         )
 
@@ -287,7 +302,7 @@ private fun SingleProjectFormFields(
         SingleProjectDropdownFieldsSection(
             state = screenState.state,
             workTypeDropDownList = workTypes,
-            isFlexDay = isFlexDay,
+            isAbsence = isAnyAbsence,
             onStateChange = actions.onStateChange
         )
 

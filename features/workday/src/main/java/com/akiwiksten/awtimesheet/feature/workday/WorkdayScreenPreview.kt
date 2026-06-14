@@ -6,6 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayConfiguration
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 import com.android.tools.screenshot.PreviewTest
 
@@ -100,7 +101,8 @@ private fun WorkdayPreviewContent(
                 onRetry = {},
                 onSaveSettings = { _, _ -> },
                 onDeleteProject = {}
-            )
+            ),
+            config = WorkdayConfiguration("", "")
         )
     }
 }

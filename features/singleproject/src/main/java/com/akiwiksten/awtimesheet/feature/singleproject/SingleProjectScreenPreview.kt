@@ -5,6 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.android.tools.screenshot.PreviewTest
 
@@ -166,6 +167,10 @@ private fun SingleProjectPreviewContent(
                 onSave = {}
             ),
             hasUnsavedChanges = hasUnsavedChanges,
+            config = SingleProjectConfiguration(
+                absencePrefix = "Absence",
+                flexDayWorkType = "Absence-Flex day"
+            ),
             onNavigateBack = {}
         )
     }

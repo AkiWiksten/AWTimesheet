@@ -17,6 +17,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectDerivedState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
@@ -25,7 +26,6 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProject
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
 import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveFullInitialSingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.withAbsenceLogic
-import com.akiwiksten.awtimesheet.feature.singleproject.model.withFlexDayLogic
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,12 +144,7 @@ private fun SingleProjectScreenStateful(
         onStateChange = { newState ->
             val settings = (uiState as? SingleProjectUiState.Success)?.settings
             state = newState
-                .withAbsenceLogic(state, settings, absencePrefix)
-                .withFlexDayLogic(
-                    previousState = state,
-                    noAllowanceText = noAllowanceText,
-                    flexDayWorkType = flexDayWorkType
-                )
+                .withAbsenceLogic(state, settings, absencePrefix, flexDayWorkType)
         },
         onOpenProjectDetails = { onOpenProjectDetails(state) },
         onSave = { onSaveAndNavigateBack(state) }
@@ -164,6 +159,10 @@ private fun SingleProjectScreenStateful(
         screenState = screenState,
         actions = actions,
         hasUnsavedChanges = derived.hasUnsavedChanges,
+        config = SingleProjectConfiguration(
+            absencePrefix = absencePrefix,
+            flexDayWorkType = flexDayWorkType
+        ),
         onNavigateBack = onNavigateBack,
         onDiscardAndNavigateBack = onDiscardAndNavigateBack
     )

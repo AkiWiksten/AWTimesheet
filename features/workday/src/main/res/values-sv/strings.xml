@@ -17,6 +17,5 @@
     <string name="save_globally">Spara globalt</string>
     <string name="saved_today">Sparat för bara denna dag!</string>
     <string name="saved_globally">Sparat globalt!</string>
-    <string name="flex_day_special_note">Obs! Detta är en \'Frånvaro-Flexdag\'. Särskild funktionalitet används.</string>
+    <string name="flex_day_special_note">Obs! Detta är en \'Frånvaro-Flexdag\'. Flextid negativ. Du kan inte lägga till andra projekt.</string>
 </resources>
-

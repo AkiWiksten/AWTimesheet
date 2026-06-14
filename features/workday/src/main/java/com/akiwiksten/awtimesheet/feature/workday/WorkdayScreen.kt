@@ -28,6 +28,7 @@ import com.akiwiksten.awtimesheet.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.awtimesheet.feature.workday.components.WorkdayLoadingContent
 import com.akiwiksten.awtimesheet.feature.workday.components.WorkdaySuccessContent
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayConfiguration
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
@@ -37,6 +38,7 @@ fun WorkdayScreen(
     workdayViewModel: WorkdayViewModel = hiltViewModel(),
 ) {
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+    val absencePrefix = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence_prefix)
 
     LaunchedEffect(flexDayWorkType) {
         workdayViewModel.setLocalizedFlexDayWorkType(flexDayWorkType)
@@ -86,7 +88,11 @@ fun WorkdayScreen(
         workdayUiState = workdayUiState,
         selectedItemIndex = selectedItemIndexState.intValue,
         scrollState = scrollState,
-        actions = actions
+        actions = actions,
+        config = WorkdayConfiguration(
+            flexDayWorkType = flexDayWorkType,
+            absencePrefix = absencePrefix
+        )
     )
 }
 
@@ -95,7 +101,8 @@ internal fun WorkdayContent(
     workdayUiState: WorkdayUiState,
     selectedItemIndex: Int,
     scrollState: androidx.compose.foundation.ScrollState,
-    actions: WorkdayActions
+    actions: WorkdayActions,
+    config: WorkdayConfiguration
 ) {
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = workdayUiState is WorkdayUiState.Loading
@@ -124,7 +131,8 @@ internal fun WorkdayContent(
                 showLoadingIndicator = showLoadingIndicator,
                 cachedState = lastSuccessState,
                 selectedItemIndex = selectedItemIndex,
-                actions = actions
+                actions = actions,
+                config = config
             )
 
             is WorkdayUiState.Success -> Column(
@@ -133,7 +141,8 @@ internal fun WorkdayContent(
                 WorkdaySuccessContent(
                     state = workdayUiState,
                     selectedItemIndex = selectedItemIndex,
-                    actions = actions
+                    actions = actions,
+                    config = config
                 )
             }
 

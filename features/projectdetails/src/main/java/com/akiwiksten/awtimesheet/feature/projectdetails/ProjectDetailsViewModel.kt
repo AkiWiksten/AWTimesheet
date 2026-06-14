@@ -62,6 +62,12 @@ class ProjectDetailsViewModel @Inject constructor(
         }
     }
 
+    fun deleteProjectDetails(projectDetails: ProjectDetailsState) {
+        viewModelScope.launch {
+            projectDetailsRepository.deleteProjectDetails(projectDetails)
+        }
+    }
+
     private suspend fun loadProjectDetailsInternal(date: String, projectDetailsArg: ProjectDetailsState) {
         val details = projectDetailsRepository.getProjectDetails(date, projectDetailsArg.projectName)
         val settings = settingsRepository.getSettings()

@@ -279,7 +279,8 @@ private fun SingleProjectFormFields(
         SingleProjectTimeSelectionSection(
             state = screenState.state,
             onOpenProjectDetails = actions.onOpenProjectDetails,
-            onStateChange = actions.onStateChange
+            onStateChange = actions.onStateChange,
+            isTimePickerDisabled = screenState.isTimePickerDisabled
         )
 
         SingleProjectDropdownFieldsSection(

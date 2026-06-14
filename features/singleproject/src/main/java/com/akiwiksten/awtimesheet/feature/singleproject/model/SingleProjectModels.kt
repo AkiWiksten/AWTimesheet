@@ -41,7 +41,8 @@ data class SingleProjectScreenState(
     val isProjectNameEditable: Boolean,
     val uiState: SingleProjectUiState,
     val isConfirmEnabled: Boolean,
-    val isDuplicateProjectName: Boolean
+    val isDuplicateProjectName: Boolean,
+    val isTimePickerDisabled: Boolean
 )
 
 data class SingleProjectActions(

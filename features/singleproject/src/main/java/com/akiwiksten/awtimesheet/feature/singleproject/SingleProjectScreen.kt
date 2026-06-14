@@ -191,7 +191,8 @@ private fun createSingleProjectScreenState(
         isProjectNameEditable = isProjectNameEditable,
         uiState = uiState,
         isConfirmEnabled = derived.isConfirmEnabled,
-        isDuplicateProjectName = derived.isDuplicate
+        isDuplicateProjectName = derived.isDuplicate,
+        isTimePickerDisabled = (uiState as? SingleProjectUiState.Success)?.projectDetails != null
     )
 }
 

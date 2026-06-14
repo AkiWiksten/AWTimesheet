@@ -186,7 +186,8 @@ private fun ProjectTimeSelectionRow(
     state: SingleProjectState,
     onOpenProjectDetails: () -> Unit,
     onOpenTimePicker: () -> Unit,
-    onStateChange: (SingleProjectState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit,
+    isTimePickerDisabled: Boolean
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -208,7 +209,8 @@ private fun ProjectTimeSelectionRow(
 
             ProjectTimeActionsColumn(
                 onOpenProjectDetails = onOpenProjectDetails,
-                onOpenTimePicker = onOpenTimePicker
+                onOpenTimePicker = onOpenTimePicker,
+                isTimePickerDisabled = isTimePickerDisabled
             )
         }
     }
@@ -246,7 +248,8 @@ private fun RowScope.ProjectTimeReadOnlyField(
 @Composable
 private fun ProjectTimeActionsColumn(
     onOpenProjectDetails: () -> Unit,
-    onOpenTimePicker: () -> Unit
+    onOpenTimePicker: () -> Unit,
+    isTimePickerDisabled: Boolean
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
         AwtButton(
@@ -266,6 +269,7 @@ private fun ProjectTimeActionsColumn(
 
         AwtButton(
             onClick = onOpenTimePicker,
+            enabled = !isTimePickerDisabled,
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         ) {
             Icon(
@@ -282,7 +286,8 @@ private fun ProjectTimeActionsColumn(
 internal fun SingleProjectTimeSelectionSection(
     state: SingleProjectState,
     onOpenProjectDetails: () -> Unit,
-    onStateChange: (SingleProjectState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit,
+    isTimePickerDisabled: Boolean
 ) {
     val openTimePickerDialogState = remember { mutableStateOf(false) }
 
@@ -300,7 +305,8 @@ internal fun SingleProjectTimeSelectionSection(
         state = state,
         onOpenProjectDetails = onOpenProjectDetails,
         onOpenTimePicker = { openTimePickerDialogState.value = true },
-        onStateChange = onStateChange
+        onStateChange = onStateChange,
+        isTimePickerDisabled = isTimePickerDisabled
     )
 }
 

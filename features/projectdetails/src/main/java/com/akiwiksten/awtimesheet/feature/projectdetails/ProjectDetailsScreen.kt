@@ -58,7 +58,8 @@ fun ProjectDetailsScreen(
     ProjectDetailsUiStateContent(
         uiState = uiState,
         onNavigateBack = onNavigateBack,
-        onConfirm = onConfirm
+        onConfirm = onConfirm,
+        onDeleteDetails = { viewModel.deleteProjectDetails(it) }
     )
 }
 
@@ -66,14 +67,16 @@ fun ProjectDetailsScreen(
 private fun ProjectDetailsUiStateContent(
     uiState: ProjectDetailsUiState,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState) -> Unit
+    onConfirm: (ProjectDetailsState) -> Unit,
+    onDeleteDetails: (ProjectDetailsState) -> Unit
 ) {
     when (uiState) {
         is ProjectDetailsUiState.Success -> {
             ProjectDetailsScreenStateful(
                 uiState = uiState,
                 onNavigateBack = onNavigateBack,
-                onConfirm = onConfirm
+                onConfirm = onConfirm,
+                onDeleteDetails = onDeleteDetails
             )
         }
         else -> {
@@ -92,7 +95,8 @@ private fun ProjectDetailsUiStateContent(
 private fun ProjectDetailsScreenStateful(
     uiState: ProjectDetailsUiState.Success,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState) -> Unit
+    onConfirm: (ProjectDetailsState) -> Unit,
+    onDeleteDetails: (ProjectDetailsState) -> Unit
 ) {
     val initialDetails = uiState.details
     val settings = uiState.settings
@@ -122,7 +126,8 @@ private fun ProjectDetailsScreenStateful(
         settings = settings,
         timeFormatter = timeFormatter,
         onStateChange = { state = it },
-        onConfirm = { onConfirm(state) }
+        onConfirm = { onConfirm(state) },
+        onDeleteDetails = { onDeleteDetails(state) }
     )
 
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
@@ -159,11 +164,13 @@ private fun rememberProjectDetailsActions(
     settings: SettingsState,
     timeFormatter: DateTimeFormatter,
     onStateChange: (ProjectDetailsState) -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
+    onDeleteDetails: () -> Unit
 ): ProjectDetailsScreenActions {
     return remember(state, settings) {
         ProjectDetailsScreenActions(
             onClearDetails = {
+                onDeleteDetails()
                 onStateChange(
                     state.copy(
                         startTime = ZERO_TIME,

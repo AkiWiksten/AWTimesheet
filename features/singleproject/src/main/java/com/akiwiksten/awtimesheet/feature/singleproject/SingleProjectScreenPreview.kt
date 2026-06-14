@@ -26,7 +26,8 @@ fun PreviewSingleProjectLoading() {
             isProjectNameEditable = true,
             uiState = SingleProjectUiState.Loading,
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = false
     )
@@ -60,7 +61,8 @@ fun PreviewSingleProjectSuccessAdd() {
                 settings = null
             ),
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = false
     )
@@ -96,7 +98,8 @@ fun PreviewSingleProjectSuccessEdit() {
                 settings = null
             ),
             isConfirmEnabled = true,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = true
     )
@@ -129,7 +132,8 @@ fun PreviewSingleProjectDuplicateName() {
                 settings = null
             ),
             isConfirmEnabled = false,
-            isDuplicateProjectName = true
+            isDuplicateProjectName = true,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = true
     )
@@ -148,7 +152,8 @@ fun PreviewSingleProjectError() {
             isProjectNameEditable = true,
             uiState = SingleProjectUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = false
     )

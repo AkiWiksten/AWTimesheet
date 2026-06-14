@@ -48,7 +48,8 @@ private val PreviewScreenState = SingleProjectScreenState(
     ),
     isConfirmEnabled = true,
     isDuplicateProjectName = false,
-    isProjectNameEditable = true
+    isProjectNameEditable = true,
+    isTimePickerDisabled = false
 )
 
 @PreviewTest

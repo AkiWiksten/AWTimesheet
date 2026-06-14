@@ -90,7 +90,8 @@ class SingleProjectDetailsButtonStateTest {
                 workTypes = listOf("Other")
             ),
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         )
     }
 

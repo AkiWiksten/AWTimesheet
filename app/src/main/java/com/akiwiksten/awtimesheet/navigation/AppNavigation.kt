@@ -90,6 +90,7 @@ internal fun PortraitWidthContainer(
 internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
         detailsArgs = ProjectDetailsState(
+            date = screen.date,
             projectName = screen.projectName,
             projectTime = screen.projectTime,
             startTime = screen.startTime,
@@ -151,6 +152,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
                 backStack.updateSingleProjectState(singleProject)
                 backStack.add(
                     element = Screen.ProjectDetails(
+                        date = projectDetails?.date ?: "",
                         projectTime = singleProject.projectTime,
                         projectName = singleProject.projectName,
                         startTime = projectDetails?.startTime ?: "",

@@ -3,6 +3,7 @@
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
@@ -26,7 +27,8 @@ sealed class ProjectDetailsUiState : Parcelable {
     @Parcelize
     data class Success(
         val details: ProjectDetailsState,
-        val settings: SettingsState = SettingsState()
+        val settings: SettingsState = SettingsState(),
+        val persistedProjectTime: String = ZERO_TIME
     ) : ProjectDetailsUiState()
 
     @Parcelize
@@ -66,7 +68,8 @@ class ProjectDetailsViewModel @Inject constructor(
 
         _uiState.value = ProjectDetailsUiMapper.mapEntitiesToUiState(
             baseState = ProjectDetailsUiState.Success(
-                details = projectDetailsArg.copy(date = date)
+                details = projectDetailsArg.copy(date = date),
+                persistedProjectTime = details?.projectTime ?: ZERO_TIME
             ),
             projectDetails = details,
             settings = settings

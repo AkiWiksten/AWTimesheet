@@ -96,11 +96,22 @@ private fun ProjectDetailsScreenStateful(
 ) {
     val initialDetails = uiState.details
     val settings = uiState.settings
+    val persistedProjectTime = uiState.persistedProjectTime
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
     val timeFormatter = remember { DateTimeFormatter.ofPattern(TIME_FORMAT) }
 
     // Keep in-progress edits through configuration changes, reset when baseline data changes.
-    var state by rememberSaveable(initialDetails) { mutableStateOf(value = initialDetails) }
+    var state by rememberSaveable(initialDetails) {
+        val hasProjectTimeOverride = initialDetails.projectTime != persistedProjectTime &&
+            initialDetails.projectTime != ZERO_TIME
+
+        val resolvedInitial = if (hasProjectTimeOverride) {
+            initialDetails.updateTimeField(ProjectDetailsField.PROJECT_TIME, initialDetails.projectTime, settings)
+        } else {
+            initialDetails
+        }
+        mutableStateOf(value = resolvedInitial)
+    }
 
     val hasUnsavedChanges by remember(state, initialDetails) {
         derivedStateOf { hasChanges(current = state, baseline = initialDetails) }

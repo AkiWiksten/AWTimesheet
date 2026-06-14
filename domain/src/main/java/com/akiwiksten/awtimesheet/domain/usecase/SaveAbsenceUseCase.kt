@@ -22,13 +22,14 @@ class SaveAbsenceUseCase @Inject constructor(
         startDate: String,
         endDate: String,
         absenceType: String,
-        hasWeekends: Boolean = false
+        isFlexDay: Boolean = false,
+        includeWeekends: Boolean = false
     ) {
         absenceRepository.insertAbsence(AbsenceState(
             absenceType = absenceType,
             startDate = startDate,
             endDate = endDate,
-            hasWeekends = hasWeekends
+            includeWeekends = includeWeekends
         ))
         
         val dailyWorkTimeEstimate = settingsRepository.getSettings()?.dailyWorkTimeEstimate
@@ -42,7 +43,7 @@ class SaveAbsenceUseCase @Inject constructor(
 
         while (!date.isAfter(end)) {
             val isWeekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
-            if (hasWeekends || !isWeekend) {
+            if (includeWeekends || !isWeekend) {
                 val dateString = date.toString()
                 val workTimeByDate = workdayRepository.loadWorkday(date.toString()) ?: dailyWorkTimeEstimate
                 projectRepository.insertProject(SingleProjectState(

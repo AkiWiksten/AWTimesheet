@@ -45,17 +45,18 @@ import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateAbsenceScreen(
     onNavigateBack: () -> Unit,
-    onAbsenceCreated: (workType: String, startDate: String, endDate: String) -> Unit,
+    onAbsenceCreated: (AbsenceState) -> Unit,
 ) {
     var startDate by remember { mutableStateOf(LocalDate.now()) }
     var endDate by remember { mutableStateOf(LocalDate.now()) }
-    var workType by rememberSaveable { mutableStateOf("") }
+    var absenceType by rememberSaveable { mutableStateOf("") }
     var includeWeekends by rememberSaveable { mutableStateOf(false) }
     var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
     var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
@@ -66,6 +67,9 @@ fun CreateAbsenceScreen(
         onStartDismiss = { showStartDatePicker = false },
         onStartDateSelected = {
             startDate = it
+            if (endDate.isBefore(it)) {
+                endDate = it
+            }
             showStartDatePicker = false
         },
         showEndPicker = showEndDatePicker,
@@ -76,21 +80,27 @@ fun CreateAbsenceScreen(
             showEndDatePicker = false
         },
     )
-
     Scaffold(
         topBar = { CreateAbsenceTopBar(onNavigateBack = onNavigateBack) }
     ) { innerPadding ->
         CreateAbsenceContent(
             startDate = startDate,
             endDate = endDate,
-            workType = workType,
+            absenceType = absenceType,
             includeWeekends = includeWeekends,
-            onWorkTypeChange = { workType = it },
+            onAbsenceTypeChange = { absenceType = it },
             onIncludeWeekendsChange = { includeWeekends = it },
             onShowStartDatePicker = { showStartDatePicker = true },
             onShowEndDatePicker = { showEndDatePicker = true },
             onSave = {
-                onAbsenceCreated(workType, startDate.toString(), endDate.toString())
+                onAbsenceCreated(
+                    AbsenceState(
+                        absenceType = absenceType,
+                        startDate = startDate.toString(),
+                        endDate = endDate.toString(),
+                        includeWeekends = includeWeekends
+                    )
+                )
                 onNavigateBack()
             },
             modifier = Modifier.fillMaxWidth()
@@ -152,9 +162,9 @@ private fun AbsenceDatePickerDialogs(
 private fun CreateAbsenceContent(
     startDate: LocalDate,
     endDate: LocalDate,
-    workType: String,
+    absenceType: String,
     includeWeekends: Boolean,
-    onWorkTypeChange: (String) -> Unit,
+    onAbsenceTypeChange: (String) -> Unit,
     onIncludeWeekendsChange: (Boolean) -> Unit,
     onShowStartDatePicker: () -> Unit,
     onShowEndDatePicker: () -> Unit,
@@ -169,9 +179,9 @@ private fun CreateAbsenceContent(
         AbsenceFormCard(
             startDate = startDate,
             endDate = endDate,
-            workType = workType,
+            absenceType = absenceType,
             includeWeekends = includeWeekends,
-            onWorkTypeChange = onWorkTypeChange,
+            onAbsenceTypeChange = onAbsenceTypeChange,
             onIncludeWeekendsChange = onIncludeWeekendsChange,
             onShowStartDatePicker = onShowStartDatePicker,
             onShowEndDatePicker = onShowEndDatePicker,
@@ -180,7 +190,7 @@ private fun CreateAbsenceContent(
             AwtButton(
                 onClick = onSave,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = workType.isNotBlank()
+                enabled = absenceType.isNotBlank()
             ) {
                 Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.save))
             }
@@ -193,9 +203,9 @@ private fun CreateAbsenceContent(
 private fun AbsenceFormCard(
     startDate: LocalDate,
     endDate: LocalDate,
-    workType: String,
+    absenceType: String,
     includeWeekends: Boolean,
-    onWorkTypeChange: (String) -> Unit,
+    onAbsenceTypeChange: (String) -> Unit,
     onIncludeWeekendsChange: (Boolean) -> Unit,
     onShowStartDatePicker: () -> Unit,
     onShowEndDatePicker: () -> Unit,
@@ -231,10 +241,10 @@ private fun AbsenceFormCard(
                     stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_other_leave),
                     stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
                 ),
-                onItemSelected = onWorkTypeChange,
+                onItemSelected = onAbsenceTypeChange,
                 field = DropdownMenuField(
                     labelId = R.string.absence_work_type,
-                    selectedText = workType,
+                    selectedText = absenceType,
                     enabled = true
                 )
             )

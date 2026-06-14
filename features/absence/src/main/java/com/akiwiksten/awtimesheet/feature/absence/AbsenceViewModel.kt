@@ -28,9 +28,14 @@ class AbsenceViewModel @Inject constructor(
         initData()
     }
 
-    fun addAbsence(absenceType: String, startDate: String, endDate: String) {
+    fun addAbsence(absence: AbsenceState) {
         viewModelScope.launch {
-            saveAbsenceUseCase(startDate = startDate, endDate = endDate, absenceType = absenceType)
+            saveAbsenceUseCase(
+                startDate = absence.startDate,
+                endDate = absence.endDate,
+                absenceType = absence.absenceType,
+                includeWeekends = absence.includeWeekends
+            )
             initData()
         }
     }
@@ -43,7 +48,7 @@ class AbsenceViewModel @Inject constructor(
                     absenceType = it.absenceType,
                     startDate = it.startDate,
                     endDate = it.endDate,
-                    hasWeekends = it.hasWeekends
+                    includeWeekends = it.includeWeekends
                 )
             }
             _uiState.update { it.copy(savedAbsences = absences) }
@@ -63,7 +68,7 @@ class AbsenceViewModel @Inject constructor(
                 absenceType = selected.absenceType,
                 startDate = selected.startDate,
                 endDate = selected.endDate,
-                hasWeekends = selected.hasWeekends
+                includeWeekends = selected.includeWeekends
             )
             initData()
             selectAbsence(null)
@@ -81,5 +86,5 @@ data class SavedAbsence(
     val absenceType: String,
     val startDate: String,
     val endDate: String,
-    val hasWeekends: Boolean,
+    val includeWeekends: Boolean,
 )

@@ -21,7 +21,8 @@ class DeleteAbsenceUseCase @Inject constructor(
         startDate: String,
         endDate: String,
         absenceType: String,
-        hasWeekends: Boolean = false
+        isFlexDay: Boolean = false,
+        includeWeekends: Boolean = false
     ) {
         absenceRepository.delete(
             AbsenceState(
@@ -29,7 +30,7 @@ class DeleteAbsenceUseCase @Inject constructor(
                 absenceType = absenceType,
                 startDate = startDate,
                 endDate = endDate,
-                hasWeekends = hasWeekends
+                includeWeekends = includeWeekends
             )
         )
 
@@ -38,7 +39,7 @@ class DeleteAbsenceUseCase @Inject constructor(
 
         while (!date.isAfter(end)) {
             val isWeekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
-            if (hasWeekends || !isWeekend) {
+            if (includeWeekends || !isWeekend) {
                 val dateString = date.toString()
                 projectRepository.deleteProject(SingleProjectState(
                     projectName = absenceType,

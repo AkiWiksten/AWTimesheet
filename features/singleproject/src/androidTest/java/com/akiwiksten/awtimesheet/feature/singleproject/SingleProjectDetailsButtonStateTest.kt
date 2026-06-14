@@ -10,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import org.junit.Rule
 import org.junit.Test
@@ -28,13 +29,15 @@ class SingleProjectDetailsButtonStateTest {
         composeRule.setContent {
             MaterialTheme {
                 SingleProjectScreenContent(
-                    screenState = screenState(projectName = ""),
-                    actions = testActions(),
-                    hasUnsavedChanges = false,
-                    config = SingleProjectConfiguration(
-                        absencePrefix = "Absence",
-                        flexDayWorkType = "Absence-Flex day"
+                    params = SingleProjectScreenParams(
+                        screenState = screenState(projectName = ""),
+                        actions = testActions(),
+                        config = SingleProjectConfiguration(
+                            absencePrefix = "Absence",
+                            flexDayWorkType = "Absence-Flex day"
+                        )
                     ),
+                    hasUnsavedChanges = false,
                     onNavigateBack = {}
                 )
             }
@@ -50,13 +53,15 @@ class SingleProjectDetailsButtonStateTest {
         composeRule.setContent {
             MaterialTheme {
                 SingleProjectScreenContent(
-                    screenState = screenState(projectName = "Project A"),
-                    actions = testActions(),
-                    hasUnsavedChanges = false,
-                    config = SingleProjectConfiguration(
-                        absencePrefix = "Absence",
-                        flexDayWorkType = "Absence-Flex day"
+                    params = SingleProjectScreenParams(
+                        screenState = screenState(projectName = "Project A"),
+                        actions = testActions(),
+                        config = SingleProjectConfiguration(
+                            absencePrefix = "Absence",
+                            flexDayWorkType = "Absence-Flex day"
+                        )
                     ),
+                    hasUnsavedChanges = false,
                     onNavigateBack = {}
                 )
             }

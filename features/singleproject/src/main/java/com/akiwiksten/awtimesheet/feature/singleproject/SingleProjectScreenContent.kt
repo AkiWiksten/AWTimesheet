@@ -40,19 +40,17 @@ import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProject
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectUpperFieldsSection
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 
 @Composable
 internal fun SingleProjectScreenContent(
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     hasUnsavedChanges: Boolean,
-    config: SingleProjectConfiguration,
     onNavigateBack: () -> Unit,
     onDiscardAndNavigateBack: () -> Unit = onNavigateBack
 ) {
+    val screenState = params.screenState
+    val actions = params.actions
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = screenState.uiState is SingleProjectUiState.Loading
     )
@@ -91,11 +89,9 @@ internal fun SingleProjectScreenContent(
     ) { padding ->
         SingleProjectContentByUiState(
             padding = padding,
-            screenState = screenState,
-            actions = actions,
+            params = params,
             showLoadingIndicator = showLoadingIndicator,
-            cachedSuccessState = lastSuccessState.value,
-            config = config
+            cachedSuccessState = lastSuccessState.value
         )
     }
 }
@@ -103,28 +99,23 @@ internal fun SingleProjectScreenContent(
 @Composable
 private fun SingleProjectContentByUiState(
     padding: PaddingValues,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: SingleProjectUiState.Success?,
-    config: SingleProjectConfiguration
+    cachedSuccessState: SingleProjectUiState.Success?
 ) {
+    val screenState = params.screenState
     when (screenState.uiState) {
         is SingleProjectUiState.Loading -> SingleProjectLoadingContent(
             padding = padding,
-            screenState = screenState,
-            actions = actions,
+            params = params,
             showLoadingIndicator = showLoadingIndicator,
-            cachedSuccessState = cachedSuccessState,
-            config = config
+            cachedSuccessState = cachedSuccessState
         )
 
         is SingleProjectUiState.Success -> SingleProjectSuccessContent(
             padding = padding,
-            screenState = screenState,
-            actions = actions,
-            uiState = screenState.uiState,
-            config = config
+            params = params,
+            uiState = screenState.uiState
         )
 
         is SingleProjectUiState.Error -> CenteredErrorBox(
@@ -139,11 +130,9 @@ private fun SingleProjectContentByUiState(
 @Composable
 private fun SingleProjectLoadingContent(
     padding: PaddingValues,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: SingleProjectUiState.Success?,
-    config: SingleProjectConfiguration
+    cachedSuccessState: SingleProjectUiState.Success?
 ) {
     if (showLoadingIndicator) {
         CenteredLoadingBox(
@@ -154,27 +143,25 @@ private fun SingleProjectLoadingContent(
         return
     }
 
+    val screenState = params.screenState
     SingleProjectSuccessContent(
         padding = padding,
-        screenState = screenState,
-        actions = actions,
+        params = params,
         uiState = cachedSuccessState ?: SingleProjectUiState.Success(
             data = (screenState.uiState as? SingleProjectUiState.Success)?.data ?: screenState.state,
             workTimeByDate = ZERO_TIME,
             workTypes = (screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()
-        ),
-        config = config
+        )
     )
 }
 
 @Composable
 private fun SingleProjectSuccessContent(
     padding: PaddingValues,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
-    uiState: SingleProjectUiState,
-    config: SingleProjectConfiguration
+    params: SingleProjectScreenParams,
+    uiState: SingleProjectUiState
 ) {
+    val screenState = params.screenState
     val successState = uiState as? SingleProjectUiState.Success
     val originalProjectTime = successState?.data?.projectTime ?: ""
     val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
@@ -189,9 +176,7 @@ private fun SingleProjectSuccessContent(
     SingleProjectContent(
         padding = padding,
         workTimeByDate = workTimeByDate,
-        screenState = screenState.copy(uiState = uiState),
-        actions = actions,
-        config = config
+        params = params.copy(screenState = screenState.copy(uiState = uiState))
     )
 }
 
@@ -215,10 +200,9 @@ private fun SingleProjectTopSection(
 private fun SingleProjectContent(
     padding: PaddingValues,
     workTimeByDate: String,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
-    config: SingleProjectConfiguration
+    params: SingleProjectScreenParams
 ) {
+    val screenState = params.screenState
     val scrollState = rememberScrollState()
     val defaultWorkTypeText = stringResource(id = R.string.other)
     val workTypes =
@@ -255,10 +239,8 @@ private fun SingleProjectContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             SingleProjectFormFields(
-                screenState = screenState,
                 workTypes = workTypes,
-                actions = actions,
-                config = config
+                params = params
             )
         }
 
@@ -268,11 +250,12 @@ private fun SingleProjectContent(
 
 @Composable
 private fun SingleProjectFormFields(
-    screenState: SingleProjectScreenState,
     workTypes: List<String>,
-    actions: SingleProjectActions,
-    config: SingleProjectConfiguration
+    params: SingleProjectScreenParams
 ) {
+    val screenState = params.screenState
+    val actions = params.actions
+    val config = params.config
     val isFlexDay = screenState.state.workType.equals(config.flexDayWorkType, ignoreCase = true)
     val isAbsence = config.absencePrefix.isNotEmpty() &&
         screenState.state.workType.startsWith(prefix = config.absencePrefix, ignoreCase = true)

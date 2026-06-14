@@ -1,4 +1,4 @@
-@file:Suppress("kotlin:S1854", "UNUSED_VALUE")
+@file:Suppress("kotlin:S1854", "UNUSED_VALUE", "FunctionNaming", "MagicNumber")
 
 package com.akiwiksten.awtimesheet.feature.calendar
 
@@ -54,6 +54,7 @@ private const val DAYS_IN_WEEK = 7
 private const val WEEK_GRID_ROUND_UP = 6
 private const val YEAR_PICKER_RANGE = 25
 private const val YEAR_PICKER_CENTER_OFFSET = 3
+private val MarkerWorkColor = Color(0xFF4CAF50) // Green 500
 
 private val orderedDaysOfWeek = listOf(
     DayOfWeek.MONDAY,
@@ -70,14 +71,18 @@ data class CalendarVisibleMonthConfig(
     val onVisibleMonthChanged: (YearMonth) -> Unit = {}
 )
 
+data class CalendarMarkers(
+    val datesWithWork: Set<String> = emptySet(),
+    val datesWithAbsence: Set<String> = emptySet()
+)
+
 @Suppress("kotlin:S1854", "UNUSED_VALUE")
 @Composable
 fun CustomCalendar(
     selectedDate: LocalDate,
-    datesWithWork: Set<String>,
-    datesWithAbsence: Set<String> = emptySet(),
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
+    markers: CalendarMarkers = CalendarMarkers(),
     monthConfig: CalendarVisibleMonthConfig = CalendarVisibleMonthConfig(
         visibleMonth = YearMonth.of(selectedDate.year, selectedDate.month)
     )
@@ -86,26 +91,13 @@ fun CustomCalendar(
         mutableStateOf(YearMonth.of(selectedDate.year, selectedDate.month))
     }
     val isYearPickerOpenState = remember { mutableStateOf(false) }
-    val monthMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
-    val monthAbsenceMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
     val today = LocalDate.now()
 
-    LaunchedEffect(monthConfig.visibleMonth, datesWithWork, datesWithAbsence) {
-        monthMarkers[monthConfig.visibleMonth] = datesWithWork.toSet()
-        monthAbsenceMarkers[monthConfig.visibleMonth] = datesWithAbsence.toSet()
-    }
-
-    val displayedMonthMarkers = if (displayedMonth == monthConfig.visibleMonth) {
-        datesWithWork
-    } else {
-        monthMarkers[displayedMonth].orEmpty()
-    }
-
-    val displayedAbsenceMarkers = if (displayedMonth == monthConfig.visibleMonth) {
-        datesWithAbsence
-    } else {
-        monthAbsenceMarkers[displayedMonth].orEmpty()
-    }
+    val displayedMarkers = rememberDisplayedMarkers(
+        displayedMonth = displayedMonth,
+        monthConfig = monthConfig,
+        markers = markers
+    )
 
     Column(modifier = modifier.fillMaxWidth()) {
         MonthHeader(
@@ -127,24 +119,65 @@ fun CustomCalendar(
             displayedMonth = displayedMonth,
             selectedDate = selectedDate,
             today = today,
-            datesWithWork = displayedMonthMarkers,
-            datesWithAbsence = displayedAbsenceMarkers,
+            markers = displayedMarkers,
             onDateSelected = onDateSelected
         )
     }
 
-    if (isYearPickerOpenState.value) {
+    CustomCalendarYearPicker(
+        isYearPickerOpen = isYearPickerOpenState.value,
+        displayedMonth = displayedMonth,
+        onYearSelected = { nextMonth ->
+            displayedMonth = nextMonth
+            monthConfig.onVisibleMonthChanged(nextMonth)
+            isYearPickerOpenState.value = false
+        },
+        onDismiss = { isYearPickerOpenState.value = false }
+    )
+}
+
+@Composable
+private fun rememberDisplayedMarkers(
+    displayedMonth: YearMonth,
+    monthConfig: CalendarVisibleMonthConfig,
+    markers: CalendarMarkers
+): CalendarMarkers {
+    val monthMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
+    val monthAbsenceMarkers = remember { mutableStateMapOf<YearMonth, Set<String>>() }
+
+    LaunchedEffect(monthConfig.visibleMonth, markers.datesWithWork, markers.datesWithAbsence) {
+        monthMarkers[monthConfig.visibleMonth] = markers.datesWithWork.toSet()
+        monthAbsenceMarkers[monthConfig.visibleMonth] = markers.datesWithAbsence.toSet()
+    }
+
+    return remember(displayedMonth, monthConfig.visibleMonth, markers, monthMarkers, monthAbsenceMarkers) {
+        if (displayedMonth == monthConfig.visibleMonth) {
+            markers
+        } else {
+            CalendarMarkers(
+                datesWithWork = monthMarkers[displayedMonth].orEmpty(),
+                datesWithAbsence = monthAbsenceMarkers[displayedMonth].orEmpty()
+            )
+        }
+    }
+}
+
+@Composable
+private fun CustomCalendarYearPicker(
+    isYearPickerOpen: Boolean,
+    displayedMonth: YearMonth,
+    onYearSelected: (YearMonth) -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (isYearPickerOpen) {
         val currentYear = displayedMonth.year
         val years = (currentYear - YEAR_PICKER_RANGE..currentYear + YEAR_PICKER_RANGE).toList().reversed()
         YearPickerDialog(
             selectedYear = currentYear,
             years = years,
-            onDismiss = { isYearPickerOpenState.value = false },
+            onDismiss = onDismiss,
             onYearSelected = { pickedYear ->
-                val nextMonth = YearMonth.of(pickedYear, displayedMonth.month)
-                displayedMonth = nextMonth
-                monthConfig.onVisibleMonthChanged(nextMonth)
-                isYearPickerOpenState.value = false
+                onYearSelected(YearMonth.of(pickedYear, displayedMonth.month))
             }
         )
     }
@@ -258,8 +291,7 @@ private fun CalendarGrid(
     displayedMonth: YearMonth,
     selectedDate: LocalDate,
     today: LocalDate,
-    datesWithWork: Set<String>,
-    datesWithAbsence: Set<String>,
+    markers: CalendarMarkers,
     onDateSelected: (LocalDate) -> Unit
 ) {
     // Monday-first offset: Monday=1 → 0, Sunday=7 → 6
@@ -280,8 +312,8 @@ private fun CalendarGrid(
                         cellState = DayCellState(
                             isSelected = date == selectedDate,
                             isToday = date == today,
-                            hasWork = date.toString() in datesWithWork,
-                            hasAbsence = date.toString() in datesWithAbsence
+                            hasWork = date.toString() in markers.datesWithWork,
+                            hasAbsence = date.toString() in markers.datesWithAbsence
                         ),
                         onClick = { onDateSelected(date) },
                         modifier = Modifier.weight(1f)
@@ -297,7 +329,13 @@ private data class DayCellState(
     val isToday: Boolean,
     val hasWork: Boolean,
     val hasAbsence: Boolean
-)
+) {
+    val isHighlighted: Boolean
+        get() {
+            val hasMarker = hasWork || hasAbsence
+            return isSelected || isToday || hasMarker
+        }
+}
 
 @Composable
 private fun DayCell(
@@ -314,7 +352,7 @@ private fun DayCell(
     val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork || hasAbsence)
     val workBorderColor = when {
         hasAbsence -> MaterialTheme.colorScheme.error
-        hasWork -> Color(0xFF4CAF50) // Green 500
+        hasWork -> MarkerWorkColor
         else -> Color.Transparent
     }
     val todayBorderColor = if (isSelected) {
@@ -351,7 +389,7 @@ private fun DayCell(
             text = day.toString(),
             color = textColor,
             fontSize = 14.sp,
-            fontWeight = if (isSelected || isToday || hasWork || hasAbsence) FontWeight.Bold else FontWeight.Normal
+            fontWeight = if (cellState.isHighlighted) FontWeight.Bold else FontWeight.Normal
         )
     }
 }

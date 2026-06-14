@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
-import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteAbsenceUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.SaveAbsenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -84,6 +83,12 @@ class AbsenceViewModel @Inject constructor(
 data class AbsenceUiState(
     val savedAbsences: List<SavedAbsence> = emptyList(),
     val selectedAbsenceId: Int? = null
+)
+
+data class AbsenceActions(
+    val onSelectAbsence: (Int?) -> Unit,
+    val onDeleteSelectedAbsence: () -> Unit,
+    val onNavigateToCreateAbsence: () -> Unit,
 )
 
 data class SavedAbsence(

@@ -21,6 +21,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfi
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectDerivedState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProjectName
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
@@ -156,13 +157,15 @@ private fun SingleProjectScreenStateful(
     }
 
     SingleProjectScreenContent(
-        screenState = screenState,
-        actions = actions,
-        hasUnsavedChanges = derived.hasUnsavedChanges,
-        config = SingleProjectConfiguration(
-            absencePrefix = absencePrefix,
-            flexDayWorkType = flexDayWorkType
+        params = SingleProjectScreenParams(
+            screenState = screenState,
+            actions = actions,
+            config = SingleProjectConfiguration(
+                absencePrefix = absencePrefix,
+                flexDayWorkType = flexDayWorkType
+            )
         ),
+        hasUnsavedChanges = derived.hasUnsavedChanges,
         onNavigateBack = onNavigateBack,
         onDiscardAndNavigateBack = onDiscardAndNavigateBack
     )

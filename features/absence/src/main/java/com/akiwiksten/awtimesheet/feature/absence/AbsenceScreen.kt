@@ -64,11 +64,12 @@ fun AbsenceScreen(
         }
     ) { innerPadding ->
         AbsenceContent(
-            savedAbsences = uiState.savedAbsences,
-            selectedAbsenceId = uiState.selectedAbsenceId,
-            onSelectAbsence = viewModel::selectAbsence,
-            onDeleteSelectedAbsence = viewModel::deleteSelectedAbsence,
-            onNavigateToCreateAbsence = onNavigateToCreateAbsence,
+            uiState = uiState,
+            actions = AbsenceActions(
+                onSelectAbsence = viewModel::selectAbsence,
+                onDeleteSelectedAbsence = viewModel::deleteSelectedAbsence,
+                onNavigateToCreateAbsence = onNavigateToCreateAbsence
+            ),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -80,11 +81,8 @@ fun AbsenceScreen(
 
 @Composable
 private fun AbsenceContent(
-    savedAbsences: List<SavedAbsence>,
-    selectedAbsenceId: Int?,
-    onSelectAbsence: (Int?) -> Unit,
-    onDeleteSelectedAbsence: () -> Unit,
-    onNavigateToCreateAbsence: () -> Unit,
+    uiState: AbsenceUiState,
+    actions: AbsenceActions,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -92,61 +90,84 @@ private fun AbsenceContent(
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.Start
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            AwtButton(
-                onClick = onNavigateToCreateAbsence,
-                modifier = Modifier.weight(weight = 1f)
-            ) {
-                Text(text = stringResource(id = R.string.new_absence))
-            }
-            AwtButton(
-                onClick = onDeleteSelectedAbsence,
-                enabled = selectedAbsenceId != null,
-                modifier = Modifier.weight(weight = 1f)
-            ) {
-                Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.delete))
-            }
-        }
+        AbsenceActionButtons(
+            selectedAbsenceId = uiState.selectedAbsenceId,
+            actions = actions
+        )
         Text(text = stringResource(id = R.string.saved_absences_title), fontWeight = FontWeight.Bold)
-        ElevatedCard(
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            modifier = Modifier
-                .fillMaxWidth()
+        SavedAbsencesList(
+            uiState = uiState,
+            actions = actions
+        )
+    }
+}
+
+@Composable
+private fun AbsenceActionButtons(
+    selectedAbsenceId: Int?,
+    actions: AbsenceActions,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        AwtButton(
+            onClick = actions.onNavigateToCreateAbsence,
+            modifier = Modifier.weight(weight = 1f)
         ) {
-            if (savedAbsences.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = stringResource(id = R.string.no_absences), fontWeight = FontWeight.Bold)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.secondary),
-                    verticalArrangement = Arrangement.spacedBy(space = 2.dp)
-                ) {
-                    items(
-                        items = savedAbsences,
-                        key = { it.id }
-                    ) { savedAbsence ->
-                        SavedAbsenceListItem(
-                            savedAbsence = savedAbsence,
-                            isSelected = savedAbsence.id == selectedAbsenceId,
-                            onClick = {
-                                if (selectedAbsenceId == savedAbsence.id) {
-                                    onSelectAbsence(null)
-                                } else {
-                                    onSelectAbsence(savedAbsence.id)
-                                }
+            Text(text = stringResource(id = R.string.new_absence))
+        }
+        AwtButton(
+            onClick = actions.onDeleteSelectedAbsence,
+            enabled = selectedAbsenceId != null,
+            modifier = Modifier.weight(weight = 1f)
+        ) {
+            Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.delete))
+        }
+    }
+}
+
+@Composable
+private fun SavedAbsencesList(
+    uiState: AbsenceUiState,
+    actions: AbsenceActions,
+    modifier: Modifier = Modifier,
+) {
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        if (uiState.savedAbsences.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = stringResource(id = R.string.no_absences), fontWeight = FontWeight.Bold)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.secondary),
+                verticalArrangement = Arrangement.spacedBy(space = 2.dp)
+            ) {
+                items(
+                    items = uiState.savedAbsences,
+                    key = { it.id }
+                ) { savedAbsence ->
+                    SavedAbsenceListItem(
+                        savedAbsence = savedAbsence,
+                        isSelected = savedAbsence.id == uiState.selectedAbsenceId,
+                        onClick = {
+                            if (uiState.selectedAbsenceId == savedAbsence.id) {
+                                actions.onSelectAbsence(null)
+                            } else {
+                                actions.onSelectAbsence(savedAbsence.id)
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

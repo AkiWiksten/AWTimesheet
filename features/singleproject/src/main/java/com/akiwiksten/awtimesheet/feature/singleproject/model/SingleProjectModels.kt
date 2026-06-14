@@ -54,3 +54,9 @@ data class SingleProjectConfiguration(
     val absencePrefix: String,
     val flexDayWorkType: String
 )
+
+data class SingleProjectScreenParams(
+    val screenState: SingleProjectScreenState,
+    val actions: SingleProjectActions,
+    val config: SingleProjectConfiguration
+)

@@ -37,7 +37,7 @@ class DeleteAbsenceUseCase @Inject constructor(
             if (absenceState.includeWeekends || !isWeekend) {
                 val dateString = date.toString()
                 projectRepository.deleteProject(
-                        SingleProjectState(
+                    SingleProjectState(
                         projectName = absenceState.absenceType,
                         date = dateString
                     )

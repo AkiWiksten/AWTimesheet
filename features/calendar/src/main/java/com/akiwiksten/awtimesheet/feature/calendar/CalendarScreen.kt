@@ -119,9 +119,11 @@ internal fun CalendarContent(
                 ) {
                     CustomCalendar(
                         selectedDate = LocalDate.parse(uiState.date),
-                        datesWithWork = uiState.datesWithWork,
-                        datesWithAbsence = uiState.datesWithAbsence,
                         onDateSelected = { onDateSelected(it.toString()) },
+                        markers = CalendarMarkers(
+                            datesWithWork = uiState.datesWithWork,
+                            datesWithAbsence = uiState.datesWithAbsence
+                        ),
                         modifier = Modifier.padding(all = PADDING_SPACING),
                         monthConfig = CalendarVisibleMonthConfig(
                             visibleMonth = uiState.visibleMonth,

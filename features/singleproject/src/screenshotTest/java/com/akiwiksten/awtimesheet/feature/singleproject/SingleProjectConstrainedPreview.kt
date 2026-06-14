@@ -15,6 +15,7 @@ import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.android.tools.screenshot.PreviewTest
 
@@ -73,17 +74,19 @@ private fun SingleProjectConstrainedPreviewContent() {
                 modifier = Modifier.fillMaxSize()
             ) {
                 SingleProjectScreenContent(
-                    screenState = PreviewScreenState,
-                    actions = SingleProjectActions(
-                        onStateChange = {},
-                        onOpenProjectDetails = {},
-                        onSave = {}
+                    params = SingleProjectScreenParams(
+                        screenState = PreviewScreenState,
+                        actions = SingleProjectActions(
+                            onStateChange = {},
+                            onOpenProjectDetails = {},
+                            onSave = {}
+                        ),
+                        config = SingleProjectConfiguration(
+                            absencePrefix = "Absence",
+                            flexDayWorkType = "Absence-Flex day"
+                        )
                     ),
                     hasUnsavedChanges = true,
-                    config = SingleProjectConfiguration(
-                        absencePrefix = "Absence",
-                        flexDayWorkType = "Absence-Flex day"
-                    ),
                     onNavigateBack = {}
                 )
             }

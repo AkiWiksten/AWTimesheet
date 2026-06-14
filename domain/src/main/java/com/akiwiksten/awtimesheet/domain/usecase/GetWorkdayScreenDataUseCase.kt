@@ -20,7 +20,8 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
 
         val settings = settingsRepository.getEffectiveSettingsForDate(date)
         val fallbackSettings = if (settings?.dailyWorkTimeEstimate.isNullOrEmpty() ||
-            settings.dailyWorkTimeEstimate == ZERO_TIME) {
+            settings.dailyWorkTimeEstimate == ZERO_TIME
+        ) {
             settingsRepository.getSettings()
         } else {
             null

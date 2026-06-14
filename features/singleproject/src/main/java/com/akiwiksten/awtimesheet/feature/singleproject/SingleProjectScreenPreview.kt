@@ -6,6 +6,7 @@ import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.android.tools.screenshot.PreviewTest
 
@@ -160,17 +161,19 @@ private fun SingleProjectPreviewContent(
 ) {
     AWTimesheetTheme(dynamicColor = false) {
         SingleProjectScreenContent(
-            screenState = screenState,
-            actions = SingleProjectActions(
-                onStateChange = {},
-                onOpenProjectDetails = {},
-                onSave = {}
+            params = SingleProjectScreenParams(
+                screenState = screenState,
+                actions = SingleProjectActions(
+                    onStateChange = {},
+                    onOpenProjectDetails = {},
+                    onSave = {}
+                ),
+                config = SingleProjectConfiguration(
+                    absencePrefix = "Absence",
+                    flexDayWorkType = "Absence-Flex day"
+                )
             ),
             hasUnsavedChanges = hasUnsavedChanges,
-            config = SingleProjectConfiguration(
-                absencePrefix = "Absence",
-                flexDayWorkType = "Absence-Flex day"
-            ),
             onNavigateBack = {}
         )
     }

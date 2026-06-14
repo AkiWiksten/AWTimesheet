@@ -6,6 +6,7 @@ import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
+import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
@@ -18,6 +19,7 @@ class DeleteAbsenceUseCase @Inject constructor(
     private val absenceRepository: AbsenceRepository,
     private val settingsRepository: SettingsRepository,
     private val workdayRepository: WorkdayRepository,
+    private val dateRepository: DateRepository,
 ) {
     suspend operator fun invoke(absenceState: AbsenceState) {
         absenceRepository.delete(absence = absenceState)
@@ -59,5 +61,6 @@ class DeleteAbsenceUseCase @Inject constructor(
             )
             settingsRepository.insertCalculatedFlextimeTotal(newTotal)
         }
+        dateRepository.notifyCalendarDataChanged()
     }
 }

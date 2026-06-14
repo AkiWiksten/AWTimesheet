@@ -4,8 +4,6 @@ import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
-import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
-import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
@@ -13,8 +11,6 @@ import javax.inject.Inject
 class DeleteAbsenceUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,
     private val absenceRepository: AbsenceRepository,
-    private val settingsRepository: SettingsRepository,
-    private val workdayRepository: WorkdayRepository,
 ) {
     suspend operator fun invoke(
         id: Int,
@@ -30,7 +26,8 @@ class DeleteAbsenceUseCase @Inject constructor(
                 absenceType = absenceType,
                 startDate = startDate,
                 endDate = endDate,
-                includeWeekends = includeWeekends
+                includeWeekends = includeWeekends,
+                isFlexDay = isFlexDay
             )
         )
 

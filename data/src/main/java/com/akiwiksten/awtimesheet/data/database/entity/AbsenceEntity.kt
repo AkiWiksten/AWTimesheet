@@ -8,6 +8,7 @@ import com.akiwiksten.awtimesheet.core.ABSENCE_TYPE
 import com.akiwiksten.awtimesheet.core.END_DATE
 import com.akiwiksten.awtimesheet.core.INCLUDE_WEEKENDS
 import com.akiwiksten.awtimesheet.core.ID
+import com.akiwiksten.awtimesheet.core.IS_FLEX_DAY
 import com.akiwiksten.awtimesheet.core.START_DATE
 import kotlinx.serialization.Serializable
 
@@ -19,4 +20,5 @@ data class AbsenceEntity(
     @ColumnInfo(name = END_DATE) val endDate: String = "",
     @ColumnInfo(name = ABSENCE_TYPE) val absenceType: String = "",
     @ColumnInfo(name = INCLUDE_WEEKENDS) val includeWeekends: Boolean = false,
+    @ColumnInfo(name = IS_FLEX_DAY) val isFlexDay: Boolean = false,
 )

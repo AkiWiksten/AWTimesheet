@@ -34,6 +34,7 @@ class AbsenceViewModel @Inject constructor(
                 startDate = absence.startDate,
                 endDate = absence.endDate,
                 absenceType = absence.absenceType,
+                isFlexDay = absence.isFlexDay,
                 includeWeekends = absence.includeWeekends
             )
             initData()
@@ -48,7 +49,8 @@ class AbsenceViewModel @Inject constructor(
                     absenceType = it.absenceType,
                     startDate = it.startDate,
                     endDate = it.endDate,
-                    includeWeekends = it.includeWeekends
+                    includeWeekends = it.includeWeekends,
+                    isFlexDay = it.isFlexDay
                 )
             }
             _uiState.update { it.copy(savedAbsences = absences) }
@@ -68,7 +70,8 @@ class AbsenceViewModel @Inject constructor(
                 absenceType = selected.absenceType,
                 startDate = selected.startDate,
                 endDate = selected.endDate,
-                includeWeekends = selected.includeWeekends
+                includeWeekends = selected.includeWeekends,
+                isFlexDay = selected.isFlexDay
             )
             initData()
             selectAbsence(null)
@@ -87,4 +90,5 @@ data class SavedAbsence(
     val startDate: String,
     val endDate: String,
     val includeWeekends: Boolean,
+    val isFlexDay: Boolean,
 )

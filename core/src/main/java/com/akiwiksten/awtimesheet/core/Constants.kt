@@ -73,6 +73,7 @@ const val START_DATE = "start_date"
 const val END_DATE = "end_date"
 const val ABSENCE_TYPE = "absence_type"
 const val INCLUDE_WEEKENDS = "include_weekends"
+const val IS_FLEX_DAY = "is_flex_day"
 
 // Data / Room table names and shared ids
 const val PROJECT_DETAILS_TABLE = "project_details"

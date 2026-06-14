@@ -10,4 +10,5 @@ data class AbsenceState(
     val startDate: String,
     val endDate: String,
     val includeWeekends: Boolean,
+    val isFlexDay: Boolean = false,
 ) : Parcelable

@@ -80,6 +80,7 @@ fun CreateAbsenceScreen(
             showEndDatePicker = false
         },
     )
+    val flexDayType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
     Scaffold(
         topBar = { CreateAbsenceTopBar(onNavigateBack = onNavigateBack) }
     ) { innerPadding ->
@@ -98,7 +99,8 @@ fun CreateAbsenceScreen(
                         absenceType = absenceType,
                         startDate = startDate.toString(),
                         endDate = endDate.toString(),
-                        includeWeekends = includeWeekends
+                        includeWeekends = includeWeekends,
+                        isFlexDay = absenceType == flexDayType
                     )
                 )
                 onNavigateBack()

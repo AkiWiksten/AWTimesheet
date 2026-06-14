@@ -214,13 +214,20 @@ private fun rememberSingleProjectDerivedState(
             )
         }
     }
-    val isConfirmEnabled by remember(state, hasUnsavedChanges, isDuplicate, initialUiState.listIndex) {
+    val isConfirmEnabled by remember(
+        state,
+        hasUnsavedChanges,
+        isDuplicate,
+        initialUiState.listIndex,
+        singleProjectUiState
+    ) {
         derivedStateOf {
             isSingleProjectConfirmEnabled(
                 state = state,
                 hasUnsavedChanges = hasUnsavedChanges,
                 isDuplicateProjectName = isDuplicate,
-                isAddMode = initialUiState.isAddMode
+                isAddMode = initialUiState.isAddMode,
+                hasProjectDetails = (singleProjectUiState as? SingleProjectUiState.Success)?.projectDetails != null
             )
         }
     }

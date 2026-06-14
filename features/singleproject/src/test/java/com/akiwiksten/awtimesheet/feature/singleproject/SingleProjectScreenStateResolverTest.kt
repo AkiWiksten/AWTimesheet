@@ -169,4 +169,19 @@ class SingleProjectScreenStateResolverTest {
 
         Assert.assertEquals(initialState, resolved)
     }
+
+    @Test
+    fun editMode_withZeroProjectTime_andProjectDetails_enablesConfirm() {
+        val state = projectState(listIndex = 0, projectName = "Alpha", projectTime = "00:00")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = state,
+            hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
+            isAddMode = false,
+            hasProjectDetails = true
+        )
+
+        Assert.assertEquals(true, isEnabled)
+    }
 }

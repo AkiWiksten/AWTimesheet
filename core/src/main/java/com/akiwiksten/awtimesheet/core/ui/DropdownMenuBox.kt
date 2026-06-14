@@ -47,7 +47,6 @@ fun DropdownMenuBox(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = PADDING_SPACING_SMALL)
     ) {
         Box {
             DropdownTextField(

@@ -128,60 +128,6 @@ fun SingleProjectTimePickerDialogSection(
 }
 
 @Composable
-internal fun SingleProjectUpperFieldsSection(
-    state: SingleProjectState,
-    isProjectNameEditable: Boolean,
-    isDuplicateProjectName: Boolean,
-    isAbsence: Boolean,
-    onStateChange: (SingleProjectState) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
-        OutlinedTextField(
-            value = state.projectName,
-            onValueChange = { onStateChange(state.copy(projectName = it)) },
-            label = {
-                Text(
-                    text = stringResource(id = R.string.project_name),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = isProjectNameEditable,
-            singleLine = true,
-            isError = isDuplicateProjectName,
-            supportingText = if (isDuplicateProjectName) {
-                { Text(text = stringResource(id = R.string.project_name_duplicate_error)) }
-            } else {
-                null
-            },
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-        )
-
-        OutlinedTextField(
-            value = state.kilometres,
-            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-            label = {
-                Text(
-                    text = stringResource(id = R.string.kilometres),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isAbsence,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-        )
-    }
-}
-
-@Composable
 private fun ProjectTimeSelectionRow(
     state: SingleProjectState,
     onOpenProjectDetails: () -> Unit,
@@ -311,34 +257,51 @@ internal fun SingleProjectTimeSelectionSection(
 }
 
 @Composable
-internal fun SingleProjectDropdownFieldsSection(
+internal fun SingleProjectDownSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
     isAbsence: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
-        DropdownMenuBox(
-            items = workTypeDropDownList,
-            field = DropdownMenuField(
-                labelId = R.string.work_type,
-                selectedText = state.workType
-            ),
-            onItemSelected = { onStateChange(state.copy(workType = it)) }
-        )
+    DropdownMenuBox(
+        items = workTypeDropDownList,
+        field = DropdownMenuField(
+            labelId = R.string.work_type,
+            selectedText = state.workType
+        ),
+        onItemSelected = { onStateChange(state.copy(workType = it)) }
+    )
 
-        DropdownMenuBox(
-            items = listOf(
-                stringResource(id = R.string.no_allowance),
-                stringResource(id = R.string.full_allowance),
-                stringResource(id = R.string.half_day_allowance)
-            ),
-            field = DropdownMenuField(
-                labelId = R.string.allowance,
-                selectedText = state.allowance,
-                enabled = !isAbsence
-            ),
-            onItemSelected = { onStateChange(state.copy(allowance = it)) }
-        )
-    }
+    DropdownMenuBox(
+        items = listOf(
+            stringResource(id = R.string.no_allowance),
+            stringResource(id = R.string.full_allowance),
+            stringResource(id = R.string.half_day_allowance)
+        ),
+        field = DropdownMenuField(
+            labelId = R.string.allowance,
+            selectedText = state.allowance,
+            enabled = !isAbsence
+        ),
+        onItemSelected = { onStateChange(state.copy(allowance = it)) }
+    )
+
+    OutlinedTextField(
+        value = state.kilometres,
+        onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
+        label = {
+            Text(
+                text = stringResource(id = R.string.kilometres),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        enabled = !isAbsence,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        singleLine = true,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+    )
 }

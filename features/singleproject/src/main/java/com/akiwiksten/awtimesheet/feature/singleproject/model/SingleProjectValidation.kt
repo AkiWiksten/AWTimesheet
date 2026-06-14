@@ -16,13 +16,15 @@ internal fun isSingleProjectConfirmEnabled(
     state: SingleProjectState,
     hasUnsavedChanges: Boolean,
     isDuplicateProjectName: Boolean,
-    isAddMode: Boolean
+    isAddMode: Boolean,
+    hasProjectDetails: Boolean = false
 ): Boolean {
     if (isDuplicateProjectName) return false
-    val hasProjectNameAndTime =
-        state.projectName.isNotBlank() &&
-            state.projectTime.isNotBlank() &&
-            state.projectTime != ZERO_TIME
+    val hasProjectName = state.projectName.isNotBlank()
+    val hasProjectTime = state.projectTime.isNotBlank() && hasProjectDetails
+
+    val hasProjectNameAndTime = hasProjectName && hasProjectTime
+
     val hasRequiredFields = hasProjectNameAndTime &&
         (state.kilometres.isBlank() || state.kilometres.all(Char::isDigit))
     return isActionEnabled(

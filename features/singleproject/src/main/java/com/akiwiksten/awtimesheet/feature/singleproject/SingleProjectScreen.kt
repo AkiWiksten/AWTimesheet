@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.hasChanges
+import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
@@ -39,12 +40,16 @@ fun SingleProjectScreen(
     val savedText = stringResource(id = R.string.saved)
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
 
-    val openProjectDetails: (SingleProjectState) -> Unit = { state ->
-        navigationActions.onOpenProjectDetails(state, routeArgs.projectDetails)
+    val openProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit = { state, currentDetails ->
+        val details = (currentDetails ?: ProjectDetailsState(
+            date = state.date,
+            projectName = state.projectName
+        )).copy(projectTime = state.projectTime)
+        navigationActions.onOpenProjectDetails(state, details)
     }
 
-    val saveAndNavigateBackToWorkday: (SingleProjectState) -> Unit = { state ->
-        viewModel.saveProject(state, routeArgs.projectDetails)
+    val saveAndNavigateBackToWorkday: (SingleProjectState, ProjectDetailsState?) -> Unit = { state, details ->
+        viewModel.saveProject(state, details)
         Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
         navigationActions.onNavigateBack()
     }
@@ -75,8 +80,8 @@ private fun SingleProjectUiStateContent(
     uiState: SingleProjectUiState,
     initialProjectNameArg: String,
     onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState) -> Unit,
-    onSaveAndNavigateBack: (SingleProjectState) -> Unit
+    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit
 ) {
     when (uiState) {
         is SingleProjectUiState.Success -> {
@@ -99,11 +104,11 @@ private fun SingleProjectUiStateContent(
 
 @Composable
 private fun SingleProjectScreenStateful(
-    uiState: SingleProjectUiState,
+    uiState: SingleProjectUiState.Success,
     initialProjectNameArg: String,
     onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState) -> Unit,
-    onSaveAndNavigateBack: (SingleProjectState) -> Unit
+    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit
 ) {
     val noAllowanceText = stringResource(id = R.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = R.string.other)
@@ -134,7 +139,7 @@ private fun SingleProjectScreenStateful(
     )
 
     // Build screen state from form state and derived flags
-    val isAddMode = (uiState as? SingleProjectUiState.Success)?.data?.isAddMode ?: true
+    val isAddMode = uiState.data.isAddMode
     val screenState = createSingleProjectScreenState(
         uiState = uiState,
         state = state,
@@ -143,12 +148,12 @@ private fun SingleProjectScreenStateful(
     )
     val actions = SingleProjectActions(
         onStateChange = { newState ->
-            val settings = (uiState as? SingleProjectUiState.Success)?.settings
+            val settings = uiState.settings
             state = newState
                 .withAbsenceLogic(state, settings, absencePrefix, flexDayWorkType)
         },
-        onOpenProjectDetails = { onOpenProjectDetails(state) },
-        onSave = { onSaveAndNavigateBack(state) }
+        onOpenProjectDetails = { onOpenProjectDetails(state, uiState.projectDetails) },
+        onSave = { onSaveAndNavigateBack(state, uiState.projectDetails) }
     )
 
     val onDiscardAndNavigateBack = {

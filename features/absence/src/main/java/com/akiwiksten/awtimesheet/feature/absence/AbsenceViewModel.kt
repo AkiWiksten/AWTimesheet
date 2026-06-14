@@ -66,12 +66,14 @@ class AbsenceViewModel @Inject constructor(
         val selected = _uiState.value.savedAbsences.find { it.id == selectedId } ?: return
         viewModelScope.launch {
             deleteAbsenceUseCase(
-                id = selected.id,
-                absenceType = selected.absenceType,
-                startDate = selected.startDate,
-                endDate = selected.endDate,
-                includeWeekends = selected.includeWeekends,
-                isFlexDay = selected.isFlexDay
+                AbsenceState(
+                    id = selected.id,
+                    absenceType = selected.absenceType,
+                    startDate = selected.startDate,
+                    endDate = selected.endDate,
+                    includeWeekends = selected.includeWeekends,
+                    isFlexDay = selected.isFlexDay
+                )
             )
             initData()
             selectAbsence(null)

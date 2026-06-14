@@ -1,6 +1,7 @@
 package com.akiwiksten.awtimesheet.domain.usecase
 
 import com.akiwiksten.awtimesheet.core.DEFAULT_DAILY_WORK_TIME
+import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -42,6 +43,7 @@ class SaveAbsenceUseCase @Inject constructor(
         var date = LocalDate.parse(startDate)
         val end = LocalDate.parse(endDate)
 
+        var totalFlexTimeReduction = ZERO_TIME
         while (!date.isAfter(end)) {
             val isWeekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
             if (includeWeekends || !isWeekend) {
@@ -58,9 +60,25 @@ class SaveAbsenceUseCase @Inject constructor(
                     date = dateString,
                     workTimeByDateEstimate = workTimeByDate
                 )
+
+                if (isFlexDay) {
+                    totalFlexTimeReduction = WorkTimeCalculator.calculateFlexTime(
+                        initialTime = totalFlexTimeReduction,
+                        addedTime = workTimeByDate
+                    )
+                }
             }
             
             date = date.plusDays(1)
+        }
+
+        if (isFlexDay && totalFlexTimeReduction != ZERO_TIME) {
+            val currentTotal = settingsRepository.getCalculatedFlextimeTotal()
+            val newTotal = WorkTimeCalculator.calculateFlexTime(
+                initialTime = currentTotal,
+                addedTime = "-$totalFlexTimeReduction"
+            )
+            settingsRepository.insertCalculatedFlextimeTotal(newTotal)
         }
     }
 }

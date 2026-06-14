@@ -19,9 +19,11 @@ class GetCalendarDataUseCase @Inject constructor(
     private var cachedMonth: YearMonth? = null
     private var cachedTimePerMonth: String = ZERO_TIME
     private var cachedDatesWithWork: Set<String> = emptySet()
+    private var cachedDatesWithAbsence: Set<String> = emptySet()
 
     suspend operator fun invoke(
         date: String,
+        absencePrefix: String,
         workTimeByDateChange: String = ZERO_TIME,
         forceMonthRecalculation: Boolean = false
     ): CalendarData {
@@ -40,6 +42,7 @@ class GetCalendarDataUseCase @Inject constructor(
 
         val timePerMonth: String
         val datesWithWork: Set<String>
+        val datesWithAbsence: Set<String>
 
         if (!useCachedMonthTotal) {
             val projectTimesMonth = projectRepository.getProjectsByDateRange(startMonth, endMonth)
@@ -47,9 +50,16 @@ class GetCalendarDataUseCase @Inject constructor(
                 WorkTimeCalculator.calculateFlexTime(acc, project.projectTime)
             }
             datesWithWork = projectTimesMonth.mapTo(mutableSetOf()) { it.date }
+            datesWithAbsence = projectTimesMonth
+                .filter {
+                    absencePrefix.isNotEmpty() &&
+                        it.workType.startsWith(absencePrefix, ignoreCase = true)
+                }
+                .mapTo(mutableSetOf()) { it.date }
             cachedMonth = requestedMonth
             cachedTimePerMonth = timePerMonth
             cachedDatesWithWork = datesWithWork
+            cachedDatesWithAbsence = datesWithAbsence
         } else {
             timePerMonth = if (workTimeByDateChange != ZERO_TIME) {
                 WorkTimeCalculator.calculateFlexTime(cachedTimePerMonth, workTimeByDateChange)
@@ -58,6 +68,7 @@ class GetCalendarDataUseCase @Inject constructor(
                 cachedTimePerMonth
             }
             datesWithWork = cachedDatesWithWork
+            datesWithAbsence = cachedDatesWithAbsence
         }
 
         val timePerWeek = calculateTotalTime(
@@ -71,7 +82,8 @@ class GetCalendarDataUseCase @Inject constructor(
             timePerMonth = timePerMonth,
             timePerWeek = timePerWeek,
             timePerDay = timePerDay,
-            datesWithWork = datesWithWork
+            datesWithWork = datesWithWork,
+            datesWithAbsence = datesWithAbsence
         )
     }
 
@@ -85,5 +97,6 @@ data class CalendarData(
     val timePerMonth: String,
     val timePerWeek: String,
     val timePerDay: String,
-    val datesWithWork: Set<String> = emptySet()
+    val datesWithWork: Set<String> = emptySet(),
+    val datesWithAbsence: Set<String> = emptySet()
 )

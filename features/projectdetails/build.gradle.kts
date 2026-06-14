@@ -1,6 +1,7 @@
 ﻿plugins {
     id("awtimesheet.android.compose.feature")
     id("awtimesheet.feature.dependencies")
+    kotlin("plugin.parcelize")
 }
 
 android {

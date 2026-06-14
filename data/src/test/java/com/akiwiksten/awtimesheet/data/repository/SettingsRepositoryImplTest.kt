@@ -109,4 +109,25 @@ class SettingsRepositoryImplTest {
         val result = repository.getEffectiveSettingsForDate("2026-04-10")
         assertEquals("08:00", result?.dailyWorkTimeEstimate)
     }
+
+    @Test
+    fun insertSettings_statsOnlyUpdate_allowsResettingInitialFlexTimeToZero() = runBlocking {
+        settingsDao.settingsResult = settingsState(
+            name = "Aki",
+            employer = "Company",
+            dailyWorkTimeEstimate = "",
+            dailyLunchTimeEstimate = "00:00",
+            initialFlexTimeTotal = "+100:00"
+        )
+
+        repository.insertSettings(
+            settingsState(
+                dailyWorkTimeEstimate = "",
+                dailyLunchTimeEstimate = "00:00",
+                initialFlexTimeTotal = "00:00"
+            )
+        )
+
+        assertEquals("00:00", settingsDao.insertedSettings?.initialFlexTimeTotal)
+    }
 }

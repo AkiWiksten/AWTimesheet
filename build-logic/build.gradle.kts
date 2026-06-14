@@ -9,8 +9,8 @@ repositories {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:9.2.1")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20")
+    implementation(versionCatalogs.named("libs").findLibrary("android-gradle-plugin").get())
+    implementation(versionCatalogs.named("libs").findLibrary("kotlin-gradle-plugin").get())
 }
 
 gradlePlugin {

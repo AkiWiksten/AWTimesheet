@@ -27,7 +27,7 @@ internal fun List<SingleProjectState>.toSortedTimesheetEntries(labels: Timesheet
         .sortedWith(
             compareBy<SingleProjectState>(
                 { it.date },
-                { if (it.index >= 0) it.index else Int.MAX_VALUE },
+                { if (it.listIndex >= 0) it.listIndex else Int.MAX_VALUE },
                 { it.projectName },
                 { it.workType },
                 { it.allowance }

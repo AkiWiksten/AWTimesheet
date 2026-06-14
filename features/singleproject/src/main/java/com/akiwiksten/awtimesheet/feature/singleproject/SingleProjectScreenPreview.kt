@@ -5,6 +5,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.android.tools.screenshot.PreviewTest
 
@@ -21,9 +23,11 @@ fun PreviewSingleProjectLoading() {
             editedProjectIndex = 0,
             state = SingleProjectState(),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Loading,
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = false
     )
@@ -44,6 +48,7 @@ fun PreviewSingleProjectSuccessAdd() {
                 workType = "Installation",
             ),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
@@ -56,7 +61,8 @@ fun PreviewSingleProjectSuccessAdd() {
                 settings = null
             ),
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = false
     )
@@ -71,7 +77,7 @@ fun PreviewSingleProjectSuccessEdit() {
             date = PREVIEW_DATE,
             editedProjectIndex = -1,
             state = SingleProjectState(
-                index = 0,
+                listIndex = 0,
                 projectName = "Beta Support",
                 projectTime = "03:30",
                 kilometres = "18",
@@ -79,6 +85,7 @@ fun PreviewSingleProjectSuccessEdit() {
                 workType = "Maintenance",
             ),
             isAddMode = false,
+            isProjectNameEditable = false,
             uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
@@ -91,7 +98,8 @@ fun PreviewSingleProjectSuccessEdit() {
                 settings = null
             ),
             isConfirmEnabled = true,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = true
     )
@@ -106,11 +114,12 @@ fun PreviewSingleProjectDuplicateName() {
             date = PREVIEW_DATE,
             editedProjectIndex = 0,
             state = SingleProjectState(
-                index = -1,
+                listIndex = -1,
                 projectName = "Alpha Site",
                 projectTime = "01:00",
             ),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Success(
                 data = SingleProjectState(
                     date = PREVIEW_DATE,
@@ -123,7 +132,8 @@ fun PreviewSingleProjectDuplicateName() {
                 settings = null
             ),
             isConfirmEnabled = false,
-            isDuplicateProjectName = true
+            isDuplicateProjectName = true,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = true
     )
@@ -139,9 +149,11 @@ fun PreviewSingleProjectError() {
             editedProjectIndex = -1,
             state = SingleProjectState(),
             isAddMode = true,
+            isProjectNameEditable = true,
             uiState = SingleProjectUiState.Error(message = "Failed to load project"),
             isConfirmEnabled = false,
-            isDuplicateProjectName = false
+            isDuplicateProjectName = false,
+            isTimePickerDisabled = false
         ),
         hasUnsavedChanges = false
     )
@@ -154,11 +166,17 @@ private fun SingleProjectPreviewContent(
 ) {
     AWTimesheetTheme(dynamicColor = false) {
         SingleProjectScreenContent(
-            screenState = screenState,
-            actions = SingleProjectActions(
-                onStateChange = {},
-                onOpenProjectDetails = {},
-                onConfirm = {}
+            params = SingleProjectScreenParams(
+                screenState = screenState,
+                actions = SingleProjectActions(
+                    onStateChange = {},
+                    onOpenProjectDetails = {},
+                    onSave = {}
+                ),
+                config = SingleProjectConfiguration(
+                    absencePrefix = "Absence",
+                    flexDayWorkType = "Absence-Flex day"
+                )
             ),
             hasUnsavedChanges = hasUnsavedChanges,
             onNavigateBack = {}

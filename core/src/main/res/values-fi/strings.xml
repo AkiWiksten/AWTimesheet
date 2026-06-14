@@ -1,17 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="allowance">Päiväraha</string>
-    <string name="dismiss">Peruuta</string>
-    <string name="confirm">Hyväksy</string>
-    <string name="unsaved_data_title">Tallentamatonta dataa!</string>
+    <!-- Common UI Controls -->
     <string name="save">Tallenna</string>
+    <string name="confirm">Vahvista</string>
+    <string name="dismiss">Sulje</string>
+    <string name="add">Lisää</string>
+    <string name="delete">Poista</string>
+    <string name="edit">Muokkaa</string>
+    <string name="yes">Kyllä</string>
+    <string name="no">Ei</string>
+    <string name="saved">Tallennettu!</string>
+    <string name="retry">Yritä uudelleen</string>
+    <string name="select_date">Valitse päivämäärä</string>
+
+    <!-- Navigation / Screen Titles -->
+    <string name="calendar">Kalenteri</string>
+    <string name="absence">Poissaolo</string>
+    <string name="new_absence_title">Uusi poissaolo</string>
+
+    <!-- Common Dialogs & Messages -->
+    <string name="unsaved_data_title">Tallentamatonta tietoa!</string>
+    <string name="unsaved_data_message">Sinulla on tallentamattomia muutoksia. Tallennetaanko ennen poistumista?</string>
     <string name="discard">Hylkää</string>
     <string name="stay">Jää</string>
-    <string name="other">Muu</string>
+    <string name="error_message">Virhe: %1$s</string>
 
+    <!-- Common Entities & Fields -->
+    <string name="work_type">Työtyyppi</string>
+    <string name="project_name">Projektin nimi</string>
+    <string name="project_time">Projektiaika</string>
+    <string name="start_date">Alkamispäivä</string>
+    <string name="end_date">Päättymispäivä</string>
+    <string name="allowance">Korvaus</string>
+    <string name="no_allowance">Ei korvausta</string>
+    <string name="half_day_allowance">Osapäiväraha</string>
+    <string name="full_allowance">Kokopäiväraha</string>
+    <string name="kilometres">Kilometrit</string>
+    <string name="other">Muu</string>
+    <string name="no_projects_available">Ei projekteja saatavilla. Lisää uusi painikkeella.</string>
+
+    <!-- Work Type Absence Prefixes -->
+    <string name="absence_prefix">Poissaolo</string>
     <string name="work_type_paid_vacation">Poissaolo-Palkallinen loma</string>
     <string name="work_type_unpaid_vacation">Poissaolo-Palkaton loma</string>
-    <string name="work_type_sick_leave">Poissaolo-Sairausloma</string>
+    <string name="work_type_sick_leave">Poissaolo-Sairasloma</string>
     <string name="work_type_parental_leave">Poissaolo-Vanhempainvapaa</string>
     <string name="work_type_other_leave">Poissaolo-Muu vapaa</string>
     <string name="work_type_flex_day">Poissaolo-Saldovapaa</string>

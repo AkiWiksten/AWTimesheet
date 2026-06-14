@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Project Details-specific strings -->
     <string name="project_details">Project details</string>
-    <string name="project_name">Project name</string>
     <string name="clear_details">Clear details</string>
-    <string name="confirm">Confirm</string>
     <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
     <string name="add_new_project_details">New project of the day! I recommend setting the start of the project first! That opens other options.</string>
     <string name="select_end_time">When you want to end your workday, select the end time. That calculates the project time for today.</string>
@@ -16,8 +15,12 @@
     <string name="lunch_end">Lunch end</string>
     <string name="break_start">Break start</string>
     <string name="break_end">Break end</string>
-    <string name="project_time">Project time</string>
     <string name="now">Now</string>
     <string name="pick">Pick</string>
+
+    <!-- Centralized from core (duplicated for local reference) -->
+    <string name="project_name">Project name</string>
+    <string name="confirm">Confirm</string>
+    <string name="project_time">Project time</string>
 </resources>
 

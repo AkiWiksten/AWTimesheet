@@ -40,6 +40,8 @@
     <string name="clear_details">Rensa detaljer</string>
     <string name="add_new_project_details">Dagens nya projekt! Jag rekommenderar att ange först starttiden för projekten! Då öppnas andra alternativ.</string>
     <string name="calendar">Kalender</string>
+    <string name="absence">Frånvaro</string>
+    <string name="create_absence_title">Skapa frånvaro</string>
     <string name="monthly_report">Månadsrapport</string>
     <string name="name">Namn</string>
     <string name="employer">Arbetsgivare</string>

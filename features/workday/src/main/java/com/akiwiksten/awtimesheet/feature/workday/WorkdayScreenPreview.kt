@@ -6,6 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayConfiguration
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 import com.android.tools.screenshot.PreviewTest
 
@@ -32,7 +33,7 @@ fun PreviewWorkdaySuccess() {
             projects = listOf(
                 SingleProjectState(
                     date = PREVIEW_DATE,
-                    index = 0,
+                    listIndex = 0,
                     projectName = "Alpha Site",
                     projectTime = "04:15",
                     kilometres = "24",
@@ -41,7 +42,7 @@ fun PreviewWorkdaySuccess() {
                 ),
                 SingleProjectState(
                     date = PREVIEW_DATE,
-                    index = 1,
+                    listIndex = 1,
                     projectName = "Beta Support",
                     projectTime = "03:30",
                     kilometres = "8",
@@ -49,7 +50,7 @@ fun PreviewWorkdaySuccess() {
                     workType = "Maintenance",
                 ),
                 SingleProjectState(
-                    index = 2,
+                    listIndex = 2,
                     projectName = "Gamma Planning",
                 )
             )
@@ -100,7 +101,8 @@ private fun WorkdayPreviewContent(
                 onRetry = {},
                 onSaveSettings = { _, _ -> },
                 onDeleteProject = {}
-            )
+            ),
+            config = WorkdayConfiguration("", "")
         )
     }
 }

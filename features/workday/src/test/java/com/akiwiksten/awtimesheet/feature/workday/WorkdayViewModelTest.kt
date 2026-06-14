@@ -814,9 +814,9 @@ class WorkdayViewModelTest {
         }
         val saveWorkdayUseCase = SaveWorkdayUseCase(
             projectRepository = projectRepository,
-            projectDetailsRepository = projectDetailsRepository,
             settingsRepository = settingsRepository,
-            workdayRepository = workdayRepository
+            workdayRepository = workdayRepository,
+            projectDetailsRepository = projectDetailsRepository
         )
 
         val viewModel = createViewModel(
@@ -855,6 +855,48 @@ class WorkdayViewModelTest {
         Assert.assertEquals("03:00", finalState.workTimeByDate)
         Assert.assertEquals("-04:30", finalState.flexTimeByDate)
         Assert.assertEquals("-04:30", finalState.flexTimeTotal)
+    }
+
+    @Test
+    fun calendarRefresh_afterSettingsChange_updatesInitialAndTotalFlexTime() = runTest {
+        val date = "2026-04-10"
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = "+01:00"
+            )
+            calculatedFlexTimeTotal = "-02:00"
+        }
+        val dateRepository = InMemoryDateRepository().apply { updateDate(date) }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        var state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("+01:00", state.initialFlexTimeTotal)
+        Assert.assertEquals("-01:00", state.flexTimeTotal)
+
+        settingsRepository.settings = settingsRepository.settings?.copy(initialFlexTimeTotal = "00:00")
+        dateRepository.notifyCalendarDataChanged()
+        advanceUntilIdle()
+
+        state = viewModel.uiState.value as WorkdayUiState.Success
+        Assert.assertEquals("00:00", state.initialFlexTimeTotal)
+        Assert.assertEquals("-02:00", state.flexTimeTotal)
     }
 
     private fun createViewModel(

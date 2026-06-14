@@ -4,13 +4,13 @@ import android.os.Parcelable
 import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ABSENCE_SCREEN
 import com.akiwiksten.awtimesheet.core.CALENDAR_SCREEN
+import com.akiwiksten.awtimesheet.core.CREATE_ABSENCE_SCREEN
 import com.akiwiksten.awtimesheet.core.INTRO_SCREEN
 import com.akiwiksten.awtimesheet.core.PROJECTS_SCREEN
 import com.akiwiksten.awtimesheet.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.awtimesheet.core.SETTINGS_SCREEN
 import com.akiwiksten.awtimesheet.core.SINGLE_PROJECT_SCREEN
-import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import kotlinx.parcelize.Parcelize
 
 // Navigation routes
@@ -31,6 +31,12 @@ sealed interface Screen : Parcelable {
     }
 
     @Parcelize
+    data object CreateAbsence : Screen {
+        override val route: String get() = CREATE_ABSENCE_SCREEN
+        override val titleResId: Int get() = R.string.create_absence_title
+    }
+
+    @Parcelize
     data object Workday : Screen {
         override val route: String get() = PROJECTS_SCREEN
         override val titleResId: Int get() = R.string.workday
@@ -44,7 +50,16 @@ sealed interface Screen : Parcelable {
 
     @Parcelize
     data class ProjectDetails(
-        val projectDetails: ProjectDetailsState = ProjectDetailsState()
+        val date: String = "",
+        val projectName: String = "",
+        val startTime: String = ZERO_TIME,
+        val endTime: String = ZERO_TIME,
+        val lunchStart: String = ZERO_TIME,
+        val lunchEnd: String = ZERO_TIME,
+        val breakStart: String = ZERO_TIME,
+        val breakEnd: String = ZERO_TIME,
+        val projectTime: String = ZERO_TIME,
+        val lunchTimeEstimate: String = ZERO_TIME
     ) : Screen {
         override val route: String get() = PROJECT_DETAILS_SCREEN
         override val titleResId: Int get() = R.string.project_details
@@ -58,15 +73,14 @@ sealed interface Screen : Parcelable {
 
     @Parcelize
     data class SingleProject(
-        val index: Int = -1,
-        val date: String? = null,
+        val listIndex: Int = -1,
         val projectName: String? = null,
         val projectTime: String? = null,
+        val isAddMode: Boolean = true,
         val kilometres: String? = null,
         val allowance: String? = null,
         val workType: String? = null,
-        val projectDetails: ProjectDetailsState? = null,
-        val settingsEstimates: SettingsState? = null
+        val details: ProjectDetails? = null
     ) : Screen {
         override val route: String get() = SINGLE_PROJECT_SCREEN
         override val titleResId: Int? get() = null

@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.data.di
 import android.content.Context
 import androidx.room.Room
 import com.akiwiksten.awtimesheet.data.database.AppDatabase
+import com.akiwiksten.awtimesheet.data.database.dao.AbsenceDao
 import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDetailsDao
@@ -10,11 +11,13 @@ import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
+import com.akiwiksten.awtimesheet.data.repository.AbsenceRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.DateRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.ProjectDetailsRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.ProjectRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.SettingsRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.WorkdayRepositoryImpl
+import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
@@ -53,6 +56,10 @@ abstract class DatabaseModule {
     @Singleton
     abstract fun bindDateRepository(impl: DateRepositoryImpl): DateRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindAbsenceRepository(impl: AbsenceRepositoryImpl): AbsenceRepository
+
     companion object {
         @Provides
         @Singleton
@@ -87,5 +94,8 @@ abstract class DatabaseModule {
         @Provides
         fun provideCalculatedFlexTimeTotalDao(database: AppDatabase): CalculatedFlexTimeTotalDao =
             database.calculatedFlexTimeTotalDao()
+
+        @Provides
+        fun provideAbsenceDao(database: AppDatabase): AbsenceDao = database.absenceDao()
     }
 }

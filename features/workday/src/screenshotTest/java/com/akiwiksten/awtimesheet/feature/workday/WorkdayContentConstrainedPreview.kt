@@ -15,10 +15,15 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayConfiguration
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayUiState
 import com.android.tools.screenshot.PreviewTest
 
 private val PreviewPortraitWidth = 411.dp
+private val PreviewConfig = WorkdayConfiguration(
+    flexDayWorkType = "Absence-Flex day",
+    absencePrefix = "Absence-"
+)
 private val PreviewWorkdayState = WorkdayUiState.Success(
     date = "2026-05-14",
     workTimeByDate = "09:15",
@@ -28,7 +33,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
     flexTimeTotal = "+09:45",
     projects = listOf(
         SingleProjectState(
-            index = 0,
+            listIndex = 0,
             date = "2026-05-14",
             projectName = "Alpha Site Visit",
             projectTime = "03:30",
@@ -37,7 +42,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
             workType = "Field work"
         ),
         SingleProjectState(
-            index = 1,
+            listIndex = 1,
             date = "2026-05-14",
             projectName = "Beta Planning",
             projectTime = "05:45",
@@ -46,7 +51,7 @@ private val PreviewWorkdayState = WorkdayUiState.Success(
             workType = "Office"
         ),
         SingleProjectState(
-            index = 2,
+            listIndex = 2,
             date = "2026-05-14",
             projectName = "Gamma Notes"
         )
@@ -90,7 +95,8 @@ private fun WorkdayContentConstrainedPreviewContent() {
                     workdayUiState = PreviewWorkdayState,
                     selectedItemIndex = 1,
                     scrollState = scrollState,
-                    actions = PreviewActions
+                    actions = PreviewActions,
+                    config = PreviewConfig
                 )
             }
         }

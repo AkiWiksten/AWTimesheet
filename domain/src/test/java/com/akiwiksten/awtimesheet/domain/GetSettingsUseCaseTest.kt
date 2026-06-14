@@ -52,7 +52,7 @@ class GetSettingsUseCaseTest {
 
         assertEquals("", result.name)
         assertEquals("", result.employer)
-        assertEquals("", result.dailyWorkTimeEstimate)
+        assertEquals(ZERO_TIME, result.dailyWorkTimeEstimate)
         assertEquals(ZERO_TIME, result.dailyLunchTimeEstimate)
         assertEquals(ZERO_TIME, result.initialFlexTimeTotal)
         assertEquals(listOf("Field"), result.workTypes)

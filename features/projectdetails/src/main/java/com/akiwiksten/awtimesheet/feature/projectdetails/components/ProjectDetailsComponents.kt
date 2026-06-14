@@ -21,7 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,7 +34,6 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsTimeRowLabels
@@ -50,7 +49,7 @@ internal fun ProjectDetailsTimeRow(
 ) {
     val currentTimeLabelId = labels.currentTimeLabelId
     val timePickerLabelId = labels.timePickerLabelId
-    val openTimePickerDialog = remember { mutableStateOf(value = false) }
+    val openTimePickerDialog = rememberSaveable { mutableStateOf(value = false) }
 
     AddTimePickerDialog(
         isOpen = openTimePickerDialog.value,
@@ -196,7 +195,7 @@ internal fun ProjectDetailsUnsavedChangesDialog(
     uiState: ProjectDetailsUiState,
     unsavedMessage: String,
     onNavigateBack: () -> Unit,
-    onConfirm: (ProjectDetailsState, SettingsState) -> Unit,
+    onConfirm: (ProjectDetailsState) -> Unit,
 ) {
     if (!showState.value) return
     val successState = uiState as? ProjectDetailsUiState.Success
@@ -206,8 +205,7 @@ internal fun ProjectDetailsUnsavedChangesDialog(
         onSave = successState?.let {
             {
                 onConfirm(
-                    it.details,
-                    it.settings.copy(dailyLunchTimeEstimate = it.details.lunchTimeEstimate)
+                    successState.details
                 )
             }
         },

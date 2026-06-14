@@ -19,7 +19,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -41,8 +41,11 @@ class WorkdayViewModel @Inject constructor(
 
     private val refreshTrigger = MutableStateFlow(value = 0)
 
-    val uiState: StateFlow<WorkdayUiState> = refreshTrigger
-        .flatMapLatest { dateRepository.selectedDate }
+    val uiState: StateFlow<WorkdayUiState> = combine(
+        refreshTrigger,
+        dateRepository.selectedDate,
+        dateRepository.calendarRefreshVersion
+    ) { _, date, _ -> date }
         .map { date ->
             val data = getWorkdayScreenDataUseCase(date)
             val recordedNames = data.projects.map { it.projectName }.toSet()
@@ -55,7 +58,7 @@ class WorkdayViewModel @Inject constructor(
 
             val allProjects = (data.projects + unrecordedProjects)
                 .sortedBy { it.projectName }
-                .mapIndexed { index, project -> project.copy(index = index) }
+                .mapIndexed { listIndex, project -> project.copy(listIndex = listIndex) }
 
             val workTypes = settingsRepository.getWorkTypes()
             val flexByDateResult = calculateFlexTimeByDate(

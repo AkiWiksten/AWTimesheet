@@ -14,8 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
@@ -41,8 +39,8 @@ import androidx.core.text.isDigitsOnly
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -129,65 +127,12 @@ fun SingleProjectTimePickerDialogSection(
 }
 
 @Composable
-internal fun SingleProjectUpperFieldsSection(
-    state: SingleProjectState,
-    isAddMode: Boolean,
-    isDuplicateProjectName: Boolean,
-    isFlexDay: Boolean,
-    onStateChange: (SingleProjectState) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
-        OutlinedTextField(
-            value = state.projectName,
-            onValueChange = { onStateChange(state.copy(projectName = it)) },
-            label = {
-                Text(
-                    text = stringResource(id = R.string.project_name),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = isAddMode,
-            singleLine = true,
-            isError = isDuplicateProjectName,
-            supportingText = if (isDuplicateProjectName) {
-                { Text(text = stringResource(id = R.string.project_name_duplicate_error)) }
-            } else {
-                null
-            },
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-        )
-
-        OutlinedTextField(
-            value = state.kilometres,
-            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-            label = {
-                Text(
-                    text = stringResource(id = R.string.kilometres),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !isFlexDay,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true,
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-        )
-    }
-}
-
-@Composable
 private fun ProjectTimeSelectionRow(
     state: SingleProjectState,
     onOpenProjectDetails: () -> Unit,
     onOpenTimePicker: () -> Unit,
-    onStateChange: (SingleProjectState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit,
+    isTimePickerDisabled: Boolean
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -209,7 +154,8 @@ private fun ProjectTimeSelectionRow(
 
             ProjectTimeActionsColumn(
                 onOpenProjectDetails = onOpenProjectDetails,
-                onOpenTimePicker = onOpenTimePicker
+                onOpenTimePicker = onOpenTimePicker,
+                isTimePickerDisabled = isTimePickerDisabled
             )
         }
     }
@@ -247,13 +193,12 @@ private fun RowScope.ProjectTimeReadOnlyField(
 @Composable
 private fun ProjectTimeActionsColumn(
     onOpenProjectDetails: () -> Unit,
-    onOpenTimePicker: () -> Unit
+    onOpenTimePicker: () -> Unit,
+    isTimePickerDisabled: Boolean
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
-        Button(
+        AwtButton(
             onClick = onOpenProjectDetails,
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
         ) {
             Icon(imageVector = Icons.Default.History, contentDescription = null)
             Spacer(modifier = Modifier.width(width = 4.dp))
@@ -267,11 +212,10 @@ private fun ProjectTimeActionsColumn(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         )
 
-        Button(
+        AwtButton(
             onClick = onOpenTimePicker,
-            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            enabled = !isTimePickerDisabled,
+            modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
         ) {
             Icon(
                 imageVector = Icons.Default.AccessTime,
@@ -287,7 +231,8 @@ private fun ProjectTimeActionsColumn(
 internal fun SingleProjectTimeSelectionSection(
     state: SingleProjectState,
     onOpenProjectDetails: () -> Unit,
-    onStateChange: (SingleProjectState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit,
+    isTimePickerDisabled: Boolean
 ) {
     val openTimePickerDialogState = remember { mutableStateOf(false) }
 
@@ -305,39 +250,89 @@ internal fun SingleProjectTimeSelectionSection(
         state = state,
         onOpenProjectDetails = onOpenProjectDetails,
         onOpenTimePicker = { openTimePickerDialogState.value = true },
-        onStateChange = onStateChange
+        onStateChange = onStateChange,
+        isTimePickerDisabled = isTimePickerDisabled
     )
 }
 
 @Composable
-internal fun SingleProjectDropdownFieldsSection(
+internal fun SingleProjectProjectNameField(
+    projectName: String,
+    onProjectNameChange: (String) -> Unit,
+    isEditable: Boolean,
+    isError: Boolean
+) {
+    OutlinedTextField(
+        value = projectName,
+        onValueChange = onProjectNameChange,
+        label = {
+            Text(
+                text = stringResource(id = R.string.project_name),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        enabled = isEditable,
+        singleLine = true,
+        isError = isError,
+        supportingText = if (isError) {
+            { Text(text = stringResource(id = R.string.project_name_duplicate_error)) }
+        } else {
+            null
+        },
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+    )
+}
+
+@Composable
+internal fun SingleProjectDownSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
-    isFlexDay: Boolean,
+    isAbsence: Boolean,
     onStateChange: (SingleProjectState) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)) {
-        DropdownMenuBox(
-            items = workTypeDropDownList,
-            field = DropdownMenuField(
-                labelId = R.string.work_type,
-                selectedText = state.workType
-            ),
-            onItemSelected = { onStateChange(state.copy(workType = it)) }
-        )
+    DropdownMenuBox(
+        items = workTypeDropDownList,
+        field = DropdownMenuField(
+            labelId = R.string.work_type,
+            selectedText = state.workType
+        ),
+        onItemSelected = { onStateChange(state.copy(workType = it)) }
+    )
 
-        DropdownMenuBox(
-            items = listOf(
-                stringResource(id = R.string.no_allowance),
-                stringResource(id = R.string.full_allowance),
-                stringResource(id = R.string.half_day_allowance)
-            ),
-            field = DropdownMenuField(
-                labelId = R.string.allowance,
-                selectedText = state.allowance,
-                enabled = !isFlexDay
-            ),
-            onItemSelected = { onStateChange(state.copy(allowance = it)) }
-        )
-    }
+    DropdownMenuBox(
+        items = listOf(
+            stringResource(id = R.string.no_allowance),
+            stringResource(id = R.string.full_allowance),
+            stringResource(id = R.string.half_day_allowance)
+        ),
+        field = DropdownMenuField(
+            labelId = R.string.allowance,
+            selectedText = state.allowance,
+            enabled = !isAbsence
+        ),
+        onItemSelected = { onStateChange(state.copy(allowance = it)) }
+    )
+
+    OutlinedTextField(
+        value = state.kilometres,
+        onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
+        label = {
+            Text(
+                text = stringResource(id = R.string.kilometres),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        enabled = !isAbsence,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        singleLine = true,
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+    )
 }

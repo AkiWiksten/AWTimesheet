@@ -29,6 +29,7 @@ class CalendarViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT)
+    private var localizedAbsencePrefix: String = ""
 
     // Keep startup UI minimal to reduce first-draw cost.
     private val _uiState = MutableStateFlow<CalendarUiState>(CalendarUiState.Initial)
@@ -41,6 +42,10 @@ class CalendarViewModel @Inject constructor(
         // OPTIMIZATION: Defer date collection to LaunchedEffect in Composable.
         // This allows first frame to render without blocking on DB queries.
         // See CalendarScreen for the LaunchedEffect that resumes collection.
+    }
+
+    fun setLocalizedAbsencePrefix(prefix: String) {
+        localizedAbsencePrefix = prefix
     }
 
     fun startAutoReload() {
@@ -96,27 +101,10 @@ class CalendarViewModel @Inject constructor(
     }
 
     /**
-     * Updates marker days for the currently visible calendar month without changing selected date.
+     * Updates the visible month and pre-selects the first day of that month.
      */
     fun onVisibleMonthChanged(month: YearMonth) {
-        val currentState = _uiState.value as? CalendarUiState.Success ?: return
-
-        viewModelScope.launch {
-            try {
-                val monthDate = month.atDay(1).toString()
-                // Check cache first before fetching
-                val monthData = getCalendarDataUseCase(monthDate)
-
-                _uiState.value = currentState.copy(
-                    datesWithWork = monthData.datesWithWork,
-                    visibleMonth = month
-                )
-            } catch (_: IllegalArgumentException) {
-                // Keep current UI state if month marker refresh fails.
-            } catch (_: IllegalStateException) {
-                // Keep current UI state if month marker refresh fails.
-            }
-        }
+        onDateSelected(month.atDay(1).toString())
     }
 
     /**
@@ -165,6 +153,7 @@ class CalendarViewModel @Inject constructor(
 
             val baseData = getCalendarDataUseCase(
                 date = date,
+                absencePrefix = localizedAbsencePrefix,
                 workTimeByDateChange = incrementalChange,
                 forceMonthRecalculation = forceMonthRecalculation
             )
@@ -176,6 +165,7 @@ class CalendarViewModel @Inject constructor(
                 timePerWeek = baseData.timePerWeek,
                 timePerDay = baseData.timePerDay,
                 datesWithWork = baseData.datesWithWork,
+                datesWithAbsence = baseData.datesWithAbsence,
                 visibleMonth = month
             )
             _isInitialLoadComplete.value = true
@@ -201,6 +191,7 @@ sealed class CalendarUiState {
         val timePerWeek: String = "",
         val timePerDay: String = "",
         val datesWithWork: Set<String> = emptySet(),
+        val datesWithAbsence: Set<String> = emptySet(),
         val visibleMonth: YearMonth = YearMonth.now()
     ) : CalendarUiState()
 

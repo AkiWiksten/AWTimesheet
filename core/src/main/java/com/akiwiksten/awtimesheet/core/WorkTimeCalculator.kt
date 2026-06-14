@@ -151,8 +151,7 @@ object WorkTimeCalculator {
         val lunchEnd: String? = null,
         val breakStart: String? = null,
         val breakEnd: String? = null,
-        val projectTime: String? = null,
-        val shouldRecalculateFlexTime: Boolean = false
+        val projectTime: String? = null
     )
 
     data class StartTimeUpdateParams(

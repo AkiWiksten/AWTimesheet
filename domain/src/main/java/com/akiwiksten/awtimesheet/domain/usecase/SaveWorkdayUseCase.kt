@@ -29,10 +29,7 @@ class SaveWorkdayUseCase @Inject constructor(
 
         projectRepository.insertProjectName(projectToSave.projectName)
         projectRepository.insertProject(projectToSave)
-
-        projectDetailsToSave?.let {
-            projectDetailsRepository.insertProjectDetails(it)
-        }
+        if (projectDetailsToSave != null) projectDetailsRepository.insertProjectDetails(projectDetailsToSave)
 
         if (projectToSave.date.isNotEmpty()) {
             val existing = settingsRepository.getEffectiveSettingsForDate(projectToSave.date)
@@ -61,12 +58,6 @@ class SaveWorkdayUseCase @Inject constructor(
             .filterNot { it.projectName == projectToSave.projectName }
             .forEach { project ->
                 projectRepository.deleteProject(project)
-                projectDetailsRepository.deleteProjectDetails(
-                    ProjectDetailsState(
-                        date = project.date,
-                        projectName = project.projectName
-                    )
-                )
             }
     }
 

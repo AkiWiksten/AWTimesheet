@@ -40,6 +40,8 @@
     <string name="clear_details">Tyhjennä tiedot</string>
     <string name="add_new_project_details">Päivän uusi projekti! Suosittelen että asetat ensin projektin aloitusajan! Se avaa muita vaihtoehtoja.</string>
     <string name="calendar">Kalenteri</string>
+    <string name="absence">Poissaolo</string>
+    <string name="create_absence_title">Luo poissaolo</string>
     <string name="monthly_report">Kuukausiraportti</string>
     <string name="name">Nimi</string>
     <string name="employer">Työnantaja</string>

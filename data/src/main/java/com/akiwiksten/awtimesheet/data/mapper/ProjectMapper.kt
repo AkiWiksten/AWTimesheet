@@ -6,10 +6,10 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 fun ProjectEntity.toDomain(): SingleProjectState {
     return SingleProjectState(
         date = date,
-        index = -1,
+        listIndex = -1,
         projectName = projectName,
         projectTime = projectTime,
-        kilometres = kilometres.toString(),
+        kilometres = if (kilometres == 0) "" else kilometres.toString(),
         allowance = allowance,
         workType = workType,
     )

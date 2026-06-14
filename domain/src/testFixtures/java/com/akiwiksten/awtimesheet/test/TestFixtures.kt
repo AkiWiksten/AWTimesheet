@@ -10,7 +10,7 @@ import com.akiwiksten.awtimesheet.domain.repository.WorkdayStatsRow
 fun settingsState(
     name: String = "",
     employer: String = "",
-    dailyWorkTimeEstimate: String = "",
+    dailyWorkTimeEstimate: String = "00:00",
     dailyLunchTimeEstimate: String = "00:00",
     initialFlexTimeTotal: String = "00:00",
     calculatedFlexTimeTotal: String = "00:00",
@@ -28,16 +28,16 @@ fun settingsState(
 }
 
 fun projectState(
-    index: Int = -1,
+    listIndex: Int = -1,
     date: String = "",
     projectName: String = "",
     projectTime: String = "00:00",
-    kilometres: String = "0",
+    kilometres: String = "",
     allowance: String = "",
     workType: String = "",
 ): SingleProjectState {
     return SingleProjectState(
-        index = index,
+        listIndex = listIndex,
         date = date,
         projectName = projectName,
         projectTime = projectTime,

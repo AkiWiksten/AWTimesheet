@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.singleproject
 
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import com.akiwiksten.awtimesheet.test.FakeProjectDetailsRepository
 import com.akiwiksten.awtimesheet.test.FakeProjectRepository
 import com.akiwiksten.awtimesheet.test.FakeSettingsRepository
@@ -32,11 +33,18 @@ class SingleProjectViewModelTest {
         )
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
-        viewModel.initializeState(projectState())
+        viewModel.initializeState(
+            args = SingleProjectRouteArgs(
+                projectName = "",
+                projectTime = "",
+                isAddMode = true,
+                listIndex = 0,
+            )
+        )
         advanceUntilIdle()
 
         viewModel.saveProject(
-            state = projectState(
+            singleProject = projectState(
                 projectName = "Alpha",
                 projectTime = "02:30"
             )
@@ -64,15 +72,17 @@ class SingleProjectViewModelTest {
         )
 
         viewModel.initializeState(
-            projectState(
+            args = SingleProjectRouteArgs(
                 projectName = "Alpha",
-                date = "2026-04-10"
+                projectTime = "",
+                isAddMode = false,
+                listIndex = 0,
             )
         )
         advanceUntilIdle()
 
         viewModel.saveProject(
-            state = projectState(
+            singleProject = projectState(
                 projectName = "Alpha",
                 projectTime = "05:30"
             )
@@ -107,11 +117,18 @@ class SingleProjectViewModelTest {
         )
         viewModel.setLocalizedFlexDayWorkType("Absence-Flex day")
 
-        viewModel.initializeState(projectState())
+        viewModel.initializeState(
+            args = SingleProjectRouteArgs(
+                projectName = "",
+                projectTime = "",
+                isAddMode = true,
+                listIndex = 0,
+            )
+        )
         advanceUntilIdle()
 
         viewModel.saveProject(
-            state = projectState(
+            singleProject = projectState(
                 projectName = "Absence-Flex day",
                 projectTime = "07:30",
                 workType = "Absence-Flex day"

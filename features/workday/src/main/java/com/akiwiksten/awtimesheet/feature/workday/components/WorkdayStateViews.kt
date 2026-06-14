@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,9 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
@@ -32,6 +33,7 @@ import com.akiwiksten.awtimesheet.feature.workday.R
 import com.akiwiksten.awtimesheet.feature.workday.model.WORK_TIME_BY_DATE_ESTIMATE_INPUT_REGEX
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActions
+import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayConfiguration
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayDisplayState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayEstimateUiState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayHeaderActions
@@ -45,7 +47,8 @@ internal fun WorkdayLoadingContent(
     showLoadingIndicator: Boolean,
     cachedState: WorkdayUiState.Success?,
     selectedItemIndex: Int,
-    actions: WorkdayActions
+    actions: WorkdayActions,
+    config: WorkdayConfiguration
 ) {
     if (showLoadingIndicator) {
         CenteredLoadingBox()
@@ -56,7 +59,8 @@ internal fun WorkdayLoadingContent(
         WorkdaySuccessContent(
             state = it,
             selectedItemIndex = selectedItemIndex,
-            actions = actions
+            actions = actions,
+            config = config
         )
     }
 }
@@ -75,7 +79,7 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier.padding(all = PADDING_SPACING)
         )
-        Button(onClick = onRetry) {
+        AwtButton(onClick = onRetry) {
             Text(text = stringResource(id = R.string.retry))
         }
     }
@@ -85,23 +89,24 @@ internal fun WorkdayErrorContent(message: String, onRetry: () -> Unit) {
 internal fun WorkdaySuccessContent(
     state: WorkdayUiState.Success,
     selectedItemIndex: Int,
-    actions: WorkdayActions
+    actions: WorkdayActions,
+    config: WorkdayConfiguration
 ) {
     val estimateUiState = rememberWorkdayEstimateUiState(
         initialWorkTimeByDateEstimate = state.workTimeByDateEstimate,
         onSaveSettings = actions.onSaveSettings
     )
     val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
-    val listItems = remember(state.projects) {
+    val listItems = remember(state.projects, config) {
         state.projects
             .sortedWith(
                 compareBy<SingleProjectState> { it.projectTime == ZERO_TIME }
                     .thenBy { it.projectName }
             )
-            .map { it.toListItemUiModel() }
+            .map { it.toListItemUiModel(config = config) }
     }
     val selectedItemKey = remember(state.projects, selectedItemIndex) {
-        state.projects.firstOrNull { it.index == selectedItemIndex }?.stableListItemKey()
+        state.projects.firstOrNull { it.listIndex == selectedItemIndex }?.stableListItemKey()
     }
     WorkdayHeaderSection(date = state.date)
     if (state.isFlexTimeByDateSpecialRuleApplied) {
@@ -144,7 +149,7 @@ private fun WorkdayActionButtons(
         ),
         onAddClick = {
             actions.onTrackProjectEditorLaunch(state.flexTimeByDate, state.workTimeByDate)
-            actions.onNavigateToSingleProject(SingleProjectState(index = -1, date = state.date))
+            actions.onNavigateToSingleProject(SingleProjectState(listIndex = -1, date = state.date))
         },
         onEditClick = {
             state.projects.getOrNull(index = selectedItemIndex)?.let { selectedProject ->
@@ -271,27 +276,37 @@ private fun SaveWorkTimeEstimateDialog(
             )
         },
         confirmButton = {
-            Button(onClick = onSaveGlobally) {
+            AwtButton(onClick = onSaveGlobally) {
                 Text(text = stringResource(id = R.string.save_globally))
             }
         },
         dismissButton = {
-            Button(onClick = onSaveToday) {
+            AwtButton(onClick = onSaveToday) {
                 Text(text = stringResource(id = R.string.save_today))
             }
         }
     )
 }
 
-private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
+private fun SingleProjectState.toListItemUiModel(
+    config: WorkdayConfiguration
+): WorkdayListItemUiModel {
+    val isFlexDay = AbsenceFlexDayMatcher.isAbsenceFlexDay(
+        workType = workType,
+        projectName = projectName,
+        localizedFlexDayWorkType = config.flexDayWorkType
+    )
+    val isAbsence = config.absencePrefix.isNotEmpty() && workType.startsWith(config.absencePrefix, ignoreCase = true)
+    val hideExtraFields = isFlexDay || isAbsence
+
     return WorkdayListItemUiModel(
-        index = index,
+        index = listIndex,
         projectName = projectName,
         projectTime = projectTime,
         kilometres = kilometres,
-        allowance = allowance,
+        allowance = if (hideExtraFields) "" else allowance,
         workType = workType,
-        kilometresLabel = "$kilometres km",
+        kilometresLabel = if (hideExtraFields || kilometres.isEmpty()) "" else "$kilometres km",
         isProjectNameOnlyPlaceholder = isProjectNameOnlyPlaceholder(),
         stableKey = stableListItemKey()
     )
@@ -299,5 +314,5 @@ private fun SingleProjectState.toListItemUiModel(): WorkdayListItemUiModel {
 
 private fun SingleProjectState.stableListItemKey(): String {
     val datePart = if (date.isNotBlank()) date else "<no-date>"
-    return "$datePart|index:$index|$projectName|$projectTime|$kilometres|$allowance|$workType"
+    return "$datePart|index:$listIndex|$projectName|$projectTime|$kilometres|$allowance|$workType"
 }

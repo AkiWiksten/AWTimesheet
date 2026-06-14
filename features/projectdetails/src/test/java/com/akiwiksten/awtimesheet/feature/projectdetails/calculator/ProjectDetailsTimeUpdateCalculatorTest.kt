@@ -4,9 +4,7 @@ import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.EndTimeUpdateParams
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator.StartTimeUpdateParams
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalTime
 
@@ -31,7 +29,6 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         assertEquals("08:00", result.breakStart)
         assertEquals("08:00", result.breakEnd)
         assertNull(result.projectTime)
-        assertFalse(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -165,7 +162,6 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         )
 
         assertEquals("16:30", result.end)
-        assertFalse(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -178,7 +174,6 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         )
 
         assertEquals("07:00", result.projectTime)
-        assertTrue(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -245,7 +240,6 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         )
 
         assertEquals("07:45", result.projectTime)
-        assertTrue(result.shouldRecalculateFlexTime)
     }
 
     @Test
@@ -270,7 +264,6 @@ class ProjectDetailsTimeUpdateCalculatorTest {
         )
 
         assertEquals("07:15", result.projectTime)
-        assertTrue(result.shouldRecalculateFlexTime)
     }
 
     @Test

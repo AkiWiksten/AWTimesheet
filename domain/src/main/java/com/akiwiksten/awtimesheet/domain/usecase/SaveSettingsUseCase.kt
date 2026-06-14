@@ -23,22 +23,18 @@ class SaveSettingsUseCase @Inject constructor(
         settingsRepository.insertSettings(SettingsState(name = settings.name, employer = settings.employer))
 
         val existingGlobalStats = settingsRepository.getSettings()
-        val resolvedInitialFlexTimeTotal = settings.initialFlexTimeTotal
-            .takeIf { it != ZERO_TIME }
-            ?: existingGlobalStats?.initialFlexTimeTotal
-            ?: ZERO_TIME
+        val shouldPersistGlobalStats =
+            settings.dailyWorkTimeEstimate != (existingGlobalStats?.dailyWorkTimeEstimate ?: ZERO_TIME) ||
+                settings.dailyLunchTimeEstimate != (existingGlobalStats?.dailyLunchTimeEstimate ?: ZERO_TIME) ||
+                settings.initialFlexTimeTotal != (existingGlobalStats?.initialFlexTimeTotal ?: ZERO_TIME)
 
-        if (
-            settings.dailyWorkTimeEstimate.isNotEmpty() ||
-            settings.dailyLunchTimeEstimate != ZERO_TIME ||
-            resolvedInitialFlexTimeTotal != ZERO_TIME
-        ) {
+        if (shouldPersistGlobalStats) {
             // Persist global estimates to merged settings-backed work stats.
             settingsRepository.insertSettings(
                 SettingsState(
                     dailyWorkTimeEstimate = settings.dailyWorkTimeEstimate,
                     dailyLunchTimeEstimate = settings.dailyLunchTimeEstimate,
-                    initialFlexTimeTotal = resolvedInitialFlexTimeTotal
+                    initialFlexTimeTotal = settings.initialFlexTimeTotal
                 )
             )
 
@@ -51,7 +47,13 @@ class SaveSettingsUseCase @Inject constructor(
                 ZERO_TIME
             }
 
-            if (isCurrentDay && workTimeByDate == ZERO_TIME && selectedDate.isNotEmpty()) {
+            val shouldUpdateCurrentDayEstimate =
+                isCurrentDay &&
+                    workTimeByDate == ZERO_TIME &&
+                    selectedDate.isNotEmpty() &&
+                    settings.dailyWorkTimeEstimate != ZERO_TIME
+
+            if (shouldUpdateCurrentDayEstimate) {
                 workdayRepository.upsertWorkdayStats(
                     date = selectedDate,
                     workTimeByDateEstimate = settings.dailyWorkTimeEstimate

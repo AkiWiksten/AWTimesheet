@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +19,7 @@ import com.akiwiksten.awtimesheet.core.ACTION_BUTTON_FONT_SIZE
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -38,35 +37,31 @@ internal fun SettingsActionButtonsSection(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
-        Button(
+        AwtButton(
             onClick = state.onSave,
             enabled = state.isSaveEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
-        Button(
+        AwtButton(
             onClick = state.onGenerateXlsx,
             enabled = state.isReportEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(id = R.string.generate_xlsx), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
-        Button(
+        AwtButton(
             onClick = state.onGenerateWorkdaysForMonth,
             enabled = state.isReportEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(id = R.string.generate_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
-        Button(
+        AwtButton(
             onClick = state.onGenerateWorkdaysForYear,
             enabled = state.isReportEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
@@ -129,20 +124,17 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
             modifier = Modifier.fillMaxWidth()
         )
         Row(horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
-            Button(
+            AwtButton(
                 onClick = state.settingsWorkTypeDialogState.onAddClick,
-                modifier = Modifier.weight(weight = 1f),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+                modifier = Modifier.weight(weight = 1f)
             ) {
                 Text(text = stringResource(id = R.string.add))
             }
-            Button(
+            AwtButton(
                 onClick = state.settingsWorkTypeDialogState.onDeleteClick,
                 enabled = state.settingsWorkTypeDialogState.selectedWorkType.isNotEmpty() &&
                     state.settingsWorkTypeDialogState.selectedWorkType !in state.protectedWorkTypes,
-                modifier = Modifier.weight(weight = 1f),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+                modifier = Modifier.weight(weight = 1f)
             ) {
                 Text(text = stringResource(id = R.string.delete))
             }

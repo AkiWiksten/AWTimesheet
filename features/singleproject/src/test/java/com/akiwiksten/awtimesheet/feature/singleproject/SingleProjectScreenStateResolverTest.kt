@@ -3,9 +3,7 @@ package com.akiwiksten.awtimesheet.feature.singleproject
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProjectName
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
 import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveInitialSingleProjectState
-import com.akiwiksten.awtimesheet.test.projectDetailsState
 import com.akiwiksten.awtimesheet.test.projectState
-import com.akiwiksten.awtimesheet.test.settingsState
 import org.junit.Assert
 import org.junit.Test
 
@@ -13,7 +11,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_withFilledProjectName_andBlankKilometres_enablesConfirm() {
-        val initialState = projectState(index = -1)
+        val initialState = projectState(listIndex = -1, projectTime = "01:00")
         val editedState = initialState.copy(projectName = "Alpha", kilometres = "")
 
         val isEnabled = isSingleProjectConfirmEnabled(
@@ -29,7 +27,7 @@ class SingleProjectScreenStateResolverTest {
     @Test
     fun editMode_withProjectNameAndTime_withoutChanges_enablesConfirm() {
         val initialState = projectState(
-            index = 0,
+            listIndex = 0,
             projectName = "Alpha",
             projectTime = "01:00",
             kilometres = "12"
@@ -47,7 +45,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withChanges_andValidFields_enablesConfirm() {
-        val initialState = projectState(index = 0, projectName = "Alpha", kilometres = "12")
+        val initialState = projectState(listIndex = 0, projectName = "Alpha", kilometres = "12")
         val editedState = initialState.copy(projectTime = "01:00")
 
         val isEnabled = isSingleProjectConfirmEnabled(
@@ -62,7 +60,7 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_withDuplicateProjectName_disablesConfirm() {
-        val state = projectState(index = -1, projectName = "Alpha", projectTime = "01:00")
+        val state = projectState(listIndex = -1, projectName = "Alpha", projectTime = "01:00")
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = state,
@@ -76,51 +74,49 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun isDuplicate_addMode_matchesCaseInsensitive() {
-        val existingAlpha = projectState(index = 0, projectName = "Alpha")
-        val existingBeta = projectState(index = 1, projectName = "Beta")
+        val otherProjectNames = listOf("Alpha", "Beta")
 
         Assert.assertEquals(
             true,
-            isDuplicateProjectName("alpha", currentIndex = -1, singleProjectState = existingAlpha)
+            isDuplicateProjectName("alpha", otherProjectNames = otherProjectNames)
         )
         Assert.assertEquals(
             true,
-            isDuplicateProjectName("BETA", currentIndex = -1, singleProjectState = existingBeta)
+            isDuplicateProjectName("BETA", otherProjectNames = otherProjectNames)
         )
         Assert.assertEquals(
             false,
-            isDuplicateProjectName("Gamma", currentIndex = -1, singleProjectState = existingAlpha)
+            isDuplicateProjectName("Gamma", otherProjectNames = otherProjectNames)
         )
     }
 
     @Test
-    fun isDuplicate_editMode_ignoresOwnIndex() {
-        val existing = projectState(index = 0, projectName = "Alpha")
+    fun isDuplicate_editMode_ignoresOwnName() {
+        val otherProjectNames = listOf("Beta")
 
         Assert.assertEquals(
             false,
-            isDuplicateProjectName("Alpha", currentIndex = 0, singleProjectState = existing)
+            isDuplicateProjectName("Alpha", otherProjectNames = otherProjectNames)
         )
         Assert.assertEquals(
-            false,
-            isDuplicateProjectName("Beta", currentIndex = 0, singleProjectState = existing)
+            true,
+            isDuplicateProjectName("Beta", otherProjectNames = otherProjectNames)
         )
     }
 
     @Test
     fun editMode_withNavigationProjectTime_prefersNavigationState() {
-        val initialState = projectState(index = 0, projectName = "Alpha", projectTime = "01:45")
+        val initialState = projectState(listIndex = 0, projectName = "Alpha", projectTime = "01:45")
         val singleProjectUiState = SingleProjectUiState.Success(
-            data = projectState(index = 0, projectName = "Alpha", projectTime = "00:00"),
+            data = projectState(listIndex = 0, projectName = "Alpha", projectTime = "00:00"),
             workTimeByDate = "00:00",
             workTypes = emptyList(),
-            settings = null
+            settings = null,
+            otherProjectNames = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
-            initialProjectDetails = projectDetailsState(projectTime = "01:45"),
-            initialSettings = null,
             singleProjectUiState = singleProjectUiState
         )
 
@@ -129,16 +125,17 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun editMode_withoutNavigationPayload_usesCurrentProjectsState() {
-        val initialState = projectState(index = 0)
+        val initialState = projectState(listIndex = 0).copy(isAddMode = false)
         val singleProjectUiState = SingleProjectUiState.Success(
-            data = projectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
+            data = projectState(listIndex = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
             workTypes = emptyList(),
-            settings = null
+            settings = null,
+            otherProjectNames = emptyList()
         )
 
         val resolved =
-            resolveInitialSingleProjectState(initialState, null, null, singleProjectUiState)
+            resolveInitialSingleProjectState(initialState, singleProjectUiState)
 
         Assert.assertEquals("Alpha", resolved.projectName)
         Assert.assertEquals("02:10", resolved.projectTime)
@@ -146,31 +143,75 @@ class SingleProjectScreenStateResolverTest {
 
     @Test
     fun addMode_returnsInitialState() {
-        val initialState = projectState(index = -1, projectName = "New", projectTime = "00:30")
+        val initialState = projectState(listIndex = -1, projectName = "New", projectTime = "00:30")
 
         val resolved =
-            resolveInitialSingleProjectState(initialState, null, null, SingleProjectUiState.Loading)
+            resolveInitialSingleProjectState(initialState, SingleProjectUiState.Loading)
 
         Assert.assertEquals(initialState, resolved)
     }
 
     @Test
     fun editMode_withNavigationSettings_prefersNavigationState() {
-        val initialState = projectState(index = 0)
+        val initialState = projectState(listIndex = 0)
         val singleProjectUiState = SingleProjectUiState.Success(
-            data = projectState(index = 0, projectName = "Alpha", projectTime = "02:10"),
+            data = projectState(listIndex = 0, projectName = "Alpha", projectTime = "02:10"),
             workTimeByDate = "02:10",
             workTypes = emptyList(),
-            settings = null
+            settings = null,
+            otherProjectNames = emptyList()
         )
 
         val resolved = resolveInitialSingleProjectState(
             initialSingleProjectState = initialState,
-            initialProjectDetails = null,
-            initialSettings = settingsState(dailyWorkTimeEstimate = "07:30"),
             singleProjectUiState = singleProjectUiState
         )
 
         Assert.assertEquals(initialState, resolved)
+    }
+
+    @Test
+    fun editMode_withZeroProjectTime_andProjectDetails_enablesConfirm() {
+        val state = projectState(listIndex = 0, projectName = "Alpha", projectTime = "00:00")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = state,
+            hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
+            isAddMode = false,
+            hasProjectDetails = true
+        )
+
+        Assert.assertEquals(true, isEnabled)
+    }
+
+    @Test
+    fun editMode_withZeroProjectTime_withoutProjectDetails_disablesConfirm() {
+        val state = projectState(listIndex = 0, projectName = "Alpha", projectTime = "00:00")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = state,
+            hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
+            isAddMode = false,
+            hasProjectDetails = false
+        )
+
+        Assert.assertEquals(false, isEnabled)
+    }
+
+    @Test
+    fun addMode_withZeroProjectTime_withoutProjectDetails_disablesConfirm() {
+        val state = projectState(listIndex = -1, projectName = "Alpha", projectTime = "00:00")
+
+        val isEnabled = isSingleProjectConfirmEnabled(
+            state = state,
+            hasUnsavedChanges = true,
+            isDuplicateProjectName = false,
+            isAddMode = true,
+            hasProjectDetails = false
+        )
+
+        Assert.assertEquals(false, isEnabled)
     }
 }

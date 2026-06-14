@@ -19,8 +19,6 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -45,6 +43,7 @@ import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.feature.workday.R
@@ -237,39 +236,28 @@ internal fun WorkdayActionButtonsSection(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
-        Button(
+        AwtButton(
             onClick = onAddClick,
             enabled = !state.isAddEditDisabled,
-            modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.weight(weight = 1f)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(size = 18.dp))
             Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = stringResource(id = R.string.add))
         }
-        Button(
+        AwtButton(
             onClick = onEditClick,
             enabled = state.selectedIndex != -1 && !state.isAddEditDisabled,
-            modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+            modifier = Modifier.weight(weight = 1f)
         ) {
             Icon(imageVector = Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(size = 18.dp))
             Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))
             Text(text = stringResource(id = R.string.edit))
         }
-        Button(
+        AwtButton(
             onClick = onDeleteClick,
             enabled = state.selectedIndex != -1,
-            modifier = Modifier.weight(weight = 1f),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer
-            )
+            modifier = Modifier.weight(weight = 1f)
         ) {
             Icon(imageVector = Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(size = 18.dp))
             Spacer(modifier = Modifier.width(width = PADDING_SPACING_SMALL))

@@ -1,14 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="allowance">Allowance</string>
-    <string name="dismiss">Dismiss</string>
-    <string name="confirm">Confirm</string>
-    <string name="unsaved_data_title">Unsaved data!</string>
+    <!-- Common UI Controls -->
     <string name="save">Save</string>
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="saved">Saved!</string>
+    <string name="retry">Retry</string>
+    <string name="select_date">Select date</string>
+
+    <!-- Navigation / Screen Titles -->
+    <string name="calendar">Calendar</string>
+    <string name="absence">Absence</string>
+    <string name="new_absence_title">New absence</string>
+
+    <!-- Common Dialogs & Messages -->
+    <string name="unsaved_data_title">Unsaved data!</string>
+    <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
     <string name="discard">Discard</string>
     <string name="stay">Stay</string>
-    <string name="other">Other</string>
+    <string name="error_message">Error: %1$s</string>
 
+    <!-- Common Entities & Fields -->
+    <string name="work_type">Work type</string>
+    <string name="project_name">Project name</string>
+    <string name="project_time">Project time</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
+    <string name="allowance">Allowance</string>
+    <string name="no_allowance">No allowance</string>
+    <string name="half_day_allowance">Half-day allowance</string>
+    <string name="full_allowance">Full allowance</string>
+    <string name="kilometres">Kilometres</string>
+    <string name="other">Other</string>
+    <string name="no_projects_available">No projects available. Add one with the button.</string>
+
+    <!-- Work Type Absence Prefixes -->
+    <string name="absence_prefix">Absence</string>
     <string name="work_type_paid_vacation">Absence-Paid vacation</string>
     <string name="work_type_unpaid_vacation">Absence-Unpaid vacation</string>
     <string name="work_type_sick_leave">Absence-Sick leave</string>

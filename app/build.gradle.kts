@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
     implementation(project(":features:calendar"))
+    implementation(project(":features:absence"))
     implementation(project(":features:intro"))
     implementation(project(":features:projectdetails"))
     implementation(project(":features:settings"))

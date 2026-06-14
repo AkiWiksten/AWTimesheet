@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -18,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
@@ -32,14 +30,15 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
-import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import java.time.LocalDate
@@ -50,10 +49,15 @@ fun CalendarScreen(
     onNavigateToAbsence: () -> Unit = {},
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
-    val uiState by calendarViewModel.uiState.collectAsState()
-    val isInitialLoadComplete by calendarViewModel.isInitialLoadComplete.collectAsState()
+    val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+    val isInitialLoadComplete by calendarViewModel.isInitialLoadComplete.collectAsStateWithLifecycle()
     val latestIsInitialLoadComplete by rememberUpdatedState(isInitialLoadComplete)
     val lifecycleOwner = LocalLifecycleOwner.current
+    val absencePrefix = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence_prefix)
+
+    LaunchedEffect(absencePrefix) {
+        calendarViewModel.setLocalizedAbsencePrefix(absencePrefix)
+    }
 
     // OPTIMIZATION: Start auto-reload AFTER first frame is drawn.
     // This defers database queries off the critical startup path, reducing jank.
@@ -115,8 +119,11 @@ internal fun CalendarContent(
                 ) {
                     CustomCalendar(
                         selectedDate = LocalDate.parse(uiState.date),
-                        datesWithWork = uiState.datesWithWork,
                         onDateSelected = { onDateSelected(it.toString()) },
+                        markers = CalendarMarkers(
+                            datesWithWork = uiState.datesWithWork,
+                            datesWithAbsence = uiState.datesWithAbsence
+                        ),
                         modifier = Modifier.padding(all = PADDING_SPACING),
                         monthConfig = CalendarVisibleMonthConfig(
                             visibleMonth = uiState.visibleMonth,
@@ -124,20 +131,14 @@ internal fun CalendarContent(
                         )
                     )
                 }
-                NoteBanner(text = stringResource(id = R.string.calendar_month_selection_hint),)
                 WorkTimeSummarySection(uiState = uiState)
-                ElevatedCard(
-                    elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
-                    modifier = Modifier.fillMaxWidth()
+                AwtButton(
+                    onClick = onNavigateToAbsence,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(all = PADDING_SPACING)
                 ) {
-                    Button(
-                        onClick = onNavigateToAbsence,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = PADDING_SPACING)
-                    ) {
-                        Text(stringResource(id = R.string.absence))
-                    }
+                    Text(stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence))
                 }
                 Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }

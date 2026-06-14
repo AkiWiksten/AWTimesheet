@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.testing.Test
 
 class AwtimesheetAndroidComposeFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -16,6 +17,12 @@ class AwtimesheetAndroidComposeFeatureConventionPlugin : Plugin<Project> {
                 compose = true
             }
             experimentalProperties["android.experimental.enableScreenshotTest"] = true
+        }
+
+        tasks.withType(Test::class.java).configureEach {
+            if (name.contains("ScreenshotTest", ignoreCase = true)) {
+                failOnNoDiscoveredTests.set(false)
+            }
         }
     }
 }

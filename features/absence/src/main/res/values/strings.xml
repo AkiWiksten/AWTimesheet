@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="new_absence">New</string>
+    <string name="select_date">Select date</string>
+    <string name="saved_absences_title">Saved absences</string>
+    <string name="no_absences">No absences</string>
+    <string name="start_date">Start date</string>
+    <string name="end_date">End date</string>
+    <string name="absence_work_type">Work type</string>
+    <string name="absence_weekends_title">Weekends?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="dismiss">Dismiss</string>
+</resources>

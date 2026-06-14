@@ -64,7 +64,7 @@ object ProjectDetailsUiMapper {
             lunchEnd = projectDetails.lunchEnd.ifEmpty { ZERO_TIME },
             breakStart = projectDetails.breakStart.ifEmpty { ZERO_TIME },
             breakEnd = projectDetails.breakEnd.ifEmpty { ZERO_TIME },
-            projectTime = projectDetails.projectTime.ifEmpty { ZERO_TIME },
+            projectTime = baseState.projectTime,
             lunchTimeEstimate = resolvedLunchTimeEstimate
         )
     }
@@ -77,17 +77,9 @@ object ProjectDetailsUiMapper {
             lunchEnd = ZERO_TIME,
             breakStart = ZERO_TIME,
             breakEnd = ZERO_TIME,
-            projectTime = ZERO_TIME,
+            projectTime = state.projectTime,
             lunchTimeEstimate = lunchTimeEstimate
         )
-    }
-
-    fun normalizeProjectTimeOnOpen(startTime: String, endTime: String, projectTime: String): String {
-        return if (startTime == ZERO_TIME && endTime == ZERO_TIME && projectTime != ZERO_TIME) {
-            ZERO_TIME
-        } else {
-            projectTime
-        }
     }
 
     fun normalizeProjectDetails(

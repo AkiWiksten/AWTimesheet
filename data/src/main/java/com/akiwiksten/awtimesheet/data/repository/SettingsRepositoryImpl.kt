@@ -26,9 +26,12 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun insertSettings(settings: SettingsState) {
         val existing = settingsDao.loadSettings()?.toDomain()
-        val shouldUpdateEstimates = settings.dailyWorkTimeEstimate.isNotEmpty() ||
-            settings.dailyLunchTimeEstimate != ZERO_TIME ||
-            settings.initialFlexTimeTotal != ZERO_TIME
+        val isStatsOnlyUpdate = settings.name.isEmpty() && settings.employer.isEmpty()
+        val shouldUpdateEstimates =
+            isStatsOnlyUpdate ||
+                settings.dailyWorkTimeEstimate != ZERO_TIME ||
+                settings.dailyLunchTimeEstimate != ZERO_TIME ||
+                settings.initialFlexTimeTotal != ZERO_TIME
 
         settingsDao.insertSettings(
             SettingsState(
@@ -37,7 +40,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 dailyWorkTimeEstimate = if (shouldUpdateEstimates) {
                     settings.dailyWorkTimeEstimate
                 } else {
-                    existing?.dailyWorkTimeEstimate.orEmpty()
+                    existing?.dailyWorkTimeEstimate ?: ZERO_TIME
                 },
                 dailyLunchTimeEstimate = if (shouldUpdateEstimates) {
                     settings.dailyLunchTimeEstimate
@@ -66,7 +69,8 @@ class SettingsRepositoryImpl @Inject constructor(
         return if (workday != null) {
             (fallback ?: SettingsState()).copy(
                 dailyWorkTimeEstimate = workday.workTimeByDateEstimate
-                    .ifEmpty { fallback?.dailyWorkTimeEstimate.orEmpty() },
+                    .takeIf { it != ZERO_TIME && it.isNotEmpty() }
+                    ?: (fallback?.dailyWorkTimeEstimate ?: ZERO_TIME),
                 dailyLunchTimeEstimate = fallback?.dailyLunchTimeEstimate ?: ZERO_TIME,
                 initialFlexTimeTotal = fallback?.initialFlexTimeTotal ?: ZERO_TIME
             )

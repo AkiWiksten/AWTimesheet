@@ -11,6 +11,17 @@ data class SingleProjectScreenArgs(
     val initialSettings: SettingsState? = null
 )
 
+data class SingleProjectRouteArgs(
+    val projectName: String,
+    val projectTime: String,
+    val isAddMode: Boolean,
+    val listIndex: Int,
+    val kilometres: String? = null,
+    val allowance: String? = null,
+    val workType: String? = null,
+    val projectDetails: ProjectDetailsState? = null
+)
+
 data class SingleProjectNavigationActions(
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit
@@ -27,13 +38,26 @@ data class SingleProjectScreenState(
     val editedProjectIndex: Int,
     val state: SingleProjectState,
     val isAddMode: Boolean,
+    val isProjectNameEditable: Boolean,
     val uiState: SingleProjectUiState,
     val isConfirmEnabled: Boolean,
-    val isDuplicateProjectName: Boolean
+    val isDuplicateProjectName: Boolean,
+    val isTimePickerDisabled: Boolean
 )
 
 data class SingleProjectActions(
     val onStateChange: (SingleProjectState) -> Unit,
     val onOpenProjectDetails: () -> Unit,
-    val onConfirm: () -> Unit
+    val onSave: () -> Unit
+)
+
+data class SingleProjectConfiguration(
+    val absencePrefix: String,
+    val flexDayWorkType: String
+)
+
+data class SingleProjectScreenParams(
+    val screenState: SingleProjectScreenState,
+    val actions: SingleProjectActions,
+    val config: SingleProjectConfiguration
 )

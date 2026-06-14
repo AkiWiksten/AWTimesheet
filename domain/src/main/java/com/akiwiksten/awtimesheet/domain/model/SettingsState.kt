@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class SettingsState(
     val name: String = "",
     val employer: String = "",
-    val dailyWorkTimeEstimate: String = "",
+    val dailyWorkTimeEstimate: String = ZERO_TIME,
     val dailyLunchTimeEstimate: String = ZERO_TIME,
     val initialFlexTimeTotal: String = ZERO_TIME,
     val calculatedFlexTimeTotal: String = ZERO_TIME,

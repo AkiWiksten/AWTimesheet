@@ -1,18 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="allowance">Traktamente</string>
-    <string name="dismiss">Avbryt</string>
-    <string name="confirm">Bekräfta</string>
-    <string name="unsaved_data_title">Osparad data!</string>
+    <!-- Common UI Controls -->
     <string name="save">Spara</string>
-    <string name="discard">Förkasta</string>
-    <string name="stay">Stanna</string>
-    <string name="other">Övrigt</string>
+    <string name="confirm">Bekräfta</string>
+    <string name="dismiss">Stäng</string>
+    <string name="add">Lägg till</string>
+    <string name="delete">Ta bort</string>
+    <string name="edit">Redigera</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nej</string>
+    <string name="saved">Sparad!</string>
+    <string name="retry">Försök igen</string>
+    <string name="select_date">Välj datum</string>
 
+    <!-- Navigation / Screen Titles -->
+    <string name="calendar">Kalender</string>
+    <string name="absence">Frånvaro</string>
+    <string name="new_absence_title">Ny frånvaro</string>
+
+    <!-- Common Dialogs & Messages -->
+    <string name="unsaved_data_title">Osparad data!</string>
+    <string name="unsaved_data_message">Du har osparade ändringar. Spara innan du lämnar?</string>
+    <string name="discard">Släng</string>
+    <string name="stay">Stanna</string>
+    <string name="error_message">Fel: %1$s</string>
+
+    <!-- Common Entities & Fields -->
+    <string name="work_type">Arbetstyp</string>
+    <string name="project_name">Projektnamn</string>
+    <string name="project_time">Projekttid</string>
+    <string name="start_date">Startdatum</string>
+    <string name="end_date">Slutdatum</string>
+    <string name="allowance">Ersättning</string>
+    <string name="no_allowance">Ingen ersättning</string>
+    <string name="half_day_allowance">Halv traktamente</string>
+    <string name="full_allowance">Fullt traktamente</string>
+    <string name="kilometres">Kilometer</string>
+    <string name="other">Annat</string>
+    <string name="no_projects_available">Inga projekt tillgängliga. Lägg till ett med knappen.</string>
+
+    <!-- Work Type Absence Prefixes -->
+    <string name="absence_prefix">Frånvaro</string>
     <string name="work_type_paid_vacation">Frånvaro-Betald semester</string>
     <string name="work_type_unpaid_vacation">Frånvaro-Obetald semester</string>
     <string name="work_type_sick_leave">Frånvaro-Sjukfrånvaro</string>
     <string name="work_type_parental_leave">Frånvaro-Föräldraledighet</string>
     <string name="work_type_other_leave">Frånvaro-Annan ledighet</string>
-    <string name="work_type_flex_day">Frånvaro-Komplediga</string>
+    <string name="work_type_flex_day">Frånvaro-Flexdag</string>
 </resources>

@@ -14,17 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import com.akiwiksten.awtimesheet.R
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
-import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenArgs
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import kotlinx.parcelize.Parcelize
 import kotlin.math.min
 
@@ -48,7 +44,7 @@ fun AWTimesheetApp() {
     val portraitWidth = rememberPortraitWidthDp()
 
     if (isIntroRoute) {
-        AppNavHost(
+        WorkTimeNavDisplay(
             backStack = backStack,
             settingsNavigationGuard = settingsNavigationGuard,
             modifier = Modifier.fillMaxSize()
@@ -93,48 +89,78 @@ internal fun PortraitWidthContainer(
 @Composable
 internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: SnapshotStateList<Any>) {
     ProjectDetailsScreen(
-        projectDetails = screen.projectDetails,
+        detailsArgs = ProjectDetailsState(
+            date = screen.date,
+            projectName = screen.projectName,
+            projectTime = screen.projectTime,
+            startTime = screen.startTime,
+            endTime = screen.endTime,
+            lunchStart = screen.lunchStart,
+            lunchEnd = screen.lunchEnd,
+            breakStart = screen.breakStart,
+            breakEnd = screen.breakEnd,
+        ),
         onNavigateBack = { backStack.pop() },
-        onConfirm = { projectDetails, settings ->
-            backStack.updateSingleProjectWorkTime(projectDetails = projectDetails, settings = settings)
+        onConfirm = { details ->
+            backStack.updateSingleProjectWorkTime(
+                details = Screen.ProjectDetails(
+                    date = details.date,
+                    projectName = details.projectName,
+                    projectTime = details.projectTime,
+                    startTime = details.startTime,
+                    endTime = details.endTime,
+                    lunchStart = details.lunchStart,
+                    lunchEnd = details.lunchEnd,
+                    breakStart = details.breakStart,
+                    breakEnd = details.breakEnd,
+                )
+            )
         }
     )
 }
 
 @Composable
 internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: SnapshotStateList<Any>) {
-    val initialSingleProjectState = SingleProjectState(
-        index = screen.index,
-        projectName = screen.projectName ?: "",
-        projectTime = screen.projectTime ?: ZERO_TIME,
-        kilometres = screen.kilometres ?: "",
-        allowance = screen.allowance
-            .takeUnless { it.isNullOrBlank() }
-            ?: stringResource(id = R.string.no_allowance),
-        workType = screen.workType ?: "",
-        date = screen.date ?: ""
-    )
     SingleProjectScreen(
-        args = SingleProjectScreenArgs(
-            initialSingleProjectState = initialSingleProjectState,
-            initialProjectDetails = screen.projectDetails,
-            initialSettings = screen.settingsEstimates
+        routeArgs = SingleProjectRouteArgs(
+            projectName = screen.projectName ?: "",
+            projectTime = screen.projectTime ?: "",
+            isAddMode = screen.listIndex == -1,
+            listIndex = screen.listIndex,
+            kilometres = screen.kilometres,
+            allowance = screen.allowance,
+            workType = screen.workType,
+            projectDetails = if (screen.details == null) {
+                null
+            } else {
+                ProjectDetailsState(
+                    date = screen.details.date,
+                    projectName = screen.details.projectName,
+                    projectTime = screen.details.projectTime,
+                    startTime = screen.details.startTime,
+                    endTime = screen.details.endTime,
+                    lunchStart = screen.details.lunchStart,
+                    lunchEnd = screen.details.lunchEnd,
+                    breakStart = screen.details.breakStart,
+                    breakEnd = screen.details.breakEnd
+                )
+            }
         ),
         navigationActions = SingleProjectNavigationActions(
             onNavigateBack = { backStack.pop() },
             onOpenProjectDetails = { singleProject, projectDetails ->
-                backStack.updateSingleProjectState(
-                    singleProject = singleProject,
-                    projectDetails = projectDetails
-                )
+                backStack.updateSingleProjectState(singleProject)
                 backStack.add(
                     element = Screen.ProjectDetails(
-                        projectDetails = projectDetails ?: ProjectDetailsState()
-                            .copy(
-                                date = singleProject.date,
-                                projectName = singleProject.projectName,
-                                projectTime = singleProject.projectTime
-                            )
+                        date = projectDetails?.date ?: "",
+                        projectTime = singleProject.projectTime,
+                        projectName = singleProject.projectName,
+                        startTime = projectDetails?.startTime ?: "",
+                        endTime = projectDetails?.endTime ?: "",
+                        lunchStart = projectDetails?.lunchStart ?: "",
+                        lunchEnd = projectDetails?.lunchEnd ?: "",
+                        breakStart = projectDetails?.breakStart ?: "",
+                        breakEnd = projectDetails?.breakEnd ?: ""
                     )
                 )
             }
@@ -149,23 +175,20 @@ internal fun SnapshotStateList<Any>.pop() {
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
-    projectDetails: ProjectDetailsState,
-    settings: SettingsState
+    details: Screen.ProjectDetails
 ) {
     pop()
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
-            projectTime = projectDetails.projectTime,
-            projectDetails = projectDetails,
-            settingsEstimates = settings
+            projectTime = details.projectTime,
+            details = details
         )
     }
 }
 
 internal fun SnapshotStateList<Any>.updateSingleProjectState(
     singleProject: SingleProjectState,
-    projectDetails: ProjectDetailsState?
 ) {
     val index = size - 1
     val current = getOrNull(index = index)
@@ -175,8 +198,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
             projectTime = singleProject.projectTime,
             kilometres = singleProject.kilometres,
             allowance = singleProject.allowance,
-            workType = singleProject.workType,
-            projectDetails = projectDetails
+            workType = singleProject.workType
         )
     }
 }

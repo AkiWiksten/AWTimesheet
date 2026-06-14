@@ -102,6 +102,7 @@ Summarize benchmark output:
   + Add full flex time day (Zero time project, add work type "Absence->Flex time")
   + Add Text field for comments. Expandable when clicked. 
     + Show in  excel.
+  + Disable kilometres and allowance for absence projects
 + WorkdayScreen 
   + Unselect project from list
   + Select many in list
@@ -112,18 +113,20 @@ Summarize benchmark output:
 + ProjectDetailsScreen
   + "Lunch time estimate" Ask to save globally to "Daily lunchtime estimate" in SettingsScreen
 + CalendarScreen
+  + Absence* -> Red circle, other -> green circle
 + SettingsScreen
-  + Absence.
-    + Add/update/delete vacation range into database. Start and end date by picker
-    + Paid/unpaid/Sick leave/Flex day. Localize:
-      + Absence-Paid vacation
-      + Absence-Unpaid vacation
-      + Absence-Sick leave
-      + Absence-Parental leave
-      + Absence-Other leave
-      + Absence-Flex day
-        + Flex time by date = -Work time by date estimate
   + App localization selection
++ AbsenceScreen
+  + Add/update/delete vacation range into database. Start and end date by picker
+  + Use CustomCalendar to show dates with work
+  + Paid/unpaid/Sick leave/Flex day. Localize:
+    + Absence-Paid vacation
+    + Absence-Unpaid vacation
+    + Absence-Sick leave
+    + Absence-Parental leave
+    + Absence-Other leave
+    + Absence-Flex day
+      + Flex time by date = -Work time by date estimate
 + Excel
   + Show start date in a month first, e.g. 15th.
   + Handle by selecting start date 

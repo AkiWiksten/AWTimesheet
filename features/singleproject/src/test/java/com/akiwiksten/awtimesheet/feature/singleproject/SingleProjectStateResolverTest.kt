@@ -19,11 +19,14 @@ class SingleProjectStateResolverTest {
         val result = currentState.withAbsenceLogic(
             previousState = previousState,
             settings = settings,
-            absencePrefix = "Absence"
+            absencePrefix = "Absence",
+            flexDayWorkType = "Absence-Flex day"
         )
 
         Assert.assertEquals("07:30", result.projectTime)
         Assert.assertEquals("Absence-Sick", result.projectName)
+        Assert.assertEquals("", result.kilometres)
+        Assert.assertEquals("", result.allowance)
     }
 
     @Test
@@ -35,11 +38,14 @@ class SingleProjectStateResolverTest {
         val result = currentState.withAbsenceLogic(
             previousState = previousState,
             settings = settings,
-            absencePrefix = "Poissaolo"
+            absencePrefix = "Poissaolo",
+            flexDayWorkType = "Poissaolo-Saldovapaa"
         )
 
         Assert.assertEquals("07:30", result.projectTime)
         Assert.assertEquals("Poissaolo-Sairas", result.projectName)
+        Assert.assertEquals("", result.kilometres)
+        Assert.assertEquals("", result.allowance)
     }
 
     @Test
@@ -51,7 +57,8 @@ class SingleProjectStateResolverTest {
         val result = currentState.withAbsenceLogic(
             previousState = previousState,
             settings = settings,
-            absencePrefix = "Absence"
+            absencePrefix = "Absence",
+            flexDayWorkType = "Absence-Flex day"
         )
 
         Assert.assertEquals("02:00", result.projectTime)
@@ -60,14 +67,19 @@ class SingleProjectStateResolverTest {
     @Test
     fun resolveFullInitialSingleProjectState_inAddMode_withAbsenceWorkType_setsInitialTimeAndName() {
         val args = SingleProjectScreenArgs(
-            initialSingleProjectState = projectState(index = -1, workType = "Absence-Sick")
+            initialSingleProjectState = projectState(listIndex = -1, workType = "Absence-Sick")
         )
         val settings = settingsState(dailyWorkTimeEstimate = "07:30")
         val argsWithSettings = args.copy(initialSettings = settings)
 
         val result = resolveFullInitialSingleProjectState(
-            args = argsWithSettings,
-            uiState = SingleProjectUiState.Loading,
+            uiState = SingleProjectUiState.Success(
+                data = argsWithSettings.initialSingleProjectState,
+                workTimeByDate = "00:00",
+                settings = argsWithSettings.initialSettings,
+                workTypes = emptyList(),
+                otherProjectNames = emptyList()
+            ),
             noAllowanceText = "None",
             defaultWorkTypeText = "Other",
             absencePrefix = "Absence"
@@ -75,5 +87,7 @@ class SingleProjectStateResolverTest {
 
         Assert.assertEquals("07:30", result.projectTime)
         Assert.assertEquals("Absence-Sick", result.projectName)
+        Assert.assertEquals("", result.kilometres)
+        Assert.assertEquals("", result.allowance)
     }
 }

@@ -39,6 +39,8 @@
 <string name="clear_details">Clear details</string>
 <string name="add_new_project_details">New project of the day! I recommend setting the start of the project first! That opens other options.</string>
 <string name="calendar">Calendar</string>
+<string name="absence">Absence</string>
+<string name="create_absence_title">Create absence</string>
 <string name="monthly_report">Monthly report</string>
 <string name="name">Name</string>
 <string name="employer">Employer</string>

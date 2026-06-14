@@ -1,8 +1,6 @@
 plugins {
     id("awtimesheet.android.base")
     alias(libs.plugins.android.library)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
     kotlin("plugin.parcelize")
 }
 
@@ -14,14 +12,14 @@ android {
 }
 
 dependencies {
+    val coroutinesCore = libs.kotlinx.coroutines.core
+
     implementation(project(":core"))
-    implementation(libs.kotlinx.coroutines.core)
+    implementation(coroutinesCore)
     implementation(libs.javax.inject)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
 
     testFixturesImplementation(project(":core"))
-    testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(coroutinesCore)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)

@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -26,32 +23,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
-import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDropdownFieldsSection
+import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDownSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
+import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectProjectNameField
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
-import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectUpperFieldsSection
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
-import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 
 @Composable
 internal fun SingleProjectScreenContent(
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     hasUnsavedChanges: Boolean,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onDiscardAndNavigateBack: () -> Unit = onNavigateBack
 ) {
+    val screenState = params.screenState
+    val actions = params.actions
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
         isLoading = screenState.uiState is SingleProjectUiState.Loading
     )
@@ -76,9 +75,10 @@ internal fun SingleProjectScreenContent(
     if (showUnsavedDialogState.value) {
         UnsavedChangesDialog(
             onDismiss = { showUnsavedDialogState.value = false },
-            onDiscard = onNavigateBack,
-            onSave = actions.onConfirm,
-            dialogText = unsavedMessage
+            onDiscard = onDiscardAndNavigateBack,
+            onSave = actions.onSave,
+            dialogText = unsavedMessage,
+            isSaveEnabled = screenState.isConfirmEnabled
         )
     }
 
@@ -89,8 +89,7 @@ internal fun SingleProjectScreenContent(
     ) { padding ->
         SingleProjectContentByUiState(
             padding = padding,
-            screenState = screenState,
-            actions = actions,
+            params = params,
             showLoadingIndicator = showLoadingIndicator,
             cachedSuccessState = lastSuccessState.value
         )
@@ -100,24 +99,22 @@ internal fun SingleProjectScreenContent(
 @Composable
 private fun SingleProjectContentByUiState(
     padding: PaddingValues,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     showLoadingIndicator: Boolean,
     cachedSuccessState: SingleProjectUiState.Success?
 ) {
+    val screenState = params.screenState
     when (screenState.uiState) {
         is SingleProjectUiState.Loading -> SingleProjectLoadingContent(
             padding = padding,
-            screenState = screenState,
-            actions = actions,
+            params = params,
             showLoadingIndicator = showLoadingIndicator,
             cachedSuccessState = cachedSuccessState
         )
 
         is SingleProjectUiState.Success -> SingleProjectSuccessContent(
             padding = padding,
-            screenState = screenState,
-            actions = actions,
+            params = params,
             uiState = screenState.uiState
         )
 
@@ -133,8 +130,7 @@ private fun SingleProjectContentByUiState(
 @Composable
 private fun SingleProjectLoadingContent(
     padding: PaddingValues,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     showLoadingIndicator: Boolean,
     cachedSuccessState: SingleProjectUiState.Success?
 ) {
@@ -147,10 +143,10 @@ private fun SingleProjectLoadingContent(
         return
     }
 
+    val screenState = params.screenState
     SingleProjectSuccessContent(
         padding = padding,
-        screenState = screenState,
-        actions = actions,
+        params = params,
         uiState = cachedSuccessState ?: SingleProjectUiState.Success(
             data = (screenState.uiState as? SingleProjectUiState.Success)?.data ?: screenState.state,
             workTimeByDate = ZERO_TIME,
@@ -162,10 +158,10 @@ private fun SingleProjectLoadingContent(
 @Composable
 private fun SingleProjectSuccessContent(
     padding: PaddingValues,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions,
+    params: SingleProjectScreenParams,
     uiState: SingleProjectUiState
 ) {
+    val screenState = params.screenState
     val successState = uiState as? SingleProjectUiState.Success
     val originalProjectTime = successState?.data?.projectTime ?: ""
     val baseWithoutCurrent = WorkTimeCalculator.calculateFlexTime(
@@ -180,8 +176,7 @@ private fun SingleProjectSuccessContent(
     SingleProjectContent(
         padding = padding,
         workTimeByDate = workTimeByDate,
-        screenState = screenState.copy(uiState = uiState),
-        actions = actions
+        params = params.copy(screenState = screenState.copy(uiState = uiState))
     )
 }
 
@@ -205,9 +200,9 @@ private fun SingleProjectTopSection(
 private fun SingleProjectContent(
     padding: PaddingValues,
     workTimeByDate: String,
-    screenState: SingleProjectScreenState,
-    actions: SingleProjectActions
+    params: SingleProjectScreenParams
 ) {
+    val screenState = params.screenState
     val scrollState = rememberScrollState()
     val defaultWorkTypeText = stringResource(id = R.string.other)
     val workTypes =
@@ -235,14 +230,17 @@ private fun SingleProjectContent(
             workTimeByDate = workTimeByDate
         )
 
+        if (screenState.isAddMode) {
+            NoteBanner(stringResource(id = R.string.project_name_note))
+        }
+
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             modifier = Modifier.fillMaxWidth()
         ) {
             SingleProjectFormFields(
-                screenState = screenState,
                 workTypes = workTypes,
-                actions = actions
+                params = params
             )
         }
 
@@ -252,12 +250,16 @@ private fun SingleProjectContent(
 
 @Composable
 private fun SingleProjectFormFields(
-    screenState: SingleProjectScreenState,
     workTypes: List<String>,
-    actions: SingleProjectActions
+    params: SingleProjectScreenParams
 ) {
-    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
-    val isFlexDay = screenState.state.workType == flexDayWorkType
+    val screenState = params.screenState
+    val actions = params.actions
+    val config = params.config
+    val isFlexDay = screenState.state.workType.equals(config.flexDayWorkType, ignoreCase = true)
+    val isAbsence = config.absencePrefix.isNotEmpty() &&
+        screenState.state.workType.startsWith(prefix = config.absencePrefix, ignoreCase = true)
+    val isAnyAbsence = isFlexDay || isAbsence
 
     Column(
         modifier = Modifier
@@ -266,35 +268,36 @@ private fun SingleProjectFormFields(
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        SingleProjectUpperFieldsSection(
-            state = screenState.state,
-            isAddMode = screenState.isAddMode,
-            isDuplicateProjectName = screenState.isDuplicateProjectName,
-            isFlexDay = isFlexDay,
-            onStateChange = actions.onStateChange
+        SingleProjectProjectNameField(
+            projectName = screenState.state.projectName,
+            onProjectNameChange = { actions.onStateChange(screenState.state.copy(projectName = it)) },
+            isEditable = screenState.isProjectNameEditable,
+            isError = screenState.isDuplicateProjectName
         )
 
         SingleProjectTimeSelectionSection(
             state = screenState.state,
             onOpenProjectDetails = actions.onOpenProjectDetails,
-            onStateChange = actions.onStateChange
+            onStateChange = actions.onStateChange,
+            isTimePickerDisabled = screenState.isTimePickerDisabled
         )
 
-        SingleProjectDropdownFieldsSection(
+        SingleProjectDownSection(
             state = screenState.state,
             workTypeDropDownList = workTypes,
-            isFlexDay = isFlexDay,
+            isAbsence = isAnyAbsence,
             onStateChange = actions.onStateChange
         )
 
-        Button(
-            onClick = actions.onConfirm,
+        AwtButton(
+            onClick = actions.onSave,
             enabled = screenState.isConfirmEnabled,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = DEFAULT_ELEVATION)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(id = R.string.save), style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = stringResource(id = R.string.save),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

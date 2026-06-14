@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
+import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenState
 import com.android.tools.screenshot.PreviewTest
 
@@ -25,7 +27,7 @@ private val PreviewScreenState = SingleProjectScreenState(
     date = PREVIEW_DATE,
     editedProjectIndex = -1,
     state = SingleProjectState(
-        index = 0,
+        listIndex = 0,
         date = PREVIEW_DATE,
         projectName = "Beta Support",
         projectTime = "03:30",
@@ -45,7 +47,9 @@ private val PreviewScreenState = SingleProjectScreenState(
         workTimeByDate = "07:45"
     ),
     isConfirmEnabled = true,
-    isDuplicateProjectName = false
+    isDuplicateProjectName = false,
+    isProjectNameEditable = true,
+    isTimePickerDisabled = false
 )
 
 @PreviewTest
@@ -71,11 +75,17 @@ private fun SingleProjectConstrainedPreviewContent() {
                 modifier = Modifier.fillMaxSize()
             ) {
                 SingleProjectScreenContent(
-                    screenState = PreviewScreenState,
-                    actions = SingleProjectActions(
-                        onStateChange = {},
-                        onOpenProjectDetails = {},
-                        onConfirm = {}
+                    params = SingleProjectScreenParams(
+                        screenState = PreviewScreenState,
+                        actions = SingleProjectActions(
+                            onStateChange = {},
+                            onOpenProjectDetails = {},
+                            onSave = {}
+                        ),
+                        config = SingleProjectConfiguration(
+                            absencePrefix = "Absence",
+                            flexDayWorkType = "Absence-Flex day"
+                        )
                     ),
                     hasUnsavedChanges = true,
                     onNavigateBack = {}

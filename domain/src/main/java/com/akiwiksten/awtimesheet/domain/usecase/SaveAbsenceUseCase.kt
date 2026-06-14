@@ -28,13 +28,15 @@ class SaveAbsenceUseCase @Inject constructor(
         isFlexDay: Boolean = false,
         includeWeekends: Boolean = false
     ) {
-        absenceRepository.insertAbsence(AbsenceState(
-            absenceType = absenceType,
-            startDate = startDate,
-            endDate = endDate,
-            includeWeekends = includeWeekends,
-            isFlexDay = isFlexDay
-        ))
+        absenceRepository.insertAbsence(
+            AbsenceState(
+                absenceType = absenceType,
+                startDate = startDate,
+                endDate = endDate,
+                includeWeekends = includeWeekends,
+                isFlexDay = isFlexDay
+            )
+        )
         
         val dailyWorkTimeEstimate = settingsRepository.getSettings()?.dailyWorkTimeEstimate
             ?.takeIf { it != ZERO_TIME && it.isNotEmpty() }

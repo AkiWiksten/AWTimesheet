@@ -51,12 +51,11 @@ class GetCalendarDataUseCase @Inject constructor(
             }
             datesWithWork = projectTimesMonth.mapTo(mutableSetOf()) { it.date }
             datesWithAbsence = projectTimesMonth
-                .filter { 
-                    absencePrefix.isNotEmpty() && 
-                    it.workType.startsWith(absencePrefix, ignoreCase = true) 
+                .filter {
+                    absencePrefix.isNotEmpty() &&
+                        it.workType.startsWith(absencePrefix, ignoreCase = true)
                 }
                 .mapTo(mutableSetOf()) { it.date }
-
             cachedMonth = requestedMonth
             cachedTimePerMonth = timePerMonth
             cachedDatesWithWork = datesWithWork

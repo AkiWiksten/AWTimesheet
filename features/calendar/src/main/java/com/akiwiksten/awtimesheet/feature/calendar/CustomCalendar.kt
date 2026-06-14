@@ -312,13 +312,11 @@ private fun DayCell(
     val hasAbsence = cellState.hasAbsence
     val backgroundColor = resolveDayCellBackground(isSelected, isToday)
     val textColor = resolveDayCellTextColor(isSelected, isToday, hasWork || hasAbsence)
-    
     val workBorderColor = when {
         hasAbsence -> MaterialTheme.colorScheme.error
         hasWork -> Color(0xFF4CAF50) // Green 500
         else -> Color.Transparent
     }
-    
     val todayBorderColor = if (isSelected) {
         MaterialTheme.colorScheme.onPrimary
     } else {

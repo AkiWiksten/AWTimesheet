@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 import com.akiwiksten.awtimesheet.core.ABSENCE_TABLE
 import com.akiwiksten.awtimesheet.core.ABSENCE_TYPE
 import com.akiwiksten.awtimesheet.core.END_DATE
-import com.akiwiksten.awtimesheet.core.INCLUDE_WEEKENDS
 import com.akiwiksten.awtimesheet.core.ID
+import com.akiwiksten.awtimesheet.core.INCLUDE_WEEKENDS
 import com.akiwiksten.awtimesheet.core.IS_FLEX_DAY
 import com.akiwiksten.awtimesheet.core.START_DATE
 import kotlinx.serialization.Serializable

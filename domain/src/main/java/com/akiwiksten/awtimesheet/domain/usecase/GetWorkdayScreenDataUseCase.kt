@@ -19,7 +19,8 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val projectNames = projectRepository.getProjectNames()
 
         val settings = settingsRepository.getEffectiveSettingsForDate(date)
-        val fallbackSettings = if (settings?.dailyWorkTimeEstimate == null || settings.dailyWorkTimeEstimate == ZERO_TIME) {
+        val fallbackSettings = if (settings?.dailyWorkTimeEstimate.isNullOrEmpty() ||
+            settings.dailyWorkTimeEstimate == ZERO_TIME) {
             settingsRepository.getSettings()
         } else {
             null
@@ -30,7 +31,9 @@ class GetWorkdayScreenDataUseCase @Inject constructor(
         val workTimeByDateEstimate = settings?.dailyWorkTimeEstimate
             ?.takeIf { it != ZERO_TIME && it.isNotEmpty() }
             ?: globalDailyWorkTimeEstimate
-        val initialFlexTimeTotal = settings?.initialFlexTimeTotal?.takeIf { it != ZERO_TIME && it.isNotEmpty() } ?: ZERO_TIME
+        val initialFlexTimeTotal = settings?.initialFlexTimeTotal?.takeIf {
+            it != ZERO_TIME && it.isNotEmpty()
+        } ?: ZERO_TIME
         val persistedFlexTimeDeltaTotal = settingsRepository.getCalculatedFlextimeTotal()
 
         return WorkdayScreenData(

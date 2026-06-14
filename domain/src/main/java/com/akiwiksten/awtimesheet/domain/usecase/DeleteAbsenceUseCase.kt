@@ -36,10 +36,12 @@ class DeleteAbsenceUseCase @Inject constructor(
             val isWeekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
             if (absenceState.includeWeekends || !isWeekend) {
                 val dateString = date.toString()
-                projectRepository.deleteProject(SingleProjectState(
-                    projectName = absenceState.absenceType,
-                    date = dateString
-                ))
+                projectRepository.deleteProject(
+                        SingleProjectState(
+                        projectName = absenceState.absenceType,
+                        date = dateString
+                    )
+                )
 
                 if (absenceState.isFlexDay) {
                     val workTimeByDate = workdayRepository.loadWorkday(dateString) ?: dailyWorkTimeEstimate

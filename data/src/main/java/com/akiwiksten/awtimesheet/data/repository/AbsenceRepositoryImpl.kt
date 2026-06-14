@@ -19,5 +19,4 @@ class AbsenceRepositoryImpl @Inject constructor(
     override suspend fun delete(absence: AbsenceState) {
         absenceDao.delete(absence.toEntity())
     }
-
 }

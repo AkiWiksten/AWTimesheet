@@ -77,7 +77,11 @@ class GetCalendarDataUseCaseTest {
         val useCase = GetCalendarDataUseCase(projectRepository)
 
         useCase("2026-04-10", "Absence") // 1st call: month + week + day
-        useCase(date = "2026-04-10", absencePrefix = "Absence", workTimeByDateChange = "02:30") // 2nd call: week + day only
+        useCase(
+            date = "2026-04-10",
+            absencePrefix = "Absence",
+            workTimeByDateChange = "02:30"
+        ) // 2nd call: week + day only
         useCase("2026-04-10", "Absence") // 3rd call: week + day only
 
         // 1 month fetch + 3×week + 3×day = 7 total range queries

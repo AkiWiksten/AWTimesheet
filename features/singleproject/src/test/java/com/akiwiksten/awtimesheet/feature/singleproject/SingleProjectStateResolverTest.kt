@@ -19,7 +19,8 @@ class SingleProjectStateResolverTest {
         val result = currentState.withAbsenceLogic(
             previousState = previousState,
             settings = settings,
-            absencePrefix = "Absence"
+            absencePrefix = "Absence",
+            flexDayWorkType = "Absence-Flex day"
         )
 
         Assert.assertEquals("07:30", result.projectTime)
@@ -37,7 +38,8 @@ class SingleProjectStateResolverTest {
         val result = currentState.withAbsenceLogic(
             previousState = previousState,
             settings = settings,
-            absencePrefix = "Poissaolo"
+            absencePrefix = "Poissaolo",
+            flexDayWorkType = "Poissaolo-Saldovapaa"
         )
 
         Assert.assertEquals("07:30", result.projectTime)
@@ -55,7 +57,8 @@ class SingleProjectStateResolverTest {
         val result = currentState.withAbsenceLogic(
             previousState = previousState,
             settings = settings,
-            absencePrefix = "Absence"
+            absencePrefix = "Absence",
+            flexDayWorkType = "Absence-Flex day"
         )
 
         Assert.assertEquals("02:00", result.projectTime)

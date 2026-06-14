@@ -22,7 +22,6 @@ internal fun SingleProjectState.withAbsenceLogic(
     val isFlexDay = workType.equals(flexDayWorkType, ignoreCase = true)
     val isAbsence = absencePrefix.isNotEmpty() && workType.startsWith(prefix = absencePrefix, ignoreCase = true)
     val isAnyAbsence = isFlexDay || isAbsence
-    
     val workTypeChanged = workType != previousState.workType
     return if (isAnyAbsence && workTypeChanged) {
         val estimate = settings?.dailyWorkTimeEstimate

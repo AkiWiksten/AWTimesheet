@@ -17,11 +17,12 @@ internal fun isSingleProjectConfirmEnabled(
     hasUnsavedChanges: Boolean,
     isDuplicateProjectName: Boolean,
     isAddMode: Boolean,
-    hasProjectDetails: Boolean = false
+    hasProjectDetails: Boolean = false,
 ): Boolean {
     if (isDuplicateProjectName) return false
     val hasProjectName = state.projectName.isNotBlank()
-    val hasProjectTime = state.projectTime.isNotBlank() && hasProjectDetails
+    val hasProjectTime = state.projectTime.isNotBlank() &&
+        ((state.projectTime != ZERO_TIME) || hasProjectDetails)
 
     val hasProjectNameAndTime = hasProjectName && hasProjectTime
 

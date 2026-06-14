@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,11 +21,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
-import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
-import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
@@ -42,6 +37,7 @@ import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDownSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
+import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectProjectNameField
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
@@ -272,28 +268,11 @@ private fun SingleProjectFormFields(
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        OutlinedTextField(
-            value = screenState.state.projectName,
-            onValueChange = { actions.onStateChange(screenState.state.copy(projectName = it)) },
-            label = {
-                Text(
-                    text = stringResource(id = R.string.project_name),
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = screenState.isProjectNameEditable,
-            singleLine = true,
-            isError = screenState.isDuplicateProjectName,
-            supportingText = if (screenState.isDuplicateProjectName) {
-                { Text(text = stringResource(id = R.string.project_name_duplicate_error)) }
-            } else {
-                null
-            },
-            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+        SingleProjectProjectNameField(
+            projectName = screenState.state.projectName,
+            onProjectNameChange = { actions.onStateChange(screenState.state.copy(projectName = it)) },
+            isEditable = screenState.isProjectNameEditable,
+            isError = screenState.isDuplicateProjectName
         )
 
         SingleProjectTimeSelectionSection(

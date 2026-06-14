@@ -39,7 +39,6 @@ import androidx.core.text.isDigitsOnly
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
-import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
@@ -253,6 +252,38 @@ internal fun SingleProjectTimeSelectionSection(
         onOpenTimePicker = { openTimePickerDialogState.value = true },
         onStateChange = onStateChange,
         isTimePickerDisabled = isTimePickerDisabled
+    )
+}
+
+@Composable
+internal fun SingleProjectProjectNameField(
+    projectName: String,
+    onProjectNameChange: (String) -> Unit,
+    isEditable: Boolean,
+    isError: Boolean
+) {
+    OutlinedTextField(
+        value = projectName,
+        onValueChange = onProjectNameChange,
+        label = {
+            Text(
+                text = stringResource(id = R.string.project_name),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        enabled = isEditable,
+        singleLine = true,
+        isError = isError,
+        supportingText = if (isError) {
+            { Text(text = stringResource(id = R.string.project_name_duplicate_error)) }
+        } else {
+            null
+        },
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
     )
 }
 

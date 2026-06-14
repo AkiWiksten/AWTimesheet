@@ -102,7 +102,6 @@ private fun ProjectDetailsScreenStateful(
     val settings = uiState.settings
     val persistedProjectTime = uiState.persistedProjectTime
     val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
-    val timeFormatter = remember { DateTimeFormatter.ofPattern(TIME_FORMAT) }
 
     // Keep in-progress edits through configuration changes, reset when baseline data changes.
     var state by rememberSaveable(initialDetails) {
@@ -124,7 +123,6 @@ private fun ProjectDetailsScreenStateful(
     val actions = rememberProjectDetailsActions(
         state = state,
         settings = settings,
-        timeFormatter = timeFormatter,
         onStateChange = { state = it },
         onConfirm = { onConfirm(state) },
         onDeleteDetails = { onDeleteDetails(state) }
@@ -162,11 +160,11 @@ private fun ProjectDetailsScreenStateful(
 private fun rememberProjectDetailsActions(
     state: ProjectDetailsState,
     settings: SettingsState,
-    timeFormatter: DateTimeFormatter,
     onStateChange: (ProjectDetailsState) -> Unit,
     onConfirm: () -> Unit,
     onDeleteDetails: () -> Unit
 ): ProjectDetailsScreenActions {
+    val timeFormatter = remember { DateTimeFormatter.ofPattern(TIME_FORMAT) }
     return remember(state, settings) {
         ProjectDetailsScreenActions(
             onClearDetails = {

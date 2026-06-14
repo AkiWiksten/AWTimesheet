@@ -41,10 +41,12 @@ fun SingleProjectScreen(
     val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
 
     val openProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit = { state, currentDetails ->
-        val details = (currentDetails ?: ProjectDetailsState(
-            date = state.date,
-            projectName = state.projectName
-        )).copy(projectTime = state.projectTime)
+        val details = (
+            currentDetails ?: ProjectDetailsState(
+                date = state.date,
+                projectName = state.projectName
+            )
+            ).copy(projectTime = state.projectTime)
         navigationActions.onOpenProjectDetails(state, details)
     }
 

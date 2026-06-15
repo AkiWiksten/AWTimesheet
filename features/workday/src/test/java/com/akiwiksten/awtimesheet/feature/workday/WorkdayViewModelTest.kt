@@ -567,8 +567,14 @@ class WorkdayViewModelTest {
         advanceUntilIdle()
 
         Assert.assertEquals(listOf("Alpha"), projectRepository.deletedProjectNames)
-        Assert.assertEquals(emptyList<com.akiwiksten.awtimesheet.domain.model.SingleProjectState>(), projectRepository.deletedProjects)
-        Assert.assertEquals(emptyList<com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState>(), projectDetailsRepository.deletedProjectDetails)
+        Assert.assertEquals(
+            emptyList<com.akiwiksten.awtimesheet.domain.model.SingleProjectState>(),
+            projectRepository.deletedProjects
+        )
+        Assert.assertEquals(
+            emptyList<com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState>(),
+            projectDetailsRepository.deletedProjectDetails
+        )
         Assert.assertEquals("01:00", dateRepository.workTimeByDateChange.value)
         Assert.assertEquals("01:00", settingsRepository.calculatedFlexTimeTotal)
     }

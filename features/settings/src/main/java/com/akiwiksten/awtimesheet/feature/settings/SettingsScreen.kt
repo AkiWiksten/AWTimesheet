@@ -22,6 +22,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
+import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationScope
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
@@ -235,10 +236,16 @@ internal fun createSettingsActions(
             )
         },
         onGenerateWorkdaysForMonth = {
-            settingsViewModel.generateWorkdaysForSelectedMonth(generatedAllowanceLabels)
+            settingsViewModel.generateWorkdaysForSelected(
+                scope = WorkdayGenerationScope.MONTH,
+                allowanceLabels = generatedAllowanceLabels
+            )
         },
         onGenerateWorkdaysForYear = {
-            settingsViewModel.generateWorkdaysForSelectedYear(generatedAllowanceLabels)
+            settingsViewModel.generateWorkdaysForSelected(
+                scope = WorkdayGenerationScope.YEAR,
+                allowanceLabels = generatedAllowanceLabels
+            )
         }
     )
 }

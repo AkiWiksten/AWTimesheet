@@ -219,61 +219,24 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun generateWorkdaysForSelectedMonth(
-        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
-    ) {
-        generateWorkdays(
-            scope = WorkdayGenerationScope.MONTH,
-            mode = WorkdayGenerationMode.INSERT_MISSING,
-            allowanceLabels = allowanceLabels
-        )
-    }
-
-    fun generateWorkdaysForSelectedYear(
-        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
-    ) {
-        generateWorkdays(
-            scope = WorkdayGenerationScope.YEAR,
-            mode = WorkdayGenerationMode.INSERT_MISSING,
-            allowanceLabels = allowanceLabels
-        )
-    }
-
-    private fun generateWorkdays(
+    fun generateWorkdaysForSelected(
         scope: WorkdayGenerationScope,
-        mode: WorkdayGenerationMode,
-        allowanceLabels: GeneratedAllowanceLabels
+        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
     ) {
         viewModelScope.launch {
-            try {
-                val selectedDate = (_uiState.value as? SettingsUiState.Success)?.selectedDate
-                    ?.takeIf { it.isNotBlank() }
-                    ?: dateRepository.selectedDate.value
-
-                val result = generateWorkdaysUseCase(
-                    selectedDate = selectedDate,
+            runWorkdayGeneration(
+                context = WorkdayGenerationContext(
+                    uiState = uiState,
+                    generateWorkdaysUseCase = generateWorkdaysUseCase,
+                    dateRepository = dateRepository,
+                    events = _events
+                ),
+                request = WorkdayGenerationRequest(
                     scope = scope,
-                    mode = mode,
+                    mode = WorkdayGenerationMode.INSERT_MISSING,
                     allowanceLabels = allowanceLabels
                 )
-
-                dateRepository.notifyCalendarDataChanged()
-
-                _events.emit(
-                    SettingsEvent.WorkdayGenerationSuccess(
-                        mode = mode,
-                        insertedCount = result.insertedWorkdays,
-                        updatedCount = result.updatedWorkdays,
-                        weekdayCandidates = result.weekdayCandidates,
-                        startDate = result.startDate,
-                        endDate = result.endDate
-                    )
-                )
-            } catch (e: IllegalArgumentException) {
-                _events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
-            } catch (e: IllegalStateException) {
-                _events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
-            }
+            )
         }
     }
 
@@ -301,9 +264,7 @@ class SettingsViewModel @Inject constructor(
             try {
                 val currentState = _uiState.value
                 if (currentState is SettingsUiState.Success) {
-                    saveSettingsUseCase(
-                        settings = currentState.data
-                    )
+                    saveSettingsUseCase(settings = currentState.data)
                     dateRepository.notifyCalendarDataChanged()
                 }
             } catch (e: IllegalArgumentException) {
@@ -321,6 +282,55 @@ private fun defaultGeneratedAllowanceLabels(): GeneratedAllowanceLabels {
         fullAllowance = "Full allowance",
         halfDayAllowance = "Half-day allowance"
     )
+}
+
+private data class WorkdayGenerationContext(
+    val uiState: StateFlow<SettingsUiState>,
+    val generateWorkdaysUseCase: GenerateWorkdaysUseCase,
+    val dateRepository: DateRepository,
+    val events: MutableSharedFlow<SettingsEvent>
+)
+
+private data class WorkdayGenerationRequest(
+    val scope: WorkdayGenerationScope,
+    val mode: WorkdayGenerationMode,
+    val allowanceLabels: GeneratedAllowanceLabels
+)
+
+private suspend fun runWorkdayGeneration(
+    context: WorkdayGenerationContext,
+    request: WorkdayGenerationRequest
+) {
+    try {
+        val selectedDate = (context.uiState.value as? SettingsUiState.Success)
+            ?.selectedDate
+            ?.takeIf { it.isNotBlank() }
+            ?: context.dateRepository.selectedDate.value
+
+        val result = context.generateWorkdaysUseCase(
+            selectedDate = selectedDate,
+            scope = request.scope,
+            mode = request.mode,
+            allowanceLabels = request.allowanceLabels
+        )
+
+        context.dateRepository.notifyCalendarDataChanged()
+
+        context.events.emit(
+            SettingsEvent.WorkdayGenerationSuccess(
+                mode = request.mode,
+                insertedCount = result.insertedWorkdays,
+                updatedCount = result.updatedWorkdays,
+                weekdayCandidates = result.weekdayCandidates,
+                startDate = result.startDate,
+                endDate = result.endDate
+            )
+        )
+    } catch (e: IllegalArgumentException) {
+        context.events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
+    } catch (e: IllegalStateException) {
+        context.events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
+    }
 }
 
 private fun MutableStateFlow<SettingsUiState>.updateSelectedDate(date: String) {

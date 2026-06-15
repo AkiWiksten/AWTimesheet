@@ -129,7 +129,7 @@ class SettingsViewModelTest {
 
         viewModel.loadSettings()
         advanceUntilIdle()
-        viewModel.setName("Edited Name")
+        viewModel.updateSettingsData { it.copy(name = "Edited Name") }
 
         dateRepository.updateDate("2026-05-10")
         advanceUntilIdle()
@@ -148,7 +148,7 @@ class SettingsViewModelTest {
 
         viewModel.loadSettings()
         advanceUntilIdle()
-        viewModel.setName("New Name")
+        viewModel.updateSettingsData { it.copy(name = "New Name") }
         viewModel.addWorkType("Office")
         viewModel.saveSettings()
         advanceUntilIdle()

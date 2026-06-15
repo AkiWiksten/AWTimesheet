@@ -139,16 +139,61 @@ class SingleProjectViewModelTest {
         Assert.assertEquals("04:30", dateRepository.workTimeByDateChange.value)
     }
 
+    @Test
+    fun initializeState_fetchesProjectDetailsFromRepository_whenNotProvidedInArgs() = runTest {
+        val dateRepository = InMemoryDateRepository().apply { updateDate("2026-04-10") }
+        val projectRepository = FakeProjectRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            insertProjectDetails(
+                com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    startTime = "08:00"
+                )
+            )
+        }
+
+        val viewModel = SingleProjectViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            saveWorkdayUseCase = SaveWorkdayUseCase(
+                projectRepository,
+                projectDetailsRepository,
+                FakeSettingsRepository(),
+                FakeWorkdayRepository()
+            ),
+            settingsRepository = FakeSettingsRepository(),
+            dateRepository = dateRepository
+        )
+
+        viewModel.initializeState(
+            args = SingleProjectRouteArgs(
+                projectName = "Alpha",
+                projectTime = "02:00",
+                isAddMode = false,
+                listIndex = 0,
+                projectDetails = null
+            )
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as SingleProjectUiState.Success
+        Assert.assertNotNull(state.projectDetails)
+        Assert.assertEquals("08:00", state.projectDetails?.startTime)
+    }
+
     private fun createViewModel(
         projectRepository: FakeProjectRepository,
         dateRepository: DateRepository
     ): SingleProjectViewModel {
         val settingsRepository = FakeSettingsRepository()
+        val projectDetailsRepository = FakeProjectDetailsRepository()
         return SingleProjectViewModel(
             projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
             saveWorkdayUseCase = SaveWorkdayUseCase(
                 projectRepository = projectRepository,
-                projectDetailsRepository = FakeProjectDetailsRepository(),
+                projectDetailsRepository = projectDetailsRepository,
                 settingsRepository = settingsRepository,
                 workdayRepository = FakeWorkdayRepository()
             ),

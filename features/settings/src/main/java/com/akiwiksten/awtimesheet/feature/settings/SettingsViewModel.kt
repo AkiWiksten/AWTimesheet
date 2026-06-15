@@ -15,12 +15,11 @@ import com.akiwiksten.awtimesheet.domain.usecase.SaveSettingsUseCase
 import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationMode
 import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -73,8 +72,8 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<SettingsEvent>(extraBufferCapacity = 1)
-    val events: SharedFlow<SettingsEvent> = _events.asSharedFlow()
+    private val _events = Channel<SettingsEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
 
     init {
         viewModelScope.launch {
@@ -86,48 +85,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setName(name: String) {
+    fun updateSettingsData(transform: (SettingsState) -> SettingsState) {
         val currentState = _uiState.value
         if (currentState is SettingsUiState.Success) {
-            _uiState.value = currentState.copy(
-                data = currentState.data.copy(name = name)
-            )
-        }
-    }
-
-    fun setEmployer(employer: String) {
-        val currentState = _uiState.value
-        if (currentState is SettingsUiState.Success) {
-            _uiState.value = currentState.copy(
-                data = currentState.data.copy(employer = employer)
-            )
-        }
-    }
-
-    fun setDailyWorkTimeEstimate(dailyWorkTimeEstimate: String) {
-        val currentState = _uiState.value
-        if (currentState is SettingsUiState.Success) {
-            _uiState.value = currentState.copy(
-                data = currentState.data.copy(dailyWorkTimeEstimate = dailyWorkTimeEstimate)
-            )
-        }
-    }
-
-    fun setDailyLunchTimeEstimate(dailyLunchTimeEstimate: String) {
-        val currentState = _uiState.value
-        if (currentState is SettingsUiState.Success) {
-            _uiState.value = currentState.copy(
-                data = currentState.data.copy(dailyLunchTimeEstimate = dailyLunchTimeEstimate)
-            )
-        }
-    }
-
-    fun setInitialFlexTimeTotal(initialFlexTimeTotal: String) {
-        val currentState = _uiState.value
-        if (currentState is SettingsUiState.Success) {
-            _uiState.value = currentState.copy(
-                data = currentState.data.copy(initialFlexTimeTotal = initialFlexTimeTotal)
-            )
+            _uiState.value = currentState.copy(data = transform(currentState.data))
         }
     }
 
@@ -178,16 +139,6 @@ class SettingsViewModel @Inject constructor(
             settingsRepository.deleteWorkType(workType)
         }
     }
-
-    fun setEnableTestFeatures(enableTestFeatures: Boolean) {
-        val currentState = _uiState.value
-        if (currentState is SettingsUiState.Success) {
-            _uiState.value = currentState.copy(
-                data = currentState.data.copy(enableTestFeatures = enableTestFeatures)
-            )
-        }
-    }
-
     fun requestMonthlyReport(
         name: String,
         employer: String
@@ -199,9 +150,9 @@ class SettingsViewModel @Inject constructor(
                     ?: dateRepository.selectedDate.value
                 val monthlyResult = getProjectsByMonthUseCase.getMonthlyProjects(selectedDate)
                 if (monthlyResult.projects.isEmpty()) {
-                    _events.emit(SettingsEvent.NoProjectsForMonth)
+                    _events.send(SettingsEvent.NoProjectsForMonth)
                 } else {
-                    _events.emit(
+                    _events.send(
                         SettingsEvent.TimesheetReportReady(
                             projectsByMonth = monthlyResult.projects,
                             endOfMonthDate = monthlyResult.endOfMonth,
@@ -212,16 +163,16 @@ class SettingsViewModel @Inject constructor(
                     )
                 }
             } catch (e: IllegalArgumentException) {
-                _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
+                _events.send(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
             } catch (e: IllegalStateException) {
-                _events.emit(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
+                _events.send(SettingsEvent.MonthlyReportError("Failed to load projects: ${e.message}"))
             }
         }
     }
 
     fun generateWorkdaysForSelected(
         scope: WorkdayGenerationScope,
-        allowanceLabels: GeneratedAllowanceLabels = defaultGeneratedAllowanceLabels()
+        allowanceLabels: GeneratedAllowanceLabels
     ) {
         viewModelScope.launch {
             runWorkdayGeneration(
@@ -229,7 +180,7 @@ class SettingsViewModel @Inject constructor(
                     uiState = uiState,
                     generateWorkdaysUseCase = generateWorkdaysUseCase,
                     dateRepository = dateRepository,
-                    events = _events
+                    emitEvent = _events::send
                 ),
                 request = WorkdayGenerationRequest(
                     scope = scope,
@@ -276,19 +227,11 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
-private fun defaultGeneratedAllowanceLabels(): GeneratedAllowanceLabels {
-    return GeneratedAllowanceLabels(
-        noAllowance = "No allowance",
-        fullAllowance = "Full allowance",
-        halfDayAllowance = "Half-day allowance"
-    )
-}
-
 private data class WorkdayGenerationContext(
     val uiState: StateFlow<SettingsUiState>,
     val generateWorkdaysUseCase: GenerateWorkdaysUseCase,
     val dateRepository: DateRepository,
-    val events: MutableSharedFlow<SettingsEvent>
+    val emitEvent: suspend (SettingsEvent) -> Unit
 )
 
 private data class WorkdayGenerationRequest(
@@ -316,7 +259,7 @@ private suspend fun runWorkdayGeneration(
 
         context.dateRepository.notifyCalendarDataChanged()
 
-        context.events.emit(
+        context.emitEvent(
             SettingsEvent.WorkdayGenerationSuccess(
                 mode = request.mode,
                 insertedCount = result.insertedWorkdays,
@@ -327,9 +270,9 @@ private suspend fun runWorkdayGeneration(
             )
         )
     } catch (e: IllegalArgumentException) {
-        context.events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
+        context.emitEvent(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
     } catch (e: IllegalStateException) {
-        context.events.emit(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
+        context.emitEvent(SettingsEvent.WorkdayGenerationError(e.message ?: "Unknown error"))
     }
 }
 

@@ -36,6 +36,7 @@
     <string name="half_day_allowance">Halvdagstraktamente</string>
     <string name="full_allowance">Heldagstraktamente</string>
     <string name="allowance">Traktamente</string>
+    <string name="comment">Kommentar</string>
     <string name="kilometres">Kilometer</string>
     <string name="total_sum">TOTALSUMMA</string>
     <string name="work_time_by_date">Arbetstid per datum</string>

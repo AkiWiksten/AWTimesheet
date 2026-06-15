@@ -36,6 +36,7 @@
     <string name="half_day_allowance">Puolipäiväraha</string>
     <string name="full_allowance">Täysi päiväraha</string>
     <string name="allowance">Päiväraha</string>
+    <string name="comment">Kommentti</string>
     <string name="kilometres">Kilometrit</string>
     <string name="total_sum">KOKONAISSUMMA</string>
     <string name="work_time_by_date">Päivän työaika</string>

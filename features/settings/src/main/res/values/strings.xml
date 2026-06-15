@@ -51,6 +51,7 @@
     <string name="half_day_allowance">Half-day allowance</string>
     <string name="full_allowance">Full allowance</string>
     <string name="allowance">Allowance</string>
+    <string name="comment">Comment</string>
     <string name="kilometres">Kilometres</string>
     <string name="total_sum">TOTAL SUM</string>
 </resources>

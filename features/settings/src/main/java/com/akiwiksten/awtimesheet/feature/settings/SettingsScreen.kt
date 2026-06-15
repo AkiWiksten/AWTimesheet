@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNaming")
+
 package com.akiwiksten.awtimesheet.feature.settings
 
 import android.widget.Toast
@@ -220,14 +222,26 @@ internal fun createSettingsActions(
     generatedAllowanceLabels: GeneratedAllowanceLabels
 ): SettingsActions {
     return SettingsActions(
-        onNameChange = settingsViewModel::setName,
-        onEmployerChange = settingsViewModel::setEmployer,
-        onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
-        onDailyLunchTimeEstimateChange = settingsViewModel::setDailyLunchTimeEstimate,
-        onInitialFlexTimeTotalChange = settingsViewModel::setInitialFlexTimeTotal,
+        onNameChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(name = it) }
+        },
+        onEmployerChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(employer = it) }
+        },
+        onDailyWorkTimeEstimateChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(dailyWorkTimeEstimate = it) }
+        },
+        onDailyLunchTimeEstimateChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(dailyLunchTimeEstimate = it) }
+        },
+        onInitialFlexTimeTotalChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(initialFlexTimeTotal = it) }
+        },
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
-        onEnableTestFeaturesChange = settingsViewModel::setEnableTestFeatures,
+        onEnableTestFeaturesChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(enableTestFeatures = it) }
+        },
         onSave = { settingsViewModel.saveSettings() },
         onGenerateXlsx = {
             settingsViewModel.requestMonthlyReport(

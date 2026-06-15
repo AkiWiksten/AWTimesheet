@@ -83,6 +83,9 @@ internal fun rememberSettingsSaveUi(
         mutableStateOf(value = data.initialFlexTimeTotal)
     }
     val lastSavedWorkTypesState = remember(selectedDate) { mutableStateOf(value = data.workTypes) }
+    val lastSavedEnableTestFeaturesState = remember(selectedDate) {
+        mutableStateOf(value = data.enableTestFeatures)
+    }
 
     val hasUnsavedChanges =
         hasChanges(current = data.name, baseline = lastSavedNameState.value) ||
@@ -99,7 +102,8 @@ internal fun rememberSettingsSaveUi(
                 current = data.initialFlexTimeTotal,
                 baseline = lastSavedInitialFlexTimeTotalState.value
             ) ||
-            hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value)
+            hasChanges(current = data.workTypes, baseline = lastSavedWorkTypesState.value) ||
+            hasChanges(current = data.enableTestFeatures, baseline = lastSavedEnableTestFeaturesState.value)
     val isInitialFlexTimeTotalError = remember(data.initialFlexTimeTotal) {
         !data.initialFlexTimeTotal.matches(INITIAL_FLEX_TIME_TOTAL_INPUT_REGEX)
     }
@@ -120,6 +124,7 @@ internal fun rememberSettingsSaveUi(
                 lastSavedDailyLunchTimeEstimateState.value = data.dailyLunchTimeEstimate
                 lastSavedInitialFlexTimeTotalState.value = data.initialFlexTimeTotal
                 lastSavedWorkTypesState.value = data.workTypes
+                lastSavedEnableTestFeaturesState.value = data.enableTestFeatures
                 Toast.makeText(context, savedText, Toast.LENGTH_SHORT).show()
             }
         }

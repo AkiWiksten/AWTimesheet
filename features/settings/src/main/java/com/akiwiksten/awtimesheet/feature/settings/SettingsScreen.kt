@@ -226,6 +226,7 @@ internal fun createSettingsActions(
         onInitialFlexTimeTotalChange = settingsViewModel::setInitialFlexTimeTotal,
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
+        onEnableTestFeaturesChange = settingsViewModel::setEnableTestFeatures,
         onSave = { settingsViewModel.saveSettings() },
         onGenerateXlsx = {
             settingsViewModel.requestMonthlyReport(

@@ -14,6 +14,7 @@ data class SettingsActions(
     val onInitialFlexTimeTotalChange: (String) -> Unit,
     val onWorkTypeAdded: (String) -> Unit,
     val onWorkTypeRemoved: (String) -> Unit,
+    val onEnableTestFeaturesChange: (Boolean) -> Unit,
     val onSave: () -> Unit,
     val onGenerateXlsx: () -> Unit,
     val onGenerateWorkdaysForMonth: () -> Unit,
@@ -109,7 +110,8 @@ internal data class SettingsActionButtonsSectionState(
     val onGenerateWorkdaysForMonth: () -> Unit,
     val onGenerateWorkdaysForYear: () -> Unit,
     val isReportEnabled: Boolean,
-    val isSaveEnabled: Boolean
+    val isSaveEnabled: Boolean,
+    val isTestFeaturesEnabled: Boolean
 )
 
 internal data class SettingsContentState(

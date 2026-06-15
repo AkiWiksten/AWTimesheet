@@ -44,6 +44,9 @@ internal fun SettingsActionButtonsSection(
         ) {
             Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
+        if (state.isReportEnabled) {
+            NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx))
+        }
         AwtButton(
             onClick = state.onGenerateXlsx,
             enabled = state.isReportEnabled,
@@ -51,22 +54,21 @@ internal fun SettingsActionButtonsSection(
         ) {
             Text(text = stringResource(id = R.string.generate_xlsx), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
-        AwtButton(
-            onClick = state.onGenerateWorkdaysForMonth,
-            enabled = state.isReportEnabled,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(id = R.string.generate_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
-        }
-        AwtButton(
-            onClick = state.onGenerateWorkdaysForYear,
-            enabled = state.isReportEnabled,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
-        }
-        if (state.isReportEnabled) {
-            NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx))
+        if (state.isTestFeaturesEnabled) {
+            AwtButton(
+                onClick = state.onGenerateWorkdaysForMonth,
+                enabled = state.isReportEnabled,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(id = R.string.generate_workdays_month), fontSize = ACTION_BUTTON_FONT_SIZE)
+            }
+            AwtButton(
+                onClick = state.onGenerateWorkdaysForYear,
+                enabled = state.isReportEnabled,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(id = R.string.generate_workdays_year), fontSize = ACTION_BUTTON_FONT_SIZE)
+            }
         }
     }
 }

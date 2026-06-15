@@ -20,7 +20,11 @@ class SaveSettingsUseCase @Inject constructor(
         settings.workTypes.forEach { workType ->
             settingsRepository.insertWorkType(workType)
         }
-        settingsRepository.insertSettings(SettingsState(name = settings.name, employer = settings.employer))
+        settingsRepository.insertSettings(SettingsState(
+            name = settings.name,
+            employer = settings.employer,
+            enableTestFeatures = settings.enableTestFeatures
+        ))
 
         val existingGlobalStats = settingsRepository.getSettings()
         val shouldPersistGlobalStats =
@@ -34,7 +38,8 @@ class SaveSettingsUseCase @Inject constructor(
                 SettingsState(
                     dailyWorkTimeEstimate = settings.dailyWorkTimeEstimate,
                     dailyLunchTimeEstimate = settings.dailyLunchTimeEstimate,
-                    initialFlexTimeTotal = settings.initialFlexTimeTotal
+                    initialFlexTimeTotal = settings.initialFlexTimeTotal,
+                    enableTestFeatures = settings.enableTestFeatures
                 )
             )
 

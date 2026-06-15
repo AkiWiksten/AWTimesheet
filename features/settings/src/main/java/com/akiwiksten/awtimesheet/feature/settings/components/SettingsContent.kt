@@ -213,7 +213,8 @@ private fun SettingsContentBody(
                 onGenerateWorkdaysForMonth = state.actions.onGenerateWorkdaysForMonth,
                 onGenerateWorkdaysForYear = state.actions.onGenerateWorkdaysForYear,
                 isReportEnabled = state.uiState.selectedDate.isNotBlank(),
-                isSaveEnabled = state.settingsSaveUi.isSaveEnabled
+                isSaveEnabled = state.settingsSaveUi.isSaveEnabled,
+                isTestFeaturesEnabled = state.uiState.data.enableTestFeatures
             )
         )
 

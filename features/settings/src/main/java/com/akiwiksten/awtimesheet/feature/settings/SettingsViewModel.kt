@@ -179,6 +179,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setEnableTestFeatures(enableTestFeatures: Boolean) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Success) {
+            _uiState.value = currentState.copy(
+                data = currentState.data.copy(enableTestFeatures = enableTestFeatures)
+            )
+        }
+    }
+
     fun requestMonthlyReport(
         name: String,
         employer: String

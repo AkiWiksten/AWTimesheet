@@ -59,6 +59,7 @@ private fun SettingsPreviewContent(uiState: SettingsUiState) {
                         onInitialFlexTimeTotalChange = {},
                         onWorkTypeAdded = {},
                         onWorkTypeRemoved = {},
+                        onEnableTestFeaturesChange = {},
                         onSave = {},
                         onGenerateXlsx = {},
                         onGenerateWorkdaysForMonth = {},

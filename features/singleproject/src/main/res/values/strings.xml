@@ -22,5 +22,8 @@
     <string name="full_allowance">Full allowance</string>
     <string name="half_day_allowance">Half-day allowance</string>
     <string name="project_name_note">Add a good project name. You cannot change it after you press \'Save\' in here.</string>
+    <string name="comment">Comment</string>
+    <string name="comment_dialog_title">Edit comment</string>
+    <string name="ok">OK</string>
 </resources>
 

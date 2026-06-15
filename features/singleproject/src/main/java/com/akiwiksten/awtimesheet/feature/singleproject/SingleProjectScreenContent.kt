@@ -35,6 +35,7 @@ import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectCommentField
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDownSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectProjectNameField
@@ -287,6 +288,11 @@ private fun SingleProjectFormFields(
             workTypeDropDownList = workTypes,
             isAbsence = isAnyAbsence,
             onStateChange = actions.onStateChange
+        )
+
+        SingleProjectCommentField(
+            comment = screenState.state.comment,
+            onCommentChange = { actions.onStateChange(screenState.state.copy(comment = it)) }
         )
 
         AwtButton(

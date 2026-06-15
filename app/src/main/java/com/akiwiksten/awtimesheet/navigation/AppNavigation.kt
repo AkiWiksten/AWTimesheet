@@ -130,6 +130,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             kilometres = screen.kilometres,
             allowance = screen.allowance,
             workType = screen.workType,
+            comment = screen.comment,
             projectDetails = if (screen.details == null) {
                 null
             } else {
@@ -198,7 +199,8 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
             projectTime = singleProject.projectTime,
             kilometres = singleProject.kilometres,
             allowance = singleProject.allowance,
-            workType = singleProject.workType
+            workType = singleProject.workType,
+            comment = singleProject.comment
         )
     }
 }

@@ -14,6 +14,7 @@ data class SingleProjectState(
     val allowance: String = "",
     val workType: String = "",
     val date: String = "",
+    val comment: String = "",
 ) : Parcelable
 
 fun SingleProjectState.isProjectNameOnlyPlaceholder(): Boolean {

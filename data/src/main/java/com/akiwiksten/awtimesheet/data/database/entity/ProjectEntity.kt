@@ -8,6 +8,7 @@ import com.akiwiksten.awtimesheet.core.DATE
 import com.akiwiksten.awtimesheet.core.KILOMETRES
 import com.akiwiksten.awtimesheet.core.PROJECT_NAME
 import com.akiwiksten.awtimesheet.core.PROJECT_TABLE
+import com.akiwiksten.awtimesheet.core.COMMENT
 import com.akiwiksten.awtimesheet.core.PROJECT_TIME
 import com.akiwiksten.awtimesheet.core.WORK_TYPE
 import kotlinx.serialization.Serializable
@@ -25,4 +26,5 @@ data class ProjectEntity(
     @ColumnInfo(name = KILOMETRES) val kilometres: Int = 0,
     @ColumnInfo(name = ALLOWANCE) val allowance: String = "",
     @ColumnInfo(name = WORK_TYPE) val workType: String = "",
+    @ColumnInfo(name = COMMENT) val comment: String = "",
 )

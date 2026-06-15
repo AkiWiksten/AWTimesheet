@@ -63,6 +63,7 @@ const val PROJECT_TIME = "project_time"
 const val KILOMETRES = "kilometres"
 const val ALLOWANCE = "allowance"
 const val WORK_TYPE = "workType"
+const val COMMENT = "comment"
 
 // Domain / settings keys
 const val NAME = "name"

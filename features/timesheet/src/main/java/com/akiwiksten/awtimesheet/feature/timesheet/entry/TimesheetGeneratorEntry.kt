@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.timesheet.entry
 
 import android.util.Log
 import android.widget.Toast
+import com.akiwiksten.awtimesheet.feature.timesheet.R
 import com.akiwiksten.awtimesheet.feature.timesheet.mapper.TimesheetExportDataBuilder
 import com.akiwiksten.awtimesheet.feature.timesheet.model.GenerateTimesheetParams
 import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
@@ -34,9 +35,11 @@ object TimesheetGeneratorEntry {
             )
         }.onFailure { exception ->
             Log.e(LOG_TAG, "Failed to generate timesheet XLSX", exception)
+            val errorMessage = exception.message?.takeIf { it.isNotBlank() }
+                ?: params.ctx.getString(R.string.timesheet_generate_error_unknown)
             Toast.makeText(
                 params.ctx,
-                "Failed to generate XLSX: ${exception.message}",
+                params.ctx.getString(R.string.timesheet_generate_failed, errorMessage),
                 Toast.LENGTH_SHORT
             ).show()
         }

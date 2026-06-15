@@ -52,6 +52,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 } else {
                     existing?.initialFlexTimeTotal ?: ZERO_TIME
                 },
+                enableTestFeatures = settings.enableTestFeatures,
             ).toEntity()
         )
     }

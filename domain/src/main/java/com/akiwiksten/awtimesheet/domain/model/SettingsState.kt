@@ -12,5 +12,6 @@ data class SettingsState(
     val dailyLunchTimeEstimate: String = ZERO_TIME,
     val initialFlexTimeTotal: String = ZERO_TIME,
     val calculatedFlexTimeTotal: String = ZERO_TIME,
-    val workTypes: List<String> = emptyList()
+    val workTypes: List<String> = emptyList(),
+    val enableTestFeatures: Boolean = false,
 ) : Parcelable

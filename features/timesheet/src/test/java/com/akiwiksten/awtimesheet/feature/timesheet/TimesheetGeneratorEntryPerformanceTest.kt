@@ -1,3 +1,5 @@
+@file:Suppress("LongMethod")
+
 package com.akiwiksten.awtimesheet.feature.timesheet
 
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -94,26 +96,9 @@ class TimesheetGeneratorEntryPerformanceTest {
         return projects
     }
 
-    private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
-        ctx = RuntimeEnvironment.getApplication(),
-        projectsByMonth = projects,
-        endOfMonthDate = "2026-05-31",
-        name = "Aki Wiksten",
-        employer = "AJVW Inc.",
-        defaultWorkTypeLabel = "Other",
-        noAllowanceSourceLabel = "No allowance",
-        halfDayAllowanceSourceLabel = "Half-day allowance",
-        fullAllowanceSourceLabel = "Full allowance",
-        noAllowanceExportLabel = "No",
-        halfDayAllowanceExportLabel = "Half-day",
-        fullAllowanceExportLabel = "Full",
-        totalLabel = "Total",
-        generalLabel = "General",
-        workTimeTotalLabel = "Work time total",
-        kilometresLabel = "Kilometres",
-        flexTimeTotalLabel = "Flex time total",
-        totalFlexTimeTotal = "00:00"
-    )
+    private fun createParams(projects: List<SingleProjectState>): GenerateTimesheetParams {
+        return TimesheetTestParamsFactory.create(projects)
+    }
 
     private data class Scale(
         val name: String,

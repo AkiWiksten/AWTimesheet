@@ -63,10 +63,12 @@ const val PROJECT_TIME = "project_time"
 const val KILOMETRES = "kilometres"
 const val ALLOWANCE = "allowance"
 const val WORK_TYPE = "workType"
+const val COMMENT = "comment"
 
 // Domain / settings keys
 const val NAME = "name"
 const val EMPLOYER = "employer"
+const val ENABLE_TEST_FEATURES = "enable_test_features"
 
 // Domain / absence entity keys
 const val START_DATE = "start_date"

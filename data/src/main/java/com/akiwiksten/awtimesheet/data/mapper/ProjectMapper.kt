@@ -12,6 +12,7 @@ fun ProjectEntity.toDomain(): SingleProjectState {
         kilometres = if (kilometres == 0) "" else kilometres.toString(),
         allowance = allowance,
         workType = workType,
+        comment = comment,
     )
 }
 
@@ -23,5 +24,6 @@ fun SingleProjectState.toEntity(): ProjectEntity {
         kilometres = kilometres.toIntOrNull() ?: 0,
         allowance = allowance,
         workType = workType,
+        comment = comment,
     )
 }

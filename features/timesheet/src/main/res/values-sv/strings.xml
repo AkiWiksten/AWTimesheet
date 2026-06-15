@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="work_time_by_date">Arbetstid per datum</string>
+    <string name="total_sum">TOTALSUMMA</string>
+    <string name="timesheet_day_of_month">Dag i månaden</string>
+    <string name="timesheet_no_allowance_short">Nej</string>
+    <string name="timesheet_half_day_allowance_short">Halvdag</string>
+    <string name="timesheet_full_allowance_short">Heldag</string>
+    <string name="timesheet_start_date">Startdatum</string>
+    <string name="timesheet_end_date">Slutdatum</string>
+    <string name="timesheet_title">Tidrapport</string>
+    <string name="timesheet_general">Allmänt</string>
+    <string name="timesheet_total">Totalt</string>
+    <string name="timesheet_work_time_total">Total arbetstid</string>
+    <string name="timesheet_flex_time_total">Total flex</string>
+    <string name="timesheet_generate_failed">Det gick inte att skapa XLSX: %1$s</string>
+    <string name="timesheet_generate_error_unknown">Okänt fel</string>
+</resources>

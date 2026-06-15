@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="work_time_by_date">Päivän työaika</string>
+    <string name="total_sum">KOKONAISSUMMA</string>
+    <string name="timesheet_day_of_month">Kuukauden päivä</string>
+    <string name="timesheet_no_allowance_short">Ei</string>
+    <string name="timesheet_half_day_allowance_short">Puolipäivä</string>
+    <string name="timesheet_full_allowance_short">Kokopäivä</string>
+    <string name="timesheet_start_date">Aloituspäivä</string>
+    <string name="timesheet_end_date">Lopetuspäivä</string>
+    <string name="timesheet_title">Työaikataulukko</string>
+    <string name="timesheet_general">Yleinen</string>
+    <string name="timesheet_total">Yhteensä</string>
+    <string name="timesheet_work_time_total">Kokonaistyöaika</string>
+    <string name="timesheet_flex_time_total">Kokonaisliukuma</string>
+    <string name="timesheet_generate_failed">XLSX:n luonti epäonnistui: %1$s</string>
+    <string name="timesheet_generate_error_unknown">Tuntematon virhe</string>
+</resources>

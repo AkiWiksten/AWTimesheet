@@ -35,12 +35,14 @@ import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectCommentField
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDownSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectProjectNameField
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTimeSelectionSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectTopBar
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectScreenParams
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun SingleProjectScreenContent(
@@ -56,7 +58,7 @@ internal fun SingleProjectScreenContent(
     )
     val lastSuccessState = remember { mutableStateOf<SingleProjectUiState.Success?>(value = null) }
     val showUnsavedDialogState = rememberSaveable { mutableStateOf(value = false) }
-    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
+    val unsavedMessage = stringResource(id = CoreR.string.unsaved_data_message)
 
     LaunchedEffect(screenState.uiState) {
         if (screenState.uiState is SingleProjectUiState.Success) {
@@ -204,7 +206,7 @@ private fun SingleProjectContent(
 ) {
     val screenState = params.screenState
     val scrollState = rememberScrollState()
-    val defaultWorkTypeText = stringResource(id = R.string.other)
+    val defaultWorkTypeText = stringResource(id = CoreR.string.other)
     val workTypes =
         (
             ((screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()) +
@@ -289,13 +291,18 @@ private fun SingleProjectFormFields(
             onStateChange = actions.onStateChange
         )
 
+        SingleProjectCommentField(
+            comment = screenState.state.comment,
+            onCommentChange = { actions.onStateChange(screenState.state.copy(comment = it)) }
+        )
+
         AwtButton(
             onClick = actions.onSave,
             enabled = screenState.isConfirmEnabled,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = stringResource(id = R.string.save),
+                text = stringResource(id = CoreR.string.save),
                 style = MaterialTheme.typography.titleMedium
             )
         }

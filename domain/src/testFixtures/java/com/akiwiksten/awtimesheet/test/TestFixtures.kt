@@ -35,6 +35,7 @@ fun projectState(
     kilometres: String = "",
     allowance: String = "",
     workType: String = "",
+    comment: String = "",
 ): SingleProjectState {
     return SingleProjectState(
         listIndex = listIndex,
@@ -44,6 +45,7 @@ fun projectState(
         kilometres = kilometres,
         allowance = allowance,
         workType = workType,
+        comment = comment,
     )
 }
 

@@ -80,6 +80,7 @@ sealed interface Screen : Parcelable {
         val kilometres: String? = null,
         val allowance: String? = null,
         val workType: String? = null,
+        val comment: String? = null,
         val details: ProjectDetails? = null
     ) : Screen {
         override val route: String get() = SINGLE_PROJECT_SCREEN

@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNaming")
+
 package com.akiwiksten.awtimesheet.feature.settings
 
 import android.widget.Toast
@@ -22,6 +24,7 @@ import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
+import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationScope
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActions
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsContentState
@@ -29,6 +32,7 @@ import com.akiwiksten.awtimesheet.feature.settings.model.SettingsLoadingContentS
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsStateContentState
 import com.akiwiksten.awtimesheet.feature.settings.remember.rememberGeneratedAllowanceLabels
 import kotlinx.coroutines.flow.collectLatest
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 fun SettingsScreen(
@@ -112,7 +116,7 @@ internal fun SettingsStateContent(
                 state.registerUnsavedActions(null, null)
             }
             CenteredErrorBox(
-                errorMessage = stringResource(id = R.string.error_message, state.uiState.message),
+                errorMessage = stringResource(id = CoreR.string.error_message, state.uiState.message),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(all = PADDING_SPACING),
@@ -161,7 +165,7 @@ internal fun SettingsScreenEffects(
     defaultWorkTypes: List<String>,
     ctx: android.content.Context
 ) {
-    val noProjectsMessage = stringResource(id = R.string.no_projects_available)
+    val noProjectsMessage = stringResource(id = CoreR.string.no_projects_available)
     val generationSuccessMessage = stringResource(id = R.string.workday_generation_success)
     val generationErrorMessage = stringResource(id = R.string.workday_generation_error)
 
@@ -219,13 +223,26 @@ internal fun createSettingsActions(
     generatedAllowanceLabels: GeneratedAllowanceLabels
 ): SettingsActions {
     return SettingsActions(
-        onNameChange = settingsViewModel::setName,
-        onEmployerChange = settingsViewModel::setEmployer,
-        onDailyWorkTimeEstimateChange = settingsViewModel::setDailyWorkTimeEstimate,
-        onDailyLunchTimeEstimateChange = settingsViewModel::setDailyLunchTimeEstimate,
-        onInitialFlexTimeTotalChange = settingsViewModel::setInitialFlexTimeTotal,
+        onNameChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(name = it) }
+        },
+        onEmployerChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(employer = it) }
+        },
+        onDailyWorkTimeEstimateChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(dailyWorkTimeEstimate = it) }
+        },
+        onDailyLunchTimeEstimateChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(dailyLunchTimeEstimate = it) }
+        },
+        onInitialFlexTimeTotalChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(initialFlexTimeTotal = it) }
+        },
         onWorkTypeAdded = settingsViewModel::addWorkType,
         onWorkTypeRemoved = settingsViewModel::removeWorkType,
+        onEnableTestFeaturesChange = {
+            settingsViewModel.updateSettingsData { data -> data.copy(enableTestFeatures = it) }
+        },
         onSave = { settingsViewModel.saveSettings() },
         onGenerateXlsx = {
             settingsViewModel.requestMonthlyReport(
@@ -234,10 +251,16 @@ internal fun createSettingsActions(
             )
         },
         onGenerateWorkdaysForMonth = {
-            settingsViewModel.generateWorkdaysForSelectedMonth(generatedAllowanceLabels)
+            settingsViewModel.generateWorkdaysForSelected(
+                scope = WorkdayGenerationScope.MONTH,
+                allowanceLabels = generatedAllowanceLabels
+            )
         },
         onGenerateWorkdaysForYear = {
-            settingsViewModel.generateWorkdaysForSelectedYear(generatedAllowanceLabels)
+            settingsViewModel.generateWorkdaysForSelected(
+                scope = WorkdayGenerationScope.YEAR,
+                allowanceLabels = generatedAllowanceLabels
+            )
         }
     )
 }

@@ -100,7 +100,8 @@ class SingleProjectViewModel @Inject constructor(
                         workType = args.workType ?: project?.workType ?: currentData.workType,
                         date = projectDate,
                         isAddMode = args.isAddMode,
-                        listIndex = args.listIndex
+                        listIndex = args.listIndex,
+                        comment = args.comment ?: project?.comment ?: currentData.comment
                     )
                 )
             }

@@ -4,6 +4,7 @@ import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.BOLD_TEXT_STYLE
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRIES_SEPARATOR_ROW
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_ALLOWANCE_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_COMMENT_ROW_OFFSET
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_KILOMETRES_ROW_OFFSET
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_NAME_ROW_OFFSET
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_TIME_ROW_OFFSET
@@ -61,55 +62,31 @@ internal object TimesheetHeaderWriter {
             exportData.projectTimeLabel,
             exportData.allowanceLabel,
             exportData.workTypeLabel,
+            exportData.commentLabel,
             exportData.kilometresLabel
         )
 
         for (entryIndex in 0 until blockCount) {
             val baseRow = TimesheetXmlHelper.dailyEntryBaseRow(entryIndex)
-            TimesheetXmlHelper.setStringCell(
-                document = document,
-                sheetData = sheetData,
-                cellReference = "A${baseRow + DAILY_ENTRY_NAME_ROW_OFFSET}",
-                value = dailyEntryLabels[0],
-                styleIndex = BOLD_TEXT_STYLE
-            )
-            TimesheetXmlHelper.setStringCell(
-                document = document,
-                sheetData = sheetData,
-                cellReference = "A${baseRow + DAILY_ENTRY_TIME_ROW_OFFSET}",
-                value = dailyEntryLabels[1],
-                styleIndex = BOLD_TEXT_STYLE
-            )
-            TimesheetXmlHelper.setStringCell(
-                document = document,
-                sheetData = sheetData,
-                cellReference = "A${baseRow + DAILY_ENTRY_ALLOWANCE_ROW_OFFSET}",
-                value = dailyEntryLabels[2],
-                styleIndex = BOLD_TEXT_STYLE
-            )
-            TimesheetXmlHelper.setStringCell(
-                document = document,
-                sheetData = sheetData,
-                cellReference = "A${baseRow + DAILY_ENTRY_WORK_TYPE_ROW_OFFSET}",
-                value = dailyEntryLabels[3],
-                styleIndex = BOLD_TEXT_STYLE
-            )
-            TimesheetXmlHelper.setStringCell(
-                document = document,
-                sheetData = sheetData,
-                cellReference = "A${baseRow + DAILY_ENTRY_KILOMETRES_ROW_OFFSET}",
-                value = dailyEntryLabels[4],
-                styleIndex = BOLD_TEXT_STYLE
-            )
+            writeDailyEntryLabel(document, sheetData, baseRow + DAILY_ENTRY_NAME_ROW_OFFSET, dailyEntryLabels[0])
+            writeDailyEntryLabel(document, sheetData, baseRow + DAILY_ENTRY_TIME_ROW_OFFSET, dailyEntryLabels[1])
+            writeDailyEntryLabel(document, sheetData, baseRow + DAILY_ENTRY_ALLOWANCE_ROW_OFFSET, dailyEntryLabels[2])
+            writeDailyEntryLabel(document, sheetData, baseRow + DAILY_ENTRY_WORK_TYPE_ROW_OFFSET, dailyEntryLabels[3])
+            writeDailyEntryLabel(document, sheetData, baseRow + DAILY_ENTRY_COMMENT_ROW_OFFSET, dailyEntryLabels[4])
+            writeDailyEntryLabel(document, sheetData, baseRow + DAILY_ENTRY_KILOMETRES_ROW_OFFSET, dailyEntryLabels[5])
             if (entryIndex > 0) {
-                TimesheetXmlHelper.setStringCell(
-                    document = document,
-                    sheetData = sheetData,
-                    cellReference = "A${baseRow + 1}",
-                    value = "",
-                    styleIndex = BOLD_TEXT_STYLE
-                )
+                writeDailyEntryLabel(document, sheetData, baseRow + 1, value = "")
             }
         }
+    }
+
+    private fun writeDailyEntryLabel(document: Document, sheetData: Element, row: Int, value: String) {
+        TimesheetXmlHelper.setStringCell(
+            document = document,
+            sheetData = sheetData,
+            cellReference = "A$row",
+            value = value,
+            styleIndex = BOLD_TEXT_STYLE
+        )
     }
 }

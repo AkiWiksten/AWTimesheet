@@ -70,7 +70,8 @@ private fun SettingsConstrainedPreviewContent() {
                                 onSave = {},
                                 onGenerateXlsx = {},
                                 onGenerateWorkdaysForMonth = {},
-                                onGenerateWorkdaysForYear = {}
+                                onGenerateWorkdaysForYear = {},
+                                onEnableTestFeaturesChange = {}
                             )
                         }
                     )

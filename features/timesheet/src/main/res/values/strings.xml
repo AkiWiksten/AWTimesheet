@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="work_time_by_date">Work time by date</string>
+    <string name="total_sum">TOTAL SUM</string>
+    <string name="timesheet_day_of_month">Day of Month</string>
+    <string name="timesheet_no_allowance_short">No</string>
+    <string name="timesheet_half_day_allowance_short">Half-day</string>
+    <string name="timesheet_full_allowance_short">Full</string>
+    <string name="timesheet_start_date">Start date</string>
+    <string name="timesheet_end_date">End date</string>
+    <string name="timesheet_title">Timesheet</string>
+    <string name="timesheet_general">General</string>
+    <string name="timesheet_total">Total</string>
+    <string name="timesheet_work_time_total">Work time total</string>
+    <string name="timesheet_flex_time_total">Flex time total</string>
+    <string name="timesheet_generate_failed">Failed to generate XLSX: %1$s</string>
+    <string name="timesheet_generate_error_unknown">Unknown error</string>
+</resources>

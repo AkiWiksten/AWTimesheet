@@ -29,6 +29,7 @@
     <string name="work_type">Work type</string>
     <string name="project_name">Project name</string>
     <string name="project_time">Project time</string>
+    <string name="work_time_by_date">Work time by date</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
     <string name="allowance">Allowance</string>
@@ -36,6 +37,9 @@
     <string name="half_day_allowance">Half-day allowance</string>
     <string name="full_allowance">Full allowance</string>
     <string name="kilometres">Kilometres</string>
+    <string name="comment">Comment</string>
+    <string name="name">Name</string>
+    <string name="employer">Employer</string>
     <string name="other">Other</string>
     <string name="no_projects_available">No projects available. Add one with the button.</string>
 

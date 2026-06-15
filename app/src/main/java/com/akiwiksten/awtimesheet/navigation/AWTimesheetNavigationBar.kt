@@ -16,8 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.res.stringResource
-import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun AWTimesheetNavigationBar(
@@ -29,7 +29,7 @@ internal fun AWTimesheetNavigationBar(
     val navigationScreens = listOf(Screen.Calendar, Screen.Workday, Screen.Settings)
     var pendingScreen by remember { mutableStateOf<Screen?>(value = null) }
     val isShowingUnsavedDialog = pendingScreen != null
-    val unsavedMessage = stringResource(id = R.string.unsaved_data_message)
+    val unsavedMessage = stringResource(id = CoreR.string.unsaved_data_message)
 
     if (isShowingUnsavedDialog) {
         UnsavedChangesDialog(

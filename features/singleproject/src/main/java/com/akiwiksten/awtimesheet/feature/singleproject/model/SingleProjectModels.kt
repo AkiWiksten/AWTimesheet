@@ -19,6 +19,7 @@ data class SingleProjectRouteArgs(
     val kilometres: String? = null,
     val allowance: String? = null,
     val workType: String? = null,
+    val comment: String? = null,
     val projectDetails: ProjectDetailsState? = null
 )
 

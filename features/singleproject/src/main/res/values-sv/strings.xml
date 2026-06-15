@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="saved">Sparat!</string>
-    <string name="no_allowance">Inget traktamente</string>
-    <string name="other">Övrigt</string>
-    <string name="unsaved_data_message">Du har osparade ändringar. Spara innan du går tillbaka?</string>
-    <string name="save">Spara</string>
-    <string name="work_time_by_date">Arbetstid per datum</string>
     <string name="project_customer">Projekt/Kund</string>
-    <string name="project_name">Projektnamn</string>
     <string name="project_name_duplicate_error">Namnet används redan idag</string>
-    <string name="kilometres">Kilometer</string>
-    <string name="project_time">Projekttid</string>
     <string name="details">Detaljer</string>
     <string name="or_text">ELLER</string>
     <string name="pick">Välj</string>
-    <string name="work_type">Arbetstyp</string>
-    <string name="allowance">Traktamente</string>
-    <string name="full_allowance">Heldagstraktamente</string>
-    <string name="half_day_allowance">Halvdagstraktamente</string>
-    <string name="absence_prefix">Frånvaro</string>
     <string name="project_name_note">Välj projektnamnet noggrant. Du kan inte ändra det efter att du har tryckt på \'Spara\' här.</string>
-    <string name="comment">Kommentar</string>
     <string name="comment_dialog_title">Redigera kommentar</string>
-    <string name="ok">OK</string>
 </resources>
 

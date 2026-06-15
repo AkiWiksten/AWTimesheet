@@ -29,6 +29,7 @@
     <string name="work_type">Arbetstyp</string>
     <string name="project_name">Projektnamn</string>
     <string name="project_time">Projekttid</string>
+    <string name="work_time_by_date">Arbetstid per datum</string>
     <string name="start_date">Startdatum</string>
     <string name="end_date">Slutdatum</string>
     <string name="allowance">Ersättning</string>
@@ -36,6 +37,9 @@
     <string name="half_day_allowance">Halv traktamente</string>
     <string name="full_allowance">Fullt traktamente</string>
     <string name="kilometres">Kilometer</string>
+    <string name="comment">Kommentar</string>
+    <string name="name">Namn</string>
+    <string name="employer">Arbetsgivare</string>
     <string name="other">Annat</string>
     <string name="no_projects_available">Inga projekt tillgängliga. Lägg till ett med knappen.</string>
 

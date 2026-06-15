@@ -88,7 +88,7 @@ internal fun SettingsAddWorkTypeDialogSection(
         AddTextFieldDialog(
             onDismissRequest = onDismiss,
             onConfirmation = onConfirmed,
-            label = stringResource(id = R.string.work_type)
+            label = stringResource(id = CoreR.string.work_type)
         )
     }
 }

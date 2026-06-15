@@ -97,39 +97,7 @@ class TimesheetGeneratorEntryPerformanceTest {
     }
 
     private fun createParams(projects: List<SingleProjectState>): GenerateTimesheetParams {
-        val ctx = RuntimeEnvironment.getApplication()
-        return GenerateTimesheetParams(
-            ctx = ctx,
-            projectsByMonth = projects,
-            endOfMonthDate = "2026-05-31",
-            name = "Aki Wiksten",
-            employer = "AJVW Inc.",
-            defaultWorkTypeLabel = "Other",
-            noAllowanceSourceLabel = "No allowance",
-            halfDayAllowanceSourceLabel = "Half-day allowance",
-            fullAllowanceSourceLabel = "Full allowance",
-            noAllowanceExportLabel = "No",
-            halfDayAllowanceExportLabel = "Half-day",
-            fullAllowanceExportLabel = "Full",
-            dayOfMonthLabel = "Day of Month",
-            projectNameLabel = "Project name",
-            workTimeByDateLabel = "Work time by date",
-            allowanceLabel = "Allowance",
-            workTypeLabel = "Work type",
-            commentLabel = "Comment",
-            employerLabel = "Employer",
-            nameLabel = "Name",
-            totalSumLabel = "TOTAL SUM",
-            startDateLabel = "Start date",
-            titleLabel = "Timesheet",
-            endDateLabel = "End date",
-            projectTimeLabel = "Project time",
-            totalLabel = "Total", generalLabel = "General",
-            workTimeTotalLabel = "Work time total",
-            kilometresLabel = "Kilometres",
-            flexTimeTotalLabel = "Flex time total",
-            totalFlexTimeTotal = "00:00"
-        )
+        return TimesheetTestParamsFactory.create(projects)
     }
 
     private data class Scale(

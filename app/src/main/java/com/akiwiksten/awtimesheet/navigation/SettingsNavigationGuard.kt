@@ -18,7 +18,6 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.akiwiksten.awtimesheet.R
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.absence.AbsenceScreen
@@ -28,6 +27,7 @@ import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
 import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
 import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 internal data class SettingsNavigationGuard(
     val hasUnsavedChanges: Boolean,
@@ -250,6 +250,6 @@ private fun SettingsBackNavigationDialog(
         onDismiss = onDismiss,
         onDiscard = onDiscard,
         onSave = onSave,
-        dialogText = stringResource(id = R.string.unsaved_data_message)
+        dialogText = stringResource(id = CoreR.string.unsaved_data_message)
     )
 }

@@ -27,6 +27,7 @@ import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.settings.R
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsActionButtonsSectionState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeSectionState
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun SettingsActionButtonsSection(
@@ -42,7 +43,7 @@ internal fun SettingsActionButtonsSection(
             enabled = state.isSaveEnabled,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(id = R.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
+            Text(text = stringResource(id = CoreR.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         if (state.isReportEnabled) {
             NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx))
@@ -105,8 +106,8 @@ internal fun SettingsProfileSection(
     onEmployerChange: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)) {
-        SettingsTextField(value = name, label = R.string.name, onValueChange = onNameChange)
-        SettingsTextField(value = employer, label = R.string.employer, onValueChange = onEmployerChange)
+        SettingsTextField(value = name, label = CoreR.string.name, onValueChange = onNameChange)
+        SettingsTextField(value = employer, label = CoreR.string.employer, onValueChange = onEmployerChange)
     }
 }
 
@@ -120,7 +121,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
             items = state.workTypes,
             onItemSelected = state.settingsWorkTypeDialogState.onWorkTypeSelected,
             field = DropdownMenuField(
-                labelId = R.string.work_type,
+                labelId = CoreR.string.work_type,
                 selectedText = state.settingsWorkTypeDialogState.selectedWorkType
             ),
             modifier = Modifier.fillMaxWidth()
@@ -130,7 +131,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
                 onClick = state.settingsWorkTypeDialogState.onAddClick,
                 modifier = Modifier.weight(weight = 1f)
             ) {
-                Text(text = stringResource(id = R.string.add))
+                Text(text = stringResource(id = CoreR.string.add))
             }
             AwtButton(
                 onClick = state.settingsWorkTypeDialogState.onDeleteClick,
@@ -138,7 +139,7 @@ internal fun SettingsWorkTypeSection(state: SettingsWorkTypeSectionState) {
                     state.settingsWorkTypeDialogState.selectedWorkType !in state.protectedWorkTypes,
                 modifier = Modifier.weight(weight = 1f)
             ) {
-                Text(text = stringResource(id = R.string.delete))
+                Text(text = stringResource(id = CoreR.string.delete))
             }
         }
     }

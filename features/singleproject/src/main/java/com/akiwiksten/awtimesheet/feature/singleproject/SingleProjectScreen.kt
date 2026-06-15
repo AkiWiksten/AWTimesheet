@@ -28,6 +28,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.isDuplicateProject
 import com.akiwiksten.awtimesheet.feature.singleproject.model.isSingleProjectConfirmEnabled
 import com.akiwiksten.awtimesheet.feature.singleproject.model.resolveFullInitialSingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.model.withAbsenceLogic
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +38,8 @@ fun SingleProjectScreen(
     viewModel: SingleProjectViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val savedText = stringResource(id = R.string.saved)
-    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+    val savedText = stringResource(id = CoreR.string.saved)
+    val flexDayWorkType = stringResource(id = CoreR.string.work_type_flex_day)
 
     val openProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit = { state, currentDetails ->
         val details = (
@@ -112,10 +113,10 @@ private fun SingleProjectScreenStateful(
     onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
     onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit
 ) {
-    val noAllowanceText = stringResource(id = R.string.no_allowance)
-    val defaultWorkTypeText = stringResource(id = R.string.other)
-    val absencePrefix = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence_prefix)
-    val flexDayWorkType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+    val noAllowanceText = stringResource(id = CoreR.string.no_allowance)
+    val defaultWorkTypeText = stringResource(id = CoreR.string.other)
+    val absencePrefix = stringResource(id = CoreR.string.absence_prefix)
+    val flexDayWorkType = stringResource(id = CoreR.string.work_type_flex_day)
 
     val initialUiState = remember(
         uiState,

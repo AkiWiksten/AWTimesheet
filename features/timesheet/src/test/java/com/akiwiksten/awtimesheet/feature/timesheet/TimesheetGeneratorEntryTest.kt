@@ -399,12 +399,7 @@ class TimesheetGeneratorEntryTest {
     }
 
     private fun createParams(projects: List<SingleProjectState>): GenerateTimesheetParams {
-        return createLocalizedParams(projects)
-    }
-
-    private fun createLocalizedParams(projects: List<SingleProjectState>): GenerateTimesheetParams {
-        val ctx = RuntimeEnvironment.getApplication()
-        return TimesheetParamsFactory.create(ctx, projects)
+        return TimesheetTestParamsFactory.create(projects)
     }
 
     private fun sampleProject(spec: ProjectSpec) = projectState(
@@ -502,43 +497,6 @@ class TimesheetGeneratorEntryTest {
         }
         return builder.toString()
     }
-
-    private object TimesheetParamsFactory {
-        fun create(ctx: android.content.Context, projects: List<SingleProjectState>): GenerateTimesheetParams {
-            return GenerateTimesheetParams(
-                ctx = ctx,
-                projectsByMonth = projects,
-                endOfMonthDate = "2026-05-31",
-                name = "Aki Wiksten",
-                employer = "AJVW Inc.",
-                defaultWorkTypeLabel = "Other",
-                noAllowanceSourceLabel = "No allowance",
-                halfDayAllowanceSourceLabel = "Half-day allowance",
-                fullAllowanceSourceLabel = "Full allowance",
-                noAllowanceExportLabel = "No",
-                halfDayAllowanceExportLabel = "Half-day",
-                fullAllowanceExportLabel = "Full",
-                dayOfMonthLabel = "Day of Month",
-                projectNameLabel = "Project name",
-                workTimeByDateLabel = "Work time by date",
-                allowanceLabel = "Allowance",
-                workTypeLabel = "Work type",
-                commentLabel = "Comment",
-                employerLabel = "Employer",
-                nameLabel = "Name",
-                totalSumLabel = "TOTAL SUM",
-                startDateLabel = "Start date",
-                titleLabel = "Timesheet",
-                endDateLabel = "End date",
-                projectTimeLabel = "Project time",
-                totalLabel = "Total", generalLabel = "General",
-                workTimeTotalLabel = "Work time total",
-                kilometresLabel = "Kilometres",
-                flexTimeTotalLabel = "Flex time total",
-                totalFlexTimeTotal = "00:00"
-            )
-        }
-    }
 }
 
 @RunWith(RobolectricTestRunner::class)
@@ -609,64 +567,6 @@ class TimesheetGeneratorEntryExcelInspectionTest {
     }
 
     private fun createParams(projects: List<SingleProjectState>): GenerateTimesheetParams {
-        val ctx = RuntimeEnvironment.getApplication()
-        val other = "Other"
-        val noAllowance = "No allowance"
-        val halfDayAllowance = "Half-day allowance"
-        val fullAllowance = "Full allowance"
-        val noAllowanceShort = "No"
-        val halfDayAllowanceShort = "Half-day"
-        val fullAllowanceShort = "Full"
-        val dayOfMonth = "Day of Month"
-        val projectName = "Project name"
-        val workTimeByDate = "Work time by date"
-        val allowance = "Allowance"
-        val workType = "Work type"
-        val comment = "Comment"
-        val employer = "Employer"
-        val name = "Name"
-        val totalSum = "TOTAL SUM"
-        val startDate = "Start date"
-        val title = "Timesheet"
-        val endDate = "End date"
-        val projectTime = "Project time"
-        val total = "Total"
-        val general = "General"
-        val workTimeTotal = "Work time total"
-        val kilometres = "Kilometres"
-        val flexTimeTotal = "Flex time total"
-
-        return GenerateTimesheetParams(
-            ctx = ctx,
-            projectsByMonth = projects,
-            endOfMonthDate = "2026-05-31",
-            name = "Aki Wiksten",
-            employer = "AJVW Inc.",
-            defaultWorkTypeLabel = other,
-            noAllowanceSourceLabel = noAllowance,
-            halfDayAllowanceSourceLabel = halfDayAllowance,
-            fullAllowanceSourceLabel = fullAllowance,
-            noAllowanceExportLabel = noAllowanceShort,
-            halfDayAllowanceExportLabel = halfDayAllowanceShort,
-            fullAllowanceExportLabel = fullAllowanceShort,
-            dayOfMonthLabel = dayOfMonth,
-            projectNameLabel = projectName,
-            workTimeByDateLabel = workTimeByDate,
-            allowanceLabel = allowance,
-            workTypeLabel = workType,
-            commentLabel = comment,
-            employerLabel = employer,
-            nameLabel = name,
-            totalSumLabel = totalSum,
-            startDateLabel = startDate,
-            titleLabel = title,
-            endDateLabel = endDate,
-            projectTimeLabel = projectTime,
-            totalLabel = total, generalLabel = general,
-            workTimeTotalLabel = workTimeTotal,
-            kilometresLabel = kilometres,
-            flexTimeTotalLabel = flexTimeTotal,
-            totalFlexTimeTotal = "00:00"
-        )
+        return TimesheetTestParamsFactory.create(projects)
     }
 }

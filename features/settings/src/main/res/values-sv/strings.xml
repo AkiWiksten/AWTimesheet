@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings">Inställningar</string>
-    <string name="name">Namn</string>
-    <string name="employer">Arbetsgivare</string>
     <string name="global_defaults">Globala standardvärden</string>
     <string name="daily_work_time">Beräknad daglig arbetstid</string>
     <string name="daily_lunch_time_estimate">Daglig uppskattad lunchtid</string>
     <string name="initial_flex_time_total">Initialt flextidssaldo</string>
     <string name="enable_test_features">Aktivera testfunktioner</string>
-    <string name="work_type">Arbetstyp</string>
-    <string name="add">Lägg till</string>
-    <string name="delete">Ta bort</string>
-    <string name="confirm">Bekräfta</string>
-    <string name="save">Spara</string>
-    <string name="saved">Sparat!</string>
     <string name="generate_xlsx">Generera månatlig XLSX-rapport</string>
     <string name="generate_monthly_report_confirm_prefix">Du kommer att skapa en rapport för </string>
     <string name="generate_workdays_month">Generera arbetsdagar för månaden</string>
@@ -26,29 +18,5 @@
     <string name="workday_generation_success">Genererade %1$d av %2$d vardagsarbetsdagar för %3$s till %4$s.</string>
     <string name="workday_refresh_success">Uppdaterade %1$d arbetsdagar (%2$d uppdaterade, %3$d skapade) för %4$s till %5$s.</string>
     <string name="workday_generation_error">Det gick inte att generera arbetsdagar: %1$s</string>
-    <string name="other">Övrigt</string>
     <string name="default_work_type_cannot_be_deleted">Standardarbetstypen kan inte tas bort.</string>
-    <string name="no_projects_available">Inga projekt tillgängliga. Lägg till ett med knappen.</string>
-    <string name="error_message">Fel: %1$s</string>
-    <string name="project_name">Projektnamn</string>
-    <string name="project_time">Projekttid</string>
-    <string name="no_allowance">Inget traktamente</string>
-    <string name="half_day_allowance">Halvdagstraktamente</string>
-    <string name="full_allowance">Heldagstraktamente</string>
-    <string name="allowance">Traktamente</string>
-    <string name="comment">Kommentar</string>
-    <string name="kilometres">Kilometer</string>
-    <string name="total_sum">TOTALSUMMA</string>
-    <string name="work_time_by_date">Arbetstid per datum</string>
-    <string name="timesheet_title">Tidrapport</string>
-    <string name="timesheet_general">Allmänt</string>
-    <string name="timesheet_total">Totalt</string>
-    <string name="timesheet_work_time_total">Total arbetstid</string>
-    <string name="timesheet_flex_time_total">Total flex</string>
-    <string name="timesheet_no_allowance_short">Nej</string>
-    <string name="timesheet_half_day_allowance_short">Halvdag</string>
-    <string name="timesheet_full_allowance_short">Heldag</string>
-    <string name="timesheet_start_date">Startdatum</string>
-    <string name="timesheet_end_date">Slutdatum</string>
-    <string name="timesheet_day_of_month">Dag i månaden</string>
 </resources>

@@ -2,8 +2,6 @@
 <resources>
     <!-- Settings-specific strings -->
     <string name="settings">Settings</string>
-    <string name="name">Name</string>
-    <string name="employer">Employer</string>
     <string name="global_defaults">Global defaults</string>
     <string name="daily_work_time">Daily work time estimate</string>
     <string name="daily_lunch_time_estimate">Daily lunchtime estimate</string>
@@ -22,36 +20,4 @@
     <string name="workday_refresh_success">Refreshed %1$d workdays (%2$d updated, %3$d created) for %4$s to %5$s.</string>
     <string name="workday_generation_error">Failed to generate workdays: %1$s</string>
     <string name="default_work_type_cannot_be_deleted">Default work type cannot be deleted.</string>
-    <string name="timesheet_title">Timesheet</string>
-    <string name="timesheet_general">General</string>
-    <string name="timesheet_total">Total</string>
-    <string name="timesheet_work_time_total">Work time total</string>
-    <string name="timesheet_flex_time_total">Flex time total</string>
-    <string name="timesheet_no_allowance_short">No</string>
-    <string name="timesheet_half_day_allowance_short">Half-day</string>
-    <string name="timesheet_full_allowance_short">Full</string>
-    <string name="timesheet_start_date">Start date</string>
-    <string name="timesheet_end_date">End date</string>
-    <string name="timesheet_day_of_month">Day of Month</string>
-    <string name="work_time_by_date">Work time by date</string>
-
-    <!-- Centralized from core (duplicated for local reference) -->
-    <string name="work_type">Work type</string>
-    <string name="add">Add</string>
-    <string name="delete">Delete</string>
-    <string name="confirm">Confirm</string>
-    <string name="save">Save</string>
-    <string name="saved">Saved!</string>
-    <string name="other">Other</string>
-    <string name="no_projects_available">No projects available. Add one with the button.</string>
-    <string name="error_message">Error: %1$s</string>
-    <string name="project_name">Project name</string>
-    <string name="project_time">Project time</string>
-    <string name="no_allowance">No allowance</string>
-    <string name="half_day_allowance">Half-day allowance</string>
-    <string name="full_allowance">Full allowance</string>
-    <string name="allowance">Allowance</string>
-    <string name="comment">Comment</string>
-    <string name="kilometres">Kilometres</string>
-    <string name="total_sum">TOTAL SUM</string>
 </resources>

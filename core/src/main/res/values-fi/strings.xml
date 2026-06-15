@@ -29,6 +29,7 @@
     <string name="work_type">Työtyyppi</string>
     <string name="project_name">Projektin nimi</string>
     <string name="project_time">Projektiaika</string>
+    <string name="work_time_by_date">Päivän työaika</string>
     <string name="start_date">Alkamispäivä</string>
     <string name="end_date">Päättymispäivä</string>
     <string name="allowance">Korvaus</string>
@@ -36,6 +37,7 @@
     <string name="half_day_allowance">Osapäiväraha</string>
     <string name="full_allowance">Kokopäiväraha</string>
     <string name="kilometres">Kilometrit</string>
+    <string name="employer">Työnantaja</string>
     <string name="other">Muu</string>
     <string name="no_projects_available">Ei projekteja saatavilla. Lisää uusi painikkeella.</string>
 
@@ -47,4 +49,6 @@
     <string name="work_type_parental_leave">Poissaolo-Vanhempainvapaa</string>
     <string name="work_type_other_leave">Poissaolo-Muu vapaa</string>
     <string name="work_type_flex_day">Poissaolo-Saldovapaa</string>
+    <string name="comment">Kommentti</string>
+    <string name="name">Nimi</string>
 </resources>

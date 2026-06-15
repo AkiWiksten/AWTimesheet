@@ -17,6 +17,7 @@ import com.akiwiksten.awtimesheet.feature.settings.model.SettingsDialogVisibilit
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsSaveUi
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeDialogState
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsWorkTypeUiState
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun rememberSettingsWorkTypeUiState(
@@ -70,7 +71,7 @@ internal fun rememberSettingsSaveUi(
     onSave: () -> Unit
 ): SettingsSaveUi {
     val context = LocalContext.current
-    val savedText = stringResource(id = R.string.saved)
+    val savedText = stringResource(id = CoreR.string.saved)
     val lastSavedState = remember(selectedDate) {
         SettingsSaveBaselines(
             name = mutableStateOf(data.name),
@@ -152,9 +153,9 @@ internal fun rememberSettingsDialogVisibilityState() = SettingsDialogVisibilityS
 
 @Composable
 internal fun rememberGeneratedAllowanceLabels(): GeneratedAllowanceLabels {
-    val noAllowance = stringResource(id = R.string.no_allowance)
-    val fullAllowance = stringResource(id = R.string.full_allowance)
-    val halfDayAllowance = stringResource(id = R.string.half_day_allowance)
+    val noAllowance = stringResource(id = CoreR.string.no_allowance)
+    val fullAllowance = stringResource(id = CoreR.string.full_allowance)
+    val halfDayAllowance = stringResource(id = CoreR.string.half_day_allowance)
     return remember(noAllowance, fullAllowance, halfDayAllowance) {
         GeneratedAllowanceLabels(
             noAllowance = noAllowance,

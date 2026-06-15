@@ -26,6 +26,7 @@ import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.feature.singleproject.R
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun SingleProjectCommentField(
@@ -55,7 +56,7 @@ internal fun SingleProjectCommentField(
             onValueChange = onCommentChange,
             label = {
                 Text(
-                    text = stringResource(id = R.string.comment),
+                    text = stringResource(id = CoreR.string.comment),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                         fontWeight = FontWeight.Bold

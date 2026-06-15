@@ -16,6 +16,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @RunWith(AndroidJUnit4::class)
 class AWTimesheetNavigationBarUnsavedChangesTest {
@@ -31,7 +32,7 @@ class AWTimesheetNavigationBarUnsavedChangesTest {
 
         composeRule.onNodeWithText(composeRule.activity.getString(R.string.calendar)).performClick()
 
-        composeRule.onNodeWithText(composeRule.activity.getString(R.string.unsaved_data_message))
+        composeRule.onNodeWithText(composeRule.activity.getString(CoreR.string.unsaved_data_message))
             .assertIsDisplayed()
         assertEquals(Screen.Settings, backStack.last())
     }
@@ -97,7 +98,7 @@ class AWTimesheetNavigationBarUnsavedChangesTest {
         assertEquals(0, saveCount)
         assertEquals(0, discardCount)
         assertEquals(Screen.Settings, backStack.last())
-        composeRule.onAllNodesWithText(composeRule.activity.getString(R.string.unsaved_data_message))
+        composeRule.onAllNodesWithText(composeRule.activity.getString(CoreR.string.unsaved_data_message))
             .assertCountEquals(0)
     }
 

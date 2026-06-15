@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="saved">Tallennettu!</string>
-    <string name="no_allowance">Ei päivärahaa</string>
-    <string name="other">Muu</string>
-    <string name="unsaved_data_message">Sinulla on tallentamattomia muutoksia. Tallennetaanko ennen poistumista?</string>
-    <string name="save">Tallenna</string>
-    <string name="work_time_by_date">Päivän työaika</string>
     <string name="project_customer">Projekti/Asiakas</string>
-    <string name="project_name">Projektin nimi</string>
     <string name="project_name_duplicate_error">Nimi on jo käytössä tänään</string>
-    <string name="kilometres">Kilometrit</string>
-    <string name="project_time">Projektin aika</string>
     <string name="details">Tiedot</string>
     <string name="or_text">TAI</string>
     <string name="pick">Valitse</string>
-    <string name="work_type">Työntyyppi</string>
-    <string name="allowance">Päiväraha</string>
-    <string name="full_allowance">Täysi päiväraha</string>
-    <string name="half_day_allowance">Puolipäiväraha</string>
-    <string name="absence_prefix">Poissaolo</string>
     <string name="project_name_note">Valitse projektinimi huolella. Et voi muuttaa sitä sen jälkeen, kun olet painanut \'Tallenna\' täällä.</string>
-    <string name="comment">Kommentti</string>
     <string name="comment_dialog_title">Muokkaa kommenttia</string>
-    <string name="ok">OK</string>
 </resources>
 

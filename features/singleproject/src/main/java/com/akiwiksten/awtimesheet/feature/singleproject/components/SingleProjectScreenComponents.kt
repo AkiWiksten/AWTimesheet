@@ -47,6 +47,7 @@ import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.R
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
@@ -71,7 +72,7 @@ fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
             )
 
             Text(
-                text = "${stringResource(id = R.string.work_time_by_date)}: $workTimeByDate",
+                text = "${stringResource(id = CoreR.string.work_time_by_date)}: $workTimeByDate",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -120,7 +121,7 @@ fun SingleProjectTimePickerDialogSection(
         TimePickerDialog(
             onDismissRequest = onDismissRequest,
             onConfirmation = onConfirmation,
-            titleId = R.string.project_time,
+            titleId = CoreR.string.project_time,
             time = currentTime
         )
     }
@@ -171,7 +172,7 @@ private fun RowScope.ProjectTimeReadOnlyField(
         onValueChange = onStateChange,
         label = {
             Text(
-                text = stringResource(id = R.string.project_time),
+                text = stringResource(id = CoreR.string.project_time),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold
@@ -267,7 +268,7 @@ internal fun SingleProjectProjectNameField(
         onValueChange = onProjectNameChange,
         label = {
             Text(
-                text = stringResource(id = R.string.project_name),
+                text = stringResource(id = CoreR.string.project_name),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold
@@ -297,7 +298,7 @@ internal fun SingleProjectDownSection(
     DropdownMenuBox(
         items = workTypeDropDownList,
         field = DropdownMenuField(
-            labelId = R.string.work_type,
+            labelId = CoreR.string.work_type,
             selectedText = state.workType
         ),
         onItemSelected = { onStateChange(state.copy(workType = it)) }
@@ -305,12 +306,12 @@ internal fun SingleProjectDownSection(
 
     DropdownMenuBox(
         items = listOf(
-            stringResource(id = R.string.no_allowance),
-            stringResource(id = R.string.full_allowance),
-            stringResource(id = R.string.half_day_allowance)
+            stringResource(id = CoreR.string.no_allowance),
+            stringResource(id = CoreR.string.full_allowance),
+            stringResource(id = CoreR.string.half_day_allowance)
         ),
         field = DropdownMenuField(
-            labelId = R.string.allowance,
+            labelId = CoreR.string.allowance,
             selectedText = state.allowance,
             enabled = !isAbsence
         ),
@@ -322,7 +323,7 @@ internal fun SingleProjectDownSection(
         onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
         label = {
             Text(
-                text = stringResource(id = R.string.kilometres),
+                text = stringResource(id = CoreR.string.kilometres),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
                     fontWeight = FontWeight.Bold

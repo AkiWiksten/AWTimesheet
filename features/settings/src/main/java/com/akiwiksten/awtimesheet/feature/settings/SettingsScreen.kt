@@ -32,6 +32,7 @@ import com.akiwiksten.awtimesheet.feature.settings.model.SettingsLoadingContentS
 import com.akiwiksten.awtimesheet.feature.settings.model.SettingsStateContentState
 import com.akiwiksten.awtimesheet.feature.settings.remember.rememberGeneratedAllowanceLabels
 import kotlinx.coroutines.flow.collectLatest
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 fun SettingsScreen(
@@ -115,7 +116,7 @@ internal fun SettingsStateContent(
                 state.registerUnsavedActions(null, null)
             }
             CenteredErrorBox(
-                errorMessage = stringResource(id = R.string.error_message, state.uiState.message),
+                errorMessage = stringResource(id = CoreR.string.error_message, state.uiState.message),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(all = PADDING_SPACING),
@@ -164,7 +165,7 @@ internal fun SettingsScreenEffects(
     defaultWorkTypes: List<String>,
     ctx: android.content.Context
 ) {
-    val noProjectsMessage = stringResource(id = R.string.no_projects_available)
+    val noProjectsMessage = stringResource(id = CoreR.string.no_projects_available)
     val generationSuccessMessage = stringResource(id = R.string.workday_generation_success)
     val generationErrorMessage = stringResource(id = R.string.workday_generation_error)
 

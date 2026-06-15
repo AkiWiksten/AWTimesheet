@@ -1,5 +1,6 @@
 package com.akiwiksten.awtimesheet.domain
 
+import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
@@ -55,6 +56,57 @@ class DeleteProjectUseCaseTest {
         assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
         assertEquals(emptyList<SingleProjectState>(), projectRepository.deletedProjects)
         assertEquals(emptyList<ProjectDetailsState>(), projectDetailsRepository.deletedProjectDetails)
+    }
+
+    @Test
+    fun invoke_placeholderProjectState_deletesOnlyProjectName_evenWhenStillUsed() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            isProjectNameUsedByName["Beta"] = true
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+
+        val useCase = DeleteProjectUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository
+        )
+
+        useCase(date = "2026-04-10", project = projectState(projectName = "Beta", projectTime = ZERO_TIME))
+
+        assertEquals(listOf("Beta"), projectRepository.deletedProjectNames)
+        assertEquals(emptyList<SingleProjectState>(), projectRepository.deletedProjects)
+        assertEquals(emptyList<ProjectDetailsState>(), projectDetailsRepository.deletedProjectDetails)
+    }
+
+    @Test
+    fun invoke_recordedZeroTimeProject_deletesProjectAndProjectDetails_andKeepsProjectName() = runBlocking {
+        val projectRepository = FakeProjectRepository().apply {
+            isProjectNameUsedByName["Beta"] = true
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository()
+
+        val useCase = DeleteProjectUseCase(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository
+        )
+
+        useCase(
+            date = "2026-04-10",
+            project = projectState(
+                date = "2026-04-10",
+                projectName = "Beta",
+                projectTime = ZERO_TIME
+            )
+        )
+
+        assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
+        assertEquals(
+            listOf(projectState(date = "2026-04-10", projectName = "Beta", projectTime = ZERO_TIME)),
+            projectRepository.deletedProjects
+        )
+        assertEquals(
+            listOf(projectDetailsState(date = "2026-04-10", projectName = "Beta")),
+            projectDetailsRepository.deletedProjectDetails
+        )
     }
 
     @Test

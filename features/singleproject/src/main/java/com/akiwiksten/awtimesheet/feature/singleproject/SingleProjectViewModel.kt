@@ -9,6 +9,7 @@ import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
+import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.usecase.SaveWorkdayUseCase
@@ -40,6 +41,7 @@ sealed class SingleProjectUiState {
 @HiltViewModel
 class SingleProjectViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
+    private val projectDetailsRepository: ProjectDetailsRepository,
     private val saveWorkdayUseCase: SaveWorkdayUseCase,
     private val settingsRepository: SettingsRepository,
     private val dateRepository: DateRepository
@@ -75,6 +77,10 @@ class SingleProjectViewModel @Inject constructor(
             val workTypes = settingsRepository.getWorkTypes()
             val settings = settingsRepository.getSettings()
             val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
+            val projectDetails = args.projectDetails ?: projectDetailsRepository.getProjectDetails(
+                date = effectiveDate,
+                projectName = selectedProjectName.value
+            )
 
             _uiState.update { currentState ->
                 val currentSuccess = currentState as? SingleProjectUiState.Success
@@ -84,7 +90,7 @@ class SingleProjectViewModel @Inject constructor(
                     workTimeByDate = workTimeByDate,
                     workTypes = workTypes,
                     settings = settings,
-                    projectDetails = args.projectDetails,
+                    projectDetails = projectDetails,
                     otherProjectNames = otherProjectNames,
                     data = currentData.copy(
                         projectName = project?.projectName ?: selectedProjectName.value,

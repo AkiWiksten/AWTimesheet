@@ -42,10 +42,10 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
+import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.feature.workday.R
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayActionButtonsState
 import com.akiwiksten.awtimesheet.feature.workday.model.WorkdayHeaderActions
@@ -226,7 +226,7 @@ internal fun WorkdayActionButtonsSection(
     onDeleteClick: () -> Unit
 ) {
     val selectedProject = state.items.getOrNull(index = state.selectedIndex)
-    val deleteButtonText = if (selectedProject?.projectTime != ZERO_TIME) {
+    val deleteButtonText = if (selectedProject != null && !selectedProject.isProjectNameOnlyPlaceholder()) {
         stringResource(id = R.string.nullify)
     } else {
         stringResource(id = R.string.delete)

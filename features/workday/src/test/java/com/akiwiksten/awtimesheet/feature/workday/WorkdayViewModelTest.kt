@@ -467,6 +467,113 @@ class WorkdayViewModelTest {
     }
 
     @Test
+    fun deleteProject_withRecordedZeroTimeItem_nullifiesProjectWithoutDeletingProjectName() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectsByDateRange = listOf(
+                projectState(
+                    date = "2026-04-10",
+                    projectName = "Alpha",
+                    projectTime = ZERO_TIME
+                )
+            )
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+            workdayStatsRows = listOf(
+                workdayStatsRow(
+                    date = "2026-04-10",
+                    workTimeByDateEstimate = "07:30"
+                )
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = "01:00"
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+            updateWorkTimeByDateChange("01:00")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        viewModel.deleteProject(
+            projectState(
+                date = "2026-04-10",
+                projectName = "Alpha",
+                projectTime = ZERO_TIME
+            )
+        )
+        advanceUntilIdle()
+
+        Assert.assertEquals("01:00", dateRepository.workTimeByDateChange.value)
+        Assert.assertEquals(emptyList<String>(), projectRepository.deletedProjectNames)
+        Assert.assertEquals(
+            listOf(projectState(date = "2026-04-10", projectName = "Alpha", projectTime = ZERO_TIME)),
+            projectRepository.deletedProjects
+        )
+        Assert.assertEquals(
+            listOf(projectDetailsState(date = "2026-04-10", projectName = "Alpha")),
+            projectDetailsRepository.deletedProjectDetails
+        )
+        Assert.assertEquals("01:00", settingsRepository.calculatedFlexTimeTotal)
+    }
+
+    @Test
+    fun deleteProject_withPlaceholderItem_deletesOnlyProjectName() = runTest {
+        val projectRepository = FakeProjectRepository().apply {
+            projectNames = listOf("Alpha")
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            settings = settingsState(
+                dailyWorkTimeEstimate = "07:30",
+                dailyLunchTimeEstimate = "00:30",
+                initialFlexTimeTotal = ZERO_TIME
+            )
+            workdayStatsRows = listOf(
+                workdayStatsRow(
+                    date = "2026-04-10",
+                    workTimeByDateEstimate = "07:30"
+                )
+            )
+        }
+        val settingsRepository = FakeSettingsRepository().apply {
+            calculatedFlexTimeTotal = "01:00"
+        }
+        val dateRepository = InMemoryDateRepository().apply {
+            updateDate("2026-04-10")
+            updateWorkTimeByDateChange("01:00")
+        }
+
+        val viewModel = createViewModel(
+            projectRepository = projectRepository,
+            projectDetailsRepository = projectDetailsRepository,
+            settingsRepository = settingsRepository,
+            dateRepository = dateRepository
+        )
+        advanceUntilIdle()
+
+        viewModel.deleteProject(projectState(projectName = "Alpha", projectTime = ZERO_TIME))
+        advanceUntilIdle()
+
+        Assert.assertEquals(listOf("Alpha"), projectRepository.deletedProjectNames)
+        Assert.assertEquals(emptyList<com.akiwiksten.awtimesheet.domain.model.SingleProjectState>(), projectRepository.deletedProjects)
+        Assert.assertEquals(emptyList<com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState>(), projectDetailsRepository.deletedProjectDetails)
+        Assert.assertEquals("01:00", dateRepository.workTimeByDateChange.value)
+        Assert.assertEquals("01:00", settingsRepository.calculatedFlexTimeTotal)
+    }
+
+    @Test
     fun reconcileAfterProjectEditorReturn_addsFlexDeltaToPersistedCalculatedTotal() = runTest {
         val projectRepository = FakeProjectRepository().apply {
             projectsByDateRange = listOf(

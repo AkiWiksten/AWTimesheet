@@ -126,7 +126,7 @@ class WorkdayViewModel @Inject constructor(
                 val oldFlexTimeByDate = currentState.flexTimeByDate
                 val oldWorkTimeByDate = currentState.workTimeByDate
 
-                deleteProjectUseCase(date = date, projectName = state.projectName, projectTime = state.projectTime)
+                deleteProjectUseCase(date = date, project = state)
                 if (state.projectTime != ZERO_TIME) {
                     dateRepository.addWorkTimeByDateChange("-${state.projectTime}")
                 }

@@ -1,7 +1,7 @@
 package com.akiwiksten.awtimesheet.feature.timesheet.workbook.util
 
 // Row and block layout configuration.
-internal const val DAILY_ENTRY_ROW_HEIGHT = 6
+internal const val DAILY_ENTRY_ROW_HEIGHT = 7
 internal const val DAILY_ENTRIES_START_ROW = 9
 internal const val DAILY_ENTRIES_SEPARATOR_ROW = DAILY_ENTRIES_START_ROW - 1
 internal const val TEMPLATE_DAILY_ENTRY_BLOCKS = 1
@@ -13,7 +13,8 @@ internal const val DAILY_ENTRY_NAME_ROW_OFFSET = 2
 internal const val DAILY_ENTRY_TIME_ROW_OFFSET = 3
 internal const val DAILY_ENTRY_ALLOWANCE_ROW_OFFSET = 4
 internal const val DAILY_ENTRY_WORK_TYPE_ROW_OFFSET = 5
-internal const val DAILY_ENTRY_KILOMETRES_ROW_OFFSET = 6
+internal const val DAILY_ENTRY_COMMENT_ROW_OFFSET = 6
+internal const val DAILY_ENTRY_KILOMETRES_ROW_OFFSET = 7
 
 // Row offsets within the summary sections.
 internal const val SUMMARY_LABEL_ROW = 1

@@ -24,6 +24,7 @@ data class GenerateTimesheetParams(
     val workTimeByDateLabel: String = "Work time by date",
     val allowanceLabel: String = "Allowance",
     val workTypeLabel: String = "Work type",
+    val commentLabel: String = "Comment",
     val employerLabel: String = "Employer",
     val nameLabel: String = "Name",
     val totalSumLabel: String = "TOTAL SUM",
@@ -74,6 +75,7 @@ internal data class TimesheetExportData(
     val workTimeByDateLabel: String,
     val allowanceLabel: String,
     val workTypeLabel: String,
+    val commentLabel: String,
     val employerLabel: String,
     val nameLabel: String,
     val totalSumLabel: String,
@@ -110,6 +112,7 @@ internal data class TimesheetEntry(
     val allowanceType: TimesheetAllowanceType,
     val allowanceLabel: String,
     val workType: String,
+    val comment: String,
     val kilometres: String
 )
 
@@ -126,6 +129,7 @@ internal data class TimesheetLabels(
     val workTimeByDateLabel: String,
     val allowanceLabel: String,
     val workTypeLabel: String,
+    val commentLabel: String,
     val employerLabel: String,
     val nameLabel: String,
     val totalSumLabel: String,

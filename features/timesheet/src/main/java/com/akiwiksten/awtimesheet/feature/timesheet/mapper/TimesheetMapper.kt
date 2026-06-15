@@ -51,6 +51,7 @@ private fun SingleProjectState.toTimesheetEntry(labels: TimesheetLabels): Timesh
             allowanceType = allowanceType,
             allowanceLabel = allowanceType.toExportLabel(labels),
             workType = normalizedWorkType,
+            comment = comment.trim(),
             kilometres = kilometres.trim()
         )
     } else {
@@ -79,6 +80,7 @@ internal fun GenerateTimesheetParams.toTimesheetLabels() = TimesheetLabels(
     workTimeByDateLabel = workTimeByDateLabel,
     allowanceLabel = allowanceLabel,
     workTypeLabel = workTypeLabel,
+    commentLabel = commentLabel,
     employerLabel = employerLabel,
     nameLabel = nameLabel,
     totalSumLabel = totalSumLabel,

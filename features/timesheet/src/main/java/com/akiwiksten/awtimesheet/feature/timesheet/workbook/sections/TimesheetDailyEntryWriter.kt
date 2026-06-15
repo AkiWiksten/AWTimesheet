@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.feature.timesheet.workbook.sections
 
 import com.akiwiksten.awtimesheet.feature.timesheet.model.TimesheetExportData
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_ALLOWANCE_ROW_OFFSET
+import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_COMMENT_ROW_OFFSET
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_KILOMETRES_ROW_OFFSET
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_NAME_ROW_OFFSET
 import com.akiwiksten.awtimesheet.feature.timesheet.workbook.util.DAILY_ENTRY_TIME_ROW_OFFSET
@@ -55,6 +56,12 @@ internal object TimesheetDailyEntryWriter {
                     sheetData = sheetData,
                     cellReference = "$column${baseRow + DAILY_ENTRY_WORK_TYPE_ROW_OFFSET}",
                     value = entry.workType
+                )
+                TimesheetXmlHelper.setStringCell(
+                    document = document,
+                    sheetData = sheetData,
+                    cellReference = "$column${baseRow + DAILY_ENTRY_COMMENT_ROW_OFFSET}",
+                    value = entry.comment
                 )
                 TimesheetXmlHelper.setNumericCell(
                     document = document,

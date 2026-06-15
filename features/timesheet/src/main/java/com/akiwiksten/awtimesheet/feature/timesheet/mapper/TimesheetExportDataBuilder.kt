@@ -56,6 +56,7 @@ internal object TimesheetExportDataBuilder {
             workTimeByDateLabel = labels.workTimeByDateLabel,
             allowanceLabel = labels.allowanceLabel,
             workTypeLabel = labels.workTypeLabel,
+            commentLabel = labels.commentLabel,
             employerLabel = labels.employerLabel,
             nameLabel = labels.nameLabel,
             totalSumLabel = labels.totalSumLabel,

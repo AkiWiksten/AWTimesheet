@@ -314,7 +314,18 @@ class TimesheetGeneratorEntryTest {
         val exportData = TimesheetExportDataBuilder.build(
             params = createParams(
                 listOf(
-                    sampleProject(ProjectSpec("2026-05-01", 0, "Project A", "02:30", "10", "No allowance", "Other"))
+                    sampleProject(
+                        ProjectSpec(
+                            date = "2026-05-01",
+                            index = 0,
+                            name = "Project A",
+                            time = "02:30",
+                            km = "10",
+                            allowance = "No allowance",
+                            workType = "Other",
+                            comment = "Site visit"
+                        )
+                    )
                 )
             )
         )
@@ -336,8 +347,10 @@ class TimesheetGeneratorEntryTest {
         assertEquals("No", sheetXml.cellInlineString("B13"))
         assertEquals("Work type", sheetXml.cellInlineString("A14"))
         assertEquals("Other", sheetXml.cellInlineString("B14"))
-        assertEquals("Kilometres", sheetXml.cellInlineString("A15"))
-        assertEquals("10", sheetXml.cellNumericValue("B15"))
+        assertEquals("Comment", sheetXml.cellInlineString("A15"))
+        assertEquals("Site visit", sheetXml.cellInlineString("B15"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A16"))
+        assertEquals("10", sheetXml.cellNumericValue("B16"))
     }
 
     @Test
@@ -365,20 +378,22 @@ class TimesheetGeneratorEntryTest {
         val sheetXml = workbookBytes.readWorksheetXml("xl/worksheets/sheet1.xml")
 
         // 4th and 5th blocks are created dynamically beyond template defaults.
-        assertEquals("Project name", sheetXml.cellInlineString("A29"))
-        assertEquals("Project time", sheetXml.cellInlineString("A30"))
-        assertEquals("Allowance", sheetXml.cellInlineString("A31"))
-        assertEquals("Work type", sheetXml.cellInlineString("A32"))
-        assertEquals("Kilometres", sheetXml.cellInlineString("A33"))
+        assertEquals("Project name", sheetXml.cellInlineString("A32"))
+        assertEquals("Project time", sheetXml.cellInlineString("A33"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A34"))
+        assertEquals("Work type", sheetXml.cellInlineString("A35"))
+        assertEquals("Comment", sheetXml.cellInlineString("A36"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A37"))
 
-        assertEquals("Project name", sheetXml.cellInlineString("A35"))
-        assertEquals("Project time", sheetXml.cellInlineString("A36"))
-        assertEquals("Allowance", sheetXml.cellInlineString("A37"))
-        assertEquals("Work type", sheetXml.cellInlineString("A38"))
-        assertEquals("Kilometres", sheetXml.cellInlineString("A39"))
+        assertEquals("Project name", sheetXml.cellInlineString("A39"))
+        assertEquals("Project time", sheetXml.cellInlineString("A40"))
+        assertEquals("Allowance", sheetXml.cellInlineString("A41"))
+        assertEquals("Work type", sheetXml.cellInlineString("A42"))
+        assertEquals("Comment", sheetXml.cellInlineString("A43"))
+        assertEquals("Kilometres", sheetXml.cellInlineString("A44"))
 
-        assertEquals("Project 4", sheetXml.cellInlineString("B29"))
-        assertEquals("Project 5", sheetXml.cellInlineString("B35"))
+        assertEquals("Project 4", sheetXml.cellInlineString("B32"))
+        assertEquals("Project 5", sheetXml.cellInlineString("B39"))
     }
 
     private fun createParams(projects: List<SingleProjectState>) = GenerateTimesheetParams(
@@ -409,7 +424,8 @@ class TimesheetGeneratorEntryTest {
         projectTime = spec.time,
         kilometres = spec.km,
         allowance = spec.allowance,
-        workType = spec.workType
+        workType = spec.workType,
+        comment = spec.comment
     )
 
     private fun assertProjectSummaries(exportData: TimesheetExportData) {
@@ -470,7 +486,8 @@ class TimesheetGeneratorEntryTest {
         val time: String,
         val km: String,
         val allowance: String,
-        val workType: String
+        val workType: String,
+        val comment: String = ""
     )
 
     private fun calculateWorkTypeLabelColumnIndex(projectCount: Int): Int {
@@ -506,7 +523,8 @@ class TimesheetGeneratorEntryExcelInspectionTest {
         val time: String,
         val km: String,
         val allowance: String,
-        val workType: String
+        val workType: String,
+        val comment: String = ""
     )
 
     @Test
@@ -530,7 +548,8 @@ class TimesheetGeneratorEntryExcelInspectionTest {
                         projectTime = spec.time,
                         kilometres = spec.km,
                         allowance = spec.allowance,
-                        workType = spec.workType
+                        workType = spec.workType,
+                        comment = spec.comment
                     )
                 }
             )

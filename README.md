@@ -133,6 +133,7 @@ Summarize benchmark output:
     + monthly reports 
     + weekly reports
   + defaultGeneratedAllowanceLabels() localize
+  + localize all labels
 ## What to test constantly
 + Thorough regression testing of all features in all screens
     + Intro, 

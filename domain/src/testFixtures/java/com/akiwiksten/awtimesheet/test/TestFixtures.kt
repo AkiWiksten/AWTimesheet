@@ -15,6 +15,7 @@ fun settingsState(
     initialFlexTimeTotal: String = "00:00",
     calculatedFlexTimeTotal: String = "00:00",
     workTypes: List<String> = emptyList(),
+    language: String = "",
 ): SettingsState {
     return SettingsState(
         name = name,
@@ -24,6 +25,7 @@ fun settingsState(
         initialFlexTimeTotal = initialFlexTimeTotal,
         calculatedFlexTimeTotal = calculatedFlexTimeTotal,
         workTypes = workTypes,
+        language = language,
     )
 }
 

@@ -68,6 +68,7 @@ const val COMMENT = "comment"
 // Domain / settings keys
 const val NAME = "name"
 const val EMPLOYER = "employer"
+const val LANGUAGE = "language"
 const val ENABLE_TEST_FEATURES = "enable_test_features"
 
 // Domain / absence entity keys

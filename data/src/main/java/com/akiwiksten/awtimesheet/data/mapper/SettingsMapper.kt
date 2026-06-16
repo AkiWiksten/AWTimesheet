@@ -10,6 +10,7 @@ fun SettingsEntity.toDomain(): SettingsState {
         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
         dailyLunchTimeEstimate = dailyLunchTimeEstimate,
         initialFlexTimeTotal = initialFlexTimeTotal,
+        language = language,
         enableTestFeatures = enableTestFeatures,
     )
 }
@@ -21,6 +22,7 @@ fun SettingsState.toEntity(): SettingsEntity {
         dailyWorkTimeEstimate = dailyWorkTimeEstimate,
         dailyLunchTimeEstimate = dailyLunchTimeEstimate,
         initialFlexTimeTotal = initialFlexTimeTotal,
+        language = language,
         enableTestFeatures = enableTestFeatures,
     )
 }

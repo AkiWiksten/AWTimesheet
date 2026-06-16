@@ -56,6 +56,7 @@ const val PROJECT_DETAILS_SCREEN = "project_details_screen"
 const val PROJECTS_SCREEN = "projects_screen"
 const val SINGLE_PROJECT_SCREEN = "single_project_screen"
 const val SETTINGS_SCREEN = "settings_screen"
+const val LOCATION_PICKER_SCREEN = "location_picker_screen"
 
 // Domain / project entity keys
 const val PROJECT_NAME = "project_name"

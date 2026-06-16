@@ -2,6 +2,7 @@ package com.akiwiksten.awtimesheet.navigation
 
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -84,6 +85,7 @@ internal fun MainAppScaffold(
                 portraitWidth = portraitWidth,
                 modifier = Modifier
                     .fillMaxSize()
+                    .statusBarsPadding()
                     .consumeWindowInsets(innerPadding)
             ) {
                 WorkTimeNavDisplay(

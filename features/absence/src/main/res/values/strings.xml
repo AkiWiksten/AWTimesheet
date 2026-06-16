@@ -6,7 +6,7 @@
     <string name="no_absences">No absences</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
-    <string name="absence_work_type">Work type</string>
+    <string name="absence_work_type">Absence type</string>
     <string name="absence_weekends_title">Weekends?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

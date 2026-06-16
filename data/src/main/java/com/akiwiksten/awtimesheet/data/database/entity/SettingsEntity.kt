@@ -9,6 +9,7 @@ import com.akiwiksten.awtimesheet.core.EMPLOYER
 import com.akiwiksten.awtimesheet.core.ENABLE_TEST_FEATURES
 import com.akiwiksten.awtimesheet.core.ID
 import com.akiwiksten.awtimesheet.core.INITIAL_FLEX_TIME_TOTAL
+import com.akiwiksten.awtimesheet.core.LANGUAGE
 import com.akiwiksten.awtimesheet.core.NAME
 import com.akiwiksten.awtimesheet.core.SETTINGS_TABLE
 import kotlinx.serialization.Serializable
@@ -22,5 +23,6 @@ data class SettingsEntity(
     @ColumnInfo(name = DAILY_WORK_TIME_ESTIMATE) val dailyWorkTimeEstimate: String = "",
     @ColumnInfo(name = DAILY_LUNCH_TIME_ESTIMATE) val dailyLunchTimeEstimate: String = "",
     @ColumnInfo(name = INITIAL_FLEX_TIME_TOTAL) val initialFlexTimeTotal: String = "",
+    @ColumnInfo(name = LANGUAGE) val language: String = "",
     @ColumnInfo(name = ENABLE_TEST_FEATURES) val enableTestFeatures: Boolean = false,
 )

@@ -52,6 +52,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 } else {
                     existing?.initialFlexTimeTotal ?: ZERO_TIME
                 },
+                language = settings.language.ifEmpty { existing?.language.orEmpty() },
                 enableTestFeatures = settings.enableTestFeatures,
             ).toEntity()
         )

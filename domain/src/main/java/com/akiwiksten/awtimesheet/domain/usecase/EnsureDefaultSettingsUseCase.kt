@@ -10,19 +10,27 @@ import javax.inject.Inject
 class EnsureDefaultSettingsUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
-    suspend operator fun invoke(defaultWorkTypeLabels: List<String>) {
+    suspend operator fun invoke(defaultWorkTypeLabels: List<String>, currentLanguage: String) {
         val existing = settingsRepository.getSettings()
-        if (existing != null) return
 
-        settingsRepository.insertSettings(
-            SettingsState(
-                dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
-                dailyLunchTimeEstimate = ZERO_TIME,
-                initialFlexTimeTotal = ZERO_TIME
+        if (existing == null) {
+            settingsRepository.insertSettings(
+                SettingsState(
+                    dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
+                    dailyLunchTimeEstimate = ZERO_TIME,
+                    initialFlexTimeTotal = ZERO_TIME,
+                    language = currentLanguage
+                )
             )
-        )
+            insertWorkTypes(defaultWorkTypeLabels)
+        } else if (existing.language != currentLanguage) {
+            settingsRepository.insertSettings(existing.copy(language = currentLanguage))
+            settingsRepository.deleteAllWorkTypes()
+            insertWorkTypes(defaultWorkTypeLabels)
+        }
+    }
 
-        // Insert default work types
+    private suspend fun insertWorkTypes(defaultWorkTypeLabels: List<String>) {
         DEFAULT_WORK_TYPES.zip(defaultWorkTypeLabels).forEach { (_, label) ->
             settingsRepository.insertWorkType(label)
         }

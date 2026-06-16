@@ -21,34 +21,54 @@ class EnsureDefaultSettingsUseCaseTest {
         val repository = FakeSettingsRepository()
         val useCase = EnsureDefaultSettingsUseCase(repository)
 
-        useCase(defaultWorkTypeLabels())
+        useCase(defaultWorkTypeLabels(), "en")
 
         assertEquals(
             settingsState(
                 dailyWorkTimeEstimate = DEFAULT_DAILY_WORK_TIME,
                 dailyLunchTimeEstimate = ZERO_TIME,
-                initialFlexTimeTotal = ZERO_TIME
+                initialFlexTimeTotal = ZERO_TIME,
+                language = "en"
             ),
             repository.settings
         )
     }
 
     @Test
-    fun invoke_doesNotOverrideExistingSettings() = runBlocking {
+    fun invoke_doesNotOverrideExistingSettings_whenLanguageSame() = runBlocking {
         val existing = settingsState(
             dailyWorkTimeEstimate = "08:00",
             dailyLunchTimeEstimate = "00:30",
-            initialFlexTimeTotal = "+01:20"
+            initialFlexTimeTotal = "+01:20",
+            language = "en"
         )
         val repository = FakeSettingsRepository().apply {
             settings = existing
         }
         val useCase = EnsureDefaultSettingsUseCase(repository)
 
-        useCase(defaultWorkTypeLabels())
+        useCase(defaultWorkTypeLabels(), "en")
 
         assertEquals(existing, repository.settings)
         assertNull(repository.insertedSettings)
+    }
+
+    @Test
+    fun invoke_updatesLanguageAndResetsWorkTypes_whenLanguageChanged() = runBlocking {
+        val existing = settingsState(
+            dailyWorkTimeEstimate = "08:00",
+            language = "en"
+        )
+        val repository = FakeSettingsRepository().apply {
+            settings = existing
+        }
+        val useCase = EnsureDefaultSettingsUseCase(repository)
+
+        useCase(listOf("Muu", "Loma"), "fi")
+
+        assertEquals("fi", repository.settings?.language)
+        assertEquals(2, repository.workTypes.size)
+        assertEquals("Muu", repository.workTypes[0])
     }
 
     private fun defaultWorkTypeLabels(): List<String> {

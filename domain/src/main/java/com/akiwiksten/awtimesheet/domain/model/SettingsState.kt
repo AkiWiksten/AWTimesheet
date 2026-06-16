@@ -13,5 +13,6 @@ data class SettingsState(
     val initialFlexTimeTotal: String = ZERO_TIME,
     val calculatedFlexTimeTotal: String = ZERO_TIME,
     val workTypes: List<String> = emptyList(),
+    val language: String = "",
     val enableTestFeatures: Boolean = false,
 ) : Parcelable

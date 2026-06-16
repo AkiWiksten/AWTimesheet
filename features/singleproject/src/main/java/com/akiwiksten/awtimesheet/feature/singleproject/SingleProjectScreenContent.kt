@@ -236,6 +236,10 @@ private fun SingleProjectContent(
             NoteBanner(stringResource(id = R.string.project_name_note))
         }
 
+        if (screenState.isTimePickerDisabled) {
+            NoteBanner(text = stringResource(id = R.string.pick_disabled_note))
+        }
+
         ElevatedCard(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
             modifier = Modifier.fillMaxWidth()

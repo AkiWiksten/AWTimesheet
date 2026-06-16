@@ -5,6 +5,7 @@
     <string name="details">Detaljer</string>
     <string name="or_text">ELLER</string>
     <string name="pick">Välj</string>
+    <string name="pick_disabled_note">Du har bekräftat "Detaljer". Knappen "Välj" är inaktiverad.</string>
     <string name="project_name_note">Välj projektnamnet noggrant. Du kan inte ändra det efter att du har tryckt på \'Spara\' här.</string>
     <string name="comment_dialog_title">Redigera kommentar</string>
 </resources>

@@ -51,7 +51,7 @@ class AbsenceViewModel @Inject constructor(
                     includeWeekends = it.includeWeekends,
                     isFlexDay = it.isFlexDay
                 )
-            }
+            }.sortedByDescending { it.startDate }
             _uiState.update { it.copy(savedAbsences = absences) }
         }
     }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -38,7 +37,7 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import kotlin.math.roundToInt
 
-private data class LocationListItem(
+private data class LocationRouteItem(
     val distance: String,
     val start: String,
     val destination: String,
@@ -75,13 +74,8 @@ private fun LocationScreenContent(
 ) {
     val distanceText =
         state.distanceKm?.let { "${it.roundToInt()} km" } ?: stringResource(R.string.not_available)
-    val summaryItem = LocationListItem(
-        distance = distanceText,
-        start = state.startAddress ?: stringResource(R.string.not_selected),
-        destination = state.destinationAddress ?: stringResource(R.string.not_selected),
-    )
     val routeItem = state.distanceKm?.let {
-        LocationListItem(
+        LocationRouteItem(
             distance = distanceText,
             start = state.startAddress ?: stringResource(R.string.not_selected),
             destination = state.destinationAddress ?: stringResource(R.string.not_selected),
@@ -96,13 +90,12 @@ private fun LocationScreenContent(
     ) {
         LocationInputCard(state = state, distanceText = distanceText)
 
-        LocationSummaryList(
-            items = buildList {
-                add(summaryItem)
-                routeItem?.let(::add)
-            },
-            modifier = Modifier.padding(top = PADDING_SPACING)
-        )
+        routeItem?.let {
+            CalculatedRouteList(
+                item = it,
+                modifier = Modifier.padding(top = PADDING_SPACING)
+            )
+        }
     }
 }
 
@@ -130,7 +123,7 @@ private fun LocationInputCard(
                     text = state.startAddress ?: stringResource(R.string.not_selected),
                     modifier = Modifier.weight(1f)
                 )
-                AwtButton(onClick = state.onSelectStartPoint, modifier = Modifier.width(140.dp)) {
+                AwtButton(onClick = state.onSelectStartPoint, modifier = Modifier.width(120.dp)) {
                     Text(stringResource(R.string.start))
                 }
             }
@@ -146,36 +139,37 @@ private fun LocationInputCard(
                 )
                 AwtButton(
                     onClick = state.onSelectDestinationPoint,
-                    modifier = Modifier.width(140.dp)
+                    modifier = Modifier.width(120.dp)
                 ) {
                     Text(stringResource(R.string.destination))
                 }
             }
 
             val roundedDistance = state.distanceKm?.roundToInt() ?: 0
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
                     Text(stringResource(R.string.distance), fontWeight = FontWeight.SemiBold)
-                    AwtButton(
-                        onClick = { state.onConfirmDistance(roundedDistance.toString()) },
-                        enabled = roundedDistance > 0
-                    ) {
-                        Text(stringResource(R.string.confirm))
-                    }
+                    Text(distanceText)
                 }
-                Text(distanceText)
+                AwtButton(
+                    onClick = { state.onConfirmDistance(roundedDistance.toString()) },
+                    enabled = roundedDistance > 0,
+                    modifier = Modifier.width(120.dp)
+                ) {
+                    Text(stringResource(R.string.confirm))
+                }
             }
         }
     }
 }
 
 @Composable
-private fun LocationSummaryList(
-    items: List<LocationListItem>,
+private fun CalculatedRouteList(
+    item: LocationRouteItem,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
@@ -189,15 +183,15 @@ private fun LocationSummaryList(
                 .background(MaterialTheme.colorScheme.secondary),
             verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
-            items(items = items) { item ->
-                LocationSummaryListItem(item)
+            item {
+                CalculatedRouteListItem(item)
             }
         }
     }
 }
 
 @Composable
-private fun LocationSummaryListItem(item: LocationListItem) {
+private fun CalculatedRouteListItem(item: LocationRouteItem) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),

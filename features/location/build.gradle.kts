@@ -1,6 +1,7 @@
 plugins {
     id("awtimesheet.android.compose.feature")
     id("awtimesheet.feature.dependencies")
+    kotlin("plugin.parcelize")
 }
 
 android {
@@ -11,6 +12,10 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.google.maps.compose)
+    implementation(libs.google.play.services.maps)
+    implementation(libs.google.places)
+    implementation(libs.kotlinx.serialization.json)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     testImplementation(testFixtures(project(":domain")))

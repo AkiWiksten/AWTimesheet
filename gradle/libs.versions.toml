@@ -19,10 +19,14 @@ robolectric = "4.16.1"
 kotlin-test = "2.3.20"
 coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
+mapsCompose = "8.3.0"
+playServicesMaps = "20.0.0"
+places = "4.2.0"
 javax-inject = "1"
 screenshot = "0.0.1-alpha14"
 benchmarkMacroJunit4 = "1.4.1"
 uiautomator = "2.3.0"
+placesVersion = "5.2.0"
 
 [libraries]
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -62,10 +66,15 @@ kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.re
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.7.3" }
+google-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
+google-play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+google-places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
 screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot"}
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+places = { group = "com.google.android.libraries.places", name = "places", version.ref = "placesVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

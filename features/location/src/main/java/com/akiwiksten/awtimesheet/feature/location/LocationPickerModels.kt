@@ -15,7 +15,9 @@ internal data class LocationPickerMapState(
 )
 
 internal data class LocationPickerScreenState(
-    val selectedPlace: Place?,
+    val searchText: String,
+    val selectedAddress: String?,
+    val isResolvingAddress: Boolean,
     val selectedLatLng: LatLng?,
     val cameraPositionState: CameraPositionState,
     val mapState: LocationPickerMapState
@@ -24,10 +26,12 @@ internal data class LocationPickerScreenState(
 internal data class LocationPickerScaffoldActions(
     val onLocationSelected: (LocationPickerResult) -> Unit,
     val onNavigateBack: () -> Unit,
-    val onMapClick: (LatLng) -> Unit
+    val onMapClick: (LatLng) -> Unit,
+    val onUseCurrentLocation: () -> Unit
 )
 
 internal data class LocationPickerTopBarState(
     val context: Context,
-    val launcher: ManagedActivityResultLauncher<Intent, ActivityResult>
+    val launcher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    val onNavigateBack: () -> Unit
 )

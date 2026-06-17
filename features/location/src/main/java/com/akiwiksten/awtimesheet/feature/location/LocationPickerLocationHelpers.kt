@@ -3,8 +3,11 @@ package com.akiwiksten.awtimesheet.feature.location
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -18,6 +21,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
 import com.google.maps.android.compose.CameraPositionState
+import java.util.Locale
 
 @Composable
 internal fun rememberFineLocationPermission(
@@ -74,6 +78,60 @@ private fun hasFineLocationPermission(context: Context): Boolean {
     ) == PackageManager.PERMISSION_GRANTED
 }
 
+internal fun getCurrentLocationLatLng(context: Context): LatLng? {
+    if (!hasFineLocationPermission(context)) return null
+    val locationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
+    return latestKnownLocation(locationManager)?.let { LatLng(it.latitude, it.longitude) }
+}
+
+internal fun resolveAddressFromLatLng(
+    context: Context,
+    latLng: LatLng,
+    onResolved: (String?) -> Unit
+) {
+    val geocoder = Geocoder(context, Locale.getDefault())
+    if (!Geocoder.isPresent()) {
+        onResolved(null)
+        return
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        runCatching {
+            geocoder.getFromLocation(
+                latLng.latitude,
+                latLng.longitude,
+                1,
+                object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addresses: MutableList<Address>) {
+                        onResolved(addresses.firstOrNull()?.getAddressLine(0))
+                    }
+
+                    override fun onError(errorMessage: String?) {
+                        onResolved(null)
+                    }
+                }
+            )
+        }.onFailure {
+            onResolved(null)
+        }
+        return
+    }
+
+    val address = runCatching {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            null
+        } else {
+            @Suppress("DEPRECATION")
+            geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                ?.firstOrNull()
+                ?.getAddressLine(0)
+        }
+    }.getOrNull()
+
+    onResolved(address)
+}
+
 @Suppress("MissingPermission")
 private fun moveCameraToCurrentLocation(
     context: Context,
@@ -83,13 +141,7 @@ private fun moveCameraToCurrentLocation(
     val locationManager =
         context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
 
-    val latestLocation = locationManager
-        .getProviders(true)
-        .asSequence()
-        .mapNotNull { provider ->
-            runCatching { locationManager.getLastKnownLocation(provider) }.getOrNull()
-        }
-        .maxByOrNull(Location::getTime)
+    val latestLocation = latestKnownLocation(locationManager)
 
     latestLocation?.let { location ->
         cameraPositionState.position = CameraPosition.fromLatLngZoom(
@@ -97,4 +149,15 @@ private fun moveCameraToCurrentLocation(
             zoom
         )
     }
+}
+
+@Suppress("MissingPermission")
+private fun latestKnownLocation(locationManager: LocationManager): Location? {
+    return locationManager
+        .getProviders(true)
+        .asSequence()
+        .mapNotNull { provider ->
+            runCatching { locationManager.getLastKnownLocation(provider) }.getOrNull()
+        }
+        .maxByOrNull(Location::getTime)
 }

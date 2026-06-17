@@ -9,19 +9,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -37,6 +45,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LocationPickerScaffold(
     topBarState: LocationPickerTopBarState,
@@ -44,12 +53,14 @@ internal fun LocationPickerScaffold(
     actions: LocationPickerScaffoldActions
 ) {
     Scaffold(
-        floatingActionButton = {
-            LocationPickerConfirmButton(
-                selectedPlace = screenState.selectedPlace,
-                selectedLatLng = screenState.selectedLatLng,
-                onLocationSelected = actions.onLocationSelected,
-                onNavigateBack = actions.onNavigateBack
+        topBar = {
+            TopAppBar(
+                title = { Text("Select Location") },
+                navigationIcon = {
+                    IconButton(onClick = topBarState.onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
         }
     ) { padding ->
@@ -61,10 +72,28 @@ internal fun LocationPickerScaffold(
             LocationPickerSearchField(
                 context = topBarState.context,
                 launcher = topBarState.launcher,
-                selectedPlace = screenState.selectedPlace,
+                searchText = screenState.searchText,
+                isResolvingAddress = screenState.isResolvingAddress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
+            )
+            Button(
+                onClick = actions.onUseCurrentLocation,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text("Use current address")
+            }
+            LocationPickerConfirmButton(
+                selectedAddress = screenState.selectedAddress,
+                isResolvingAddress = screenState.isResolvingAddress,
+                selectedLatLng = screenState.selectedLatLng,
+                onLocationSelected = actions.onLocationSelected,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             )
             Box(modifier = Modifier.fillMaxSize()) {
                 LocationPickerMapContent(
@@ -83,38 +112,49 @@ internal fun LocationPickerScaffold(
 private fun LocationPickerSearchField(
     context: Context,
     launcher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    selectedPlace: Place?,
+    searchText: String,
+    isResolvingAddress: Boolean,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
-        value = selectedPlace?.displayName ?: "",
+        value = searchText,
         onValueChange = {},
         modifier = modifier,
         label = { Text("Search location") },
         readOnly = true,
         singleLine = true,
         trailingIcon = {
-            IconButton(
-                onClick = {
-                    val fields = listOf(
-                        Place.Field.ID,
-                        Place.Field.DISPLAY_NAME,
-                        Place.Field.FORMATTED_ADDRESS,
-                        Place.Field.LOCATION
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isResolvingAddress) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(18.dp),
+                        strokeWidth = 2.dp
                     )
-
-                    val intent = Autocomplete.IntentBuilder(
-                        AutocompleteActivityMode.OVERLAY,
-                        fields
-                    ).build(context)
-
-                    launcher.launch(intent)
-                    focusManager.clearFocus()
                 }
-            ) {
-                Icon(Icons.Default.Search, contentDescription = "Search")
+                IconButton(
+                    onClick = {
+                        val fields = listOf(
+                            Place.Field.ID,
+                            Place.Field.DISPLAY_NAME,
+                            Place.Field.FORMATTED_ADDRESS,
+                            Place.Field.LOCATION
+                        )
+
+                        val intent = Autocomplete.IntentBuilder(
+                            AutocompleteActivityMode.OVERLAY,
+                            fields
+                        ).build(context)
+
+                        launcher.launch(intent)
+                        focusManager.clearFocus()
+                    }
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
+                }
             }
         },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -141,30 +181,36 @@ private fun LocationPickerSearchField(
 
 @Composable
 private fun LocationPickerConfirmButton(
-    selectedPlace: Place?,
+    selectedAddress: String?,
+    isResolvingAddress: Boolean,
     selectedLatLng: LatLng?,
     onLocationSelected: (LocationPickerResult) -> Unit,
-    onNavigateBack: () -> Unit
+    modifier: Modifier = Modifier
 ) {
-    FloatingActionButton(
+    Button(
         onClick = {
-            val place = selectedPlace ?: return@FloatingActionButton
-            val latLng = selectedLatLng ?: return@FloatingActionButton
+            val latLng = selectedLatLng ?: return@Button
 
             onLocationSelected(
                 LocationPickerResult(
                     latitude = latLng.latitude,
                     longitude = latLng.longitude,
-                    address = place.formattedAddress ?: ""
+                    address = selectedAddress ?: "${latLng.latitude}, ${latLng.longitude}"
                 )
             )
 
-            onNavigateBack()
-        }
+        },
+        enabled = selectedLatLng != null && !isResolvingAddress,
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors()
     ) {
         Icon(
             Icons.Default.Check,
-            null
+            contentDescription = null
+        )
+        Text(
+            text = "Confirm",
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }

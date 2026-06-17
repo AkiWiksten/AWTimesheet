@@ -195,11 +195,11 @@ private fun appEntryProvider(
     entry<Screen.SingleProject> { screen ->
         SingleProjectEntry(screen = screen, backStack = backStack)
     }
-    entry<Screen.Location> {
-        LocationEntry(backStack = backStack)
+    entry<Screen.Location> { screen ->
+        LocationEntry(screen = screen, backStack = backStack)
     }
-    entry<Screen.LocationPicker> {
-        LocationPickerEntry(backStack = backStack)
+    entry<Screen.LocationPicker> { screen ->
+        LocationPickerEntry(screen = screen, backStack = backStack)
     }
 }
 

@@ -17,6 +17,18 @@ import kotlinx.parcelize.Parcelize
 
 // Navigation routes
 sealed interface Screen : Parcelable {
+    @Parcelize
+    data class LocationPoint(
+        val latitude: Double,
+        val longitude: Double,
+        val address: String
+    ) : Parcelable
+
+    enum class LocationTarget {
+        START,
+        DESTINATION
+    }
+
     val route: String
     val titleResId: Int?
 
@@ -74,13 +86,18 @@ sealed interface Screen : Parcelable {
     }
 
     @Parcelize
-    data object Location : Screen {
+    data class Location(
+        val startPoint: LocationPoint? = null,
+        val destinationPoint: LocationPoint? = null
+    ) : Screen {
         override val route: String get() = LOCATION_SCREEN
         override val titleResId: Int? get() = null
     }
 
     @Parcelize
-    data object LocationPicker : Screen {
+    data class LocationPicker(
+        val target: LocationTarget
+    ) : Screen {
         override val route: String get() = LOCATION_PICKER_SCREEN
         override val titleResId: Int? get() = null
     }

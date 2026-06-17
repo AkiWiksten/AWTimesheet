@@ -17,6 +17,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.location.LocationPickerResult
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectDerivedState
@@ -74,7 +75,8 @@ fun SingleProjectScreen(
         initialProjectNameArg = routeArgs.projectName,
         onNavigateBack = navigationActions.onNavigateBack,
         onOpenProjectDetails = openProjectDetails,
-        onSaveAndNavigateBack = saveAndNavigateBackToWorkday
+        onSaveAndNavigateBack = saveAndNavigateBackToWorkday,
+        onNavigateToLocationPicker = { navigationActions.onNavigateToLocationPicker(it) }
     )
 }
 
@@ -84,7 +86,8 @@ private fun SingleProjectUiStateContent(
     initialProjectNameArg: String,
     onNavigateBack: () -> Unit,
     onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit
+    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    onNavigateToLocationPicker: (SingleProjectState) -> Unit
 ) {
     when (uiState) {
         is SingleProjectUiState.Success -> {
@@ -93,7 +96,8 @@ private fun SingleProjectUiStateContent(
                 initialProjectNameArg = initialProjectNameArg,
                 onNavigateBack = onNavigateBack,
                 onOpenProjectDetails = onOpenProjectDetails,
-                onSaveAndNavigateBack = onSaveAndNavigateBack
+                onSaveAndNavigateBack = onSaveAndNavigateBack,
+                onNavigateToLocationPicker = onNavigateToLocationPicker
             )
         }
         is SingleProjectUiState.Loading -> {
@@ -111,7 +115,8 @@ private fun SingleProjectScreenStateful(
     initialProjectNameArg: String,
     onNavigateBack: () -> Unit,
     onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit
+    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    onNavigateToLocationPicker: (SingleProjectState) -> Unit
 ) {
     val noAllowanceText = stringResource(id = CoreR.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = CoreR.string.other)
@@ -156,7 +161,8 @@ private fun SingleProjectScreenStateful(
                 .withAbsenceLogic(state, settings, absencePrefix, flexDayWorkType)
         },
         onOpenProjectDetails = { onOpenProjectDetails(state, uiState.projectDetails) },
-        onSave = { onSaveAndNavigateBack(state, uiState.projectDetails) }
+        onSave = { onSaveAndNavigateBack(state, uiState.projectDetails) },
+        onNavigateToLocationPicker = { onNavigateToLocationPicker(state) }
     )
 
     val onDiscardAndNavigateBack = {

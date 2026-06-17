@@ -25,7 +25,8 @@ data class SingleProjectRouteArgs(
 
 data class SingleProjectNavigationActions(
     val onNavigateBack: () -> Unit,
-    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    val onNavigateToLocationPicker: (SingleProjectState) -> Unit
 )
 
 data class SingleProjectDerivedState(
@@ -49,7 +50,8 @@ data class SingleProjectScreenState(
 data class SingleProjectActions(
     val onStateChange: (SingleProjectState) -> Unit,
     val onOpenProjectDetails: () -> Unit,
-    val onSave: () -> Unit
+    val onSave: () -> Unit,
+    val onNavigateToLocationPicker: () -> Unit
 )
 
 data class SingleProjectConfiguration(

@@ -6,6 +6,8 @@ import com.akiwiksten.awtimesheet.core.ABSENCE_SCREEN
 import com.akiwiksten.awtimesheet.core.CALENDAR_SCREEN
 import com.akiwiksten.awtimesheet.core.CREATE_ABSENCE_SCREEN
 import com.akiwiksten.awtimesheet.core.INTRO_SCREEN
+import com.akiwiksten.awtimesheet.core.LOCATION_PICKER_SCREEN
+import com.akiwiksten.awtimesheet.core.LOCATION_SCREEN
 import com.akiwiksten.awtimesheet.core.PROJECTS_SCREEN
 import com.akiwiksten.awtimesheet.core.PROJECT_DETAILS_SCREEN
 import com.akiwiksten.awtimesheet.core.SETTINGS_SCREEN
@@ -68,6 +70,18 @@ sealed interface Screen : Parcelable {
     @Parcelize
     data object Intro : Screen {
         override val route: String get() = INTRO_SCREEN
+        override val titleResId: Int? get() = null
+    }
+
+    @Parcelize
+    data object Location : Screen {
+        override val route: String get() = LOCATION_SCREEN
+        override val titleResId: Int? get() = null
+    }
+
+    @Parcelize
+    data object LocationPicker : Screen {
+        override val route: String get() = LOCATION_PICKER_SCREEN
         override val titleResId: Int? get() = null
     }
 

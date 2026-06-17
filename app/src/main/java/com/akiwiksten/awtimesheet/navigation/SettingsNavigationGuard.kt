@@ -195,6 +195,12 @@ private fun appEntryProvider(
     entry<Screen.SingleProject> { screen ->
         SingleProjectEntry(screen = screen, backStack = backStack)
     }
+    entry<Screen.Location> {
+        LocationEntry(backStack = backStack)
+    }
+    entry<Screen.LocationPicker> {
+        LocationPickerEntry(backStack = backStack)
+    }
 }
 
 @Composable

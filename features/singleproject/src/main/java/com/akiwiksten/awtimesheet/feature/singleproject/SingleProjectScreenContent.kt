@@ -292,7 +292,8 @@ private fun SingleProjectFormFields(
             state = screenState.state,
             workTypeDropDownList = workTypes,
             isAbsence = isAnyAbsence,
-            onStateChange = actions.onStateChange
+            onStateChange = actions.onStateChange,
+            onNavigateToLocationPicker = actions.onNavigateToLocationPicker
         )
 
         SingleProjectCommentField(

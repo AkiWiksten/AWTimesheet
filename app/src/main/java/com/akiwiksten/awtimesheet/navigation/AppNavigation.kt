@@ -17,6 +17,8 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.location.LocationPickerScreen
+import com.akiwiksten.awtimesheet.feature.location.LocationScreen
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
@@ -84,6 +86,25 @@ internal fun PortraitWidthContainer(
             content()
         }
     }
+}
+
+@Composable
+internal fun LocationEntry(backStack: SnapshotStateList<Any>) {
+    LocationScreen(
+        onNavigateToLocationPicker = { backStack.add(element = Screen.LocationPicker) },
+        onNavigateBack = { backStack.pop() }
+    )
+}
+
+@Composable
+internal fun LocationPickerEntry(backStack: SnapshotStateList<Any>) {
+    LocationPickerScreen(
+        onLocationSelected = { _ ->
+            // Placeholder for km calculation based on location result
+            backStack.updateSingleProjectKilometres("15")
+        },
+        onNavigateBack = { backStack.pop() }
+    )
 }
 
 @Composable
@@ -164,6 +185,10 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
                         breakEnd = projectDetails?.breakEnd ?: ""
                     )
                 )
+            },
+            onNavigateToLocationPicker = { singleProject ->
+                backStack.updateSingleProjectState(singleProject)
+                backStack.add(element = Screen.Location)
             }
         )
     )
@@ -201,6 +226,22 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
             allowance = singleProject.allowance,
             workType = singleProject.workType,
             comment = singleProject.comment
+        )
+    }
+}
+
+internal fun SnapshotStateList<Any>.updateSingleProjectKilometres(
+    kilometres: String
+) {
+    pop() // pop LocationPicker
+    if (lastOrNull() is Screen.Location) {
+        pop() // pop Location screen inserted between SingleProject and LocationPicker
+    }
+    val index = size - 1
+    val current = getOrNull(index = index)
+    if (current is Screen.SingleProject) {
+        this[index] = current.copy(
+            kilometres = kilometres
         )
     }
 }

@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":features:location"))
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

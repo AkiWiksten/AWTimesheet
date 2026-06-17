@@ -171,7 +171,8 @@ private fun SingleProjectPreviewContent(
                 actions = SingleProjectActions(
                     onStateChange = {},
                     onOpenProjectDetails = {},
-                    onSave = {}
+                    onSave = {},
+                    onNavigateToLocationPicker = {}
                 ),
                 config = SingleProjectConfiguration(
                     absencePrefix = "Absence",

@@ -1,7 +1,14 @@
-﻿plugins {
+﻿import java.util.Properties
+
+plugins {
     id("awtimesheet.android.compose.app")
     kotlin("plugin.parcelize")
 }
+
+val localProperties = Properties().also { props ->
+    rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(props::load)
+}
+val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY", "")
 
 android {
     namespace = "com.akiwiksten.awtimesheet"
@@ -13,8 +20,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        val mapsApiKey = "YOUR_ACTUAL_API_KEY_HERE"
+
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
         buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
     }
@@ -55,6 +61,7 @@ dependencies {
     implementation(project(":features:calendar"))
     implementation(project(":features:absence"))
     implementation(project(":features:intro"))
+    implementation(project(":features:location"))
     implementation(project(":features:projectdetails"))
     implementation(project(":features:settings"))
     implementation(project(":features:singleproject"))

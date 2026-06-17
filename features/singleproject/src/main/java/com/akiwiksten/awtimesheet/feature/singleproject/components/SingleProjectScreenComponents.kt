@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
@@ -293,7 +294,8 @@ internal fun SingleProjectDownSection(
     state: SingleProjectState,
     workTypeDropDownList: List<String>,
     isAbsence: Boolean,
-    onStateChange: (SingleProjectState) -> Unit
+    onStateChange: (SingleProjectState) -> Unit,
+    onNavigateToLocationPicker: () -> Unit
 ) {
     DropdownMenuBox(
         items = workTypeDropDownList,
@@ -318,22 +320,39 @@ internal fun SingleProjectDownSection(
         onItemSelected = { onStateChange(state.copy(allowance = it)) }
     )
 
-    OutlinedTextField(
-        value = state.kilometres,
-        onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
-        label = {
-            Text(
-                text = stringResource(id = CoreR.string.kilometres),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        },
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        enabled = !isAbsence,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        singleLine = true,
-        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
-    )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
+    ) {
+        OutlinedTextField(
+            value = state.kilometres,
+            onValueChange = { if (it.isDigitsOnly()) onStateChange(state.copy(kilometres = it)) },
+            label = {
+                Text(
+                    text = stringResource(id = CoreR.string.kilometres),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * LABEL_FONT_SIZE_SCALE,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            },
+            modifier = Modifier.weight(weight = 1f),
+            enabled = !isAbsence,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS)
+        )
+
+        IconButton(
+            onClick = onNavigateToLocationPicker,
+            enabled = !isAbsence
+        ) {
+            Icon(
+                imageVector = Icons.Default.Map,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
 }

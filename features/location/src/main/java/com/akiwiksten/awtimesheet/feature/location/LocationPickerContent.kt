@@ -1,3 +1,5 @@
+@file:Suppress("FunctionNaming")
+
 package com.akiwiksten.awtimesheet.feature.location
 
 import android.content.Context
@@ -6,6 +8,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,8 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -82,7 +84,7 @@ internal fun LocationPickerScaffold(
                     .fillMaxWidth()
                     .padding(8.dp)
             )
-            Button(
+            AwtButton(
                 onClick = actions.onUseCurrentLocation,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,7 +103,7 @@ internal fun LocationPickerScaffold(
             )
             Box(modifier = Modifier.fillMaxSize()) {
                 LocationPickerMapContent(
-                    padding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                    padding = PaddingValues(0.dp),
                     cameraPositionState = screenState.cameraPositionState,
                     mapState = screenState.mapState,
                     onMapClick = actions.onMapClick,
@@ -191,9 +193,9 @@ private fun LocationPickerConfirmButton(
     onLocationSelected: (LocationPickerResult) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Button(
+    AwtButton(
         onClick = {
-            val latLng = selectedLatLng ?: return@Button
+            val latLng = selectedLatLng ?: return@AwtButton
 
             onLocationSelected(
                 LocationPickerResult(
@@ -205,7 +207,6 @@ private fun LocationPickerConfirmButton(
         },
         enabled = selectedLatLng != null && !isResolvingAddress,
         modifier = modifier,
-        colors = ButtonDefaults.buttonColors()
     ) {
         Icon(Icons.Default.Check, contentDescription = null)
         Text(text = stringResource(R.string.confirm), modifier = Modifier.padding(start = 8.dp))
@@ -214,7 +215,7 @@ private fun LocationPickerConfirmButton(
 
 @Composable
 private fun LocationPickerMapContent(
-    padding: androidx.compose.foundation.layout.PaddingValues,
+    padding: PaddingValues,
     cameraPositionState: CameraPositionState,
     mapState: LocationPickerMapState,
     onMapClick: (LatLng) -> Unit,

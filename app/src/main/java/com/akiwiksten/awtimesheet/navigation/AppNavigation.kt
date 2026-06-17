@@ -1,4 +1,6 @@
-﻿package com.akiwiksten.awtimesheet.navigation
+﻿@file:Suppress("TooManyFunctions", "FunctionNaming")
+
+package com.akiwiksten.awtimesheet.navigation
 
 import android.os.Parcelable
 import androidx.compose.foundation.layout.Box
@@ -19,8 +21,9 @@ import androidx.compose.ui.unit.Dp
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerScreen
-import com.akiwiksten.awtimesheet.feature.location.LocationScreen
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerResult
+import com.akiwiksten.awtimesheet.feature.location.LocationScreen
+import com.akiwiksten.awtimesheet.feature.location.LocationScreenState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
@@ -102,21 +105,23 @@ internal fun LocationEntry(screen: Screen.Location, backStack: SnapshotStateList
     }
 
     LocationScreen(
-        startAddress = screen.startPoint?.address,
-        destinationAddress = screen.destinationPoint?.address,
-        distanceKm = distanceKm,
-        onSelectStartPoint = {
-            backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.START))
-        },
-        onSelectDestinationPoint = {
-            backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.DESTINATION))
-        },
-        onNavigateBack = {
-            distanceKm?.let { kilometres ->
-                backStack.updateSingleProjectKilometres(kilometres = formatDistanceForSingleProject(kilometres))
+        state = LocationScreenState(
+            startAddress = screen.startPoint?.address,
+            destinationAddress = screen.destinationPoint?.address,
+            distanceKm = distanceKm,
+            onSelectStartPoint = {
+                backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.START))
+            },
+            onSelectDestinationPoint = {
+                backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.DESTINATION))
+            },
+            onConfirmDistance = { kilometres ->
+                backStack.confirmLocationDistance(kilometres)
+            },
+            onNavigateBack = {
+                backStack.pop()
             }
-            backStack.pop()
-        }
+        )
     )
 }
 
@@ -304,5 +309,10 @@ internal fun SnapshotStateList<Any>.updateLocationSelection(
         Screen.LocationTarget.START -> current.copy(startPoint = point)
         Screen.LocationTarget.DESTINATION -> current.copy(destinationPoint = point)
     }
+}
+
+internal fun SnapshotStateList<Any>.confirmLocationDistance(kilometres: String) {
+    pop() // pop Location screen
+    updateSingleProjectKilometres(kilometres = kilometres)
 }
 

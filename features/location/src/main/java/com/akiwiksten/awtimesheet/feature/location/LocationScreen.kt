@@ -1,13 +1,18 @@
+@file:Suppress("FunctionNaming")
+
 package com.akiwiksten.awtimesheet.feature.location
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -15,27 +20,36 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
+import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import kotlin.math.roundToInt
+
+data class LocationScreenState(
+    val startAddress: String?,
+    val destinationAddress: String?,
+    val distanceKm: Double?,
+    val onSelectStartPoint: () -> Unit,
+    val onSelectDestinationPoint: () -> Unit,
+    val onConfirmDistance: (String) -> Unit,
+    val onNavigateBack: () -> Unit
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationScreen(
-    startAddress: String?,
-    destinationAddress: String?,
-    distanceKm: Double?,
-    onSelectStartPoint: () -> Unit,
-    onSelectDestinationPoint: () -> Unit,
-    onNavigateBack: () -> Unit
+    state: LocationScreenState
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.location_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = state.onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.back)
@@ -48,40 +62,70 @@ fun LocationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(padding)
+                .padding(16.dp)
         ) {
-            Card(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
+            ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(stringResource(R.string.start_point))
-                    Text(startAddress ?: stringResource(R.string.not_selected))
-                    Button(onClick = onSelectStartPoint) {
-                        Text(stringResource(R.string.select_start))
-                    }
-                }
-            }
 
-            Card(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(stringResource(R.string.destination_point))
-                    Text(destinationAddress ?: stringResource(R.string.not_selected))
-                    Button(onClick = onSelectDestinationPoint) {
-                        Text(stringResource(R.string.select_destination))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = state.startAddress ?: stringResource(R.string.not_selected),
+                            modifier = Modifier.weight(1f)
+                        )
+                        AwtButton(onClick = state.onSelectStartPoint, modifier = Modifier.width(140.dp)) {
+                            Text(stringResource(R.string.start))
+                        }
                     }
-                }
-            }
 
-            Card(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    val distanceText = distanceKm?.let { "${it.roundToInt()} km" } ?: "Not available"
-                    Text(stringResource(R.string.distance))
-                    Text(distanceText)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = state.destinationAddress ?: stringResource(R.string.not_selected),
+                            modifier = Modifier.weight(1f)
+                        )
+                        AwtButton(
+                            onClick = state.onSelectDestinationPoint,
+                            modifier = Modifier.width(140.dp)
+                        ) {
+                            Text(stringResource(R.string.destination))
+                        }
+                    }
+
+                    val distanceText =
+                        state.distanceKm?.let { "${it.roundToInt()} km" } ?: stringResource(R.string.not_available)
+                    val roundedDistance = state.distanceKm?.roundToInt() ?: 0
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(R.string.distance), fontWeight = FontWeight.SemiBold)
+                            AwtButton(
+                                onClick = { state.onConfirmDistance(roundedDistance.toString()) },
+                                enabled = roundedDistance > 0
+                            ) {
+                                Text(stringResource(R.string.confirm))
+                            }
+                        }
+                        Text(distanceText)
+                    }
                 }
             }
         }

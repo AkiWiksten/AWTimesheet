@@ -6,10 +6,10 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
@@ -55,10 +56,13 @@ internal fun LocationPickerScaffold(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Select Location") },
+                title = { Text(stringResource(R.string.select_location_title)) },
                 navigationIcon = {
                     IconButton(onClick = topBarState.onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -84,7 +88,7 @@ internal fun LocationPickerScaffold(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
             ) {
-                Text("Use current address")
+                Text(stringResource(R.string.use_current_address))
             }
             LocationPickerConfirmButton(
                 selectedAddress = screenState.selectedAddress,
@@ -122,7 +126,7 @@ private fun LocationPickerSearchField(
         value = searchText,
         onValueChange = {},
         modifier = modifier,
-        label = { Text("Search location") },
+        label = { Text(stringResource(R.string.search_location)) },
         readOnly = true,
         singleLine = true,
         trailingIcon = {
@@ -153,7 +157,7 @@ private fun LocationPickerSearchField(
                         focusManager.clearFocus()
                     }
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
+                    Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
                 }
             }
         },
@@ -198,20 +202,13 @@ private fun LocationPickerConfirmButton(
                     address = selectedAddress ?: "${latLng.latitude}, ${latLng.longitude}"
                 )
             )
-
         },
         enabled = selectedLatLng != null && !isResolvingAddress,
         modifier = modifier,
         colors = ButtonDefaults.buttonColors()
     ) {
-        Icon(
-            Icons.Default.Check,
-            contentDescription = null
-        )
-        Text(
-            text = "Confirm",
-            modifier = Modifier.padding(start = 8.dp)
-        )
+        Icon(Icons.Default.Check, contentDescription = null)
+        Text(text = stringResource(R.string.confirm), modifier = Modifier.padding(start = 8.dp))
     }
 }
 

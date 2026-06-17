@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">Back</string>
+    <string name="confirm">Confirm</string>
+    <string name="distance">Distance</string>
+    <string name="destination_point">Destination point</string>
+    <string name="location_title">Location</string>
+    <string name="not_selected">Not selected</string>
+    <string name="search">Search</string>
+    <string name="search_location">Search location</string>
+    <string name="select_destination">Select destination</string>
+    <string name="select_location_title">Select Location</string>
+    <string name="select_start">Select start</string>
+    <string name="start_point">Start point</string>
+    <string name="use_current_address">Use current address</string>
+</resources>

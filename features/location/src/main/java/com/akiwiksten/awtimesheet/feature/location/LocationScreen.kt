@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -32,12 +33,12 @@ fun LocationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Location") },
+                title = { Text(stringResource(R.string.location_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -55,10 +56,10 @@ fun LocationScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Start point")
-                    Text(startAddress ?: "Not selected")
+                    Text(stringResource(R.string.start_point))
+                    Text(startAddress ?: stringResource(R.string.not_selected))
                     Button(onClick = onSelectStartPoint) {
-                        Text("Select start")
+                        Text(stringResource(R.string.select_start))
                     }
                 }
             }
@@ -68,10 +69,10 @@ fun LocationScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Destination point")
-                    Text(destinationAddress ?: "Not selected")
+                    Text(stringResource(R.string.destination_point))
+                    Text(destinationAddress ?: stringResource(R.string.not_selected))
                     Button(onClick = onSelectDestinationPoint) {
-                        Text("Select destination")
+                        Text(stringResource(R.string.select_destination))
                     }
                 }
             }
@@ -79,7 +80,7 @@ fun LocationScreen(
             Card(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     val distanceText = distanceKm?.let { "${it.roundToInt()} km" } ?: "Not available"
-                    Text("Distance")
+                    Text(stringResource(R.string.distance))
                     Text(distanceText)
                 }
             }

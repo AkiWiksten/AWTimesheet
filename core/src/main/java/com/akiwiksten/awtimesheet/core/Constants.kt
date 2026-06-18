@@ -80,6 +80,12 @@ const val ABSENCE_TYPE = "absence_type"
 const val INCLUDE_WEEKENDS = "include_weekends"
 const val IS_FLEX_DAY = "is_flex_day"
 
+// Domain / location entity keys
+const val START_POINT = "start_point"
+const val DESTINATION_POINT = "destination_point"
+const val DISTANCE = "distance"
+const val TIMESTAMP = "timestamp"
+
 // Data / Room table names and shared ids
 const val PROJECT_DETAILS_TABLE = "project_details"
 const val PROJECT_TABLE = "project"
@@ -89,4 +95,5 @@ const val SETTINGS_TABLE = "settings"
 const val WORK_TYPE_TABLE = "work_type"
 const val CALCULATED_FLEXTIME_TOTAL_TABLE = "calculated_flextime_total"
 const val ABSENCE_TABLE = "absence"
+const val ROUTE_TABLE = "route"
 const val ID = "id"

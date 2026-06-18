@@ -3,7 +3,7 @@
     <string name="back">Back</string>
     <string name="confirm">Confirm</string>
     <string name="distance">Distance</string>
-    <string name="location_title">Location</string>
+    <string name="distance_calculation_title">Distance calculation</string>
     <string name="not_selected">Not selected</string>
     <string name="not_available">Not available</string>
     <string name="search">Search</string>

@@ -20,10 +20,10 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreen
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerScreen
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerResult
-import com.akiwiksten.awtimesheet.feature.location.LocationScreen
-import com.akiwiksten.awtimesheet.feature.location.LocationScreenState
+import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreenState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
@@ -104,8 +104,8 @@ internal fun LocationEntry(screen: Screen.Location, backStack: SnapshotStateList
         }
     }
 
-    LocationScreen(
-        state = LocationScreenState(
+    DistanceCalculatorScreen(
+        state = DistanceCalculatorScreenState(
             startAddress = screen.startPoint?.address,
             destinationAddress = screen.destinationPoint?.address,
             distanceKm = distanceKm,

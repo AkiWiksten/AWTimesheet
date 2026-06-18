@@ -3,7 +3,7 @@
     <string name="back">Takaisin</string>
     <string name="confirm">Vahvista</string>
     <string name="distance">Etäisyys</string>
-    <string name="location_title">Sijainti</string>
+    <string name="distance_calculation_title">Etäisyyslaskenta</string>
     <string name="not_selected">Ei valittu</string>
     <string name="not_available">Ei saatavilla</string>
     <string name="search">Hae</string>

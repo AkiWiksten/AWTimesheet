@@ -7,6 +7,7 @@ import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
+import com.akiwiksten.awtimesheet.data.database.dao.RouteDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
@@ -15,6 +16,7 @@ import com.akiwiksten.awtimesheet.data.database.entity.CalculatedFlextimeTotalEn
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectDetailsEntity
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectEntity
 import com.akiwiksten.awtimesheet.data.database.entity.ProjectNameEntity
+import com.akiwiksten.awtimesheet.data.database.entity.RouteEntity
 import com.akiwiksten.awtimesheet.data.database.entity.SettingsEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkTypeEntity
 import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
@@ -28,7 +30,8 @@ import com.akiwiksten.awtimesheet.data.database.entity.WorkdayEntity
         SettingsEntity::class,
         WorkTypeEntity::class,
         CalculatedFlextimeTotalEntity::class,
-        AbsenceEntity::class
+        AbsenceEntity::class,
+        RouteEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -42,6 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun workTypeDao(): WorkTypeDao
     abstract fun calculatedFlexTimeTotalDao(): CalculatedFlexTimeTotalDao
     abstract fun absenceDao(): AbsenceDao
+    abstract fun routeDao(): RouteDao
 
     companion object {
         const val DB_NAME = "ajvw-db"

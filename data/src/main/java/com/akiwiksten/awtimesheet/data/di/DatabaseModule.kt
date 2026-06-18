@@ -8,6 +8,7 @@ import com.akiwiksten.awtimesheet.data.database.dao.CalculatedFlexTimeTotalDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectDetailsDao
 import com.akiwiksten.awtimesheet.data.database.dao.ProjectNameDao
+import com.akiwiksten.awtimesheet.data.database.dao.RouteDao
 import com.akiwiksten.awtimesheet.data.database.dao.SettingsDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkTypeDao
 import com.akiwiksten.awtimesheet.data.database.dao.WorkdayDao
@@ -15,12 +16,14 @@ import com.akiwiksten.awtimesheet.data.repository.AbsenceRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.DateRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.ProjectDetailsRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.ProjectRepositoryImpl
+import com.akiwiksten.awtimesheet.data.repository.RouteRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.SettingsRepositoryImpl
 import com.akiwiksten.awtimesheet.data.repository.WorkdayRepositoryImpl
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectDetailsRepository
 import com.akiwiksten.awtimesheet.domain.repository.ProjectRepository
+import com.akiwiksten.awtimesheet.domain.repository.RouteRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.repository.WorkdayRepository
 import dagger.Binds
@@ -60,6 +63,10 @@ abstract class DatabaseModule {
     @Singleton
     abstract fun bindAbsenceRepository(impl: AbsenceRepositoryImpl): AbsenceRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindRouteRepository(impl: RouteRepositoryImpl): RouteRepository
+
     companion object {
         @Provides
         @Singleton
@@ -97,5 +104,8 @@ abstract class DatabaseModule {
 
         @Provides
         fun provideAbsenceDao(database: AppDatabase): AbsenceDao = database.absenceDao()
+
+        @Provides
+        fun provideRouteDao(database: AppDatabase): RouteDao = database.routeDao()
     }
 }

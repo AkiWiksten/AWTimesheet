@@ -35,23 +35,18 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.domain.model.RouteState
 import kotlin.math.roundToInt
-
-private data class LocationRouteItem(
-    val distance: String,
-    val start: String,
-    val destination: String,
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LocationScreen(
-    state: LocationScreenState
+fun DistanceCalculatorScreen(
+    state: DistanceCalculatorScreenState
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.location_title)) },
+                title = { Text(stringResource(R.string.distance_calculation_title)) },
                 navigationIcon = {
                     IconButton(onClick = state.onNavigateBack) {
                         Icon(
@@ -63,19 +58,19 @@ fun LocationScreen(
             )
         }
     ) { padding ->
-        LocationScreenContent(state = state, padding = padding)
+        DistanceCalculatorScreenContent(state = state, padding = padding)
     }
 }
 
 @Composable
-private fun LocationScreenContent(
-    state: LocationScreenState,
+private fun DistanceCalculatorScreenContent(
+    state: DistanceCalculatorScreenState,
     padding: PaddingValues,
 ) {
     val distanceText =
         state.distanceKm?.let { "${it.roundToInt()} km" } ?: stringResource(R.string.not_available)
     val routeItem = state.distanceKm?.let {
-        LocationRouteItem(
+        RouteState(
             distance = distanceText,
             start = state.startAddress ?: stringResource(R.string.not_selected),
             destination = state.destinationAddress ?: stringResource(R.string.not_selected),
@@ -88,7 +83,7 @@ private fun LocationScreenContent(
             .padding(padding)
             .padding(16.dp),
     ) {
-        LocationInputCard(state = state, distanceText = distanceText)
+        DistanceCalculatorInputCard(state = state, distanceText = distanceText)
 
         routeItem?.let {
             CalculatedRouteList(
@@ -100,8 +95,8 @@ private fun LocationScreenContent(
 }
 
 @Composable
-private fun LocationInputCard(
-    state: LocationScreenState,
+private fun DistanceCalculatorInputCard(
+    state: DistanceCalculatorScreenState,
     distanceText: String,
 ) {
     ElevatedCard(
@@ -169,7 +164,7 @@ private fun LocationInputCard(
 
 @Composable
 private fun CalculatedRouteList(
-    item: LocationRouteItem,
+    item: RouteState,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
@@ -191,7 +186,7 @@ private fun CalculatedRouteList(
 }
 
 @Composable
-private fun CalculatedRouteListItem(item: LocationRouteItem) {
+private fun CalculatedRouteListItem(item: RouteState) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),

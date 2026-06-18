@@ -1,6 +1,6 @@
 package com.akiwiksten.awtimesheet.feature.location
 
-data class LocationScreenState(
+data class DistanceCalculatorScreenState(
     val startAddress: String?,
     val destinationAddress: String?,
     val distanceKm: Double?,

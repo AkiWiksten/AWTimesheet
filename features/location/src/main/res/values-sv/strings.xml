@@ -3,7 +3,7 @@
     <string name="back">Tillbaka</string>
     <string name="confirm">Bekräfta</string>
     <string name="distance">Avstånd</string>
-    <string name="location_title">Plats</string>
+    <string name="distance_calculation_title">Distancecalcyl</string>
     <string name="not_selected">Inte vald</string>
     <string name="not_available">Inte tillgänglig</string>
     <string name="search">Sök</string>

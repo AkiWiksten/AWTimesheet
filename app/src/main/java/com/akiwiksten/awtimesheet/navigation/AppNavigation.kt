@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
+import com.akiwiksten.awtimesheet.domain.model.RouteState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreen
 import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorViewModel
@@ -34,6 +35,7 @@ import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavig
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import kotlinx.parcelize.Parcelize
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 private const val EARTH_RADIUS_KM = 6371.0
 
@@ -113,31 +115,69 @@ internal fun LocationEntry(
         }
     }
     val routeHistory by viewModel.routeHistory.collectAsState()
+    val selectedRoute by viewModel.selectedRoute.collectAsState()
+    val hasExplicitStartPoint = screen.startPoint != null
+    val hasExplicitDestinationPoint = screen.destinationPoint != null
+    val hasExplicitLocationEdit = hasExplicitStartPoint || hasExplicitDestinationPoint
+    val selectedStartPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.START)
+    val selectedDestinationPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.DESTINATION)
+    val cardStartPoint = screen.startPoint ?: selectedStartPoint
+    val cardDestinationPoint = screen.destinationPoint ?: selectedDestinationPoint
+    val cardStartAddress = screen.startPoint?.address ?: selectedRoute?.start
+    val cardDestinationAddress = screen.destinationPoint?.address ?: selectedRoute?.destination
+    val cardDistanceKm = when {
+        distanceKm != null -> distanceKm
+        hasExplicitLocationEdit -> null
+        else -> selectedRoute?.distance
+            ?.removeSuffix(" km")
+            ?.toDoubleOrNull()
+    }
+    val cardConfirmDistance = when (val distance = cardDistanceKm) {
+        null -> null
+        else -> distance.roundToInt().toString()
+    }
 
     DistanceCalculatorScreen(
         state = DistanceCalculatorScreenState(
-            startAddress = screen.startPoint?.address,
-            destinationAddress = screen.destinationPoint?.address,
-            distanceKm = distanceKm,
+            startAddress = cardStartAddress,
+            destinationAddress = cardDestinationAddress,
+            distanceKm = cardDistanceKm,
             routeHistory = routeHistory,
+            selectedRoute = selectedRoute,
             onClearRouteHistory = { viewModel.clearRouteHistory() },
+            onRouteSelected = viewModel::selectRoute,
             onSelectStartPoint = {
-                backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.START))
+                backStack.add(
+                    element = Screen.LocationPicker(
+                        target = Screen.LocationTarget.START,
+                        initialPoint = cardStartPoint,
+                    )
+                )
             },
             onSelectDestinationPoint = {
-                backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.DESTINATION))
+                backStack.add(
+                    element = Screen.LocationPicker(
+                        target = Screen.LocationTarget.DESTINATION,
+                        initialPoint = cardDestinationPoint,
+                    )
+                )
             },
             onConfirmDistance = { kilometres ->
-                val startAddress = screen.startPoint?.address
-                val destinationAddress = screen.destinationPoint?.address
+                val startAddress = cardStartAddress
+                val destinationAddress = cardDestinationAddress
+                val distanceToSave = cardConfirmDistance ?: kilometres
                 if (startAddress != null && destinationAddress != null) {
                     viewModel.insertRoute(
-                        distanceKm = kilometres,
+                        distanceKm = distanceToSave,
                         startAddress = startAddress,
+                        startLatitude = cardStartPoint?.latitude,
+                        startLongitude = cardStartPoint?.longitude,
                         destinationAddress = destinationAddress,
+                        destinationLatitude = cardDestinationPoint?.latitude,
+                        destinationLongitude = cardDestinationPoint?.longitude,
                     )
                 }
-                backStack.confirmLocationDistance(kilometres)
+                backStack.confirmLocationDistance(distanceToSave)
             },
             onNavigateBack = {
                 backStack.pop()
@@ -147,14 +187,53 @@ internal fun LocationEntry(
 }
 
 @Composable
-internal fun LocationPickerEntry(screen: Screen.LocationPicker, backStack: SnapshotStateList<Any>) {
+internal fun LocationPickerEntry(
+    screen: Screen.LocationPicker,
+    backStack: SnapshotStateList<Any>,
+) {
     LocationPickerScreen(
+        initialAddress = screen.initialPoint?.address,
+        initialLatLng = screen.initialPoint?.let { point ->
+            com.google.android.gms.maps.model.LatLng(point.latitude, point.longitude)
+        },
         onLocationSelected = { result ->
             backStack.updateLocationSelection(target = screen.target, result = result)
             backStack.pop()
         },
         onNavigateBack = { backStack.pop() }
     )
+}
+
+private fun RouteState.toLocationPoint(target: Screen.LocationTarget): Screen.LocationPoint? {
+    return when (target) {
+        Screen.LocationTarget.START -> {
+            val latitude = startLatitude
+            val longitude = startLongitude
+            if (latitude != null && longitude != null) {
+                Screen.LocationPoint(
+                    latitude = latitude,
+                    longitude = longitude,
+                    address = start,
+                )
+            } else {
+                null
+            }
+        }
+
+        Screen.LocationTarget.DESTINATION -> {
+            val latitude = destinationLatitude
+            val longitude = destinationLongitude
+            if (latitude != null && longitude != null) {
+                Screen.LocationPoint(
+                    latitude = latitude,
+                    longitude = longitude,
+                    address = destination,
+                )
+            } else {
+                null
+            }
+        }
+    }
 }
 
 @Composable

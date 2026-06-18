@@ -27,7 +27,8 @@ import java.util.Locale
 internal fun rememberFineLocationPermission(
     context: Context,
     cameraPositionState: CameraPositionState,
-    zoom: Float
+    zoom: Float,
+    shouldMoveCameraToCurrentLocation: Boolean = true,
 ): Boolean {
     var hasFineLocationPermission by remember {
         mutableStateOf(hasFineLocationPermission(context = context))
@@ -37,7 +38,7 @@ internal fun rememberFineLocationPermission(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasFineLocationPermission = isGranted
-        if (isGranted) {
+        if (isGranted && shouldMoveCameraToCurrentLocation) {
             moveCameraToCurrentLocation(
                 context = context,
                 cameraPositionState = cameraPositionState,
@@ -48,7 +49,7 @@ internal fun rememberFineLocationPermission(
 
     LaunchedEffect(Unit) {
         hasFineLocationPermission = hasFineLocationPermission(context = context)
-        if (hasFineLocationPermission) {
+        if (hasFineLocationPermission && shouldMoveCameraToCurrentLocation) {
             moveCameraToCurrentLocation(
                 context = context,
                 cameraPositionState = cameraPositionState,
@@ -79,10 +80,12 @@ private fun hasFineLocationPermission(context: Context): Boolean {
 }
 
 internal fun getCurrentLocationLatLng(context: Context): LatLng? {
-    if (!hasFineLocationPermission(context)) return null
-    val locationManager =
-        context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
-    return latestKnownLocation(locationManager)?.let { LatLng(it.latitude, it.longitude) }
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+    return if (hasFineLocationPermission(context) && locationManager != null) {
+        latestKnownLocation(locationManager)?.let { LatLng(it.latitude, it.longitude) }
+    } else {
+        null
+    }
 }
 
 internal fun resolveAddressFromLatLng(
@@ -119,17 +122,58 @@ internal fun resolveAddressFromLatLng(
     }
 
     val address = runCatching {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            null
-        } else {
-            @Suppress("DEPRECATION")
-            geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-                ?.firstOrNull()
-                ?.getAddressLine(0)
-        }
+        @Suppress("DEPRECATION")
+        geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            ?.firstOrNull()
+            ?.getAddressLine(0)
     }.getOrNull()
 
     onResolved(address)
+}
+
+internal fun resolveLatLngFromAddress(
+    context: Context,
+    address: String,
+    onResolved: (LatLng?) -> Unit
+) {
+    val geocoder = Geocoder(context, Locale.getDefault())
+    if (!Geocoder.isPresent()) {
+        onResolved(null)
+        return
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        runCatching {
+            geocoder.getFromLocationName(
+                address,
+                1,
+                object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addresses: MutableList<Address>) {
+                        val resolved = addresses.firstOrNull()
+                        onResolved(
+                            if (resolved != null) LatLng(resolved.latitude, resolved.longitude) else null
+                        )
+                    }
+
+                    override fun onError(errorMessage: String?) {
+                        onResolved(null)
+                    }
+                }
+            )
+        }.onFailure {
+            onResolved(null)
+        }
+        return
+    }
+
+    val latLng = runCatching {
+        @Suppress("DEPRECATION")
+        geocoder.getFromLocationName(address, 1)
+            ?.firstOrNull()
+            ?.let { LatLng(it.latitude, it.longitude) }
+    }.getOrNull()
+
+    onResolved(latLng)
 }
 
 @Suppress("MissingPermission")

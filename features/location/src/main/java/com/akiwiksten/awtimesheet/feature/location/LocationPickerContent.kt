@@ -84,6 +84,15 @@ internal fun LocationPickerScaffold(
                     .fillMaxWidth()
                     .padding(8.dp)
             )
+            if (screenState.isPrefillCenteringFailed) {
+                Text(
+                    text = stringResource(R.string.prefill_location_not_found),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                )
+            }
             AwtButton(
                 onClick = actions.onUseCurrentLocation,
                 modifier = Modifier
@@ -123,6 +132,27 @@ private fun LocationPickerSearchField(
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
+    val initialQuery = searchText.takeIf { it.isNotBlank() }
+
+    fun buildSearchIntent(): Intent {
+        val fields = listOf(
+            Place.Field.ID,
+            Place.Field.DISPLAY_NAME,
+            Place.Field.FORMATTED_ADDRESS,
+            Place.Field.LOCATION
+        )
+
+        val builder = Autocomplete.IntentBuilder(
+            AutocompleteActivityMode.OVERLAY,
+            fields
+        )
+
+        if (initialQuery != null) {
+            builder.setInitialQuery(initialQuery)
+        }
+
+        return builder.build(context)
+    }
 
     OutlinedTextField(
         value = searchText,
@@ -143,19 +173,7 @@ private fun LocationPickerSearchField(
                 }
                 IconButton(
                     onClick = {
-                        val fields = listOf(
-                            Place.Field.ID,
-                            Place.Field.DISPLAY_NAME,
-                            Place.Field.FORMATTED_ADDRESS,
-                            Place.Field.LOCATION
-                        )
-
-                        val intent = Autocomplete.IntentBuilder(
-                            AutocompleteActivityMode.OVERLAY,
-                            fields
-                        ).build(context)
-
-                        launcher.launch(intent)
+                        launcher.launch(buildSearchIntent())
                         focusManager.clearFocus()
                     }
                 ) {
@@ -166,19 +184,7 @@ private fun LocationPickerSearchField(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
             onSearch = {
-                val fields = listOf(
-                    Place.Field.ID,
-                    Place.Field.DISPLAY_NAME,
-                    Place.Field.FORMATTED_ADDRESS,
-                    Place.Field.LOCATION
-                )
-
-                val intent = Autocomplete.IntentBuilder(
-                    AutocompleteActivityMode.OVERLAY,
-                    fields
-                ).build(context)
-
-                launcher.launch(intent)
+                launcher.launch(buildSearchIntent())
                 focusManager.clearFocus()
             }
         )

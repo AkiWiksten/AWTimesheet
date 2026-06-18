@@ -19,19 +19,33 @@ class DistanceCalculatorViewModel @Inject constructor(
 ) : ViewModel() {
     private val _routeHistory = MutableStateFlow<List<RouteState>>(emptyList())
     val routeHistory: StateFlow<List<RouteState>> = _routeHistory.asStateFlow()
+    private val _selectedRoute = MutableStateFlow<RouteState?>(null)
+    val selectedRoute: StateFlow<RouteState?> = _selectedRoute.asStateFlow()
 
     init {
         loadInitialRouteHistory()
         observeRouteHistory()
     }
 
-    fun insertRoute(distanceKm: String, startAddress: String, destinationAddress: String) {
+    fun insertRoute(
+        distanceKm: String,
+        startAddress: String,
+        startLatitude: Double?,
+        startLongitude: Double?,
+        destinationAddress: String,
+        destinationLatitude: Double?,
+        destinationLongitude: Double?,
+    ) {
         viewModelScope.launch {
             routeRepository.insertRoute(
                 route = RouteState(
                     distance = "$distanceKm km",
                     start = startAddress,
+                    startLatitude = startLatitude,
+                    startLongitude = startLongitude,
                     destination = destinationAddress,
+                    destinationLatitude = destinationLatitude,
+                    destinationLongitude = destinationLongitude,
                     timestamp = System.currentTimeMillis().toString(),
                 )
             )
@@ -41,7 +55,22 @@ class DistanceCalculatorViewModel @Inject constructor(
     fun clearRouteHistory() {
         viewModelScope.launch {
             routeRepository.clearAll()
+            _selectedRoute.value = null
         }
+    }
+
+    fun selectRoute(route: RouteState) {
+        _selectedRoute.update { currentSelection ->
+            if (currentSelection?.start == route.start && currentSelection.destination == route.destination) {
+                null
+            } else {
+                route
+            }
+        }
+    }
+
+    fun clearSelectedRoute() {
+        _selectedRoute.value = null
     }
 
     private fun loadInitialRouteHistory() {
@@ -58,6 +87,11 @@ class DistanceCalculatorViewModel @Inject constructor(
             routeRepository.observeAll().collectLatest { routes ->
                 _routeHistory.update {
                     routes.sortedByDescending { route -> route.timestamp.toLongOrNull() ?: Long.MIN_VALUE }
+                }
+                _selectedRoute.update { currentSelection ->
+                    currentSelection?.let { selected ->
+                        routes.firstOrNull { it.start == selected.start && it.destination == selected.destination }
+                    }
                 }
             }
         }

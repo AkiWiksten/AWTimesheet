@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,48 +27,75 @@ private const val DEFAULT_ZOOM = 15f
 @Composable
 fun LocationPickerScreen(
     onLocationSelected: (LocationPickerResult) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    initialAddress: String? = null,
+    initialLatLng: LatLng? = null,
 ) {
     val context = LocalContext.current
-    var selectedPlace by remember { mutableStateOf<Place?>(null) }
-    var selectedAddress by remember { mutableStateOf<String?>(null) }
-    var isResolvingAddress by remember { mutableStateOf(false) }
+    val cameraPositionState = rememberCameraPositionState()
 
-    var selectedLatLng by remember {
-        mutableStateOf<LatLng?>(null)
+    var selectedPlace by remember(initialAddress) { mutableStateOf<Place?>(null) }
+    var selectedAddress by remember(initialAddress) { mutableStateOf(initialAddress) }
+    var isResolvingAddress by remember(initialAddress, initialLatLng) {
+        mutableStateOf(initialAddress != null && initialLatLng == null)
     }
-
-    val cameraPositionState =
-        rememberCameraPositionState()
+    var isPrefillCenteringFailed by remember(initialAddress, initialLatLng) { mutableStateOf(false) }
+    var selectedLatLng by remember(initialAddress, initialLatLng) { mutableStateOf(initialLatLng) }
 
     val hasFineLocationPermission = rememberFineLocationPermission(
         context = context,
         cameraPositionState = cameraPositionState,
-        zoom = DEFAULT_ZOOM
+        zoom = DEFAULT_ZOOM,
+        shouldMoveCameraToCurrentLocation = initialAddress.isNullOrBlank() && initialLatLng == null,
     )
 
-    val launcher =
-        rememberPlacesLauncher { place ->
-            selectedPlace = place
-            selectedAddress = place.formattedAddress ?: place.displayName
+    LaunchedEffect(initialAddress, initialLatLng) {
+        if (initialLatLng != null) {
+            selectedLatLng = initialLatLng
             isResolvingAddress = false
-            selectedLatLng = updateCameraFromPlace(
-                place = place,
-                cameraPositionState = cameraPositionState,
-                zoom = DEFAULT_ZOOM
-            )
+            isPrefillCenteringFailed = false
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(initialLatLng, DEFAULT_ZOOM)
+            return@LaunchedEffect
         }
+
+        if (initialAddress.isNullOrBlank()) {
+            isResolvingAddress = false
+            isPrefillCenteringFailed = false
+            return@LaunchedEffect
+        }
+
+        resolveLatLngFromAddress(context, initialAddress) { latLng ->
+            selectedLatLng = latLng
+            isResolvingAddress = false
+            isPrefillCenteringFailed = latLng == null
+            if (latLng != null) {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, DEFAULT_ZOOM)
+            }
+        }
+    }
+
+    val launcher = rememberPlacesLauncher { place ->
+        selectedPlace = place
+        selectedAddress = place.formattedAddress ?: place.displayName
+        isResolvingAddress = false
+        isPrefillCenteringFailed = false
+        selectedLatLng = updateCameraFromPlace(
+            place = place,
+            cameraPositionState = cameraPositionState,
+            zoom = DEFAULT_ZOOM,
+        )
+    }
 
     val mapState = remember(
         selectedPlace?.displayName,
         selectedAddress,
         selectedLatLng,
-        hasFineLocationPermission
+        hasFineLocationPermission,
     ) {
         LocationPickerMapState(
             selectedPlaceName = selectedPlace?.displayName ?: selectedAddress,
             selectedLatLng = selectedLatLng,
-            isMyLocationEnabled = hasFineLocationPermission
+            isMyLocationEnabled = hasFineLocationPermission,
         )
     }
 
@@ -75,16 +103,17 @@ fun LocationPickerScreen(
         searchText = selectedPlace?.displayName ?: selectedAddress.orEmpty(),
         selectedAddress = selectedAddress,
         isResolvingAddress = isResolvingAddress,
+        isPrefillCenteringFailed = isPrefillCenteringFailed,
         selectedLatLng = selectedLatLng,
         cameraPositionState = cameraPositionState,
-        mapState = mapState
+        mapState = mapState,
     )
 
     LocationPickerScaffold(
         topBarState = LocationPickerTopBarState(
             context = context,
             launcher = launcher,
-            onNavigateBack = onNavigateBack
+            onNavigateBack = onNavigateBack,
         ),
         screenState = screenState,
         actions = LocationPickerScaffoldActions(
@@ -95,6 +124,7 @@ fun LocationPickerScreen(
                 selectedLatLng = latLng
                 selectedAddress = "${latLng.latitude}, ${latLng.longitude}"
                 isResolvingAddress = true
+                isPrefillCenteringFailed = false
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, DEFAULT_ZOOM)
                 resolveAddressFromLatLng(context, latLng) { resolvedAddress ->
                     if (selectedLatLng == latLng) {
@@ -110,6 +140,7 @@ fun LocationPickerScreen(
                     selectedLatLng = currentLatLng
                     selectedAddress = "${currentLatLng.latitude}, ${currentLatLng.longitude}"
                     isResolvingAddress = true
+                    isPrefillCenteringFailed = false
                     resolveAddressFromLatLng(context, currentLatLng) { resolvedAddress ->
                         if (selectedLatLng == currentLatLng) {
                             isResolvingAddress = false
@@ -122,8 +153,8 @@ fun LocationPickerScreen(
                 } else {
                     isResolvingAddress = false
                 }
-            }
-        )
+            },
+        ),
     )
 }
 
@@ -134,9 +165,8 @@ fun rememberPlacesLauncher(
     val currentOnPlaceSelected by rememberUpdatedState(onPlaceSelected)
 
     return rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
+        contract = ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-
         when (result.resultCode) {
             Activity.RESULT_OK -> {
                 result.data?.let { intent ->
@@ -144,16 +174,17 @@ fun rememberPlacesLauncher(
                     currentOnPlaceSelected(place)
                 }
             }
+
             else -> {
-                // RESULT_ERROR or RESULT_CANCELED
                 result.data?.let { intent ->
-                    runCatching { com.google.android.libraries.places.widget.Autocomplete.getStatusFromIntent(intent) }
-                        .onSuccess { status ->
-                            android.util.Log.e(
-                                "LocationPicker",
-                                "Places autocomplete error: ${status.statusMessage}"
-                            )
-                        }
+                    runCatching {
+                        com.google.android.libraries.places.widget.Autocomplete.getStatusFromIntent(intent)
+                    }.onSuccess { status ->
+                        android.util.Log.e(
+                            "LocationPicker",
+                            "Places autocomplete error: ${status.statusMessage}",
+                        )
+                    }
                 }
             }
         }
@@ -164,5 +195,5 @@ fun rememberPlacesLauncher(
 data class LocationPickerResult(
     val latitude: Double,
     val longitude: Double,
-    val address: String
+    val address: String,
 ) : Parcelable

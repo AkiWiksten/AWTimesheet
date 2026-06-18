@@ -105,7 +105,8 @@ sealed interface Screen : Parcelable {
 
     @Parcelize
     data class LocationPicker(
-        val target: LocationTarget
+        val target: LocationTarget,
+        val initialPoint: LocationPoint? = null,
     ) : Screen {
         override val route: String get() = LOCATION_PICKER_SCREEN
         override val titleResId: Int? get() = null

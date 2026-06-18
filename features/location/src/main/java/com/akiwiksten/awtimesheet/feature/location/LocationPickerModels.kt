@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.model.Place
 import com.google.maps.android.compose.CameraPositionState
 
 internal data class LocationPickerMapState(
@@ -18,6 +17,7 @@ internal data class LocationPickerScreenState(
     val searchText: String,
     val selectedAddress: String?,
     val isResolvingAddress: Boolean,
+    val isPrefillCenteringFailed: Boolean,
     val selectedLatLng: LatLng?,
     val cameraPositionState: CameraPositionState,
     val mapState: LocationPickerMapState

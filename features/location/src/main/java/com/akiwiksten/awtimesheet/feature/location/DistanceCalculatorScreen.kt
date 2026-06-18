@@ -3,6 +3,7 @@
 package com.akiwiksten.awtimesheet.feature.location
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -94,6 +95,8 @@ private fun DistanceCalculatorScreenContent(
 
             CalculatedRouteList(
                 items = state.routeHistory,
+                selectedRoute = state.selectedRoute,
+                onRouteSelected = state.onRouteSelected,
                 modifier = Modifier.padding(top = PADDING_SPACING_SMALL)
             )
         } else {
@@ -177,6 +180,8 @@ private fun DistanceCalculatorInputCard(
 @Composable
 private fun CalculatedRouteList(
     items: List<RouteState>,
+    selectedRoute: RouteState?,
+    onRouteSelected: (RouteState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
@@ -196,21 +201,37 @@ private fun CalculatedRouteList(
                     "${routeItem.start}_${routeItem.destination}"
                 }
             ) { _, routeItem ->
-                CalculatedRouteListItem(routeItem)
+                CalculatedRouteListItem(
+                    item = routeItem,
+                    isSelected = selectedRoute?.let { selected ->
+                        selected.start == routeItem.start && selected.destination == routeItem.destination
+                    } == true,
+                    onClick = { onRouteSelected(routeItem) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun CalculatedRouteListItem(item: RouteState) {
+private fun CalculatedRouteListItem(
+    item: RouteState,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
         ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
     ) {
         Column(
             modifier = Modifier

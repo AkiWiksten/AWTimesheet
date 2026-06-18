@@ -83,6 +83,10 @@ const val IS_FLEX_DAY = "is_flex_day"
 // Domain / location entity keys
 const val START_POINT = "start_point"
 const val DESTINATION_POINT = "destination_point"
+const val START_LATITUDE = "start_latitude"
+const val START_LONGITUDE = "start_longitude"
+const val DESTINATION_LATITUDE = "destination_latitude"
+const val DESTINATION_LONGITUDE = "destination_longitude"
 const val DISTANCE = "distance"
 const val TIMESTAMP = "timestamp"
 

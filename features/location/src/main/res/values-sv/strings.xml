@@ -3,6 +3,7 @@
     <string name="back">Tillbaka</string>
     <string name="confirm">Bekräfta</string>
     <string name="clear_route_history">Rensa rutthistorik</string>
+    <string name="no_history_items">Inga historikposter</string>
     <string name="distance">Avstånd</string>
     <string name="distance_calculation_title">Distansberäkning</string>
     <string name="not_selected">Inte vald</string>

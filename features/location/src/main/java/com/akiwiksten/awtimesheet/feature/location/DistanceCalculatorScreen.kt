@@ -4,6 +4,7 @@ package com.akiwiksten.awtimesheet.feature.location
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,8 +38,6 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.domain.model.RouteState
-import java.text.DateFormat
-import java.util.Date
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,6 +95,12 @@ private fun DistanceCalculatorScreenContent(
             CalculatedRouteList(
                 items = state.routeHistory,
                 modifier = Modifier.padding(top = PADDING_SPACING_SMALL)
+            )
+        } else {
+            EmptyHistoryCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = PADDING_SPACING)
             )
         }
     }
@@ -187,8 +192,8 @@ private fun CalculatedRouteList(
         ) {
             itemsIndexed(
                 items = items,
-                key = { index, routeItem ->
-                    "${routeItem.timestamp}_${routeItem.start}_${routeItem.destination}_${routeItem.distance}_$index"
+                key = { _, routeItem ->
+                    "${routeItem.start}_${routeItem.destination}"
                 }
             ) { _, routeItem ->
                 CalculatedRouteListItem(routeItem)
@@ -199,8 +204,6 @@ private fun CalculatedRouteList(
 
 @Composable
 private fun CalculatedRouteListItem(item: RouteState) {
-    val formattedTimestamp = formatTimestamp(item.timestamp)
-
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
@@ -215,16 +218,33 @@ private fun CalculatedRouteListItem(item: RouteState) {
                 .padding(all = PADDING_SPACING_SMALL),
         ) {
             Text(text = item.distance, fontWeight = FontWeight.Bold)
-            Text(text = formattedTimestamp)
             Text(text = item.start)
             Text(text = item.destination)
         }
     }
 }
 
-private fun formatTimestamp(timestamp: String): String {
-    val timestampMillis = timestamp.toLongOrNull() ?: return timestamp
-    return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        .format(Date(timestampMillis))
+@Composable
+private fun EmptyHistoryCard(
+    modifier: Modifier = Modifier,
+) {
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
+        shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.no_history_items),
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
 }
+
 

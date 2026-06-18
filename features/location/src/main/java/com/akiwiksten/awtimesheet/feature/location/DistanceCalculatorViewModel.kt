@@ -21,6 +21,7 @@ class DistanceCalculatorViewModel @Inject constructor(
     val routeHistory: StateFlow<List<RouteState>> = _routeHistory.asStateFlow()
 
     init {
+        loadInitialRouteHistory()
         observeRouteHistory()
     }
 
@@ -40,6 +41,15 @@ class DistanceCalculatorViewModel @Inject constructor(
     fun clearRouteHistory() {
         viewModelScope.launch {
             routeRepository.clearAll()
+        }
+    }
+
+    private fun loadInitialRouteHistory() {
+        viewModelScope.launch {
+            _routeHistory.update {
+                routeRepository.getAll()
+                    .sortedByDescending { route -> route.timestamp.toLongOrNull() ?: Long.MIN_VALUE }
+            }
         }
     }
 

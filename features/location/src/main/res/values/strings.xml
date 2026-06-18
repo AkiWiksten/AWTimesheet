@@ -3,6 +3,7 @@
     <string name="back">Back</string>
     <string name="confirm">Confirm</string>
     <string name="clear_route_history">Clear history</string>
+    <string name="no_history_items">No history items</string>
     <string name="distance">Distance</string>
     <string name="distance_calculation_title">Distance calculation</string>
     <string name="not_selected">Not selected</string>

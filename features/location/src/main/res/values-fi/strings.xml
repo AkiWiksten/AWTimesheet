@@ -3,6 +3,7 @@
     <string name="back">Takaisin</string>
     <string name="confirm">Vahvista</string>
     <string name="clear_route_history">Tyhjennä reittihistoria</string>
+    <string name="no_history_items">Ei historiamerkintöjä</string>
     <string name="distance">Etäisyys</string>
     <string name="distance_calculation_title">Etäisyyslaskenta</string>
     <string name="not_selected">Ei valittu</string>

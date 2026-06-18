@@ -107,31 +107,24 @@ internal fun LocationEntry(
     backStack: SnapshotStateList<Any>,
     viewModel: DistanceCalculatorViewModel = hiltViewModel(),
 ) {
-    val distanceKm = remember(screen.startPoint, screen.destinationPoint) {
-        screen.startPoint?.let { start ->
-            screen.destinationPoint?.let { destination ->
+    val routeHistory by viewModel.routeHistory.collectAsState()
+    val selectedRoute by viewModel.selectedRoute.collectAsState()
+    val selectedStartPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.START)
+    val selectedDestinationPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.DESTINATION)
+    // When a list item is selected it always overwrites the card
+    val cardStartPoint = selectedStartPoint ?: screen.startPoint
+    val cardDestinationPoint = selectedDestinationPoint ?: screen.destinationPoint
+    val cardStartAddress = selectedRoute?.start ?: screen.startPoint?.address
+    val cardDestinationAddress = selectedRoute?.destination ?: screen.destinationPoint?.address
+    val distanceKm = remember(cardStartPoint, cardDestinationPoint) {
+        cardStartPoint?.let { start ->
+            cardDestinationPoint?.let { destination ->
                 calculateDistanceKm(start = start, destination = destination)
             }
         }
     }
-    val routeHistory by viewModel.routeHistory.collectAsState()
-    val selectedRoute by viewModel.selectedRoute.collectAsState()
-    val hasExplicitStartPoint = screen.startPoint != null
-    val hasExplicitDestinationPoint = screen.destinationPoint != null
-    val hasExplicitLocationEdit = hasExplicitStartPoint || hasExplicitDestinationPoint
-    val selectedStartPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.START)
-    val selectedDestinationPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.DESTINATION)
-    val cardStartPoint = screen.startPoint ?: selectedStartPoint
-    val cardDestinationPoint = screen.destinationPoint ?: selectedDestinationPoint
-    val cardStartAddress = screen.startPoint?.address ?: selectedRoute?.start
-    val cardDestinationAddress = screen.destinationPoint?.address ?: selectedRoute?.destination
-    val cardDistanceKm = when {
-        distanceKm != null -> distanceKm
-        hasExplicitLocationEdit -> null
-        else -> selectedRoute?.distance
-            ?.removeSuffix(" km")
-            ?.toDoubleOrNull()
-    }
+    val cardDistanceKm = selectedRoute?.distance?.removeSuffix(" km")?.toDoubleOrNull()
+        ?: distanceKm
     val cardConfirmDistance = when (val distance = cardDistanceKm) {
         null -> null
         else -> distance.roundToInt().toString()
@@ -162,11 +155,12 @@ internal fun LocationEntry(
                     )
                 )
             },
-            onConfirmDistance = { kilometres ->
+            onAddToList = { kilometres ->
                 val startAddress = cardStartAddress
                 val destinationAddress = cardDestinationAddress
                 val distanceToSave = cardConfirmDistance ?: kilometres
                 if (startAddress != null && destinationAddress != null) {
+
                     viewModel.insertRoute(
                         distanceKm = distanceToSave,
                         startAddress = startAddress,
@@ -178,6 +172,19 @@ internal fun LocationEntry(
                     )
                 }
                 backStack.confirmLocationDistance(distanceToSave)
+            },
+            onReturnDistance = {
+                val distanceToReturn = selectedRoute?.distance?.removeSuffix(" km")
+                if (distanceToReturn != null) {
+                    backStack.confirmLocationDistance(distanceToReturn)
+                    backStack.pop()
+                }
+            },
+            onDeleteSelectedRoute = {
+                selectedRoute?.let { route ->
+                    viewModel.deleteRoute(route)
+                    viewModel.clearSelectedRoute()
+                }
             },
             onNavigateBack = {
                 backStack.pop()
@@ -379,13 +386,11 @@ internal fun SnapshotStateList<Any>.updateSingleProjectState(
 internal fun SnapshotStateList<Any>.updateSingleProjectKilometres(
     kilometres: String
 ) {
-    val index = size - 1
-    val current = getOrNull(index = index)
-    if (current is Screen.SingleProject) {
-        this[index] = current.copy(
-            kilometres = kilometres
-        )
-    }
+    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.SingleProject } ?: return
+    val current = getOrNull(index = index) as? Screen.SingleProject ?: return
+    this[index] = current.copy(
+        kilometres = kilometres
+    )
 }
 
 internal fun SnapshotStateList<Any>.updateLocationSelection(

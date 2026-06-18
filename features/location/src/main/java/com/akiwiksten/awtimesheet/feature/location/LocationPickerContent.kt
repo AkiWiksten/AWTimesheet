@@ -214,8 +214,10 @@ private fun LocationPickerConfirmButton(
         enabled = selectedLatLng != null && !isResolvingAddress,
         modifier = modifier,
     ) {
-        Icon(Icons.Default.Check, contentDescription = null)
-        Text(text = stringResource(R.string.confirm), modifier = Modifier.padding(start = 8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Check, contentDescription = null)
+            Text(text = stringResource(R.string.confirm), modifier = Modifier.padding(start = 8.dp))
+        }
     }
 }
 

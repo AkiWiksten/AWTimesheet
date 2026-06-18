@@ -16,13 +16,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,6 +43,7 @@ import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.domain.model.RouteState
 import kotlin.math.roundToInt
 
@@ -77,17 +83,51 @@ private fun DistanceCalculatorScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .padding(16.dp),
+            .padding(16.dp)
+            .padding(bottom = LocalContentBottomPadding.current),
     ) {
         DistanceCalculatorInputCard(state = state, distanceText = distanceText)
 
         if (state.routeHistory.isNotEmpty()) {
+            val canDeleteSelectedRoute = state.selectedRoute?.let { selected ->
+                state.routeHistory.any { routeItem ->
+                    routeItem.start == selected.start && routeItem.destination == selected.destination
+                }
+            } == true
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = PADDING_SPACING),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                AwtButton(
+                    onClick = state.onReturnDistance,
+                    enabled = state.selectedRoute != null,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.size(4.dp))
+                        Text(text = stringResource(R.string.return_distance))
+                    }
+                }
+                IconButton(
+                    onClick = state.onDeleteSelectedRoute,
+                    enabled = canDeleteSelectedRoute,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.delete)
+                    )
+                }
                 AwtButton(onClick = state.onClearRouteHistory) {
                     Text(text = stringResource(R.string.clear_route_history))
                 }
@@ -166,11 +206,17 @@ private fun DistanceCalculatorInputCard(
                     Text(distanceText)
                 }
                 AwtButton(
-                    onClick = { state.onConfirmDistance(roundedDistance.toString()) },
+                    onClick = { state.onAddToList(roundedDistance.toString()) },
                     enabled = roundedDistance > 0,
-                    modifier = Modifier.width(120.dp)
                 ) {
-                    Text(stringResource(R.string.confirm))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.add_to_list))
+                        Spacer(modifier = Modifier.size(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.ArrowDownward,
+                            contentDescription = null
+                        )
+                    }
                 }
             }
         }

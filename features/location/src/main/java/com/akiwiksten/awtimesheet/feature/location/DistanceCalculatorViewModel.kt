@@ -69,6 +69,12 @@ class DistanceCalculatorViewModel @Inject constructor(
         }
     }
 
+    fun deleteRoute(route: RouteState) {
+        viewModelScope.launch {
+            routeRepository.delete(route)
+        }
+    }
+
     fun clearSelectedRoute() {
         _selectedRoute.value = null
     }

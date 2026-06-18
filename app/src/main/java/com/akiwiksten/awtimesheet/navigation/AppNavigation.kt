@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,6 +42,26 @@ private const val EARTH_RADIUS_KM = 6371.0
 
 @Parcelize
 private class BackStackData(val items: ArrayList<Screen>) : Parcelable
+
+@Parcelize
+private data class LocationCardState(
+    val startPoint: Screen.LocationPoint? = null,
+    val destinationPoint: Screen.LocationPoint? = null,
+    val distanceKm: Double? = null,
+    val lastScreenStartPoint: Screen.LocationPoint? = null,
+    val lastScreenDestinationPoint: Screen.LocationPoint? = null,
+) : Parcelable {
+    val startAddress: String? get() = startPoint?.address
+    val destinationAddress: String? get() = destinationPoint?.address
+}
+
+private sealed interface LocationCardEvent {
+    data class RouteSelected(val route: RouteState) : LocationCardEvent
+    data class ScreenPointsChanged(
+        val startPoint: Screen.LocationPoint?,
+        val destinationPoint: Screen.LocationPoint?,
+    ) : LocationCardEvent
+}
 
 private val BackStackSaver: Saver<SnapshotStateList<Any>, BackStackData> = Saver(
     save = { stack -> BackStackData(ArrayList(stack.filterIsInstance<Screen>())) },
@@ -109,22 +130,46 @@ internal fun LocationEntry(
 ) {
     val routeHistory by viewModel.routeHistory.collectAsState()
     val selectedRoute by viewModel.selectedRoute.collectAsState()
-    val selectedStartPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.START)
-    val selectedDestinationPoint = selectedRoute?.toLocationPoint(target = Screen.LocationTarget.DESTINATION)
-    // When a list item is selected it always overwrites the card
-    val cardStartPoint = selectedStartPoint ?: screen.startPoint
-    val cardDestinationPoint = selectedDestinationPoint ?: screen.destinationPoint
-    val cardStartAddress = selectedRoute?.start ?: screen.startPoint?.address
-    val cardDestinationAddress = selectedRoute?.destination ?: screen.destinationPoint?.address
-    val distanceKm = remember(cardStartPoint, cardDestinationPoint) {
-        cardStartPoint?.let { start ->
-            cardDestinationPoint?.let { destination ->
-                calculateDistanceKm(start = start, destination = destination)
-            }
+
+    val initialCardState = LocationCardState(
+        startPoint = screen.startPoint,
+        destinationPoint = screen.destinationPoint,
+        distanceKm = if (screen.startPoint != null && screen.destinationPoint != null) {
+            calculateDistanceKm(start = screen.startPoint, destination = screen.destinationPoint)
+        } else {
+            null
+        },
+        lastScreenStartPoint = screen.startPoint,
+        lastScreenDestinationPoint = screen.destinationPoint,
+    )
+    val cardState = rememberSaveable { mutableStateOf(initialCardState) }
+
+    LaunchedEffect(selectedRoute) {
+        val route = selectedRoute
+        if (route != null) {
+            cardState.value = reduceLocationCardState(
+                current = cardState.value,
+                event = LocationCardEvent.RouteSelected(route = route)
+            )
         }
     }
-    val cardDistanceKm = selectedRoute?.distance?.removeSuffix(" km")?.toDoubleOrNull()
-        ?: distanceKm
+
+    LaunchedEffect(screen.startPoint, screen.destinationPoint) {
+        cardState.value = reduceLocationCardState(
+            current = cardState.value,
+            event = LocationCardEvent.ScreenPointsChanged(
+                startPoint = screen.startPoint,
+                destinationPoint = screen.destinationPoint,
+            )
+        )
+    }
+
+    val currentCardState = cardState.value
+    val cardStartPoint = currentCardState.startPoint
+    val cardDestinationPoint = currentCardState.destinationPoint
+    val cardStartAddress = currentCardState.startAddress
+    val cardDestinationAddress = currentCardState.destinationAddress
+    val cardDistanceKm = currentCardState.distanceKm
     val cardConfirmDistance = when (val distance = cardDistanceKm) {
         null -> null
         else -> distance.roundToInt().toString()
@@ -140,6 +185,11 @@ internal fun LocationEntry(
             onClearRouteHistory = { viewModel.clearRouteHistory() },
             onRouteSelected = viewModel::selectRoute,
             onSelectStartPoint = {
+                viewModel.clearSelectedRoute()
+                backStack.seedLocationPointsFromCard(
+                    startPoint = cardStartPoint,
+                    destinationPoint = cardDestinationPoint,
+                )
                 backStack.add(
                     element = Screen.LocationPicker(
                         target = Screen.LocationTarget.START,
@@ -148,6 +198,11 @@ internal fun LocationEntry(
                 )
             },
             onSelectDestinationPoint = {
+                viewModel.clearSelectedRoute()
+                backStack.seedLocationPointsFromCard(
+                    startPoint = cardStartPoint,
+                    destinationPoint = cardDestinationPoint,
+                )
                 backStack.add(
                     element = Screen.LocationPicker(
                         target = Screen.LocationTarget.DESTINATION,
@@ -347,6 +402,50 @@ private fun calculateDistanceKm(
     return EARTH_RADIUS_KM * arc
 }
 
+private fun reduceLocationCardState(
+    current: LocationCardState,
+    event: LocationCardEvent,
+): LocationCardState {
+    return when (event) {
+        is LocationCardEvent.RouteSelected -> {
+            val startPoint = event.route.toLocationPoint(target = Screen.LocationTarget.START)
+            val destinationPoint = event.route.toLocationPoint(target = Screen.LocationTarget.DESTINATION)
+            current.copy(
+                startPoint = startPoint,
+                destinationPoint = destinationPoint,
+                distanceKm = event.route.distance.removeSuffix(" km").toDoubleOrNull(),
+            )
+        }
+
+        is LocationCardEvent.ScreenPointsChanged -> {
+            var next = current
+            if (event.startPoint != null && event.startPoint != current.lastScreenStartPoint) {
+                next = next.copy(
+                    startPoint = event.startPoint,
+                    lastScreenStartPoint = event.startPoint,
+                )
+            }
+            if (
+                event.destinationPoint != null &&
+                event.destinationPoint != current.lastScreenDestinationPoint
+            ) {
+                next = next.copy(
+                    destinationPoint = event.destinationPoint,
+                    lastScreenDestinationPoint = event.destinationPoint,
+                )
+            }
+
+            val start = next.startPoint
+            val destination = next.destinationPoint
+            if (start != null && destination != null) {
+                next.copy(distanceKm = calculateDistanceKm(start = start, destination = destination))
+            } else {
+                next
+            }
+        }
+    }
+}
+
 internal fun SnapshotStateList<Any>.pop() {
     if (isNotEmpty()) {
         removeAt(index = size - 1)
@@ -409,6 +508,19 @@ internal fun SnapshotStateList<Any>.updateLocationSelection(
         Screen.LocationTarget.START -> current.copy(startPoint = point)
         Screen.LocationTarget.DESTINATION -> current.copy(destinationPoint = point)
     }
+}
+
+internal fun SnapshotStateList<Any>.seedLocationPointsFromCard(
+    startPoint: Screen.LocationPoint?,
+    destinationPoint: Screen.LocationPoint?,
+) {
+    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.Location } ?: return
+    val current = getOrNull(index) as? Screen.Location ?: return
+
+    this[index] = current.copy(
+        startPoint = startPoint ?: current.startPoint,
+        destinationPoint = destinationPoint ?: current.destinationPoint,
+    )
 }
 
 internal fun SnapshotStateList<Any>.confirmLocationDistance(kilometres: String) {

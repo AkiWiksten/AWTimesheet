@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -21,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreen
+import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorViewModel
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerScreen
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerResult
 import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreenState
@@ -29,8 +33,9 @@ import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectNavigationActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectRouteArgs
 import kotlinx.parcelize.Parcelize
-import kotlin.math.roundToInt
 import kotlin.math.min
+
+private const val EARTH_RADIUS_KM = 6371.0
 
 @Parcelize
 private class BackStackData(val items: ArrayList<Screen>) : Parcelable
@@ -95,7 +100,11 @@ internal fun PortraitWidthContainer(
 }
 
 @Composable
-internal fun LocationEntry(screen: Screen.Location, backStack: SnapshotStateList<Any>) {
+internal fun LocationEntry(
+    screen: Screen.Location,
+    backStack: SnapshotStateList<Any>,
+    viewModel: DistanceCalculatorViewModel = hiltViewModel(),
+) {
     val distanceKm = remember(screen.startPoint, screen.destinationPoint) {
         screen.startPoint?.let { start ->
             screen.destinationPoint?.let { destination ->
@@ -103,12 +112,15 @@ internal fun LocationEntry(screen: Screen.Location, backStack: SnapshotStateList
             }
         }
     }
+    val routeHistory by viewModel.routeHistory.collectAsState()
 
     DistanceCalculatorScreen(
         state = DistanceCalculatorScreenState(
             startAddress = screen.startPoint?.address,
             destinationAddress = screen.destinationPoint?.address,
             distanceKm = distanceKm,
+            routeHistory = routeHistory,
+            onClearRouteHistory = { viewModel.clearRouteHistory() },
             onSelectStartPoint = {
                 backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.START))
             },
@@ -116,6 +128,15 @@ internal fun LocationEntry(screen: Screen.Location, backStack: SnapshotStateList
                 backStack.add(element = Screen.LocationPicker(target = Screen.LocationTarget.DESTINATION))
             },
             onConfirmDistance = { kilometres ->
+                val startAddress = screen.startPoint?.address
+                val destinationAddress = screen.destinationPoint?.address
+                if (startAddress != null && destinationAddress != null) {
+                    viewModel.insertRoute(
+                        distanceKm = kilometres,
+                        startAddress = startAddress,
+                        destinationAddress = destinationAddress,
+                    )
+                }
                 backStack.confirmLocationDistance(kilometres)
             },
             onNavigateBack = {
@@ -227,7 +248,6 @@ private fun calculateDistanceKm(
     start: Screen.LocationPoint,
     destination: Screen.LocationPoint
 ): Double {
-    val earthRadiusKm = 6371.0
     val lat1 = Math.toRadians(start.latitude)
     val lat2 = Math.toRadians(destination.latitude)
     val deltaLat = Math.toRadians(destination.latitude - start.latitude)
@@ -238,11 +258,7 @@ private fun calculateDistanceKm(
             kotlin.math.cos(lat1) * kotlin.math.cos(lat2) *
             kotlin.math.sin(deltaLon / 2) * kotlin.math.sin(deltaLon / 2)
     val arc = 2 * kotlin.math.atan2(kotlin.math.sqrt(haversine), kotlin.math.sqrt(1 - haversine))
-    return earthRadiusKm * arc
-}
-
-private fun formatDistanceForSingleProject(distanceKm: Double): String {
-    return distanceKm.roundToInt().toString()
+    return EARTH_RADIUS_KM * arc
 }
 
 internal fun SnapshotStateList<Any>.pop() {
@@ -312,7 +328,16 @@ internal fun SnapshotStateList<Any>.updateLocationSelection(
 }
 
 internal fun SnapshotStateList<Any>.confirmLocationDistance(kilometres: String) {
-    pop() // pop Location screen
+    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.Location } ?: return
+    val locationScreen = getOrNull(index) as? Screen.Location ?: return
+
+    // Clear current selection after a route is confirmed.
+    this[index] = locationScreen.copy(
+        startPoint = null,
+        destinationPoint = null,
+    )
+    
+    // Update SingleProject with the distance
     updateSingleProjectKilometres(kilometres = kilometres)
 }
 

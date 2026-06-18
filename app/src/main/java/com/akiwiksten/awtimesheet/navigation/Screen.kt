@@ -88,11 +88,20 @@ sealed interface Screen : Parcelable {
     @Parcelize
     data class Location(
         val startPoint: LocationPoint? = null,
-        val destinationPoint: LocationPoint? = null
+        val destinationPoint: LocationPoint? = null,
+        val routeHistory: List<RouteHistoryItem> = emptyList()
     ) : Screen {
         override val route: String get() = LOCATION_SCREEN
         override val titleResId: Int? get() = null
     }
+
+    @Parcelize
+    data class RouteHistoryItem(
+        val distance: String,
+        val start: String,
+        val destination: String,
+        val timestamp: String = System.currentTimeMillis().toString(),
+    ) : Parcelable
 
     @Parcelize
     data class LocationPicker(

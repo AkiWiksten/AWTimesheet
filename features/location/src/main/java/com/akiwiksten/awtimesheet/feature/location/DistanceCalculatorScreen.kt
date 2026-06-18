@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -36,6 +37,8 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.domain.model.RouteState
+import java.text.DateFormat
+import java.util.Date
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,13 +72,6 @@ private fun DistanceCalculatorScreenContent(
 ) {
     val distanceText =
         state.distanceKm?.let { "${it.roundToInt()} km" } ?: stringResource(R.string.not_available)
-    val routeItem = state.distanceKm?.let {
-        RouteState(
-            distance = distanceText,
-            start = state.startAddress ?: stringResource(R.string.not_selected),
-            destination = state.destinationAddress ?: stringResource(R.string.not_selected),
-        )
-    }
 
     Column(
         modifier = Modifier
@@ -85,10 +81,21 @@ private fun DistanceCalculatorScreenContent(
     ) {
         DistanceCalculatorInputCard(state = state, distanceText = distanceText)
 
-        routeItem?.let {
+        if (state.routeHistory.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = PADDING_SPACING),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                AwtButton(onClick = state.onClearRouteHistory) {
+                    Text(text = stringResource(R.string.clear_route_history))
+                }
+            }
+
             CalculatedRouteList(
-                item = it,
-                modifier = Modifier.padding(top = PADDING_SPACING)
+                items = state.routeHistory,
+                modifier = Modifier.padding(top = PADDING_SPACING_SMALL)
             )
         }
     }
@@ -164,7 +171,7 @@ private fun DistanceCalculatorInputCard(
 
 @Composable
 private fun CalculatedRouteList(
-    item: RouteState,
+    items: List<RouteState>,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
@@ -178,8 +185,13 @@ private fun CalculatedRouteList(
                 .background(MaterialTheme.colorScheme.secondary),
             verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
-            item {
-                CalculatedRouteListItem(item)
+            itemsIndexed(
+                items = items,
+                key = { index, routeItem ->
+                    "${routeItem.timestamp}_${routeItem.start}_${routeItem.destination}_${routeItem.distance}_$index"
+                }
+            ) { _, routeItem ->
+                CalculatedRouteListItem(routeItem)
             }
         }
     }
@@ -187,6 +199,8 @@ private fun CalculatedRouteList(
 
 @Composable
 private fun CalculatedRouteListItem(item: RouteState) {
+    val formattedTimestamp = formatTimestamp(item.timestamp)
+
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
@@ -199,11 +213,18 @@ private fun CalculatedRouteListItem(item: RouteState) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = PADDING_SPACING_SMALL),
-            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
         ) {
             Text(text = item.distance, fontWeight = FontWeight.Bold)
+            Text(text = formattedTimestamp)
             Text(text = item.start)
             Text(text = item.destination)
         }
     }
 }
+
+private fun formatTimestamp(timestamp: String): String {
+    val timestampMillis = timestamp.toLongOrNull() ?: return timestamp
+    return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+        .format(Date(timestampMillis))
+}
+

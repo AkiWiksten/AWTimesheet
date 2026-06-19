@@ -83,7 +83,7 @@ private fun DistanceCalculatorScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .padding(16.dp)
+            .padding(PADDING_SPACING)
             .padding(bottom = LocalContentBottomPadding.current),
     ) {
         DistanceCalculatorInputCard(state = state, distanceText = distanceText)
@@ -98,7 +98,7 @@ private fun DistanceCalculatorScreenContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = PADDING_SPACING),
+                    .padding(top = PADDING_SPACING_SMALL),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -161,12 +161,12 @@ private fun DistanceCalculatorInputCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(PADDING_SPACING),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_SPACING_SMALL),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -180,7 +180,7 @@ private fun DistanceCalculatorInputCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_SPACING_SMALL),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(

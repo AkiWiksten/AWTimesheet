@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -24,7 +23,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,11 +33,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -74,6 +76,9 @@ internal fun LocationPickerScaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .padding(PADDING_SPACING)
+                .padding(bottom = LocalContentBottomPadding.current),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
         ) {
             LocationPickerSearchField(
                 context = topBarState.context,
@@ -82,24 +87,21 @@ internal fun LocationPickerScaffold(
                 isResolvingAddress = screenState.isResolvingAddress,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
             )
             if (screenState.isPrefillCenteringFailed) {
                 Text(
                     text = stringResource(R.string.prefill_location_not_found),
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
                 )
             }
             AwtButton(
                 onClick = actions.onUseCurrentLocation,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
             ) {
-                Text(stringResource(R.string.use_current_address))
+                Text(stringResource(R.string.use_current_location))
             }
             LocationPickerConfirmButton(
                 selectedAddress = screenState.selectedAddress,
@@ -108,9 +110,8 @@ internal fun LocationPickerScaffold(
                 onLocationSelected = actions.onLocationSelected,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
             )
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
                 LocationPickerMapContent(
                     padding = PaddingValues(0.dp),
                     cameraPositionState = screenState.cameraPositionState,
@@ -131,7 +132,6 @@ private fun LocationPickerSearchField(
     isResolvingAddress: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
     val initialQuery = searchText.takeIf { it.isNotBlank() }
 
     fun buildSearchIntent(): Intent {
@@ -157,7 +157,7 @@ private fun LocationPickerSearchField(
     OutlinedTextField(
         value = searchText,
         onValueChange = {},
-        modifier = modifier,
+        modifier = modifier.focusProperties { canFocus = false },
         label = { Text(stringResource(R.string.search_location)) },
         readOnly = true,
         singleLine = true,
@@ -174,19 +174,23 @@ private fun LocationPickerSearchField(
                 IconButton(
                     onClick = {
                         launcher.launch(buildSearchIntent())
-                        focusManager.clearFocus()
                     }
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.search),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(
-            onSearch = {
-                launcher.launch(buildSearchIntent())
-                focusManager.clearFocus()
-            }
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            focusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.38f),
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.38f),
+            focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
         )
     )
 }

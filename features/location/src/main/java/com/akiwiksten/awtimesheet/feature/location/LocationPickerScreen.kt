@@ -100,7 +100,7 @@ fun LocationPickerScreen(
     }
 
     val screenState = LocationPickerScreenState(
-        searchText = selectedPlace?.displayName ?: selectedAddress.orEmpty(),
+        searchText = selectedAddress ?: selectedPlace?.displayName ?: "",
         selectedAddress = selectedAddress,
         isResolvingAddress = isResolvingAddress,
         isPrefillCenteringFailed = isPrefillCenteringFailed,

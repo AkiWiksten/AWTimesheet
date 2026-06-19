@@ -49,14 +49,14 @@ internal fun rememberFineLocationPermission(
 
     LaunchedEffect(Unit) {
         hasFineLocationPermission = hasFineLocationPermission(context = context)
-        if (hasFineLocationPermission && shouldMoveCameraToCurrentLocation) {
+        if (!hasFineLocationPermission) {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else if (shouldMoveCameraToCurrentLocation) {
             moveCameraToCurrentLocation(
                 context = context,
                 cameraPositionState = cameraPositionState,
                 zoom = zoom
             )
-        } else {
-            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
 

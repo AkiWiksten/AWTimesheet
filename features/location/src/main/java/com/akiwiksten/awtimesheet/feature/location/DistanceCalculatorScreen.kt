@@ -6,18 +6,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -34,17 +34,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.domain.model.RouteState
+import com.android.tools.screenshot.PreviewTest
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -314,4 +317,67 @@ private fun EmptyHistoryCard(
     }
 }
 
+private val PreviewRouteHistory = listOf(
+    RouteState(
+        start = "Office",
+        destination = "Client A",
+        distance = "24 km"
+    ),
+    RouteState(
+        start = "Client A",
+        destination = "Office",
+        distance = "24 km"
+    )
+)
 
+@PreviewTest
+@Preview(showBackground = true, name = "Distance Calculator - Empty")
+@Composable
+fun PreviewDistanceCalculatorEmpty() {
+    DistanceCalculatorPreviewContent(
+        state = DistanceCalculatorScreenState(
+            startAddress = null,
+            destinationAddress = null,
+            distanceKm = null,
+            onClearRouteHistory = {},
+            onRouteSelected = {},
+            onSelectStartPoint = {},
+            onSelectDestinationPoint = {},
+            onAddToList = {},
+            onReturnDistance = {},
+            onDeleteSelectedRoute = {},
+            onNavigateBack = {}
+        )
+    )
+}
+
+@PreviewTest
+@Preview(showBackground = true, name = "Distance Calculator - With History")
+@Composable
+fun PreviewDistanceCalculatorWithHistory() {
+    val selectedRoute = PreviewRouteHistory.first()
+    DistanceCalculatorPreviewContent(
+        state = DistanceCalculatorScreenState(
+            startAddress = selectedRoute.start,
+            destinationAddress = selectedRoute.destination,
+            distanceKm = 24.2,
+            routeHistory = PreviewRouteHistory,
+            selectedRoute = selectedRoute,
+            onClearRouteHistory = {},
+            onRouteSelected = {},
+            onSelectStartPoint = {},
+            onSelectDestinationPoint = {},
+            onAddToList = {},
+            onReturnDistance = {},
+            onDeleteSelectedRoute = {},
+            onNavigateBack = {}
+        )
+    )
+}
+
+@Composable
+private fun DistanceCalculatorPreviewContent(state: DistanceCalculatorScreenState) {
+    AWTimesheetTheme(dynamicColor = false) {
+        DistanceCalculatorScreen(state = state)
+    }
+}

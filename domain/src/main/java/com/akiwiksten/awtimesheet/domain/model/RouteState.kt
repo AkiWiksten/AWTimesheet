@@ -13,4 +13,4 @@ data class RouteState(
     val destinationLatitude: Double? = null,
     val destinationLongitude: Double? = null,
     val timestamp: String = System.currentTimeMillis().toString(),
-): Parcelable
+) : Parcelable

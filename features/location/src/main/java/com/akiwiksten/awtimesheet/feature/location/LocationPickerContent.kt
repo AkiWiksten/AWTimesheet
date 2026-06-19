@@ -55,71 +55,88 @@ import com.google.maps.android.compose.rememberUpdatedMarkerState
 internal fun LocationPickerScaffold(
     topBarState: LocationPickerTopBarState,
     screenState: LocationPickerScreenState,
-    actions: LocationPickerScaffoldActions
+    actions: LocationPickerScaffoldActions,
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.select_location_title)) },
-                navigationIcon = {
-                    IconButton(onClick = topBarState.onNavigateBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                }
-            )
+            LocationPickerTopBar(topBarState)
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(PADDING_SPACING)
-                .padding(bottom = LocalContentBottomPadding.current),
-            verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
+        LocationPickerMainContent(
+            padding = padding,
+            topBarState = topBarState,
+            screenState = screenState,
+            actions = actions
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LocationPickerTopBar(topBarState: LocationPickerTopBarState) {
+    TopAppBar(
+        title = { Text(stringResource(R.string.select_location_title)) },
+        navigationIcon = {
+            IconButton(onClick = topBarState.onNavigateBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun LocationPickerMainContent(
+    padding: PaddingValues,
+    topBarState: LocationPickerTopBarState,
+    screenState: LocationPickerScreenState,
+    actions: LocationPickerScaffoldActions,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(PADDING_SPACING)
+            .padding(bottom = LocalContentBottomPadding.current),
+        verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
+    ) {
+        LocationPickerSearchField(
+            context = topBarState.context,
+            launcher = topBarState.launcher,
+            searchText = screenState.searchText,
+            isResolvingAddress = screenState.isResolvingAddress,
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (screenState.isPrefillCenteringFailed) {
+            Text(
+                text = stringResource(R.string.prefill_location_not_found),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        AwtButton(
+            onClick = actions.onUseCurrentLocation,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            LocationPickerSearchField(
-                context = topBarState.context,
-                launcher = topBarState.launcher,
-                searchText = screenState.searchText,
-                isResolvingAddress = screenState.isResolvingAddress,
-                modifier = Modifier
-                    .fillMaxWidth()
+            Text(stringResource(R.string.use_current_location))
+        }
+        LocationPickerConfirmButton(
+            selectedAddress = screenState.selectedAddress,
+            isResolvingAddress = screenState.isResolvingAddress,
+            selectedLatLng = screenState.selectedLatLng,
+            onLocationSelected = actions.onLocationSelected,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Box(modifier = Modifier.weight(1f)) {
+            LocationPickerMapContent(
+                padding = PaddingValues(0.dp),
+                cameraPositionState = screenState.cameraPositionState,
+                mapState = screenState.mapState,
+                onMapClick = actions.onMapClick,
+                modifier = Modifier.fillMaxSize()
             )
-            if (screenState.isPrefillCenteringFailed) {
-                Text(
-                    text = stringResource(R.string.prefill_location_not_found),
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            }
-            AwtButton(
-                onClick = actions.onUseCurrentLocation,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.use_current_location))
-            }
-            LocationPickerConfirmButton(
-                selectedAddress = screenState.selectedAddress,
-                isResolvingAddress = screenState.isResolvingAddress,
-                selectedLatLng = screenState.selectedLatLng,
-                onLocationSelected = actions.onLocationSelected,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            Box(modifier = Modifier.weight(1f)) {
-                LocationPickerMapContent(
-                    padding = PaddingValues(0.dp),
-                    cameraPositionState = screenState.cameraPositionState,
-                    mapState = screenState.mapState,
-                    onMapClick = actions.onMapClick,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
         }
     }
 }
@@ -147,9 +164,7 @@ private fun LocationPickerSearchField(
             fields
         )
 
-        if (initialQuery != null) {
-            builder.setInitialQuery(initialQuery)
-        }
+        initialQuery?.let { builder.setInitialQuery(it) }
 
         return builder.build(context)
     }
@@ -215,7 +230,7 @@ private fun LocationPickerConfirmButton(
                 )
             )
         },
-        enabled = selectedLatLng != null && !isResolvingAddress,
+        enabled = (selectedLatLng != null) && !isResolvingAddress,
         modifier = modifier,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

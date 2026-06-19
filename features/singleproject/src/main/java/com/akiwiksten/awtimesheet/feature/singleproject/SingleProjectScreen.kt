@@ -17,7 +17,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
-import com.akiwiksten.awtimesheet.feature.location.LocationPickerResult
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectActions
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectConfiguration
 import com.akiwiksten.awtimesheet.feature.singleproject.model.SingleProjectDerivedState
@@ -70,34 +69,38 @@ fun SingleProjectScreen(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    SingleProjectUiStateContent(
-        uiState = uiState,
+    val contentParams = SingleProjectContentParams(
         initialProjectNameArg = routeArgs.projectName,
         onNavigateBack = navigationActions.onNavigateBack,
         onOpenProjectDetails = openProjectDetails,
         onSaveAndNavigateBack = saveAndNavigateBackToWorkday,
         onNavigateToLocationPicker = { navigationActions.onNavigateToLocationPicker(it) }
     )
+
+    SingleProjectUiStateContent(
+        uiState = uiState,
+        params = contentParams,
+    )
 }
+
+private data class SingleProjectContentParams(
+    val initialProjectNameArg: String,
+    val onNavigateBack: () -> Unit,
+    val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    val onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit,
+    val onNavigateToLocationPicker: (SingleProjectState) -> Unit,
+)
 
 @Composable
 private fun SingleProjectUiStateContent(
     uiState: SingleProjectUiState,
-    initialProjectNameArg: String,
-    onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    onNavigateToLocationPicker: (SingleProjectState) -> Unit
+    params: SingleProjectContentParams,
 ) {
     when (uiState) {
         is SingleProjectUiState.Success -> {
             SingleProjectScreenStateful(
                 uiState = uiState,
-                initialProjectNameArg = initialProjectNameArg,
-                onNavigateBack = onNavigateBack,
-                onOpenProjectDetails = onOpenProjectDetails,
-                onSaveAndNavigateBack = onSaveAndNavigateBack,
-                onNavigateToLocationPicker = onNavigateToLocationPicker
+                params = params,
             )
         }
         is SingleProjectUiState.Loading -> {
@@ -112,11 +115,7 @@ private fun SingleProjectUiStateContent(
 @Composable
 private fun SingleProjectScreenStateful(
     uiState: SingleProjectUiState.Success,
-    initialProjectNameArg: String,
-    onNavigateBack: () -> Unit,
-    onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    onNavigateToLocationPicker: (SingleProjectState) -> Unit
+    params: SingleProjectContentParams,
 ) {
     val noAllowanceText = stringResource(id = CoreR.string.no_allowance)
     val defaultWorkTypeText = stringResource(id = CoreR.string.other)
@@ -152,7 +151,7 @@ private fun SingleProjectScreenStateful(
         uiState = uiState,
         state = state,
         derived = derived,
-        isProjectNameEditable = isAddMode || initialProjectNameArg.isBlank()
+        isProjectNameEditable = isAddMode || params.initialProjectNameArg.isBlank()
     )
     val actions = SingleProjectActions(
         onStateChange = { newState ->
@@ -160,14 +159,14 @@ private fun SingleProjectScreenStateful(
             state = newState
                 .withAbsenceLogic(state, settings, absencePrefix, flexDayWorkType)
         },
-        onOpenProjectDetails = { onOpenProjectDetails(state, uiState.projectDetails) },
-        onSave = { onSaveAndNavigateBack(state, uiState.projectDetails) },
-        onNavigateToLocationPicker = { onNavigateToLocationPicker(state) }
+        onOpenProjectDetails = { params.onOpenProjectDetails(state, uiState.projectDetails) },
+        onSave = { params.onSaveAndNavigateBack(state, uiState.projectDetails) },
+        onNavigateToLocationPicker = { params.onNavigateToLocationPicker(state) }
     )
 
     val onDiscardAndNavigateBack = {
         state = initialUiState
-        onNavigateBack()
+        params.onNavigateBack()
     }
 
     SingleProjectScreenContent(
@@ -180,7 +179,7 @@ private fun SingleProjectScreenStateful(
             )
         ),
         hasUnsavedChanges = derived.hasUnsavedChanges,
-        onNavigateBack = onNavigateBack,
+        onNavigateBack = params.onNavigateBack,
         onDiscardAndNavigateBack = onDiscardAndNavigateBack
     )
 }

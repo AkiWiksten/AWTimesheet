@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,8 +37,10 @@ import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
+import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.android.tools.screenshot.PreviewTest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,5 +206,60 @@ private fun SavedAbsenceListItem(
             Text(text = savedAbsence.absenceType, fontWeight = FontWeight.Bold)
             Text(text = "${savedAbsence.startDate} - ${savedAbsence.endDate}", fontWeight = FontWeight.Bold)
         }
+    }
+}
+
+private val PreviewSavedAbsences = listOf(
+    SavedAbsence(
+        id = 1,
+        absenceType = "Paid vacation",
+        startDate = "2026-07-01",
+        endDate = "2026-07-10",
+        includeWeekends = false,
+        isFlexDay = false
+    ),
+    SavedAbsence(
+        id = 2,
+        absenceType = "Sick leave",
+        startDate = "2026-05-15",
+        endDate = "2026-05-16",
+        includeWeekends = true,
+        isFlexDay = false
+    )
+)
+
+@PreviewTest
+@Preview(showBackground = true, name = "Absence - Empty")
+@Composable
+fun PreviewAbsenceEmpty() {
+    AbsencePreviewContent(uiState = AbsenceUiState())
+}
+
+@PreviewTest
+@Preview(showBackground = true, name = "Absence - With Selection")
+@Composable
+fun PreviewAbsenceWithSelection() {
+    AbsencePreviewContent(
+        uiState = AbsenceUiState(
+            savedAbsences = PreviewSavedAbsences,
+            selectedAbsenceId = 2
+        )
+    )
+}
+
+@Composable
+private fun AbsencePreviewContent(uiState: AbsenceUiState) {
+    AWTimesheetTheme(dynamicColor = false) {
+        AbsenceContent(
+            uiState = uiState,
+            actions = AbsenceActions(
+                onSelectAbsence = {},
+                onDeleteSelectedAbsence = {},
+                onNavigateToCreateAbsence = {}
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = PADDING_SPACING)
+        )
     }
 }

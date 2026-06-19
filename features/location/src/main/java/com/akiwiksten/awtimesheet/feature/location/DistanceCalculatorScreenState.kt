@@ -17,4 +17,3 @@ data class DistanceCalculatorScreenState(
     val onDeleteSelectedRoute: () -> Unit,
     val onNavigateBack: () -> Unit
 )
-

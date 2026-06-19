@@ -8,8 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,25 +27,17 @@ class DistanceCalculatorViewModel @Inject constructor(
         observeRouteHistory()
     }
 
-    fun insertRoute(
-        distanceKm: String,
-        startAddress: String,
-        startLatitude: Double?,
-        startLongitude: Double?,
-        destinationAddress: String,
-        destinationLatitude: Double?,
-        destinationLongitude: Double?,
-    ) {
+    fun insertRoute(request: InsertRouteRequest) {
         viewModelScope.launch {
             routeRepository.insertRoute(
                 route = RouteState(
-                    distance = "$distanceKm km",
-                    start = startAddress,
-                    startLatitude = startLatitude,
-                    startLongitude = startLongitude,
-                    destination = destinationAddress,
-                    destinationLatitude = destinationLatitude,
-                    destinationLongitude = destinationLongitude,
+                    distance = "${request.distanceKm} km",
+                    start = request.startAddress,
+                    startLatitude = request.startLatitude,
+                    startLongitude = request.startLongitude,
+                    destination = request.destinationAddress,
+                    destinationLatitude = request.destinationLatitude,
+                    destinationLongitude = request.destinationLongitude,
                     timestamp = System.currentTimeMillis().toString(),
                 )
             )
@@ -104,3 +96,12 @@ class DistanceCalculatorViewModel @Inject constructor(
     }
 }
 
+data class InsertRouteRequest(
+    val distanceKm: String,
+    val startAddress: String,
+    val startLatitude: Double?,
+    val startLongitude: Double?,
+    val destinationAddress: String,
+    val destinationLatitude: Double?,
+    val destinationLongitude: Double?,
+)

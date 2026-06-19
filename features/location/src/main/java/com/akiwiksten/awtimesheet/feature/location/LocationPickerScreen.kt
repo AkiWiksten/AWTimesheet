@@ -1,5 +1,3 @@
-@file:Suppress("FunctionNaming")
-
 package com.akiwiksten.awtimesheet.feature.location
 
 import android.app.Activity
@@ -33,14 +31,7 @@ fun LocationPickerScreen(
 ) {
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState()
-
-    var selectedPlace by remember(initialAddress) { mutableStateOf<Place?>(null) }
-    var selectedAddress by remember(initialAddress) { mutableStateOf(initialAddress) }
-    var isResolvingAddress by remember(initialAddress, initialLatLng) {
-        mutableStateOf(initialAddress != null && initialLatLng == null)
-    }
-    var isPrefillCenteringFailed by remember(initialAddress, initialLatLng) { mutableStateOf(false) }
-    var selectedLatLng by remember(initialAddress, initialLatLng) { mutableStateOf(initialLatLng) }
+    val state = rememberLocationPickerState(initialAddress, initialLatLng)
 
     val hasFineLocationPermission = rememberFineLocationPermission(
         context = context,
@@ -49,113 +40,155 @@ fun LocationPickerScreen(
         shouldMoveCameraToCurrentLocation = initialAddress.isNullOrBlank() && initialLatLng == null,
     )
 
-    LaunchedEffect(initialAddress, initialLatLng) {
-        if (initialLatLng != null) {
-            selectedLatLng = initialLatLng
-            isResolvingAddress = false
-            isPrefillCenteringFailed = false
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(initialLatLng, DEFAULT_ZOOM)
-            return@LaunchedEffect
+    LocationPickerInitialLocationEffect(
+        context = context,
+        initialAddress = initialAddress,
+        initialLatLng = initialLatLng,
+        cameraPositionState = cameraPositionState,
+        onLocationResolved = { latLng, address, resolving, failed ->
+            state.selectedLatLng = latLng
+            state.selectedAddress = address ?: state.selectedAddress
+            state.isResolvingAddress = resolving
+            state.isPrefillCenteringFailed = failed
         }
-
-        if (initialAddress.isNullOrBlank()) {
-            isResolvingAddress = false
-            isPrefillCenteringFailed = false
-            return@LaunchedEffect
-        }
-
-        resolveLatLngFromAddress(context, initialAddress) { latLng ->
-            selectedLatLng = latLng
-            isResolvingAddress = false
-            isPrefillCenteringFailed = latLng == null
-            if (latLng != null) {
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, DEFAULT_ZOOM)
-            }
-        }
-    }
+    )
 
     val launcher = rememberPlacesLauncher { place ->
-        selectedPlace = place
-        selectedAddress = place.formattedAddress ?: place.displayName
-        isResolvingAddress = false
-        isPrefillCenteringFailed = false
-        selectedLatLng = updateCameraFromPlace(
+        state.selectedPlace = place
+        state.selectedAddress = place.formattedAddress ?: place.displayName
+        state.isResolvingAddress = false
+        state.isPrefillCenteringFailed = false
+        state.selectedLatLng = updateCameraFromPlace(
             place = place,
             cameraPositionState = cameraPositionState,
             zoom = DEFAULT_ZOOM,
         )
     }
 
-    val mapState = remember(
-        selectedPlace?.displayName,
-        selectedAddress,
-        selectedLatLng,
-        hasFineLocationPermission,
-    ) {
-        LocationPickerMapState(
-            selectedPlaceName = selectedPlace?.displayName ?: selectedAddress,
-            selectedLatLng = selectedLatLng,
-            isMyLocationEnabled = hasFineLocationPermission,
-        )
-    }
+    LocationPickerScaffold(
+        topBarState = LocationPickerTopBarState(context, launcher, onNavigateBack),
+        screenState = state.toScreenState(hasFineLocationPermission, cameraPositionState),
+        actions = rememberLocationPickerActions(
+            context = context,
+            cameraPositionState = cameraPositionState,
+            state = state,
+            onLocationSelected = onLocationSelected,
+            onNavigateBack = onNavigateBack,
+        ),
+    )
+}
 
-    val screenState = LocationPickerScreenState(
+@Composable
+private fun rememberLocationPickerState(
+    initialAddress: String?,
+    initialLatLng: LatLng?,
+): LocationPickerInternalState = remember(initialAddress, initialLatLng) {
+    LocationPickerInternalState(initialAddress, initialLatLng)
+}
+
+private class LocationPickerInternalState(
+    initialAddress: String?,
+    initialLatLng: LatLng?,
+) {
+    var selectedPlace by mutableStateOf<Place?>(null)
+    var selectedAddress by mutableStateOf(initialAddress)
+    var isResolvingAddress by mutableStateOf(initialAddress != null && initialLatLng == null)
+    var isPrefillCenteringFailed by mutableStateOf(false)
+    var selectedLatLng by mutableStateOf(initialLatLng)
+
+    fun toScreenState(
+        hasFineLocationPermission: Boolean,
+        cameraPositionState: com.google.maps.android.compose.CameraPositionState
+    ) = LocationPickerScreenState(
         searchText = selectedAddress ?: selectedPlace?.displayName ?: "",
         selectedAddress = selectedAddress,
         isResolvingAddress = isResolvingAddress,
         isPrefillCenteringFailed = isPrefillCenteringFailed,
         selectedLatLng = selectedLatLng,
         cameraPositionState = cameraPositionState,
-        mapState = mapState,
+        mapState = LocationPickerMapState(
+            selectedPlaceName = selectedPlace?.displayName ?: selectedAddress,
+            selectedLatLng = selectedLatLng,
+            isMyLocationEnabled = hasFineLocationPermission,
+        )
     )
+}
 
-    LocationPickerScaffold(
-        topBarState = LocationPickerTopBarState(
-            context = context,
-            launcher = launcher,
-            onNavigateBack = onNavigateBack,
-        ),
-        screenState = screenState,
-        actions = LocationPickerScaffoldActions(
+@Composable
+private fun rememberLocationPickerActions(
+    context: android.content.Context,
+    cameraPositionState: com.google.maps.android.compose.CameraPositionState,
+    state: LocationPickerInternalState,
+    onLocationSelected: (LocationPickerResult) -> Unit,
+    onNavigateBack: () -> Unit,
+): LocationPickerScaffoldActions {
+    return remember(context, cameraPositionState, state) {
+        LocationPickerScaffoldActions(
             onLocationSelected = onLocationSelected,
             onNavigateBack = onNavigateBack,
             onMapClick = { latLng ->
-                selectedPlace = null
-                selectedLatLng = latLng
-                selectedAddress = "${latLng.latitude}, ${latLng.longitude}"
-                isResolvingAddress = true
-                isPrefillCenteringFailed = false
+                state.selectedPlace = null
+                state.selectedLatLng = latLng
+                state.selectedAddress = "${latLng.latitude}, ${latLng.longitude}"
+                state.isResolvingAddress = true
+                state.isPrefillCenteringFailed = false
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, DEFAULT_ZOOM)
                 resolveAddressFromLatLng(context, latLng) { resolvedAddress ->
-                    if (selectedLatLng == latLng) {
-                        isResolvingAddress = false
-                        selectedAddress = resolvedAddress ?: "${latLng.latitude}, ${latLng.longitude}"
+                    if (state.selectedLatLng == latLng) {
+                        state.isResolvingAddress = false
+                        state.selectedAddress = resolvedAddress ?: "${latLng.latitude}, ${latLng.longitude}"
                     }
                 }
             },
             onUseCurrentLocation = {
-                val currentLatLng = getCurrentLocationLatLng(context)
-                if (currentLatLng != null) {
-                    selectedPlace = null
-                    selectedLatLng = currentLatLng
-                    selectedAddress = "${currentLatLng.latitude}, ${currentLatLng.longitude}"
-                    isResolvingAddress = true
-                    isPrefillCenteringFailed = false
+                getCurrentLocationLatLng(context)?.let { currentLatLng ->
+                    state.selectedPlace = null
+                    state.selectedLatLng = currentLatLng
+                    state.selectedAddress = "${currentLatLng.latitude}, ${currentLatLng.longitude}"
+                    state.isResolvingAddress = true
+                    state.isPrefillCenteringFailed = false
                     resolveAddressFromLatLng(context, currentLatLng) { resolvedAddress ->
-                        if (selectedLatLng == currentLatLng) {
-                            isResolvingAddress = false
-                            selectedAddress = resolvedAddress
+                        if (state.selectedLatLng == currentLatLng) {
+                            state.isResolvingAddress = false
+                            state.selectedAddress = resolvedAddress
                                 ?: "${currentLatLng.latitude}, ${currentLatLng.longitude}"
                         }
                     }
                     cameraPositionState.position =
                         CameraPosition.fromLatLngZoom(currentLatLng, DEFAULT_ZOOM)
-                } else {
-                    isResolvingAddress = false
-                }
+                } ?: run { state.isResolvingAddress = false }
             },
-        ),
-    )
+        )
+    }
+}
+
+@Composable
+private fun LocationPickerInitialLocationEffect(
+    context: android.content.Context,
+    initialAddress: String?,
+    initialLatLng: LatLng?,
+    cameraPositionState: com.google.maps.android.compose.CameraPositionState,
+    onLocationResolved: (LatLng?, String?, Boolean, Boolean) -> Unit
+) {
+    LaunchedEffect(initialAddress, initialLatLng) {
+        if (initialLatLng != null) {
+            onLocationResolved(initialLatLng, null, false, false)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(initialLatLng, DEFAULT_ZOOM)
+            return@LaunchedEffect
+        }
+
+        if (initialAddress.isNullOrBlank()) {
+            onLocationResolved(null, null, false, false)
+            return@LaunchedEffect
+        }
+
+        resolveLatLngFromAddress(context, initialAddress) { latLng ->
+            onLocationResolved(latLng, null, false, latLng == null)
+            if (latLng != null) {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, DEFAULT_ZOOM)
+            }
+        }
+    }
 }
 
 @Composable

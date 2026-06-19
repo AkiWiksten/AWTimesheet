@@ -23,6 +23,7 @@ class AwtimesheetFeatureDependenciesConventionPlugin : Plugin<Project> {
         dependencies.add("compileOnly", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
         dependencies.add("screenshotTestImplementation", libs.findLibrary("screenshot-validation-api").get())
         dependencies.add("screenshotTestImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
+        dependencies.add("screenshotTestImplementation", libs.findLibrary("google-material").get())
         dependencies.add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
 
         dependencies.add("testImplementation", libs.findLibrary("junit").get())

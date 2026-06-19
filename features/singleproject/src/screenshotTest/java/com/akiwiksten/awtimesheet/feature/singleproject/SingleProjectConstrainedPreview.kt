@@ -80,7 +80,8 @@ private fun SingleProjectConstrainedPreviewContent() {
                         actions = SingleProjectActions(
                             onStateChange = {},
                             onOpenProjectDetails = {},
-                            onSave = {}
+                            onSave = {},
+                            onNavigateToLocationPicker = {}
                         ),
                         config = SingleProjectConfiguration(
                             absencePrefix = "Absence",

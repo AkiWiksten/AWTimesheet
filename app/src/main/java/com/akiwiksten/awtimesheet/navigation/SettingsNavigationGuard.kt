@@ -166,7 +166,6 @@ private fun appEntryProvider(
     }
     entry<Screen.Absence> {
         AbsenceScreen(
-            onNavigateBack = { backStack.pop() },
             onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) }
         )
     }

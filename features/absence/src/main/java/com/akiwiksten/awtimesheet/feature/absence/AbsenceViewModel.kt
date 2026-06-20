@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,23 +24,25 @@ class AbsenceViewModel @Inject constructor(
     val uiState: StateFlow<AbsenceUiState> = _uiState.asStateFlow()
 
     init {
-        initData()
+        observeAbsences()
     }
 
-    fun initData() {
-        viewModelScope.launch {
-            val absences = absenceRepository.getAll().map {
-                SavedAbsence(
-                    id = it.id,
-                    absenceType = it.absenceType,
-                    startDate = it.startDate,
-                    endDate = it.endDate,
-                    includeWeekends = it.includeWeekends,
-                    isFlexDay = it.isFlexDay
-                )
-            }.sortedByDescending { it.startDate }
-            _uiState.update { it.copy(savedAbsences = absences) }
-        }
+    private fun observeAbsences() {
+        absenceRepository.getAll()
+            .onEach { absences ->
+                val sorted = absences.map {
+                    SavedAbsence(
+                        id = it.id,
+                        absenceType = it.absenceType,
+                        startDate = it.startDate,
+                        endDate = it.endDate,
+                        includeWeekends = it.includeWeekends,
+                        isFlexDay = it.isFlexDay
+                    )
+                }.sortedByDescending { it.startDate }
+                _uiState.update { it.copy(savedAbsences = sorted) }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun selectAbsence(id: Int?) {
@@ -59,7 +63,6 @@ class AbsenceViewModel @Inject constructor(
                     isFlexDay = selected.isFlexDay
                 )
             )
-            initData()
             selectAbsence(null)
         }
     }

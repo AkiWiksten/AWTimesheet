@@ -3,6 +3,7 @@
     <string name="app_name">AWTimesheet</string>
     <string name="calendar">Kalenteri</string>
     <string name="create_absence_title">Luo poissaolo</string>
+    <string name="absence">Poissaolot</string>
     <string name="workday">Työpäivä</string>
     <string name="settings">Asetukset</string>
     <string name="project_details">Projektin tiedot</string>

@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -26,7 +27,7 @@ internal fun AWTimesheetNavigationBar(
     onSaveSettingsChanges: () -> Unit,
     onDiscardSettingsChanges: () -> Unit
 ) {
-    val navigationScreens = listOf(Screen.Calendar, Screen.Workday, Screen.Settings)
+    val navigationScreens = listOf(Screen.Calendar, Screen.Workday, Screen.Absence, Screen.Settings)
     var pendingScreen by remember { mutableStateOf<Screen?>(value = null) }
     val isShowingUnsavedDialog = pendingScreen != null
     val unsavedMessage = stringResource(id = CoreR.string.unsaved_data_message)
@@ -75,6 +76,7 @@ private fun ScreenIcon(screen: Screen) {
     val icon = when (screen) {
         Screen.Calendar -> Icons.Default.CalendarMonth
         Screen.Workday -> Icons.AutoMirrored.Filled.List
+        Screen.Absence -> Icons.Default.EventBusy
         Screen.Settings -> Icons.Default.Settings
         else -> Icons.Default.Home
     }

@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,23 +24,25 @@ class CreateAbsenceViewModel @Inject constructor(
     val uiState: StateFlow<CreateAbsenceUiState> = _uiState.asStateFlow()
 
     init {
-        fetchExistingAbsences()
+        observeExistingAbsences()
     }
 
-    private fun fetchExistingAbsences() {
-        viewModelScope.launch {
-            val absences = absenceRepository.getAll().map {
-                SavedAbsence(
-                    id = it.id,
-                    absenceType = it.absenceType,
-                    startDate = it.startDate,
-                    endDate = it.endDate,
-                    includeWeekends = it.includeWeekends,
-                    isFlexDay = it.isFlexDay
-                )
+    private fun observeExistingAbsences() {
+        absenceRepository.getAll()
+            .onEach { absences ->
+                val savedAbsences = absences.map {
+                    SavedAbsence(
+                        id = it.id,
+                        absenceType = it.absenceType,
+                        startDate = it.startDate,
+                        endDate = it.endDate,
+                        includeWeekends = it.includeWeekends,
+                        isFlexDay = it.isFlexDay
+                    )
+                }
+                _uiState.update { it.copy(existingAbsences = savedAbsences) }
             }
-            _uiState.update { it.copy(existingAbsences = absences) }
-        }
+            .launchIn(viewModelScope)
     }
 
     fun addAbsence(absence: AbsenceState, onComplete: () -> Unit) {

@@ -235,10 +235,6 @@ private fun SingleProjectContent(
             workTimeByDate = workTimeByDate
         )
 
-        if (screenState.isAddMode) {
-            NoteBanner(stringResource(id = R.string.project_name_note))
-        }
-
         if (screenState.isTimePickerDisabled) {
             NoteBanner(text = stringResource(id = R.string.pick_disabled_note))
         }

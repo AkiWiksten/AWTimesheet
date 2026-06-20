@@ -95,9 +95,7 @@ Summarize benchmark output:
 + SingleProjectScreen
   + Project name edit and validation
   + Kilometres validation. 0050 not valid.
-  + Select distance from map also
   + Show work_type_help string
-  + Selecting work type doesn't work in edit mode
 + WorkdayScreen 
   + Unselect project from list
   + Select many in list
@@ -122,11 +120,15 @@ Summarize benchmark output:
 + Thorough regression testing of all features in all screens
     + Intro, 
     + Calendar, 
-    + Workday, R
-    + Single project, R
-    + Project Details, 
-    + Settings R
-      + Excel creation R
+    + Workday,
+    + Single project,
+    + Project details,
+    + Absence
+    + New absence
+    + Distance calculation
+    + Select location
+    + Settings
+      + Excel creation 
 
 ## AI provided quality improvement plan
 + Fix scroll jank regressions on workday first

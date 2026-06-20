@@ -6,7 +6,6 @@
     <string name="or_text">OR</string>
     <string name="pick">Pick</string>
     <string name="pick_disabled_note">You have confirmed "Details". "Pick" button is disabled.</string>
-    <string name="project_name_note">Add a good project name. You cannot change it after you press \'Save\' in here.</string>
     <string name="comment_dialog_title">Edit comment</string>
 </resources>
 

@@ -122,4 +122,34 @@ class SaveWorkdayUseCaseTest {
             projectRepository.deletedProjects.none { it.date == "2026-04-11" && it.projectName == "Gamma" }
         )
     }
+
+    @Test
+    fun invoke_withNameChange_deletesOldProjectAndDetails() = runBlocking {
+        val date = "2026-04-10"
+        val oldName = "Alpha"
+        val newName = "Beta"
+
+        val projectRepository = FakeProjectRepository().apply {
+            insertProject(projectState(date = date, projectName = oldName))
+        }
+        val projectDetailsRepository = FakeProjectDetailsRepository().apply {
+            // Assuming FakeProjectDetailsRepository has a way to prepopulate or check deletion
+        }
+        val settingsRepository = FakeSettingsRepository()
+        val workdayRepository = FakeWorkdayRepository()
+        val useCase = SaveWorkdayUseCase(
+            projectRepository = projectRepository,
+            settingsRepository = settingsRepository,
+            workdayRepository = workdayRepository,
+            projectDetailsRepository = projectDetailsRepository
+        )
+
+        useCase(
+            projectToSave = projectState(date = date, projectName = newName),
+            originalProjectName = oldName
+        )
+
+        assertTrue(projectRepository.deletedProjects.any { it.projectName == oldName })
+        assertTrue(projectRepository.insertedProjects.any { it.projectName == newName })
+    }
 }

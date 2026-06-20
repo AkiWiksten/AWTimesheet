@@ -21,10 +21,22 @@ class SaveWorkdayUseCase @Inject constructor(
     suspend operator fun invoke(
         projectToSave: SingleProjectState,
         projectDetailsToSave: ProjectDetailsState? = null,
-        localizedFlexDayWorkType: String = ""
+        localizedFlexDayWorkType: String = "",
+        originalProjectName: String = ""
     ) {
         if (isAbsenceFlexDay(projectToSave, localizedFlexDayWorkType)) {
             clearOtherProjectsForDate(projectToSave)
+        }
+
+        if (originalProjectName.isNotBlank() && originalProjectName != projectToSave.projectName) {
+            val oldProject = projectRepository.getProject(projectToSave.date, originalProjectName)
+            if (oldProject != null) {
+                projectRepository.deleteProject(oldProject)
+            }
+            val oldDetails = projectDetailsRepository.getProjectDetails(projectToSave.date, originalProjectName)
+            if (oldDetails != null) {
+                projectDetailsRepository.deleteProjectDetails(oldDetails)
+            }
         }
 
         projectRepository.insertProjectName(projectToSave.projectName)

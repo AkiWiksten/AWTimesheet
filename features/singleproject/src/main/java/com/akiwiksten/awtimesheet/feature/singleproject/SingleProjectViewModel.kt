@@ -122,7 +122,8 @@ class SingleProjectViewModel @Inject constructor(
                 saveWorkdayUseCase(
                     projectToSave = projectToSave,
                     projectDetailsToSave = details?.copy(projectName = projectToSave.projectName),
-                    localizedFlexDayWorkType = localizedFlexDayWorkType
+                    localizedFlexDayWorkType = localizedFlexDayWorkType,
+                    originalProjectName = selectedProjectName.value
                 )
 
                 val newWorkTimeByDate = projectRepository.getWorkTimeByDate(date)

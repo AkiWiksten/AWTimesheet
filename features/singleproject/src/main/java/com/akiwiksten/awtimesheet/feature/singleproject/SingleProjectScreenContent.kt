@@ -1,5 +1,6 @@
 package com.akiwiksten.awtimesheet.feature.singleproject
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -73,6 +74,8 @@ internal fun SingleProjectScreenContent(
             onNavigateBack()
         }
     }
+
+    BackHandler(onBack = guardedNavigateBack)
 
     if (showUnsavedDialogState.value) {
         UnsavedChangesDialog(

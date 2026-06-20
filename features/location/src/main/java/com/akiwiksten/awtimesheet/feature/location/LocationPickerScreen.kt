@@ -27,6 +27,7 @@ private const val DEFAULT_ZOOM = 15f
 fun LocationPickerScreen(
     onLocationSelected: (LocationPickerResult) -> Unit,
     onNavigateBack: () -> Unit,
+    titleResId: Int = R.string.select_location_title,
     initialAddress: String? = null,
     initialLatLng: LatLng? = null,
 ) {
@@ -68,7 +69,7 @@ fun LocationPickerScreen(
     }
 
     LocationPickerScaffold(
-        topBarState = LocationPickerTopBarState(context, launcher, onNavigateBack),
+        topBarState = LocationPickerTopBarState(context, titleResId, launcher, onNavigateBack),
         screenState = state.toScreenState(hasFineLocationPermission, cameraPositionState),
         actions = rememberLocationPickerActions(
             context = context,

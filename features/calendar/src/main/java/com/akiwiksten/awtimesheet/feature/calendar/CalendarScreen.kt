@@ -132,14 +132,6 @@ internal fun CalendarContent(
                     )
                 }
                 WorkTimeSummarySection(uiState = uiState)
-                AwtButton(
-                    onClick = onNavigateToAbsence,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(all = PADDING_SPACING)
-                ) {
-                    Text(stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence))
-                }
                 Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
             }
             is CalendarUiState.Error -> CenteredErrorBox(

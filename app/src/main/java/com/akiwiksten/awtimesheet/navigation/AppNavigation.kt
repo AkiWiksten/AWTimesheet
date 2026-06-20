@@ -122,7 +122,15 @@ internal fun LocationPickerEntry(
     screen: Screen.LocationPicker,
     backStack: SnapshotStateList<Any>,
 ) {
+    val titleResId = when (screen.target) {
+        Screen.LocationTarget.START ->
+            com.akiwiksten.awtimesheet.feature.location.R.string.select_location_start_title
+        Screen.LocationTarget.DESTINATION ->
+            com.akiwiksten.awtimesheet.feature.location.R.string.select_location_destination_title
+    }
+
     LocationPickerScreen(
+        titleResId = titleResId,
         initialAddress = screen.initialPoint?.address,
         initialLatLng = screen.initialPoint?.let { point ->
             com.google.android.gms.maps.model.LatLng(point.latitude, point.longitude)

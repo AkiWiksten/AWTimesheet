@@ -75,7 +75,7 @@ internal fun LocationPickerScaffold(
 @Composable
 private fun LocationPickerTopBar(topBarState: LocationPickerTopBarState) {
     TopAppBar(
-        title = { Text(stringResource(R.string.select_location_title)) },
+        title = { Text(stringResource(topBarState.titleResId)) },
         navigationIcon = {
             IconButton(onClick = topBarState.onNavigateBack) {
                 Icon(

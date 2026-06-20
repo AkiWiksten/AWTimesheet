@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
@@ -158,6 +159,7 @@ private fun AbsenceDatePickerDialogs(
     if (showStartPicker) {
         AbsenceDatePickerDialog(
             initialDate = startDate,
+            titleResId = R.string.select_date_start,
             onDismiss = onStartDismiss,
             onDateSelected = onStartDateSelected
         )
@@ -165,6 +167,7 @@ private fun AbsenceDatePickerDialogs(
     if (showEndPicker) {
         AbsenceDatePickerDialog(
             initialDate = endDate,
+            titleResId = R.string.select_date_end,
             onDismiss = onEndDismiss,
             onDateSelected = onEndDateSelected
         )
@@ -333,6 +336,7 @@ private fun WeekendsOptionRow(
 @Composable
 private fun AbsenceDatePickerDialog(
     initialDate: LocalDate,
+    titleResId: Int,
     onDismiss: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
 ) {
@@ -360,7 +364,15 @@ private fun AbsenceDatePickerDialog(
             }
         }
     ) {
-        DatePicker(state = datePickerState)
+        DatePicker(
+            state = datePickerState,
+            title = {
+                Text(
+                    text = stringResource(id = titleResId),
+                    modifier = Modifier.padding(start = 24.dp, top = 16.dp)
+                )
+            }
+        )
     }
 }
 

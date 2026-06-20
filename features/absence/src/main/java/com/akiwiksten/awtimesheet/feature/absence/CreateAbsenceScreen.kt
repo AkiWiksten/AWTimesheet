@@ -37,6 +37,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
@@ -52,14 +54,23 @@ import java.time.LocalDate
 @Composable
 fun CreateAbsenceScreen(
     onNavigateBack: () -> Unit,
-    onAbsenceCreated: (AbsenceState) -> Unit,
+    viewModel: CreateAbsenceViewModel = hiltViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var startDate by remember { mutableStateOf(LocalDate.now()) }
     var endDate by remember { mutableStateOf(LocalDate.now()) }
     var absenceType by rememberSaveable { mutableStateOf("") }
     var includeWeekends by rememberSaveable { mutableStateOf(false) }
     var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
     var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
+
+    val isOverlap = remember(startDate, endDate, uiState.existingAbsences) {
+        uiState.existingAbsences.any { existing ->
+            val exStart = LocalDate.parse(existing.startDate)
+            val exEnd = LocalDate.parse(existing.endDate)
+            !startDate.isAfter(exEnd) && !exStart.isAfter(endDate)
+        }
+    }
 
     AbsenceDatePickerDialogs(
         showStartPicker = showStartDatePicker,
@@ -89,21 +100,22 @@ fun CreateAbsenceScreen(
             endDate = endDate,
             absenceType = absenceType,
             includeWeekends = includeWeekends,
+            isOverlap = isOverlap,
             onAbsenceTypeChange = { absenceType = it },
             onIncludeWeekendsChange = { includeWeekends = it },
             onShowStartDatePicker = { showStartDatePicker = true },
             onShowEndDatePicker = { showEndDatePicker = true },
             onSave = {
-                onAbsenceCreated(
+                viewModel.addAbsence(
                     AbsenceState(
                         absenceType = absenceType,
                         startDate = startDate.toString(),
                         endDate = endDate.toString(),
                         includeWeekends = includeWeekends,
                         isFlexDay = absenceType == flexDayType
-                    )
+                    ),
+                    onComplete = onNavigateBack
                 )
-                onNavigateBack()
             },
             modifier = Modifier.fillMaxWidth()
                 .padding(innerPadding)
@@ -166,6 +178,7 @@ private fun CreateAbsenceContent(
     endDate: LocalDate,
     absenceType: String,
     includeWeekends: Boolean,
+    isOverlap: Boolean,
     onAbsenceTypeChange: (String) -> Unit,
     onIncludeWeekendsChange: (Boolean) -> Unit,
     onShowStartDatePicker: () -> Unit,
@@ -183,6 +196,7 @@ private fun CreateAbsenceContent(
             endDate = endDate,
             absenceType = absenceType,
             includeWeekends = includeWeekends,
+            isOverlap = isOverlap,
             onAbsenceTypeChange = onAbsenceTypeChange,
             onIncludeWeekendsChange = onIncludeWeekendsChange,
             onShowStartDatePicker = onShowStartDatePicker,
@@ -192,7 +206,7 @@ private fun CreateAbsenceContent(
             AwtButton(
                 onClick = onSave,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = absenceType.isNotBlank()
+                enabled = absenceType.isNotBlank() && !isOverlap
             ) {
                 Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.save))
             }
@@ -207,6 +221,7 @@ private fun AbsenceFormCard(
     endDate: LocalDate,
     absenceType: String,
     includeWeekends: Boolean,
+    isOverlap: Boolean,
     onAbsenceTypeChange: (String) -> Unit,
     onIncludeWeekendsChange: (Boolean) -> Unit,
     onShowStartDatePicker: () -> Unit,
@@ -234,6 +249,15 @@ private fun AbsenceFormCard(
                 dateText = endDate.toString(),
                 onPickDate = onShowEndDatePicker
             )
+
+            if (isOverlap) {
+                Text(
+                    text = stringResource(id = R.string.error_overlap),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             DropdownMenuBox(
                 items = listOf(
                     stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_paid_vacation),

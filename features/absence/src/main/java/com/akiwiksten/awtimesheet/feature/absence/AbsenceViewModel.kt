@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteAbsenceUseCase
-import com.akiwiksten.awtimesheet.domain.usecase.SaveAbsenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +15,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AbsenceViewModel @Inject constructor(
-    private val saveAbsenceUseCase: SaveAbsenceUseCase,
     private val absenceRepository: AbsenceRepository,
     private val deleteAbsenceUseCase: DeleteAbsenceUseCase,
 ) : ViewModel() {
@@ -25,19 +23,6 @@ class AbsenceViewModel @Inject constructor(
 
     init {
         initData()
-    }
-
-    fun addAbsence(absence: AbsenceState) {
-        viewModelScope.launch {
-            saveAbsenceUseCase(
-                startDate = absence.startDate,
-                endDate = absence.endDate,
-                absenceType = absence.absenceType,
-                isFlexDay = absence.isFlexDay,
-                includeWeekends = absence.includeWeekends
-            )
-            initData()
-        }
     }
 
     fun initData() {

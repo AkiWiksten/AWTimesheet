@@ -11,4 +11,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="dismiss">Dismiss</string>
+    <string name="error_overlap">Selected dates overlap with an existing absence.</string>
 </resources>

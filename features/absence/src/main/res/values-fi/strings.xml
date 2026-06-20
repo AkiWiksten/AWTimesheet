@@ -11,4 +11,5 @@
     <string name="yes">Kyllä</string>
     <string name="no">Ei</string>
     <string name="dismiss">Peruuta</string>
+    <string name="error_overlap">Valitut päivät ovat päällekkäisiä olemassa olevan poissaolon kanssa.</string>
 </resources>

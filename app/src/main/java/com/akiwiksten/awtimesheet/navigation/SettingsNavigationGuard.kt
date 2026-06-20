@@ -14,7 +14,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -105,7 +104,6 @@ internal fun WorkTimeNavDisplay(
     modifier: Modifier = Modifier
 ) {
     var showUnsavedBackDialog by remember { mutableStateOf(value = false) }
-    val absenceViewModel: AbsenceViewModel = hiltViewModel()
 
     SettingsBackNavigationDialog(
         isVisible = showUnsavedBackDialog,
@@ -125,7 +123,6 @@ internal fun WorkTimeNavDisplay(
     MainNavDisplayContent(
         backStack = backStack,
         settingsNavigationGuard = settingsNavigationGuard,
-        absenceViewModel = absenceViewModel,
         onUnsavedChangesBlocked = { showUnsavedBackDialog = true },
         modifier = modifier
     )
@@ -135,7 +132,6 @@ internal fun WorkTimeNavDisplay(
 private fun MainNavDisplayContent(
     backStack: SnapshotStateList<Any>,
     settingsNavigationGuard: SettingsNavigationGuard,
-    absenceViewModel: AbsenceViewModel,
     onUnsavedChangesBlocked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -153,16 +149,14 @@ private fun MainNavDisplayContent(
         ),
         entryProvider = appEntryProvider(
             backStack = backStack,
-            settingsNavigationGuard = settingsNavigationGuard,
-            absenceViewModel = absenceViewModel
+            settingsNavigationGuard = settingsNavigationGuard
         )
     )
 }
 
 private fun appEntryProvider(
     backStack: SnapshotStateList<Any>,
-    settingsNavigationGuard: SettingsNavigationGuard,
-    absenceViewModel: AbsenceViewModel
+    settingsNavigationGuard: SettingsNavigationGuard
 ) = entryProvider<Any> {
     entry<Screen.Intro> {
         IntroNavEntry(backStack = backStack)
@@ -173,14 +167,12 @@ private fun appEntryProvider(
     entry<Screen.Absence> {
         AbsenceScreen(
             onNavigateBack = { backStack.pop() },
-            onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) },
-            viewModel = absenceViewModel
+            onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) }
         )
     }
     entry<Screen.CreateAbsence> {
         CreateAbsenceScreen(
-            onNavigateBack = { backStack.pop() },
-            onAbsenceCreated = absenceViewModel::addAbsence
+            onNavigateBack = { backStack.pop() }
         )
     }
     entry<Screen.Workday> {

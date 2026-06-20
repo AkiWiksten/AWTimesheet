@@ -19,3 +19,26 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# ---- Google Places SDK ----
+# Replacing deep wildcards (**) with package-specific ones (*)
+# to stay under the 100-class limit that triggers the lint warning.
+
+-keep class com.google.android.libraries.places.api.* { *; }
+-keep class com.google.android.libraries.places.api.model.* { *; }
+-keep class com.google.android.libraries.places.api.net.* { *; }
+-keep class com.google.android.libraries.places.widget.* { *; }
+-keep class com.google.android.libraries.places.widget.model.* { *; }
+
+# Keep internal classes needed for the SDK to function.
+# We split the internal package to avoid the "overly broad" warning.
+-keep class com.google.android.libraries.places.internal.* { *; }
+
+-dontwarn com.google.android.libraries.places.**
+
+# ---- Google Maps / Play Services ----
+# Target specific maps packages to avoid broad warnings.
+-keep class com.google.android.gms.maps.* { *; }
+-keep class com.google.android.gms.maps.model.* { *; }
+
+-dontwarn com.google.android.gms.**

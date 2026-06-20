@@ -5,18 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import com.akiwiksten.awtimesheet.domain.repository.AbsenceRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteAbsenceUseCase
-import com.akiwiksten.awtimesheet.domain.usecase.SaveAbsenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AbsenceViewModel @Inject constructor(
-    private val saveAbsenceUseCase: SaveAbsenceUseCase,
     private val absenceRepository: AbsenceRepository,
     private val deleteAbsenceUseCase: DeleteAbsenceUseCase,
 ) : ViewModel() {
@@ -24,36 +24,25 @@ class AbsenceViewModel @Inject constructor(
     val uiState: StateFlow<AbsenceUiState> = _uiState.asStateFlow()
 
     init {
-        initData()
+        observeAbsences()
     }
 
-    fun addAbsence(absence: AbsenceState) {
-        viewModelScope.launch {
-            saveAbsenceUseCase(
-                startDate = absence.startDate,
-                endDate = absence.endDate,
-                absenceType = absence.absenceType,
-                isFlexDay = absence.isFlexDay,
-                includeWeekends = absence.includeWeekends
-            )
-            initData()
-        }
-    }
-
-    fun initData() {
-        viewModelScope.launch {
-            val absences = absenceRepository.getAll().map {
-                SavedAbsence(
-                    id = it.id,
-                    absenceType = it.absenceType,
-                    startDate = it.startDate,
-                    endDate = it.endDate,
-                    includeWeekends = it.includeWeekends,
-                    isFlexDay = it.isFlexDay
-                )
-            }.sortedByDescending { it.startDate }
-            _uiState.update { it.copy(savedAbsences = absences) }
-        }
+    private fun observeAbsences() {
+        absenceRepository.getAll()
+            .onEach { absences ->
+                val sorted = absences.map {
+                    SavedAbsence(
+                        id = it.id,
+                        absenceType = it.absenceType,
+                        startDate = it.startDate,
+                        endDate = it.endDate,
+                        includeWeekends = it.includeWeekends,
+                        isFlexDay = it.isFlexDay
+                    )
+                }.sortedByDescending { it.startDate }
+                _uiState.update { it.copy(savedAbsences = sorted) }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun selectAbsence(id: Int?) {
@@ -74,7 +63,6 @@ class AbsenceViewModel @Inject constructor(
                     isFlexDay = selected.isFlexDay
                 )
             )
-            initData()
             selectAbsence(null)
         }
     }

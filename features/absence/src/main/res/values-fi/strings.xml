@@ -2,7 +2,9 @@
 <resources>
     <string name="new_absence">Uusi</string>
     <string name="select_date">Valitse päivämäärä</string>
-    <string name="saved_absences_title">Tallennetut poissaolot (lajiteltu uusimman alkamispäivän mukaan)</string>
+    <string name="select_date_start">Valitse päivämäärä (alku)</string>
+    <string name="select_date_end">Valitse päivämäärä (loppu)</string>
+    <string name="saved_absences_title">Tallennetut poissaolot (lajiteltu uusimman alkamispäivän mukaan). Lisätty Kalenteriin.</string>
     <string name="no_absences">Ei poissaoloja</string>
     <string name="start_date">Aloituspäivä</string>
     <string name="end_date">Lopetuspäivä</string>
@@ -11,4 +13,5 @@
     <string name="yes">Kyllä</string>
     <string name="no">Ei</string>
     <string name="dismiss">Peruuta</string>
+    <string name="error_overlap">Valitut päivät ovat päällekkäisiä olemassa olevan poissaolon kanssa.</string>
 </resources>

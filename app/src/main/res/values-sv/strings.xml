@@ -3,6 +3,7 @@
     <string name="app_name">AWTimesheet</string>
     <string name="calendar">Kalender</string>
     <string name="create_absence_title">Skapa frånvaro</string>
+    <string name="absence">Frånvaro</string>
     <string name="workday">Arbetsdag</string>
     <string name="settings">Inställningar</string>
     <string name="project_details">Projektdetaljer</string>

@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.feature.location
 import android.app.Activity
 import android.content.Intent
 import android.os.Parcelable
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,9 +27,11 @@ private const val DEFAULT_ZOOM = 15f
 fun LocationPickerScreen(
     onLocationSelected: (LocationPickerResult) -> Unit,
     onNavigateBack: () -> Unit,
+    titleResId: Int = R.string.select_location_title,
     initialAddress: String? = null,
     initialLatLng: LatLng? = null,
 ) {
+    BackHandler(onBack = onNavigateBack)
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState()
     val state = rememberLocationPickerState(initialAddress, initialLatLng)
@@ -66,7 +69,7 @@ fun LocationPickerScreen(
     }
 
     LocationPickerScaffold(
-        topBarState = LocationPickerTopBarState(context, launcher, onNavigateBack),
+        topBarState = LocationPickerTopBarState(context, titleResId, launcher, onNavigateBack),
         screenState = state.toScreenState(hasFineLocationPermission, cameraPositionState),
         actions = rememberLocationPickerActions(
             context = context,

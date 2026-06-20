@@ -2,7 +2,9 @@
 <resources>
     <string name="new_absence">New</string>
     <string name="select_date">Select date</string>
-    <string name="saved_absences_title">Saved absences (sorted by newest start date)</string>
+    <string name="select_date_start">Select date (start)</string>
+    <string name="select_date_end">Select date (end)</string>
+    <string name="saved_absences_title">Saved absences (sorted by newest start date). Added to the Calendar.</string>
     <string name="no_absences">No absences</string>
     <string name="start_date">Start date</string>
     <string name="end_date">End date</string>
@@ -11,4 +13,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="dismiss">Dismiss</string>
+    <string name="error_overlap">Selected dates overlap with an existing absence.</string>
 </resources>

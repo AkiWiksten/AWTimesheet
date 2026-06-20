@@ -32,6 +32,7 @@ internal data class LocationPickerScaffoldActions(
 
 internal data class LocationPickerTopBarState(
     val context: Context,
+    val titleResId: Int,
     val launcher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     val onNavigateBack: () -> Unit
 )

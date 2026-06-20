@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.akiwiksten.awtimesheet.data.database.entity.AbsenceEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AbsenceDao {
@@ -13,7 +14,7 @@ interface AbsenceDao {
     suspend fun insertAbsence(absence: AbsenceEntity)
 
     @Query("SELECT * FROM absence")
-    suspend fun getAll(): List<AbsenceEntity>
+    fun getAll(): Flow<List<AbsenceEntity>>
 
     @Delete
     suspend fun delete(absence: AbsenceEntity)

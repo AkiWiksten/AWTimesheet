@@ -41,7 +41,7 @@ sealed interface Screen : Parcelable {
     @Parcelize
     data object Absence : Screen {
         override val route: String get() = ABSENCE_SCREEN
-        override val titleResId: Int? get() = null
+        override val titleResId: Int get() = R.string.absence
     }
 
     @Parcelize

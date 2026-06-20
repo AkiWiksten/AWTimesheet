@@ -2,6 +2,7 @@
 
 package com.akiwiksten.awtimesheet.feature.location
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import kotlin.math.roundToInt
 fun DistanceCalculatorScreen(
     state: DistanceCalculatorScreenState
 ) {
+    BackHandler(onBack = state.onNavigateBack)
     Scaffold(
         topBar = {
             TopAppBar(

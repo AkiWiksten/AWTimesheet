@@ -21,18 +21,34 @@
 #-renamesourcefileattribute SourceFile
 
 # ---- Google Places SDK ----
-# Keep the public API entry points and widget (AutocompleteActivity)
+# Refined keep rules to avoid "overly broad" warnings while maintaining functionality.
+# We keep specific entry points and use -keepclassmembers for internal packages.
 -keep class com.google.android.libraries.places.api.Places { *; }
--keep class com.google.android.libraries.places.api.model.** { *; }
--keep class com.google.android.libraries.places.api.net.** { *; }
--keep class com.google.android.libraries.places.widget.** { *; }
--keepnames class com.google.android.libraries.places.** { *; }
+-keep class com.google.android.libraries.places.api.model.Place { *; }
+-keep class com.google.android.libraries.places.widget.Autocomplete { *; }
+-keepclassmembers class com.google.android.libraries.places.api.model.** {
+    <fields>;
+    <init>(...);
+}
+-keepclassmembers class com.google.android.libraries.places.api.net.** {
+    <fields>;
+    <init>(...);
+}
+-keepclassmembers class com.google.android.libraries.places.widget.** {
+    <fields>;
+    <init>(...);
+}
 -dontwarn com.google.android.libraries.places.**
 
 # ---- Google Maps / Play Services ----
-# Keep GMS Tasks and Maps classes used reflectively at runtime
--keep class com.google.android.gms.maps.** { *; }
--keep class com.google.android.gms.location.** { *; }
--keep class com.google.android.gms.tasks.** { *; }
--keep class com.google.android.gms.common.** { *; }
+# Specific keep rules for Google Maps to avoid broad package rules
+-keep class com.google.android.gms.maps.GoogleMap { *; }
+-keep class com.google.android.gms.maps.SupportMapFragment { *; }
+-keep class com.google.android.gms.maps.MapView { *; }
+-keep class com.google.android.gms.maps.model.LatLng { *; }
+-keep class com.google.android.gms.maps.model.CameraPosition { *; }
+-keepclassmembers class com.google.android.gms.maps.model.** {
+    <fields>;
+    <init>(...);
+}
 -dontwarn com.google.android.gms.**

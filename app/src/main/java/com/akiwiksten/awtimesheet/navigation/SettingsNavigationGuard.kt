@@ -206,7 +206,8 @@ private fun WorkdayNavEntry(backStack: SnapshotStateList<Any>) {
             backStack.add(
                 element = Screen.SingleProject(
                     listIndex = project.listIndex,
-                    projectName = project.projectName
+                    projectName = project.projectName,
+                    originalProjectName = if (project.isAddMode) "" else project.projectName
                 )
             )
         }

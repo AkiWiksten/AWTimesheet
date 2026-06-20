@@ -8,6 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class ProjectDetailsState(
     val date: String = "",
     val projectName: String = "",
+    val originalProjectName: String = "",
     val startTime: String = ZERO_TIME,
     val endTime: String = ZERO_TIME,
     val lunchStart: String = ZERO_TIME,

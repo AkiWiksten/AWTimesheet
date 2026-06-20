@@ -66,6 +66,7 @@ sealed interface Screen : Parcelable {
     data class ProjectDetails(
         val date: String = "",
         val projectName: String = "",
+        val originalProjectName: String = "",
         val startTime: String = ZERO_TIME,
         val endTime: String = ZERO_TIME,
         val lunchStart: String = ZERO_TIME,
@@ -116,6 +117,7 @@ sealed interface Screen : Parcelable {
     data class SingleProject(
         val listIndex: Int = -1,
         val projectName: String? = null,
+        val originalProjectName: String? = null,
         val projectTime: String? = null,
         val isAddMode: Boolean = true,
         val kilometres: String? = null,

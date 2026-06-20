@@ -45,9 +45,14 @@ fun SingleProjectScreen(
         val details = (
             currentDetails ?: ProjectDetailsState(
                 date = state.date,
-                projectName = state.projectName
+                projectName = state.projectName,
+                originalProjectName = routeArgs.originalProjectName
             )
-            ).copy(projectTime = state.projectTime)
+            ).copy(
+                projectTime = state.projectTime,
+                projectName = state.projectName,
+                originalProjectName = routeArgs.originalProjectName
+            )
         navigationActions.onOpenProjectDetails(state, details)
     }
 

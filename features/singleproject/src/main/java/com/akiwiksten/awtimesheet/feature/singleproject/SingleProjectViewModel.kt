@@ -63,7 +63,7 @@ class SingleProjectViewModel @Inject constructor(
         viewModelScope.launch {
             val effectiveDate = selectedDate.value.ifBlank { dateRepository.selectedDate.first() }
             selectedDate.value = effectiveDate
-            selectedProjectName.value = args.projectName
+            selectedProjectName.value = args.originalProjectName.ifBlank { args.projectName }
 
             val project = projectRepository.getProject(
                 date = effectiveDate,
@@ -93,7 +93,7 @@ class SingleProjectViewModel @Inject constructor(
                     projectDetails = projectDetails,
                     otherProjectNames = otherProjectNames,
                     data = currentData.copy(
-                        projectName = project?.projectName ?: selectedProjectName.value,
+                        projectName = args.projectName.ifEmpty { project?.projectName ?: selectedProjectName.value },
                         projectTime = args.projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },
                         kilometres = args.kilometres ?: project?.kilometres ?: currentData.kilometres,
                         allowance = args.allowance ?: project?.allowance ?: currentData.allowance,

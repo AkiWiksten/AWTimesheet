@@ -9,18 +9,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
+import com.akiwiksten.awtimesheet.core.R as CoreR
 
 @Composable
 internal fun ProjectDetailsLoadingState(padding: PaddingValues) {
@@ -46,7 +49,8 @@ internal fun ProjectDetailsSuccessState(
     padding: PaddingValues,
     uiState: ProjectDetailsUiState.Success,
     actions: ProjectDetailsScreenActions,
-    isConfirmEnabled: Boolean
+    isConfirmEnabled: Boolean,
+    isAddMode: Boolean = true
 ) {
     val scrollState = rememberScrollState()
     val helperTextResId = when {
@@ -74,6 +78,10 @@ internal fun ProjectDetailsSuccessState(
             helperTextResId = helperTextResId,
             onClearDetails = actions.onClearDetails
         )
+
+        if (!isAddMode && isConfirmEnabled) {
+            NoteBanner(text = stringResource(id = CoreR.string.edit_mode_modified_note))
+        }
 
         if (uiState.details.isNewDayForProject()) {
             ProjectDetailsNewDayForProjectSection(uiState = uiState, actions = actions.fieldActions)

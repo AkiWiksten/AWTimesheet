@@ -96,7 +96,8 @@ internal fun SingleProjectScreenContent(
             padding = padding,
             params = params,
             showLoadingIndicator = showLoadingIndicator,
-            cachedSuccessState = lastSuccessState.value
+            cachedSuccessState = lastSuccessState.value,
+            hasUnsavedChanges = hasUnsavedChanges
         )
     }
 }
@@ -106,7 +107,8 @@ private fun SingleProjectContentByUiState(
     padding: PaddingValues,
     params: SingleProjectScreenParams,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: SingleProjectUiState.Success?
+    cachedSuccessState: SingleProjectUiState.Success?,
+    hasUnsavedChanges: Boolean
 ) {
     val screenState = params.screenState
     when (screenState.uiState) {
@@ -114,13 +116,15 @@ private fun SingleProjectContentByUiState(
             padding = padding,
             params = params,
             showLoadingIndicator = showLoadingIndicator,
-            cachedSuccessState = cachedSuccessState
+            cachedSuccessState = cachedSuccessState,
+            hasUnsavedChanges = hasUnsavedChanges
         )
 
         is SingleProjectUiState.Success -> SingleProjectSuccessContent(
             padding = padding,
             params = params,
-            uiState = screenState.uiState
+            uiState = screenState.uiState,
+            hasUnsavedChanges = hasUnsavedChanges
         )
 
         is SingleProjectUiState.Error -> CenteredErrorBox(
@@ -137,7 +141,8 @@ private fun SingleProjectLoadingContent(
     padding: PaddingValues,
     params: SingleProjectScreenParams,
     showLoadingIndicator: Boolean,
-    cachedSuccessState: SingleProjectUiState.Success?
+    cachedSuccessState: SingleProjectUiState.Success?,
+    hasUnsavedChanges: Boolean
 ) {
     if (showLoadingIndicator) {
         CenteredLoadingBox(
@@ -156,7 +161,8 @@ private fun SingleProjectLoadingContent(
             data = (screenState.uiState as? SingleProjectUiState.Success)?.data ?: screenState.state,
             workTimeByDate = ZERO_TIME,
             workTypes = (screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()
-        )
+        ),
+        hasUnsavedChanges = hasUnsavedChanges
     )
 }
 
@@ -164,7 +170,8 @@ private fun SingleProjectLoadingContent(
 private fun SingleProjectSuccessContent(
     padding: PaddingValues,
     params: SingleProjectScreenParams,
-    uiState: SingleProjectUiState
+    uiState: SingleProjectUiState,
+    hasUnsavedChanges: Boolean
 ) {
     val screenState = params.screenState
     val successState = uiState as? SingleProjectUiState.Success
@@ -181,7 +188,8 @@ private fun SingleProjectSuccessContent(
     SingleProjectContent(
         padding = padding,
         workTimeByDate = workTimeByDate,
-        params = params.copy(screenState = screenState.copy(uiState = uiState))
+        params = params.copy(screenState = screenState.copy(uiState = uiState)),
+        hasUnsavedChanges = hasUnsavedChanges
     )
 }
 
@@ -205,7 +213,8 @@ private fun SingleProjectTopSection(
 private fun SingleProjectContent(
     padding: PaddingValues,
     workTimeByDate: String,
-    params: SingleProjectScreenParams
+    params: SingleProjectScreenParams,
+    hasUnsavedChanges: Boolean
 ) {
     val screenState = params.screenState
     val scrollState = rememberScrollState()
@@ -234,6 +243,10 @@ private fun SingleProjectContent(
             date = screenState.date,
             workTimeByDate = workTimeByDate
         )
+
+        if (!screenState.isAddMode && hasUnsavedChanges) {
+            NoteBanner(text = stringResource(id = CoreR.string.edit_mode_modified_note))
+        }
 
         if (screenState.isTimePickerDisabled) {
             NoteBanner(text = stringResource(id = R.string.pick_disabled_note))

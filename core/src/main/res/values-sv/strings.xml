@@ -21,6 +21,7 @@
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Osparad data!</string>
     <string name="unsaved_data_message">Du har osparade ändringar. Spara innan du lämnar?</string>
+    <string name="edit_mode_modified_note">Tidigare sparat projekt har ändrats. Tryck på Spara/Bekräfta för att verkställa eller bakåtpilen för att avbryta.</string>
     <string name="discard">Släng</string>
     <string name="stay">Stanna</string>
     <string name="error_message">Fel: %1$s</string>

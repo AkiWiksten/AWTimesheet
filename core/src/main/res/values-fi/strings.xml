@@ -21,6 +21,7 @@
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Tallentamatonta tietoa!</string>
     <string name="unsaved_data_message">Sinulla on tallentamattomia muutoksia. Tallennetaanko ennen poistumista?</string>
+    <string name="edit_mode_modified_note">Aiemmin tallennettua projektia on muokattu. Paina Tallenna/Vahvista ottaaksesi muutokset käyttöön tai takaisin-nuolta peruuttaaksesi.</string>
     <string name="discard">Hylkää</string>
     <string name="stay">Jää</string>
     <string name="error_message">Virhe: %1$s</string>

@@ -1,5 +1,7 @@
 ﻿package com.akiwiksten.awtimesheet.feature.projectdetails.model
 
+import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
+
 enum class ProjectDetailsField {
     START_TIME,
     END_TIME,
@@ -36,4 +38,11 @@ data class ProjectDetailsScreenActions(
 data class ProjectDetailsTimeRowLabels(
     val currentTimeLabelId: Int? = null,
     val timePickerLabelId: Int? = null,
+)
+
+data class ProjectDetailsDisplayParams(
+    val state: ProjectDetailsState,
+    val actions: ProjectDetailsScreenActions,
+    val isConfirmEnabled: Boolean,
+    val isAddMode: Boolean = true
 )

@@ -20,7 +20,6 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
-import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
 import com.akiwiksten.awtimesheet.feature.projectdetails.R
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsFieldActions

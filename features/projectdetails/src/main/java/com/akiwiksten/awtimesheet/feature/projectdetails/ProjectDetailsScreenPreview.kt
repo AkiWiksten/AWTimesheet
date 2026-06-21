@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsDisplayParams
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.android.tools.screenshot.PreviewTest
 
@@ -25,13 +26,13 @@ fun PreviewProjectDetailsSuccessNewDay() {
         uiState = ProjectDetailsUiState.Success(
             details = ProjectDetailsState(
                 date = "2026-04-10",
-                projectName = "Alpha Site"
+                projectName = "Alpha Site",
             ),
             settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
-                initialFlexTimeTotal = "+03:10"
-            )
+                initialFlexTimeTotal = "+03:10",
+            ),
         )
     )
 }
@@ -51,13 +52,13 @@ fun PreviewProjectDetailsSuccessExistingDay() {
                 lunchEnd = "12:00",
                 breakStart = "14:15",
                 breakEnd = "14:30",
-                projectTime = "08:00"
+                projectTime = "08:00",
             ),
             settings = SettingsState(
                 dailyWorkTimeEstimate = "07:30",
                 dailyLunchTimeEstimate = "00:30",
-                initialFlexTimeTotal = "+04:10"
-            )
+                initialFlexTimeTotal = "+04:10",
+            ),
         )
     )
 }
@@ -80,9 +81,12 @@ private fun ProjectDetailsPreviewContent(
         ProjectDetailsStateContent(
             padding = PaddingValues(0.dp),
             uiState = uiState,
-            state = state,
-            actions = ProjectDetailsScreenActions(),
-            isConfirmEnabled = uiState is ProjectDetailsUiState.Success
+            params = ProjectDetailsDisplayParams(
+                state = state,
+                actions = ProjectDetailsScreenActions(),
+                isConfirmEnabled = uiState is ProjectDetailsUiState.Success,
+                isAddMode = true,
+            )
         )
     }
 }

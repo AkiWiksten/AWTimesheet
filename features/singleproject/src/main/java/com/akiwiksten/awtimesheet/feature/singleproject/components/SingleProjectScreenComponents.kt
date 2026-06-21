@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +41,6 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
-import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.singleproject.R
@@ -81,33 +77,6 @@ fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
                 modifier = Modifier.fillMaxWidth()
             )
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        tonalElevation = DEFAULT_ELEVATION,
-        shadowElevation = DEFAULT_ELEVATION
-    ) {
-        CenterAlignedTopAppBar(
-            title = {
-                Header(
-                    title = stringResource(id = R.string.project),
-                    modifier = Modifier.padding(top = 0.dp)
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onNavigateBack) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                }
-            },
-            actions = {
-                Spacer(modifier = Modifier.width(width = 48.dp))
-            }
-        )
     }
 }
 

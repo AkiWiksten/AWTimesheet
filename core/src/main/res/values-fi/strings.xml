@@ -16,7 +16,7 @@
     <!-- Navigation / Screen Titles -->
     <string name="calendar">Kalenteri</string>
     <string name="absence">Poissaolo</string>
-    <string name="new_absence_title">Uusi poissaolo</string>
+    <string name="new_absence_title">Luo poissaolo</string>
 
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Tallentamatonta tietoa!</string>

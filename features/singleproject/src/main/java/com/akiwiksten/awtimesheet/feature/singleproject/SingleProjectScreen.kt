@@ -42,17 +42,16 @@ fun SingleProjectScreen(
     val flexDayWorkType = stringResource(id = CoreR.string.work_type_flex_day)
 
     val openProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit = { state, currentDetails ->
-        val details = (
-            currentDetails ?: ProjectDetailsState(
-                date = state.date,
-                projectName = state.projectName,
-                originalProjectName = routeArgs.originalProjectName
-            )
-            ).copy(
-                projectTime = state.projectTime,
-                projectName = state.projectName,
-                originalProjectName = routeArgs.originalProjectName
-            )
+        val base = currentDetails ?: ProjectDetailsState(
+            date = state.date,
+            projectName = state.projectName,
+            originalProjectName = routeArgs.originalProjectName
+        )
+        val details = base.copy(
+            projectTime = state.projectTime,
+            projectName = state.projectName,
+            originalProjectName = routeArgs.originalProjectName
+        )
         navigationActions.onOpenProjectDetails(state, details)
     }
 
@@ -127,35 +126,8 @@ private fun SingleProjectScreenStateful(
     val absencePrefix = stringResource(id = CoreR.string.absence_prefix)
     val flexDayWorkType = stringResource(id = CoreR.string.work_type_flex_day)
 
-    val baseline = remember(
-        uiState.baseline,
-        noAllowanceText,
-        defaultWorkTypeText,
-        absencePrefix
-    ) {
-        resolveFullInitialSingleProjectState(
-            data = uiState.baseline,
-            uiState = uiState,
-            noAllowanceText = noAllowanceText,
-            defaultWorkTypeText = defaultWorkTypeText,
-            absencePrefix = absencePrefix
-        )
-    }
-
-    val initialState = remember(
-        uiState.data,
-        noAllowanceText,
-        defaultWorkTypeText,
-        absencePrefix
-    ) {
-        resolveFullInitialSingleProjectState(
-            data = uiState.data,
-            uiState = uiState,
-            noAllowanceText = noAllowanceText,
-            defaultWorkTypeText = defaultWorkTypeText,
-            absencePrefix = absencePrefix
-        )
-    }
+    val baseline = rememberSingleProjectBaseline(uiState, noAllowanceText, defaultWorkTypeText, absencePrefix)
+    val initialState = rememberSingleProjectInitialState(uiState, noAllowanceText, defaultWorkTypeText, absencePrefix)
 
     // Keep in-progress form edits through configuration changes, but reset when baseline data changes.
     var state by rememberSaveable(initialState) { mutableStateOf(value = initialState) }
@@ -263,5 +235,47 @@ private fun rememberSingleProjectDerivedState(
         hasUnsavedChanges = hasUnsavedChanges,
         isDuplicate = isDuplicate,
         isConfirmEnabled = isConfirmEnabled
+    )
+}
+
+@Composable
+private fun rememberSingleProjectBaseline(
+    uiState: SingleProjectUiState.Success,
+    noAllowanceText: String,
+    defaultWorkTypeText: String,
+    absencePrefix: String
+) = remember(
+    uiState.baseline,
+    noAllowanceText,
+    defaultWorkTypeText,
+    absencePrefix
+) {
+    resolveFullInitialSingleProjectState(
+        data = uiState.baseline,
+        uiState = uiState,
+        noAllowanceText = noAllowanceText,
+        defaultWorkTypeText = defaultWorkTypeText,
+        absencePrefix = absencePrefix
+    )
+}
+
+@Composable
+private fun rememberSingleProjectInitialState(
+    uiState: SingleProjectUiState.Success,
+    noAllowanceText: String,
+    defaultWorkTypeText: String,
+    absencePrefix: String
+) = remember(
+    uiState.data,
+    noAllowanceText,
+    defaultWorkTypeText,
+    absencePrefix
+) {
+    resolveFullInitialSingleProjectState(
+        data = uiState.data,
+        uiState = uiState,
+        noAllowanceText = noAllowanceText,
+        defaultWorkTypeText = defaultWorkTypeText,
+        absencePrefix = absencePrefix
     )
 }

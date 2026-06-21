@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsDisplayParams
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsScreenActions
 import com.android.tools.screenshot.PreviewTest
 
@@ -29,26 +30,26 @@ private val PreviewUiState = ProjectDetailsUiState.Success(
         lunchEnd = "12:00",
         breakStart = "14:15",
         breakEnd = "14:30",
-        projectTime = "08:00"
+        projectTime = "08:00",
     ),
     settings = SettingsState(
         dailyWorkTimeEstimate = "07:30",
         dailyLunchTimeEstimate = "00:30",
-        initialFlexTimeTotal = "+04:10"
-    )
+        initialFlexTimeTotal = "+04:10",
+    ),
 )
 
 @PreviewTest
 @Preview(name = "ProjectDetails Constrained - Portrait", widthDp = 411, heightDp = 891)
 @Composable
-fun ProjectDetailsConstrainedPortraitPreview() {
+fun PreviewProjectDetailsConstrainedPortrait() {
     ProjectDetailsConstrainedPreviewContent()
 }
 
 @PreviewTest
 @Preview(name = "ProjectDetails Constrained - Landscape", widthDp = 891, heightDp = 411)
 @Composable
-fun ProjectDetailsConstrainedLandscapePreview() {
+fun PreviewProjectDetailsConstrainedLandscape() {
     ProjectDetailsConstrainedPreviewContent()
 }
 
@@ -63,9 +64,11 @@ private fun ProjectDetailsConstrainedPreviewContent() {
                 ProjectDetailsStateContent(
                     padding = PaddingValues(0.dp),
                     uiState = PreviewUiState,
-                    state = PreviewUiState.details,
-                    actions = ProjectDetailsScreenActions(),
-                    isConfirmEnabled = true
+                    params = ProjectDetailsDisplayParams(
+                        state = PreviewUiState.details,
+                        actions = ProjectDetailsScreenActions(),
+                        isConfirmEnabled = true
+                    )
                 )
             }
         }

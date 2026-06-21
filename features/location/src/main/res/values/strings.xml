@@ -20,4 +20,6 @@
     <string name="confirm">Confirm</string>
     <string name="return_distance">Return distance</string>
     <string name="delete">Delete</string>
+    <string name="one_way">One-way</string>
+    <string name="round_trip">Round-trip</string>
 </resources>

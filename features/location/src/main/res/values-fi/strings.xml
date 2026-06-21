@@ -20,5 +20,7 @@
     <string name="confirm">Vahvista</string>
     <string name="return_distance">Palauta etäisyys</string>
     <string name="delete">Poista</string>
+    <string name="one_way">Yhdensuuntainen</string>
+    <string name="round_trip">Meno-paluu</string>
 </resources>
 

@@ -4,19 +4,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -27,11 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
 import com.akiwiksten.awtimesheet.core.LABEL_FONT_SIZE_SCALE
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.TimePickerDialog
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsUiState
@@ -211,28 +204,4 @@ internal fun ProjectDetailsUnsavedChangesDialog(
         },
         dialogText = unsavedMessage
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun ProjectDetailsTopBar(onNavigateBack: () -> Unit) {
-    Surface(
-        tonalElevation = DEFAULT_ELEVATION,
-        shadowElevation = DEFAULT_ELEVATION
-    ) {
-        CenterAlignedTopAppBar(
-            title = {
-                Header(
-                    title = stringResource(id = R.string.project_details),
-                    modifier = Modifier.padding(top = 0.dp),
-                    fillMaxWidth = false
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onNavigateBack) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                }
-            }
-        )
-    }
 }

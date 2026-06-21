@@ -24,6 +24,11 @@ complexity:
     active: true
     threshold: 60
 
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    constructorThreshold: 10
+
   TooManyFunctions:
     active: true
     thresholdInClasses: 15

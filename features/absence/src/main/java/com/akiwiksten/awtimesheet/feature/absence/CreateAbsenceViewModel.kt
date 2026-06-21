@@ -13,7 +13,16 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
+
+data class CreateAbsenceFormState(
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+    val absenceType: String,
+    val includeWeekends: Boolean,
+    val isOverlap: Boolean,
+)
 
 @HiltViewModel
 class CreateAbsenceViewModel @Inject constructor(

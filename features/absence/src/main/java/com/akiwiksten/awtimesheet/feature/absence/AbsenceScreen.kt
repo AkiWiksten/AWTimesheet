@@ -13,12 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,7 +37,6 @@ import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.android.tools.screenshot.PreviewTest
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AbsenceScreen(
     onNavigateToCreateAbsence: () -> Unit,
@@ -49,38 +44,18 @@ fun AbsenceScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                tonalElevation = DEFAULT_ELEVATION,
-                shadowElevation = DEFAULT_ELEVATION
-            ) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Header(
-                            title = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence),
-                            modifier = Modifier.padding(top = 0.dp)
-                        )
-                    }
-                )
-            }
-        }
-    ) { innerPadding ->
-        AbsenceContent(
-            uiState = uiState,
-            actions = AbsenceActions(
-                onSelectAbsence = viewModel::selectAbsence,
-                onDeleteSelectedAbsence = viewModel::deleteSelectedAbsence,
-                onNavigateToCreateAbsence = onNavigateToCreateAbsence
-            ),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(all = PADDING_SPACING)
-                .padding(bottom = LocalContentBottomPadding.current),
-        )
-    }
+    AbsenceContent(
+        uiState = uiState,
+        actions = AbsenceActions(
+            onSelectAbsence = viewModel::selectAbsence,
+            onDeleteSelectedAbsence = viewModel::deleteSelectedAbsence,
+            onNavigateToCreateAbsence = onNavigateToCreateAbsence
+        ),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(all = PADDING_SPACING)
+            .padding(bottom = LocalContentBottomPadding.current),
+    )
 }
 
 @Composable
@@ -94,6 +69,19 @@ private fun AbsenceContent(
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
         horizontalAlignment = Alignment.Start
     ) {
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = PADDING_SPACING_SMALL),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Header(title = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence))
+            }
+        }
         AbsenceActionButtons(
             selectedAbsenceId = uiState.selectedAbsenceId,
             actions = actions

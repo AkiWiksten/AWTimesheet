@@ -24,17 +24,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +46,7 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
-import com.akiwiksten.awtimesheet.core.ui.Header
+import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.domain.model.RouteState
 import com.android.tools.screenshot.PreviewTest
@@ -57,33 +55,22 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DistanceCalculatorScreen(
-    state: DistanceCalculatorScreenState
+    state: DistanceCalculatorScreenState,
 ) {
     BackHandler(onBack = state.onNavigateBack)
     Scaffold(
         topBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                tonalElevation = DEFAULT_ELEVATION,
-                shadowElevation = DEFAULT_ELEVATION
-            ) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Header(
-                            title = stringResource(id = R.string.distance_calculation_title),
-                            modifier = Modifier.padding(top = 0.dp)
+            AwtCenterAlignedTopAppBar(
+                title = stringResource(id = R.string.distance_calculation_title),
+                navigationIcon = {
+                    IconButton(onClick = state.onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = state.onNavigateBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back)
-                            )
-                        }
                     }
-                )
-            }
+                }
+            )
         }
     ) { padding ->
         DistanceCalculatorScreenContent(state = state, padding = padding)
@@ -95,8 +82,10 @@ private fun DistanceCalculatorScreenContent(
     state: DistanceCalculatorScreenState,
     padding: PaddingValues,
 ) {
+    val baseDistance = state.distanceKm ?: 0.0
+    val effectiveDistance = if (state.isRoundTrip) baseDistance * 2 else baseDistance
     val distanceText =
-        state.distanceKm?.let { "${it.roundToInt()} km" } ?: stringResource(R.string.not_available)
+        if (state.distanceKm != null) "${effectiveDistance.roundToInt()} km" else stringResource(R.string.not_available)
 
     Column(
         modifier = Modifier
@@ -110,7 +99,7 @@ private fun DistanceCalculatorScreenContent(
         if (state.routeHistory.isNotEmpty()) {
             val canDeleteSelectedRoute = state.selectedRoute?.let { selected ->
                 state.routeHistory.any { routeItem ->
-                    routeItem.start == selected.start && routeItem.destination == selected.destination
+                    ((routeItem.start == selected.start) && (routeItem.destination == selected.destination))
                 }
             } == true
 
@@ -175,7 +164,9 @@ private fun DistanceCalculatorInputCard(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = DEFAULT_ELEVATION,
+        )
     ) {
         Column(
             modifier = Modifier
@@ -214,7 +205,13 @@ private fun DistanceCalculatorInputCard(
                 }
             }
 
-            val roundedDistance = state.distanceKm?.roundToInt() ?: 0
+            TripTypeSelector(
+                isRoundTrip = state.isRoundTrip,
+                onTripTypeChange = state.onTripTypeChange
+            )
+
+            val baseDistance = state.distanceKm ?: 0.0
+            val roundedDistance = if (state.isRoundTrip) (baseDistance * 2).roundToInt() else baseDistance.roundToInt()
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -269,10 +266,11 @@ private fun CalculatedRouteList(
                 CalculatedRouteListItem(
                     item = routeItem,
                     isSelected = selectedRoute?.let { selected ->
-                        selected.start == routeItem.start && selected.destination == routeItem.destination
-                    } == true,
-                    onClick = { onRouteSelected(routeItem) }
-                )
+                        ((selected.start == routeItem.start) && (selected.destination == routeItem.destination))
+                    } == true
+                ) {
+                    onRouteSelected(routeItem)
+                }
             }
         }
     }
@@ -303,9 +301,55 @@ private fun CalculatedRouteListItem(
                 .fillMaxWidth()
                 .padding(all = PADDING_SPACING_SMALL),
         ) {
-            Text(text = item.distance, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = item.distance, fontWeight = FontWeight.Bold)
+                val tripTypeResId = if (item.distance.contains("*2")) R.string.round_trip else R.string.one_way
+                Text(
+                    text = stringResource(tripTypeResId),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Text(text = item.start)
             Text(text = item.destination)
+        }
+    }
+}
+
+@Composable
+private fun TripTypeSelector(
+    isRoundTrip: Boolean,
+    onTripTypeChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(PADDING_SPACING),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onTripTypeChange(false) }
+        ) {
+            RadioButton(
+                selected = !isRoundTrip,
+                onClick = { onTripTypeChange(false) }
+            )
+            Text(text = stringResource(id = R.string.one_way))
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onTripTypeChange(true) }
+        ) {
+            RadioButton(
+                selected = isRoundTrip,
+                onClick = { onTripTypeChange(true) }
+            )
+            Text(text = stringResource(id = R.string.round_trip))
         }
     }
 }
@@ -359,6 +403,7 @@ fun PreviewDistanceCalculatorEmpty() {
             onRouteSelected = {},
             onSelectStartPoint = {},
             onSelectDestinationPoint = {},
+            onTripTypeChange = {},
             onAddToList = {},
             onReturnDistance = {},
             onDeleteSelectedRoute = {},
@@ -383,6 +428,7 @@ fun PreviewDistanceCalculatorWithHistory() {
             onRouteSelected = {},
             onSelectStartPoint = {},
             onSelectDestinationPoint = {},
+            onTripTypeChange = {},
             onAddToList = {},
             onReturnDistance = {},
             onDeleteSelectedRoute = {},

@@ -42,13 +42,12 @@ fun SingleProjectScreen(
     val flexDayWorkType = stringResource(id = CoreR.string.work_type_flex_day)
 
     val openProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit = { state, currentDetails ->
-        val details = (
-            currentDetails ?: ProjectDetailsState(
-                date = state.date,
-                projectName = state.projectName,
-                originalProjectName = routeArgs.originalProjectName
-            )
-        ).copy(
+        val base = currentDetails ?: ProjectDetailsState(
+            date = state.date,
+            projectName = state.projectName,
+            originalProjectName = routeArgs.originalProjectName
+        )
+        val details = base.copy(
             projectTime = state.projectTime,
             projectName = state.projectName,
             originalProjectName = routeArgs.originalProjectName

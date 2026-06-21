@@ -78,23 +78,12 @@ class SingleProjectViewModel @Inject constructor(
                 .filter { !it.equals(selectedProjectName.value, ignoreCase = true) }
 
             val dbProjectState = project?.let {
-                SingleProjectState(
-                    projectName = it.projectName,
-                    projectTime = it.projectTime,
-                    kilometres = it.kilometres,
-                    allowance = it.allowance,
-                    workType = it.workType,
-                    date = it.date,
-                    comment = it.comment,
-                    isAddMode = false,
-                    listIndex = args.listIndex
-                )
+                mapToSingleProjectState(it, args.listIndex)
             } ?: SingleProjectState(isAddMode = true, date = effectiveDate, listIndex = args.listIndex)
 
             _uiState.update { currentState ->
                 val currentSuccess = currentState as? SingleProjectUiState.Success
                 val currentData = currentSuccess?.data ?: SingleProjectState()
-                val projectDate = project?.date?.ifBlank { effectiveDate } ?: effectiveDate
                 SingleProjectUiState.Success(
                     workTimeByDate = workTimeByDate,
                     workTypes = workTypes,
@@ -102,20 +91,42 @@ class SingleProjectViewModel @Inject constructor(
                     projectDetails = projectDetails,
                     otherProjectNames = otherProjectNames,
                     baseline = currentSuccess?.baseline ?: dbProjectState,
-                    data = currentData.copy(
-                        projectName = args.projectName.ifEmpty { project?.projectName ?: selectedProjectName.value },
-                        projectTime = args.projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },
-                        kilometres = args.kilometres ?: project?.kilometres ?: currentData.kilometres,
-                        allowance = args.allowance ?: project?.allowance ?: currentData.allowance,
-                        workType = args.workType ?: project?.workType ?: currentData.workType,
-                        date = projectDate,
-                        isAddMode = args.isAddMode,
-                        listIndex = args.listIndex,
-                        comment = args.comment ?: project?.comment ?: currentData.comment
-                    )
+                    data = resolveInitialProjectState(args, project, effectiveDate, currentData)
                 )
             }
         }
+    }
+
+    private fun mapToSingleProjectState(project: SingleProjectState, listIndex: Int) = SingleProjectState(
+        projectName = project.projectName,
+        projectTime = project.projectTime,
+        kilometres = project.kilometres,
+        allowance = project.allowance,
+        workType = project.workType,
+        date = project.date,
+        comment = project.comment,
+        isAddMode = false,
+        listIndex = listIndex
+    )
+
+    private fun resolveInitialProjectState(
+        args: SingleProjectRouteArgs,
+        dbProject: SingleProjectState?,
+        effectiveDate: String,
+        currentData: SingleProjectState
+    ): SingleProjectState {
+        val projectDate = dbProject?.date?.ifBlank { effectiveDate } ?: effectiveDate
+        return currentData.copy(
+            projectName = args.projectName.ifEmpty { dbProject?.projectName ?: selectedProjectName.value },
+            projectTime = args.projectTime.ifEmpty { dbProject?.projectTime ?: currentData.projectTime },
+            kilometres = args.kilometres ?: dbProject?.kilometres ?: currentData.kilometres,
+            allowance = args.allowance ?: dbProject?.allowance ?: currentData.allowance,
+            workType = args.workType ?: dbProject?.workType ?: currentData.workType,
+            date = projectDate,
+            isAddMode = args.isAddMode,
+            listIndex = args.listIndex,
+            comment = args.comment ?: dbProject?.comment ?: currentData.comment
+        )
     }
 
     fun saveProject(

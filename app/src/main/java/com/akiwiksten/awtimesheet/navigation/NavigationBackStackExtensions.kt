@@ -17,6 +17,7 @@ internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
     val currentLast = lastOrNull()
     if (currentLast is Screen.SingleProject) {
         this[size - 1] = currentLast.copy(
+            projectName = details.projectName,
             projectTime = details.projectTime,
             details = details
         )

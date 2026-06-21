@@ -1,12 +1,11 @@
 <resources>
     <!-- Single Project-specific strings -->
-    <string name="project_customer">Project/Customer</string>
+    <string name="project">Project</string>
     <string name="project_name_duplicate_error">Name already used today</string>
     <string name="details">Details</string>
     <string name="or_text">OR</string>
     <string name="pick">Pick</string>
     <string name="pick_disabled_note">You have confirmed "Details". "Pick" button is disabled.</string>
-    <string name="project_name_note">Add a good project name. You cannot change it after you press \'Save\' in here.</string>
     <string name="comment_dialog_title">Edit comment</string>
 </resources>
 

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="project_customer">Projekti/Asiakas</string>
+    <string name="project">Projekti</string>
     <string name="project_name_duplicate_error">Nimi on jo käytössä tänään</string>
     <string name="details">Tiedot</string>
     <string name="or_text">TAI</string>
     <string name="pick">Valitse</string>
     <string name="pick_disabled_note">Olet vahvistanut "Tiedot". "Valitse"-painike on pois käytöstä.</string>
-    <string name="project_name_note">Valitse projektinimi huolella. Et voi muuttaa sitä sen jälkeen, kun olet painanut \'Tallenna\' täällä.</string>
     <string name="comment_dialog_title">Muokkaa kommenttia</string>
 </resources>
 

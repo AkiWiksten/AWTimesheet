@@ -13,6 +13,7 @@ data class SingleProjectScreenArgs(
 
 data class SingleProjectRouteArgs(
     val projectName: String,
+    val originalProjectName: String = "",
     val projectTime: String,
     val isAddMode: Boolean,
     val listIndex: Int,

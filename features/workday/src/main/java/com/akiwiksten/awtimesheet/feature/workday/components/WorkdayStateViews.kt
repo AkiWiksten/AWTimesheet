@@ -19,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
+import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
@@ -121,6 +123,10 @@ internal fun WorkdaySuccessContent(
             isTimePickerEnabled = !state.isFlexTimeByDateSpecialRuleApplied
         ),
         headerActions = displayState.headerActions
+    )
+    Header(
+        title = stringResource(id = R.string.projects_title),
+        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp)
     )
     WorkdayListSection(
         items = listItems,

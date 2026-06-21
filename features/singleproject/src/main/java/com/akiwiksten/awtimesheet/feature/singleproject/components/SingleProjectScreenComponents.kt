@@ -95,7 +95,7 @@ fun SingleProjectTopBar(onNavigateBack: () -> Unit) {
         CenterAlignedTopAppBar(
             title = {
                 Header(
-                    title = stringResource(id = R.string.project_customer),
+                    title = stringResource(id = R.string.project),
                     modifier = Modifier.padding(top = 0.dp)
                 )
             },

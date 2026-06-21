@@ -18,4 +18,5 @@
     <string name="saved_today">Tallennettu vain tänään!</string>
     <string name="saved_globally">Tallennettu globaalisti!</string>
     <string name="flex_day_special_note">Huom! Tämä on \'Poissaolo-Saldovapaa\'. Liukuma negatiivinen. Ei voi lisätä muita projekteja.</string>
+    <string name="projects_title">Projektit</string>
 </resources>

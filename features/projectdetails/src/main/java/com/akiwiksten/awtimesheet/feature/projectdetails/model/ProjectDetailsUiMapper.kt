@@ -57,7 +57,7 @@ object ProjectDetailsUiMapper {
 
         return baseState.copy(
             date = projectDetails.date,
-            projectName = projectDetails.projectName,
+            projectName = baseState.projectName,
             startTime = projectDetails.startTime.ifEmpty { ZERO_TIME },
             endTime = projectDetails.endTime.ifEmpty { ZERO_TIME },
             lunchStart = projectDetails.lunchStart.ifEmpty { ZERO_TIME },

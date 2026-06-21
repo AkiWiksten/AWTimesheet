@@ -18,6 +18,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
@@ -35,6 +37,7 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.android.tools.screenshot.PreviewTest
 
@@ -48,9 +51,20 @@ fun AbsenceScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence)) }
-            )
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                tonalElevation = DEFAULT_ELEVATION,
+                shadowElevation = DEFAULT_ELEVATION
+            ) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Header(
+                            title = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.absence),
+                            modifier = Modifier.padding(top = 0.dp)
+                        )
+                    }
+                )
+            }
         }
     ) { innerPadding ->
         AbsenceContent(
@@ -84,7 +98,10 @@ private fun AbsenceContent(
             selectedAbsenceId = uiState.selectedAbsenceId,
             actions = actions
         )
-        Text(text = stringResource(id = R.string.saved_absences_title), fontWeight = FontWeight.Bold)
+        Header(
+            title = stringResource(id = R.string.saved_absences_title),
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp)
+        )
         SavedAbsencesList(
             uiState = uiState,
             actions = actions

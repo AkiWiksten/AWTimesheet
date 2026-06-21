@@ -149,6 +149,7 @@ internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snaps
         detailsArgs = ProjectDetailsState(
             date = screen.date,
             projectName = screen.projectName,
+            originalProjectName = screen.originalProjectName,
             projectTime = screen.projectTime,
             startTime = screen.startTime,
             endTime = screen.endTime,
@@ -163,6 +164,7 @@ internal fun ProjectDetailsEntry(screen: Screen.ProjectDetails, backStack: Snaps
                 details = Screen.ProjectDetails(
                     date = details.date,
                     projectName = details.projectName,
+                    originalProjectName = details.originalProjectName,
                     projectTime = details.projectTime,
                     startTime = details.startTime,
                     endTime = details.endTime,
@@ -181,6 +183,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
     SingleProjectScreen(
         routeArgs = SingleProjectRouteArgs(
             projectName = screen.projectName ?: "",
+            originalProjectName = screen.originalProjectName ?: "",
             projectTime = screen.projectTime ?: "",
             isAddMode = screen.listIndex == -1,
             listIndex = screen.listIndex,
@@ -194,6 +197,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
                 ProjectDetailsState(
                     date = screen.details.date,
                     projectName = screen.details.projectName,
+                    originalProjectName = screen.details.originalProjectName,
                     projectTime = screen.details.projectTime,
                     startTime = screen.details.startTime,
                     endTime = screen.details.endTime,
@@ -213,6 +217,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
                         date = projectDetails?.date ?: "",
                         projectTime = singleProject.projectTime,
                         projectName = singleProject.projectName,
+                        originalProjectName = projectDetails?.originalProjectName ?: "",
                         startTime = projectDetails?.startTime ?: "",
                         endTime = projectDetails?.endTime ?: "",
                         lunchStart = projectDetails?.lunchStart ?: "",

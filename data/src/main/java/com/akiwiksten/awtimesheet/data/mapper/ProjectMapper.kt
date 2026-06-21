@@ -6,7 +6,8 @@ import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 fun ProjectEntity.toDomain(): SingleProjectState {
     return SingleProjectState(
         date = date,
-        listIndex = -1,
+        listIndex = 0, // Placeholder, will be updated if needed in UI
+        isAddMode = false,
         projectName = projectName,
         projectTime = projectTime,
         kilometres = if (kilometres == 0) "" else kilometres.toString(),

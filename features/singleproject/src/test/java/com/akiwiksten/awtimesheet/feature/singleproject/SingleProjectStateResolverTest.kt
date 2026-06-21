@@ -73,6 +73,7 @@ class SingleProjectStateResolverTest {
         val argsWithSettings = args.copy(initialSettings = settings)
 
         val result = resolveFullInitialSingleProjectState(
+            data = argsWithSettings.initialSingleProjectState,
             uiState = SingleProjectUiState.Success(
                 data = argsWithSettings.initialSingleProjectState,
                 workTimeByDate = "00:00",

@@ -28,6 +28,7 @@ import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
+import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsSuccessState
@@ -152,7 +153,8 @@ private fun ProjectDetailsScreenStateful(
         state = state,
         actions = actions,
         hasUnsavedChanges = hasUnsavedChanges,
-        onNavigateBack = handleBack
+        onNavigateBack = handleBack,
+        isAddMode = initialDetails.isNewDayForProject()
     )
 }
 
@@ -250,7 +252,8 @@ private fun ProjectDetailsScaffold(
     state: ProjectDetailsState,
     actions: ProjectDetailsScreenActions,
     hasUnsavedChanges: Boolean,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    isAddMode: Boolean = true
 ) {
     Scaffold(
         topBar = { ProjectDetailsTopBar(onNavigateBack = onNavigateBack) }
@@ -260,7 +263,8 @@ private fun ProjectDetailsScaffold(
             uiState = uiState,
             state = state,
             actions = actions,
-            isConfirmEnabled = hasUnsavedChanges
+            isConfirmEnabled = hasUnsavedChanges,
+            isAddMode = isAddMode
         )
     }
 }
@@ -271,7 +275,8 @@ internal fun ProjectDetailsStateContent(
     uiState: ProjectDetailsUiState,
     state: ProjectDetailsState,
     actions: ProjectDetailsScreenActions,
-    isConfirmEnabled: Boolean
+    isConfirmEnabled: Boolean,
+    isAddMode: Boolean = true
 ) {
     val contentPadding = PaddingValues(top = padding.calculateTopPadding())
     val showLoadingIndicator = rememberDelayedLoadingVisibility(
@@ -295,7 +300,8 @@ internal fun ProjectDetailsStateContent(
                         padding = contentPadding,
                         uiState = cachedState.copy(details = state),
                         actions = actions,
-                        isConfirmEnabled = isConfirmEnabled
+                        isConfirmEnabled = isConfirmEnabled,
+                        isAddMode = isAddMode
                     )
                 } ?: Box(
                     modifier = Modifier
@@ -308,7 +314,8 @@ internal fun ProjectDetailsStateContent(
             padding = contentPadding,
             uiState = uiState.copy(details = state),
             actions = actions,
-            isConfirmEnabled = isConfirmEnabled
+            isConfirmEnabled = isConfirmEnabled,
+            isAddMode = isAddMode
         )
         is ProjectDetailsUiState.Error -> ProjectDetailsErrorState(
             padding = contentPadding,

@@ -45,9 +45,14 @@ fun SingleProjectScreen(
         val details = (
             currentDetails ?: ProjectDetailsState(
                 date = state.date,
-                projectName = state.projectName
+                projectName = state.projectName,
+                originalProjectName = routeArgs.originalProjectName
             )
-            ).copy(projectTime = state.projectTime)
+            ).copy(
+                projectTime = state.projectTime,
+                projectName = state.projectName,
+                originalProjectName = routeArgs.originalProjectName
+            )
         navigationActions.onOpenProjectDetails(state, details)
     }
 
@@ -122,13 +127,29 @@ private fun SingleProjectScreenStateful(
     val absencePrefix = stringResource(id = CoreR.string.absence_prefix)
     val flexDayWorkType = stringResource(id = CoreR.string.work_type_flex_day)
 
-    val initialUiState = remember(
-        uiState,
+    val baseline = remember(
+        uiState.baseline,
         noAllowanceText,
         defaultWorkTypeText,
         absencePrefix
     ) {
         resolveFullInitialSingleProjectState(
+            data = uiState.baseline,
+            uiState = uiState,
+            noAllowanceText = noAllowanceText,
+            defaultWorkTypeText = defaultWorkTypeText,
+            absencePrefix = absencePrefix
+        )
+    }
+
+    val initialState = remember(
+        uiState.data,
+        noAllowanceText,
+        defaultWorkTypeText,
+        absencePrefix
+    ) {
+        resolveFullInitialSingleProjectState(
+            data = uiState.data,
             uiState = uiState,
             noAllowanceText = noAllowanceText,
             defaultWorkTypeText = defaultWorkTypeText,
@@ -137,21 +158,20 @@ private fun SingleProjectScreenStateful(
     }
 
     // Keep in-progress form edits through configuration changes, but reset when baseline data changes.
-    var state by rememberSaveable(initialUiState) { mutableStateOf(value = initialUiState) }
+    var state by rememberSaveable(initialState) { mutableStateOf(value = initialState) }
 
     val derived = rememberSingleProjectDerivedState(
         state = state,
-        initialUiState = initialUiState,
+        baseline = baseline,
         singleProjectUiState = uiState,
     )
 
     // Build screen state from form state and derived flags
-    val isAddMode = uiState.data.isAddMode
     val screenState = createSingleProjectScreenState(
         uiState = uiState,
         state = state,
         derived = derived,
-        isProjectNameEditable = isAddMode || params.initialProjectNameArg.isBlank()
+        isProjectNameEditable = true
     )
     val actions = SingleProjectActions(
         onStateChange = { newState ->
@@ -165,7 +185,7 @@ private fun SingleProjectScreenStateful(
     )
 
     val onDiscardAndNavigateBack = {
-        state = initialUiState
+        state = baseline
         params.onNavigateBack()
     }
 
@@ -207,11 +227,11 @@ private fun createSingleProjectScreenState(
 @Composable
 private fun rememberSingleProjectDerivedState(
     state: SingleProjectState,
-    initialUiState: SingleProjectState,
+    baseline: SingleProjectState,
     singleProjectUiState: SingleProjectUiState
 ): SingleProjectDerivedState {
-    val hasUnsavedChanges by remember(state, initialUiState) {
-        derivedStateOf { hasChanges(current = state, baseline = initialUiState) }
+    val hasUnsavedChanges by remember(state, baseline) {
+        derivedStateOf { hasChanges(current = state, baseline = baseline) }
     }
     val isDuplicate by remember(state.projectName, singleProjectUiState) {
         derivedStateOf {
@@ -226,7 +246,7 @@ private fun rememberSingleProjectDerivedState(
         state,
         hasUnsavedChanges,
         isDuplicate,
-        initialUiState.listIndex,
+        baseline.listIndex,
         singleProjectUiState
     ) {
         derivedStateOf {
@@ -234,7 +254,7 @@ private fun rememberSingleProjectDerivedState(
                 state = state,
                 hasUnsavedChanges = hasUnsavedChanges,
                 isDuplicateProjectName = isDuplicate,
-                isAddMode = initialUiState.isAddMode,
+                isAddMode = baseline.isAddMode,
                 hasProjectDetails = (singleProjectUiState as? SingleProjectUiState.Success)?.projectDetails != null
             )
         }

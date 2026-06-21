@@ -69,7 +69,8 @@ class ProjectDetailsViewModel @Inject constructor(
     }
 
     private suspend fun loadProjectDetailsInternal(date: String, projectDetailsArg: ProjectDetailsState) {
-        val details = projectDetailsRepository.getProjectDetails(date, projectDetailsArg.projectName)
+        val fetchName = projectDetailsArg.originalProjectName.ifBlank { projectDetailsArg.projectName }
+        val details = projectDetailsRepository.getProjectDetails(date, fetchName)
         val settings = settingsRepository.getSettings()
 
         _uiState.value = ProjectDetailsUiMapper.mapEntitiesToUiState(

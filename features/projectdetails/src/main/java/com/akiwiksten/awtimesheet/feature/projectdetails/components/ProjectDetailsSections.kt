@@ -31,7 +31,6 @@ internal fun ProjectDetailsHeaderSection(
     date: String,
     onClearDetails: () -> Unit,
     projectName: String?,
-    helperTextResId: Int?
 ) {
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
@@ -58,10 +57,6 @@ internal fun ProjectDetailsHeaderSection(
                 Text(text = stringResource(id = R.string.clear_details))
             }
             ProjectDetailsNameField(name = projectName.orEmpty())
-
-            helperTextResId?.let { textResId ->
-                NoteBanner(text = stringResource(id = textResId))
-            }
         }
     }
 }

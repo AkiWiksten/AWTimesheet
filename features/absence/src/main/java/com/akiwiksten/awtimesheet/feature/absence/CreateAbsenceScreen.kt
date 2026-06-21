@@ -53,78 +53,91 @@ import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import java.time.LocalDate
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateAbsenceScreen(
     onNavigateBack: () -> Unit,
     viewModel: CreateAbsenceViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var startDate by remember { mutableStateOf(LocalDate.now()) }
-    var endDate by remember { mutableStateOf(LocalDate.now()) }
-    var absenceType by rememberSaveable { mutableStateOf("") }
-    var includeWeekends by rememberSaveable { mutableStateOf(false) }
-    var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
-    var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
 
-    val isOverlap = remember(startDate, endDate, uiState.existingAbsences) {
-        uiState.existingAbsences.any { existing ->
-            val exStart = LocalDate.parse(existing.startDate)
-            val exEnd = LocalDate.parse(existing.endDate)
-            !startDate.isAfter(exEnd) && !exStart.isAfter(endDate)
-        }
+    CreateAbsenceScreenStateful(
+        existingAbsences = uiState.existingAbsences,
+        onNavigateBack = onNavigateBack,
+        onSaveAbsence = viewModel::addAbsence,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CreateAbsenceScreenStateful(
+    existingAbsences: List<SavedAbsence>,
+    onNavigateBack: () -> Unit,
+    onSaveAbsence: (AbsenceState, () -> Unit) -> Unit,
+) {
+    var startDate by remember { mutableStateOf(value = LocalDate.now()) }
+    var endDate by remember { mutableStateOf(value = LocalDate.now()) }
+    var absenceType by rememberSaveable { mutableStateOf(value = "") }
+    var includeWeekends by rememberSaveable { mutableStateOf(value = false) }
+    var showStartPicker by rememberSaveable { mutableStateOf(value = false) }
+    var showEndPicker by rememberSaveable { mutableStateOf(value = false) }
+    val isOverlap = remember(startDate, endDate, existingAbsences) {
+        isDateOverlap(startDate, endDate, existingAbsences)
     }
-
     AbsenceDatePickerDialogs(
-        showStartPicker = showStartDatePicker,
+        showStartPicker = showStartPicker,
         startDate = startDate,
-        onStartDismiss = { showStartDatePicker = false },
+        onStartDismiss = { showStartPicker = false },
         onStartDateSelected = {
             startDate = it
-            if (endDate.isBefore(it)) {
-                endDate = it
-            }
-            showStartDatePicker = false
+            if (endDate.isBefore(it)) endDate = it
+            showStartPicker = false
         },
-        showEndPicker = showEndDatePicker,
+        showEndPicker = showEndPicker,
         endDate = endDate,
-        onEndDismiss = { showEndDatePicker = false },
-        onEndDateSelected = {
-            endDate = it
-            showEndDatePicker = false
-        },
-    )
+        onEndDismiss = { showEndPicker = false },
+    ) {
+        endDate = it
+        showEndPicker = false
+    }
     val flexDayType = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
-    Scaffold(
-        topBar = { CreateAbsenceTopBar(onNavigateBack = onNavigateBack) }
-    ) { innerPadding ->
-        CreateAbsenceContent(
+    CreateAbsenceContent(
+        onNavigateBack = onNavigateBack,
+        state = CreateAbsenceFormState(
             startDate = startDate,
             endDate = endDate,
             absenceType = absenceType,
             includeWeekends = includeWeekends,
             isOverlap = isOverlap,
-            onAbsenceTypeChange = { absenceType = it },
-            onIncludeWeekendsChange = { includeWeekends = it },
-            onShowStartDatePicker = { showStartDatePicker = true },
-            onShowEndDatePicker = { showEndDatePicker = true },
-            onSave = {
-                viewModel.addAbsence(
-                    AbsenceState(
-                        absenceType = absenceType,
-                        startDate = startDate.toString(),
-                        endDate = endDate.toString(),
-                        includeWeekends = includeWeekends,
-                        isFlexDay = absenceType == flexDayType
-                    ),
-                    onComplete = onNavigateBack
-                )
-            },
-            modifier = Modifier.fillMaxWidth()
-                .padding(innerPadding)
-                .padding(all = PADDING_SPACING)
-                .padding(bottom = LocalContentBottomPadding.current),
-        )
+        ),
+        onAbsenceTypeChange = { absenceType = it },
+        onIncludeWeekendsChange = { includeWeekends = it },
+        onShowStartDatePicker = { showStartPicker = true },
+        onShowEndDatePicker = { showEndPicker = true },
+        onSave = {
+            onSaveAbsence(
+                AbsenceState(
+                    id = 0,
+                    absenceType = absenceType,
+                    startDate = startDate.toString(),
+                    endDate = endDate.toString(),
+                    includeWeekends = includeWeekends,
+                    isFlexDay = absenceType == flexDayType
+                ),
+                onNavigateBack
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = PADDING_SPACING)
+            .padding(bottom = LocalContentBottomPadding.current),
+    )
+}
+
+private fun isDateOverlap(startDate: LocalDate, endDate: LocalDate, existingAbsences: List<SavedAbsence>): Boolean {
+    return existingAbsences.any { existing ->
+        val exStart = LocalDate.parse(existing.startDate)
+        val exEnd = LocalDate.parse(existing.endDate)
+        !startDate.isAfter(exEnd) && !exStart.isAfter(endDate)
     }
 }
 
@@ -134,23 +147,23 @@ private fun CreateAbsenceTopBar(onNavigateBack: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         tonalElevation = DEFAULT_ELEVATION,
-        shadowElevation = DEFAULT_ELEVATION
+        shadowElevation = DEFAULT_ELEVATION,
     ) {
         CenterAlignedTopAppBar(
             title = {
                 Header(
                     title = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.new_absence_title),
-                    modifier = Modifier.padding(top = 0.dp)
+                    modifier = Modifier.padding(top = 0.dp),
                 )
             },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.dismiss)
+                        contentDescription = stringResource(id = R.string.dismiss),
                     )
                 }
-            }
+            },
         )
     }
 }
@@ -188,11 +201,8 @@ private fun AbsenceDatePickerDialogs(
 @Suppress("LongParameterList")
 @Composable
 private fun CreateAbsenceContent(
-    startDate: LocalDate,
-    endDate: LocalDate,
-    absenceType: String,
-    includeWeekends: Boolean,
-    isOverlap: Boolean,
+    onNavigateBack: () -> Unit,
+    state: CreateAbsenceFormState,
     onAbsenceTypeChange: (String) -> Unit,
     onIncludeWeekendsChange: (Boolean) -> Unit,
     onShowStartDatePicker: () -> Unit,
@@ -200,42 +210,37 @@ private fun CreateAbsenceContent(
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
-        horizontalAlignment = Alignment.Start
-    ) {
-        AbsenceFormCard(
-            startDate = startDate,
-            endDate = endDate,
-            absenceType = absenceType,
-            includeWeekends = includeWeekends,
-            isOverlap = isOverlap,
-            onAbsenceTypeChange = onAbsenceTypeChange,
-            onIncludeWeekendsChange = onIncludeWeekendsChange,
-            onShowStartDatePicker = onShowStartDatePicker,
-            onShowEndDatePicker = onShowEndDatePicker,
-        )
-        Row(modifier = Modifier.fillMaxWidth()) {
-            AwtButton(
-                onClick = onSave,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = absenceType.isNotBlank() && !isOverlap
-            ) {
-                Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.save))
+    Scaffold(
+        topBar = { CreateAbsenceTopBar(onNavigateBack = onNavigateBack) }
+    ) { innerPadding ->
+        Column(
+            modifier = modifier.padding(paddingValues = innerPadding),
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            AbsenceFormCard(
+                state = state,
+                onAbsenceTypeChange = onAbsenceTypeChange,
+                onIncludeWeekendsChange = onIncludeWeekendsChange,
+                onShowStartDatePicker = onShowStartDatePicker,
+                onShowEndDatePicker = onShowEndDatePicker,
+            )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                AwtButton(
+                    onClick = onSave,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = state.absenceType.isNotBlank() && !state.isOverlap,
+                ) {
+                    Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.save))
+                }
             }
         }
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun AbsenceFormCard(
-    startDate: LocalDate,
-    endDate: LocalDate,
-    absenceType: String,
-    includeWeekends: Boolean,
-    isOverlap: Boolean,
+    state: CreateAbsenceFormState,
     onAbsenceTypeChange: (String) -> Unit,
     onIncludeWeekendsChange: (Boolean) -> Unit,
     onShowStartDatePicker: () -> Unit,
@@ -244,31 +249,31 @@ private fun AbsenceFormCard(
     ElevatedCard(
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION),
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = PADDING_SPACING),
             verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.Start,
         ) {
             DatePickerRow(
                 labelId = R.string.start_date,
-                dateText = startDate.toString(),
-                onPickDate = onShowStartDatePicker
+                dateText = state.startDate.toString(),
+                onPickDate = onShowStartDatePicker,
             )
             DatePickerRow(
                 labelId = R.string.end_date,
-                dateText = endDate.toString(),
-                onPickDate = onShowEndDatePicker
+                dateText = state.endDate.toString(),
+                onPickDate = onShowEndDatePicker,
             )
 
-            if (isOverlap) {
+            if (state.isOverlap) {
                 Text(
                     text = stringResource(id = R.string.error_overlap),
                     color = androidx.compose.material3.MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
 
@@ -279,17 +284,17 @@ private fun AbsenceFormCard(
                     stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_sick_leave),
                     stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_parental_leave),
                     stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_other_leave),
-                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day)
+                    stringResource(id = com.akiwiksten.awtimesheet.core.R.string.work_type_flex_day),
                 ),
                 onItemSelected = onAbsenceTypeChange,
                 field = DropdownMenuField(
                     labelId = R.string.absence_work_type,
-                    selectedText = absenceType,
-                    enabled = true
-                )
+                    selectedText = state.absenceType,
+                    enabled = true,
+                ),
             )
             WeekendsSection(
-                includeWeekends = includeWeekends,
+                includeWeekends = state.includeWeekends,
                 onIncludeWeekendsChange = onIncludeWeekendsChange,
             )
         }
@@ -308,38 +313,25 @@ private fun WeekendsSection(
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
         Text(text = stringResource(id = R.string.absence_weekends_title), fontWeight = FontWeight.Bold)
-        WeekendsOptionRow(
-            text = stringResource(id = R.string.no),
-            selected = !includeWeekends,
-            onClick = { onIncludeWeekendsChange(false) }
-        )
-        WeekendsOptionRow(
-            text = stringResource(id = R.string.yes),
-            selected = includeWeekends,
-            onClick = { onIncludeWeekendsChange(true) }
-        )
-    }
-}
-
-@Composable
-private fun WeekendsOptionRow(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .selectable(
-                selected = selected,
-                onClick = onClick,
-                role = Role.RadioButton
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
-    ) {
-        RadioButton(selected = selected, onClick = onClick)
-        Text(text = text, fontWeight = FontWeight.Bold)
+        listOf(
+            stringResource(id = R.string.no) to false,
+            stringResource(id = R.string.yes) to true
+        ).forEach { (text, value) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = includeWeekends == value,
+                        onClick = { onIncludeWeekendsChange(value) },
+                        role = Role.RadioButton
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
+            ) {
+                RadioButton(selected = includeWeekends == value, onClick = { onIncludeWeekendsChange(value) })
+                Text(text = text, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }
 

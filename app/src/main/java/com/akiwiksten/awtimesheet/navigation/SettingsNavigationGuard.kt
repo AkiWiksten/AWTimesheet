@@ -162,7 +162,7 @@ private fun appEntryProvider(
         IntroNavEntry(backStack = backStack)
     }
     entry<Screen.Calendar> {
-        CalendarScreen(onNavigateToAbsence = { backStack.add(element = Screen.Absence) })
+        CalendarScreen()
     }
     entry<Screen.Absence> {
         AbsenceScreen(

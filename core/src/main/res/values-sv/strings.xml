@@ -16,7 +16,7 @@
     <!-- Navigation / Screen Titles -->
     <string name="calendar">Kalender</string>
     <string name="absence">Frånvaro</string>
-    <string name="new_absence_title">Ny frånvaro</string>
+    <string name="new_absence_title">Skapa frånvaro</string>
 
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Osparad data!</string>

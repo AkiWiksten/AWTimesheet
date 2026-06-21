@@ -16,7 +16,7 @@
     <!-- Navigation / Screen Titles -->
     <string name="calendar">Calendar</string>
     <string name="absence">Absence</string>
-    <string name="new_absence_title">New absence</string>
+    <string name="new_absence_title">Create absence</string>
 
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Unsaved data!</string>

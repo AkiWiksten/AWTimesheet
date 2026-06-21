@@ -34,7 +34,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
-import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -46,7 +45,6 @@ import java.time.YearMonth
 
 @Composable
 fun CalendarScreen(
-    onNavigateToAbsence: () -> Unit = {},
     calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
@@ -84,7 +82,6 @@ fun CalendarScreen(
         uiState = uiState,
         onDateSelected = { calendarViewModel.onDateSelected(it) },
         onVisibleMonthChanged = { calendarViewModel.onVisibleMonthChanged(it) },
-        onNavigateToAbsence = onNavigateToAbsence
     )
 }
 
@@ -93,7 +90,6 @@ internal fun CalendarContent(
     uiState: CalendarUiState,
     onDateSelected: (String) -> Unit,
     onVisibleMonthChanged: (YearMonth) -> Unit = {},
-    onNavigateToAbsence: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 

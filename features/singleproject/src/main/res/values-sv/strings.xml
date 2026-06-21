@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="project_customer">Projekt/Kund</string>
+    <string name="project">Projekt</string>
     <string name="project_name_duplicate_error">Namnet används redan idag</string>
     <string name="details">Detaljer</string>
     <string name="or_text">ELLER</string>

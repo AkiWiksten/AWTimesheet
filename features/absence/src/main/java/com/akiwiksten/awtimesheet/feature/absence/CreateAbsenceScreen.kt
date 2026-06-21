@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -47,6 +48,7 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuBox
 import com.akiwiksten.awtimesheet.core.ui.DropdownMenuField
+import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.domain.model.AbsenceState
 import java.time.LocalDate
@@ -129,19 +131,28 @@ fun CreateAbsenceScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateAbsenceTopBar(onNavigateBack: () -> Unit) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.new_absence_title))
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(id = R.string.dismiss)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        tonalElevation = DEFAULT_ELEVATION,
+        shadowElevation = DEFAULT_ELEVATION
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Header(
+                    title = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.new_absence_title),
+                    modifier = Modifier.padding(top = 0.dp)
                 )
+            },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.dismiss)
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Suppress("LongParameterList")

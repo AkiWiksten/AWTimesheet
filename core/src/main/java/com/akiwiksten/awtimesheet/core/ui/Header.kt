@@ -7,17 +7,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun Header(
     title: String,
     modifier: Modifier = Modifier,
-    fillMaxWidth: Boolean = true
+    fillMaxWidth: Boolean = true,
+    style: TextStyle = MaterialTheme.typography.headlineMedium
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.headlineMedium,
+        style = style,
         textAlign = TextAlign.Center,
         modifier = modifier
             .then(other = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)

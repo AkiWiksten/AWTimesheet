@@ -32,7 +32,8 @@ sealed class SingleProjectUiState {
         val settings: SettingsState? = null,
         val data: SingleProjectState,
         val projectDetails: ProjectDetailsState? = null,
-        val otherProjectNames: List<String> = emptyList()
+        val otherProjectNames: List<String> = emptyList(),
+        val baseline: SingleProjectState? = null
     ) : SingleProjectUiState()
 
     data class Error(val message: String) : SingleProjectUiState()
@@ -82,6 +83,20 @@ class SingleProjectViewModel @Inject constructor(
                 projectName = selectedProjectName.value
             )
 
+            val dbProjectState = project?.let {
+                SingleProjectState(
+                    projectName = it.projectName,
+                    projectTime = it.projectTime,
+                    kilometres = it.kilometres,
+                    allowance = it.allowance,
+                    workType = it.workType,
+                    date = it.date,
+                    comment = it.comment,
+                    isAddMode = false,
+                    listIndex = args.listIndex
+                )
+            } ?: SingleProjectState(isAddMode = true, date = effectiveDate, listIndex = args.listIndex)
+
             _uiState.update { currentState ->
                 val currentSuccess = currentState as? SingleProjectUiState.Success
                 val currentData = currentSuccess?.data ?: SingleProjectState()
@@ -92,6 +107,7 @@ class SingleProjectViewModel @Inject constructor(
                     settings = settings,
                     projectDetails = projectDetails,
                     otherProjectNames = otherProjectNames,
+                    baseline = currentSuccess?.baseline ?: dbProjectState,
                     data = currentData.copy(
                         projectName = args.projectName.ifEmpty { project?.projectName ?: selectedProjectName.value },
                         projectTime = args.projectTime.ifEmpty { project?.projectTime ?: currentData.projectTime },

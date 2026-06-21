@@ -62,6 +62,7 @@ internal fun SingleProjectState.withInitialAbsenceLogic(
 }
 
 internal fun resolveFullInitialSingleProjectState(
+    data: SingleProjectState?,
     uiState: SingleProjectUiState,
     noAllowanceText: String,
     defaultWorkTypeText: String,
@@ -69,13 +70,13 @@ internal fun resolveFullInitialSingleProjectState(
 ): SingleProjectState {
     val settings = (uiState as? SingleProjectUiState.Success)?.settings
     return resolveInitialSingleProjectState(
-        initialSingleProjectState = (uiState as? SingleProjectUiState.Success)?.data,
+        initialSingleProjectState = data,
         singleProjectUiState = uiState
     )
         .withDefaultAllowance(defaultAllowance = noAllowanceText)
         .withDefaultWorkType(defaultWorkType = defaultWorkTypeText)
         .withInitialAbsenceLogic(
-            isAddMode = (uiState as SingleProjectUiState.Success).data.isAddMode,
+            isAddMode = (uiState as? SingleProjectUiState.Success)?.data?.isAddMode ?: true,
             settings = settings,
             absencePrefix = absencePrefix
         )

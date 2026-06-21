@@ -14,7 +14,7 @@
     <string name="generate_workdays_month_confirm_message">Detta skapar saknade arbetsdagsrader för vardagar under den valda månaden. Befintliga rader lämnas oförändrade.</string>
     <string name="generate_workdays_year_confirm_title">FARA: Generera arbetsdagar för valda året i testsyfte</string>
     <string name="generate_workdays_year_confirm_message">Detta skapar saknade arbetsdagsrader för vardagar under det valda året. Befintliga rader lämnas oförändrade.</string>
-    <string name="monthly_help_xlsx">Den månatliga XLSX-rapporten för den valda dagen och månaden sparas i mappen "Downloads/'app_name'".</string>
+    <string name="monthly_help_xlsx">Den månatliga XLSX-rapporten för den valda dagen och månaden sparas i mappen Downloads/</string>
     <string name="workday_generation_success">Genererade %1$d av %2$d vardagsarbetsdagar för %3$s till %4$s.</string>
     <string name="workday_refresh_success">Uppdaterade %1$d arbetsdagar (%2$d uppdaterade, %3$d skapade) för %4$s till %5$s.</string>
     <string name="workday_generation_error">Det gick inte att generera arbetsdagar: %1$s</string>

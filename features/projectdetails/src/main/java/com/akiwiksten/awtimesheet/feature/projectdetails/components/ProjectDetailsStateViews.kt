@@ -75,9 +75,10 @@ internal fun ProjectDetailsSuccessState(
         ProjectDetailsHeaderSection(
             date = uiState.details.date,
             projectName = uiState.details.projectName,
-            helperTextResId = helperTextResId,
             onClearDetails = actions.onClearDetails
         )
+
+        NoteBanner(text = stringResource(id = helperTextResId))
 
         if (!isAddMode && isConfirmEnabled) {
             NoteBanner(text = stringResource(id = CoreR.string.edit_mode_modified_note))

@@ -20,5 +20,7 @@
     <string name="confirm">Bekräfta</string>
     <string name="return_distance">Returnera avstånd</string>
     <string name="delete">Radera</string>
+    <string name="one_way">Enkel resa</string>
+    <string name="round_trip">Tur och retur</string>
 </resources>
 

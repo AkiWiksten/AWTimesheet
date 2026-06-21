@@ -20,14 +20,16 @@ internal data class LocationCardState(
     val startPoint: Screen.LocationPoint? = null,
     val destinationPoint: Screen.LocationPoint? = null,
     val distanceKm: Double? = null,
+    val isRoundTrip: Boolean = false,
     val lastScreenStartPoint: Screen.LocationPoint? = null,
     val lastScreenDestinationPoint: Screen.LocationPoint? = null,
 ) : Parcelable {
     val startAddress: String? get() = startPoint?.address
     val destinationAddress: String? get() = destinationPoint?.address
 }
-private sealed interface LocationCardEvent {
+internal sealed interface LocationCardEvent {
     data class RouteSelected(val route: RouteState) : LocationCardEvent
+    data class TripTypeChanged(val isRoundTrip: Boolean) : LocationCardEvent
     data class ScreenPointsChanged(
         val startPoint: Screen.LocationPoint?,
         val destinationPoint: Screen.LocationPoint?,
@@ -40,6 +42,7 @@ internal data class DistanceCalculatorCardUiState(
     val startAddress: String?,
     val destinationAddress: String?,
     val distanceKm: Double?,
+    val isRoundTrip: Boolean,
     val confirmDistance: String?,
 )
 
@@ -51,6 +54,7 @@ internal fun LocationCardState.toDistanceCalculatorCardUiState(): DistanceCalcul
         startAddress = startAddress,
         destinationAddress = destinationAddress,
         distanceKm = distanceKm,
+        isRoundTrip = isRoundTrip,
         confirmDistance = roundedDistance,
     )
 }
@@ -98,13 +102,16 @@ internal fun createDistanceCalculatorScreenState(
     routeHistory: List<RouteState>,
     selectedRoute: RouteState?,
     cardUiState: DistanceCalculatorCardUiState,
+    onTripTypeChange: (Boolean) -> Unit,
 ): DistanceCalculatorScreenState {
     return DistanceCalculatorScreenState(
         startAddress = cardUiState.startAddress,
         destinationAddress = cardUiState.destinationAddress,
         distanceKm = cardUiState.distanceKm,
+        isRoundTrip = cardUiState.isRoundTrip,
         routeHistory = routeHistory,
         selectedRoute = selectedRoute,
+        onTripTypeChange = onTripTypeChange,
         onClearRouteHistory = { viewModel.clearRouteHistory() },
         onRouteSelected = viewModel::selectRoute,
         onSelectStartPoint = {
@@ -163,7 +170,11 @@ private fun addCurrentCardRouteToHistory(
 ) {
     val startAddress = cardUiState.startAddress
     val destinationAddress = cardUiState.destinationAddress
-    val distanceToSave = cardUiState.confirmDistance ?: fallbackDistance
+    val distanceToSave = if (cardUiState.isRoundTrip) {
+        "${cardUiState.confirmDistance} *2"
+    } else {
+        cardUiState.confirmDistance ?: fallbackDistance
+    }
 
     if (startAddress != null && destinationAddress != null) {
         viewModel.insertRoute(
@@ -182,7 +193,15 @@ private fun addCurrentCardRouteToHistory(
 }
 
 private fun returnSelectedRouteDistance(backStack: SnapshotStateList<Any>, selectedRoute: RouteState?) {
-    val distanceToReturn = selectedRoute?.distance?.removeSuffix(" km") ?: return
+    val distanceToReturn = selectedRoute?.distance?.let { distance ->
+        if (distance.contains("*2")) {
+            val numericPart = distance.substringBefore(" *2").removeSuffix(" km")
+            val doubled = (numericPart.toDoubleOrNull() ?: 0.0) * 2
+            doubled.roundToInt().toString()
+        } else {
+            distance.removeSuffix(" km")
+        }
+    } ?: return
     backStack.confirmLocationDistance(distanceToReturn)
     backStack.pop()
 }
@@ -243,7 +262,7 @@ private fun calculateDistanceKm(
     return EARTH_RADIUS_KM * arc
 }
 
-private fun reduceLocationCardState(
+internal fun reduceLocationCardState(
     current: LocationCardState,
     event: LocationCardEvent,
 ): LocationCardState {
@@ -251,11 +270,18 @@ private fun reduceLocationCardState(
         is LocationCardEvent.RouteSelected -> {
             val startPoint = event.route.toLocationPoint(target = Screen.LocationTarget.START)
             val destinationPoint = event.route.toLocationPoint(target = Screen.LocationTarget.DESTINATION)
+            val isRoundTrip = event.route.distance.contains("*2")
+            val distanceStr = event.route.distance.substringBefore(" *2").removeSuffix(" km")
             current.copy(
                 startPoint = startPoint,
                 destinationPoint = destinationPoint,
-                distanceKm = event.route.distance.removeSuffix(" km").toDoubleOrNull(),
+                distanceKm = distanceStr.toDoubleOrNull(),
+                isRoundTrip = isRoundTrip
             )
+        }
+
+        is LocationCardEvent.TripTypeChanged -> {
+            current.copy(isRoundTrip = event.isRoundTrip)
         }
 
         is LocationCardEvent.ScreenPointsChanged -> {

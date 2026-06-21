@@ -113,6 +113,12 @@ internal fun LocationEntry(
             routeHistory = routeHistory,
             selectedRoute = selectedRoute,
             cardUiState = cardUiState,
+            onTripTypeChange = { isRoundTrip ->
+                cardState.value = reduceLocationCardState(
+                    current = cardState.value,
+                    event = LocationCardEvent.TripTypeChanged(isRoundTrip = isRoundTrip)
+                )
+            }
         )
     )
 }

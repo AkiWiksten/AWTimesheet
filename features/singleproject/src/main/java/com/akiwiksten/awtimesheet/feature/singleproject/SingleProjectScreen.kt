@@ -48,11 +48,11 @@ fun SingleProjectScreen(
                 projectName = state.projectName,
                 originalProjectName = routeArgs.originalProjectName
             )
-            ).copy(
-                projectTime = state.projectTime,
-                projectName = state.projectName,
-                originalProjectName = routeArgs.originalProjectName
-            )
+        ).copy(
+            projectTime = state.projectTime,
+            projectName = state.projectName,
+            originalProjectName = routeArgs.originalProjectName
+        )
         navigationActions.onOpenProjectDetails(state, details)
     }
 

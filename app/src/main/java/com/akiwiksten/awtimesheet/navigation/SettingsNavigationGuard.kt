@@ -21,7 +21,6 @@ import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.absence.AbsenceScreen
-import com.akiwiksten.awtimesheet.feature.absence.AbsenceViewModel
 import com.akiwiksten.awtimesheet.feature.absence.CreateAbsenceScreen
 import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
 import com.akiwiksten.awtimesheet.feature.intro.IntroScreen

@@ -66,15 +66,6 @@ class SingleProjectViewModel @Inject constructor(
             selectedDate.value = effectiveDate
             selectedProjectName.value = args.originalProjectName.ifBlank { args.projectName }
 
-            val project = projectRepository.getProject(
-                date = effectiveDate,
-                projectName = selectedProjectName.value
-            )
-            val projectsForDate = projectRepository.getProjectsByDateRange(effectiveDate, effectiveDate)
-            val otherProjectNames = projectsForDate
-                .filter { it.projectName != selectedProjectName.value }
-                .map { it.projectName }
-
             val workTypes = settingsRepository.getWorkTypes()
             val settings = settingsRepository.getSettings()
             val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
@@ -82,6 +73,9 @@ class SingleProjectViewModel @Inject constructor(
                 date = effectiveDate,
                 projectName = selectedProjectName.value
             )
+            val project = projectRepository.getProject(effectiveDate, selectedProjectName.value)
+            val otherProjectNames = projectRepository.getProjectNames()
+                .filter { !it.equals(selectedProjectName.value, ignoreCase = true) }
 
             val dbProjectState = project?.let {
                 SingleProjectState(

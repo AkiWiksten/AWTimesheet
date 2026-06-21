@@ -24,7 +24,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,6 +47,7 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
+import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
 import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.domain.model.RouteState
@@ -57,33 +57,22 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DistanceCalculatorScreen(
-    state: DistanceCalculatorScreenState
+    state: DistanceCalculatorScreenState,
 ) {
     BackHandler(onBack = state.onNavigateBack)
     Scaffold(
         topBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                tonalElevation = DEFAULT_ELEVATION,
-                shadowElevation = DEFAULT_ELEVATION
-            ) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Header(
-                            title = stringResource(id = R.string.distance_calculation_title),
-                            modifier = Modifier.padding(top = 0.dp)
+            AwtCenterAlignedTopAppBar(
+                title = stringResource(id = R.string.distance_calculation_title),
+                navigationIcon = {
+                    IconButton(onClick = state.onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = state.onNavigateBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back)
-                            )
-                        }
                     }
-                )
-            }
+                }
+            )
         }
     ) { padding ->
         DistanceCalculatorScreenContent(state = state, padding = padding)
@@ -112,7 +101,7 @@ private fun DistanceCalculatorScreenContent(
         if (state.routeHistory.isNotEmpty()) {
             val canDeleteSelectedRoute = state.selectedRoute?.let { selected ->
                 state.routeHistory.any { routeItem ->
-                    routeItem.start == selected.start && routeItem.destination == selected.destination
+                    ((routeItem.start == selected.start) && (routeItem.destination == selected.destination))
                 }
             } == true
 
@@ -177,7 +166,9 @@ private fun DistanceCalculatorInputCard(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DEFAULT_ELEVATION)
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = DEFAULT_ELEVATION,
+        )
     ) {
         Column(
             modifier = Modifier
@@ -277,10 +268,11 @@ private fun CalculatedRouteList(
                 CalculatedRouteListItem(
                     item = routeItem,
                     isSelected = selectedRoute?.let { selected ->
-                        selected.start == routeItem.start && selected.destination == routeItem.destination
-                    } == true,
-                    onClick = { onRouteSelected(routeItem) }
-                )
+                        ((selected.start == routeItem.start) && (selected.destination == routeItem.destination))
+                    } == true
+                ) {
+                    onRouteSelected(routeItem)
+                }
             }
         }
     }

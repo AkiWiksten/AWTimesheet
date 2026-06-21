@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -25,6 +29,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.TIME_FORMAT
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.hasChanges
+import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
 import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
@@ -32,7 +37,6 @@ import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsErrorState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsLoadingState
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsSuccessState
-import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsTopBar
 import com.akiwiksten.awtimesheet.feature.projectdetails.components.ProjectDetailsUnsavedChangesDialog
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsDisplayParams
 import com.akiwiksten.awtimesheet.feature.projectdetails.model.ProjectDetailsField
@@ -249,6 +253,7 @@ private tailrec fun Context.findActivity(): Activity? {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProjectDetailsScaffold(
     uiState: ProjectDetailsUiState,
@@ -256,7 +261,19 @@ private fun ProjectDetailsScaffold(
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
-        topBar = { ProjectDetailsTopBar(onNavigateBack = onNavigateBack) }
+        topBar = {
+            AwtCenterAlignedTopAppBar(
+                title = stringResource(id = R.string.project_details),
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        }
     ) { padding ->
         ProjectDetailsStateContent(
             padding = padding,

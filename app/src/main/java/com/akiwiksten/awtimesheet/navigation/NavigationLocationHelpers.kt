@@ -46,6 +46,12 @@ internal data class DistanceCalculatorCardUiState(
     val confirmDistance: String?,
 )
 
+internal data class DistanceCalculatorUiParams(
+    val routeHistory: List<RouteState>,
+    val selectedRoute: RouteState?,
+    val cardUiState: DistanceCalculatorCardUiState,
+)
+
 internal fun LocationCardState.toDistanceCalculatorCardUiState(): DistanceCalculatorCardUiState {
     val roundedDistance = distanceKm?.roundToInt()?.toString()
     return DistanceCalculatorCardUiState(
@@ -68,7 +74,7 @@ internal fun rememberLocationCardState(
         LocationCardState(
             startPoint = screen.startPoint,
             destinationPoint = screen.destinationPoint,
-            distanceKm = if (screen.startPoint != null && screen.destinationPoint != null) {
+            distanceKm = if (screen.startPoint != null && (screen.destinationPoint != null)) {
                 calculateDistanceKm(start = screen.startPoint, destination = screen.destinationPoint)
             } else {
                 null
@@ -99,18 +105,17 @@ internal fun rememberLocationCardState(
 internal fun createDistanceCalculatorScreenState(
     backStack: SnapshotStateList<Any>,
     viewModel: DistanceCalculatorViewModel,
-    routeHistory: List<RouteState>,
-    selectedRoute: RouteState?,
-    cardUiState: DistanceCalculatorCardUiState,
+    params: DistanceCalculatorUiParams,
     onTripTypeChange: (Boolean) -> Unit,
 ): DistanceCalculatorScreenState {
+    val cardUiState = params.cardUiState
     return DistanceCalculatorScreenState(
         startAddress = cardUiState.startAddress,
         destinationAddress = cardUiState.destinationAddress,
         distanceKm = cardUiState.distanceKm,
         isRoundTrip = cardUiState.isRoundTrip,
-        routeHistory = routeHistory,
-        selectedRoute = selectedRoute,
+        routeHistory = params.routeHistory,
+        selectedRoute = params.selectedRoute,
         onTripTypeChange = onTripTypeChange,
         onClearRouteHistory = { viewModel.clearRouteHistory() },
         onRouteSelected = viewModel::selectRoute,
@@ -138,8 +143,8 @@ internal fun createDistanceCalculatorScreenState(
                 fallbackDistance = kilometres,
             )
         },
-        onReturnDistance = { returnSelectedRouteDistance(backStack = backStack, selectedRoute = selectedRoute) },
-        onDeleteSelectedRoute = { deleteSelectedRoute(viewModel = viewModel, selectedRoute = selectedRoute) },
+        onReturnDistance = { returnSelectedRouteDistance(backStack = backStack, selectedRoute = params.selectedRoute) },
+        onDeleteSelectedRoute = { deleteSelectedRoute(viewModel = viewModel, selectedRoute = params.selectedRoute) },
         onNavigateBack = { backStack.pop() }
     )
 }

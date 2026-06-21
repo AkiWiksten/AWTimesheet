@@ -110,9 +110,11 @@ internal fun LocationEntry(
         state = createDistanceCalculatorScreenState(
             backStack = backStack,
             viewModel = viewModel,
-            routeHistory = routeHistory,
-            selectedRoute = selectedRoute,
-            cardUiState = cardUiState,
+            params = DistanceCalculatorUiParams(
+                routeHistory = routeHistory,
+                selectedRoute = selectedRoute,
+                cardUiState = cardUiState,
+            ),
             onTripTypeChange = { isRoundTrip ->
                 cardState.value = reduceLocationCardState(
                     current = cardState.value,

@@ -21,7 +21,7 @@
     <!-- Common Dialogs & Messages -->
     <string name="unsaved_data_title">Unsaved data!</string>
     <string name="unsaved_data_message">You have unsaved changes. Save before leaving?</string>
-    <string name="edit_mode_modified_note">Previous saved project has been modified. Press Save/Confirm to apply or back arrow to cancel.</string>
+    <string name="edit_mode_modified_note">Previously saved project has been modified. Press Save/Confirm to apply or back arrow to cancel.</string>
     <string name="discard">Discard</string>
     <string name="stay">Stay</string>
     <string name="error_message">Error: %1$s</string>

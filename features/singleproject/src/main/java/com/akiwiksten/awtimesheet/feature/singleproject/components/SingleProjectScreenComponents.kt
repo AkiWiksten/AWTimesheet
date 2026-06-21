@@ -80,7 +80,6 @@ fun SingleProjectHeaderSection(date: String, workTimeByDate: String) {
     }
 }
 
-
 @Composable
 fun SingleProjectTimePickerDialogSection(
     showDialog: Boolean,

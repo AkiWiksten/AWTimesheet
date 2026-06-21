@@ -1,4 +1,3 @@
-@file:Suppress("FunctionNaming", "LongParameterList")
 package com.akiwiksten.awtimesheet.core.ui
 
 import androidx.compose.foundation.layout.Box
@@ -75,14 +74,14 @@ fun AwtCenterAlignedTopAppBar(
                 ) {
                     actions()
                 }
-                
+
                 // Balance the title: if navigation icon is wider than actions, add spacer after actions
                 val balanceSpacerWidth = if (navIconWidth > actionsWidth) {
                     navIconWidth - actionsWidth
                 } else {
                     0.dp
                 }
-                
+
                 if (balanceSpacerWidth > 0.dp) {
                     Spacer(modifier = Modifier.width(balanceSpacerWidth))
                 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="select_work_day_date">Välj arbetsdagens datum</string>
+    <string name="select_work_day_date">Arbetsdagens datum</string>
     <string name="selected_date">Valt datum</string>
     <string name="select_date">Välj datum</string>
     <string name="selected_work_day">Vald arbetsdag</string>

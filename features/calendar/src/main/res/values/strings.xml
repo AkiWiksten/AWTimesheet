@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Calendar-specific strings -->
-    <string name="select_work_day_date">Select workday date</string>
+    <string name="select_work_day_date">Workday date</string>
     <string name="selected_date">Selected date</string>
     <string name="select_date">Select date</string>
     <string name="selected_work_day">Selected work day</string>

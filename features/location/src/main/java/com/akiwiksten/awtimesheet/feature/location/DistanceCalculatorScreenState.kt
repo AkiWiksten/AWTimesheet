@@ -1,6 +1,15 @@
 package com.akiwiksten.awtimesheet.feature.location
 
+import android.os.Parcelable
 import com.akiwiksten.awtimesheet.domain.model.RouteState
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class DistanceCalculatorLocationPoint(
+    val latitude: Double,
+    val longitude: Double,
+    val address: String
+) : Parcelable
 
 data class DistanceCalculatorScreenState(
     val startAddress: String?,

@@ -58,11 +58,92 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DistanceCalculatorScreen(
-    state: DistanceCalculatorScreenState,
+    initialStartPoint: DistanceCalculatorLocationPoint?,
+    initialDestinationPoint: DistanceCalculatorLocationPoint?,
+    onSelectStartPoint: (DistanceCalculatorLocationPoint?, DistanceCalculatorLocationPoint?) -> Unit,
+    onSelectDestinationPoint: (DistanceCalculatorLocationPoint?, DistanceCalculatorLocationPoint?) -> Unit,
+    onConfirmDistance: (String) -> Unit,
+    onNavigateBack: () -> Unit,
     viewModel: DistanceCalculatorViewModel = hiltViewModel()
 ) {
     val routeHistory by viewModel.routeHistory.collectAsState()
     val selectedRoute by viewModel.selectedRoute.collectAsState()
+
+    val cardState = rememberLocationCardState(
+        initialStartPoint = initialStartPoint,
+        initialDestinationPoint = initialDestinationPoint,
+        selectedRoute = selectedRoute,
+    )
+    val cardUiState = cardState.value.toDistanceCalculatorCardUiState()
+
+    val state = DistanceCalculatorScreenState(
+        startAddress = cardUiState.startAddress,
+        destinationAddress = cardUiState.destinationAddress,
+        distanceKm = cardUiState.distanceKm,
+        isRoundTrip = cardUiState.isRoundTrip,
+        routeHistory = routeHistory,
+        selectedRoute = selectedRoute,
+        onTripTypeChange = { isRoundTrip ->
+            cardState.value = reduceLocationCardState(
+                current = cardState.value,
+                event = LocationCardEvent.TripTypeChanged(isRoundTrip = isRoundTrip)
+            )
+        },
+        onClearRouteHistory = { viewModel.clearRouteHistory() },
+        onRouteSelected = viewModel::selectRoute,
+        onSelectStartPoint = {
+            viewModel.clearSelectedRoute()
+            onSelectStartPoint(cardUiState.startPoint, cardUiState.destinationPoint)
+        },
+        onSelectDestinationPoint = {
+            viewModel.clearSelectedRoute()
+            onSelectDestinationPoint(cardUiState.startPoint, cardUiState.destinationPoint)
+        },
+        onAddToList = { kilometres ->
+            val distanceToSave = if (cardUiState.isRoundTrip) {
+                "${cardUiState.confirmDistance} *2"
+            } else {
+                cardUiState.confirmDistance ?: kilometres
+            }
+
+            if (cardUiState.startAddress != null && cardUiState.destinationAddress != null) {
+                viewModel.insertRoute(
+                    request = InsertRouteRequest(
+                        distanceKm = distanceToSave,
+                        startAddress = cardUiState.startAddress,
+                        startLatitude = cardUiState.startPoint?.latitude,
+                        startLongitude = cardUiState.startPoint?.longitude,
+                        destinationAddress = cardUiState.destinationAddress,
+                        destinationLatitude = cardUiState.destinationPoint?.latitude,
+                        destinationLongitude = cardUiState.destinationPoint?.longitude,
+                    )
+                )
+            }
+            onConfirmDistance(distanceToSave)
+        },
+        onReturnDistance = {
+            val distanceToReturn = selectedRoute?.distance?.let { distance ->
+                if (distance.contains("*2")) {
+                    val numericPart = distance.substringBefore(" *2").removeSuffix(" km")
+                    val doubled = (numericPart.toDoubleOrNull() ?: 0.0) * 2
+                    doubled.roundToInt().toString()
+                } else {
+                    distance.removeSuffix(" km")
+                }
+            }
+            if (distanceToReturn != null) {
+                onConfirmDistance(distanceToReturn)
+                onNavigateBack()
+            }
+        },
+        onDeleteSelectedRoute = {
+            selectedRoute?.let { route ->
+                viewModel.deleteRoute(route)
+                viewModel.clearSelectedRoute()
+            }
+        },
+        onNavigateBack = onNavigateBack
+    )
 
     BackHandler(onBack = state.onNavigateBack)
     Scaffold(
@@ -81,10 +162,7 @@ fun DistanceCalculatorScreen(
         }
     ) { padding ->
         DistanceCalculatorScreenContent(
-            state = state.copy(
-                routeHistory = routeHistory,
-                selectedRoute = selectedRoute
-            ),
+            state = state,
             padding = padding
         )
     }
@@ -450,9 +528,31 @@ fun PreviewDistanceCalculatorWithHistory() {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DistanceCalculatorPreviewContent(state: DistanceCalculatorScreenState) {
+private fun DistanceCalculatorPreviewContent(
+    state: DistanceCalculatorScreenState
+) {
     AWTimesheetTheme(dynamicColor = false) {
-        DistanceCalculatorScreen(state = state)
+        Scaffold(
+            topBar = {
+                AwtCenterAlignedTopAppBar(
+                    title = stringResource(id = R.string.distance_calculation_title),
+                    navigationIcon = {
+                        IconButton(onClick = state.onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            DistanceCalculatorScreenContent(
+                state = state,
+                padding = padding
+            )
+        }
     }
 }

@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -95,33 +93,28 @@ internal fun PortraitWidthContainer(
 internal fun DistanceCalculatorEntry(
     screen: Screen.DistanceCalculator,
     backStack: SnapshotStateList<Any>,
-    viewModel: DistanceCalculatorViewModel = hiltViewModel(),
 ) {
-    val routeHistory by viewModel.routeHistory.collectAsState()
-    val selectedRoute by viewModel.selectedRoute.collectAsState()
-
-    val cardState = rememberLocationCardState(
-        screen = screen,
-        selectedRoute = selectedRoute,
-    )
-    val cardUiState = cardState.value.toDistanceCalculatorCardUiState()
-
     DistanceCalculatorScreen(
-        state = createDistanceCalculatorScreenState(
-            backStack = backStack,
-            viewModel = viewModel,
-            params = DistanceCalculatorUiParams(
-                routeHistory = routeHistory,
-                selectedRoute = selectedRoute,
-                cardUiState = cardUiState,
-            ),
-            onTripTypeChange = { isRoundTrip ->
-                cardState.value = reduceLocationCardState(
-                    current = cardState.value,
-                    event = LocationCardEvent.TripTypeChanged(isRoundTrip = isRoundTrip)
-                )
-            }
-        )
+        initialStartPoint = screen.startPoint?.toFeatureLocationPoint(),
+        initialDestinationPoint = screen.destinationPoint?.toFeatureLocationPoint(),
+        onSelectStartPoint = { start, destination ->
+            navigateToLocationPicker(
+                backStack = backStack,
+                startPoint = start,
+                destinationPoint = destination,
+                target = Screen.LocationTarget.START,
+            )
+        },
+        onSelectDestinationPoint = { start, destination ->
+            navigateToLocationPicker(
+                backStack = backStack,
+                startPoint = start,
+                destinationPoint = destination,
+                target = Screen.LocationTarget.DESTINATION,
+            )
+        },
+        onConfirmDistance = { backStack.confirmLocationDistance(it) },
+        onNavigateBack = { backStack.pop() }
     )
 }
 

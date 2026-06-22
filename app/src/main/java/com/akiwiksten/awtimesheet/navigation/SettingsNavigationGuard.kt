@@ -14,6 +14,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -185,8 +186,12 @@ private fun appEntryProvider(
     entry<Screen.SingleProject> { screen ->
         SingleProjectEntry(screen = screen, backStack = backStack)
     }
-    entry<Screen.Location> { screen ->
-        LocationEntry(screen = screen, backStack = backStack)
+    entry<Screen.DistanceCalculator> { screen ->
+        DistanceCalculatorEntry(
+            screen = screen,
+            backStack = backStack,
+            viewModel = hiltViewModel()
+        )
     }
     entry<Screen.LocationPicker> { screen ->
         LocationPickerEntry(screen = screen, backStack = backStack)

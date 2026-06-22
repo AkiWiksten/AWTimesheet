@@ -3,6 +3,8 @@ package com.akiwiksten.awtimesheet.navigation
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -67,7 +69,7 @@ internal fun LocationCardState.toDistanceCalculatorCardUiState(): DistanceCalcul
 
 @Composable
 internal fun rememberLocationCardState(
-    screen: Screen.Location,
+    screen: Screen.DistanceCalculator,
     selectedRoute: RouteState?,
 ) = rememberSaveable {
     mutableStateOf(

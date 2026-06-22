@@ -55,8 +55,8 @@ internal fun SnapshotStateList<Any>.updateLocationSelection(
     target: Screen.LocationTarget,
     result: LocationPickerResult
 ) {
-    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.Location } ?: return
-    val current = getOrNull(index) as? Screen.Location ?: return
+    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.DistanceCalculator } ?: return
+    val current = getOrNull(index) as? Screen.DistanceCalculator ?: return
     val point = Screen.LocationPoint(
         latitude = result.latitude,
         longitude = result.longitude,
@@ -73,8 +73,8 @@ internal fun SnapshotStateList<Any>.seedLocationPointsFromCard(
     startPoint: Screen.LocationPoint?,
     destinationPoint: Screen.LocationPoint?,
 ) {
-    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.Location } ?: return
-    val current = getOrNull(index) as? Screen.Location ?: return
+    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.DistanceCalculator } ?: return
+    val current = getOrNull(index) as? Screen.DistanceCalculator ?: return
 
     this[index] = current.copy(
         startPoint = startPoint ?: current.startPoint,
@@ -83,8 +83,8 @@ internal fun SnapshotStateList<Any>.seedLocationPointsFromCard(
 }
 
 internal fun SnapshotStateList<Any>.confirmLocationDistance(kilometres: String) {
-    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.Location } ?: return
-    val locationScreen = getOrNull(index) as? Screen.Location ?: return
+    val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.DistanceCalculator } ?: return
+    val locationScreen = getOrNull(index) as? Screen.DistanceCalculator ?: return
 
     this[index] = locationScreen.copy(
         startPoint = null,

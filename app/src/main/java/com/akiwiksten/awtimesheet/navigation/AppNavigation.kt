@@ -46,7 +46,7 @@ fun AWTimesheetApp() {
     val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(Screen.Intro) }
     val settingsNavigationGuard = rememberSettingsNavigationGuard()
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
-    val portraitWidth = rememberPortraitWidthDp()
+    val portraitWidth = currentPortraitWidthDp()
 
     if (isIntroRoute) {
         WorkTimeNavDisplay(
@@ -64,7 +64,7 @@ fun AWTimesheetApp() {
 }
 
 @Composable
-private fun rememberPortraitWidthDp(): Dp {
+private fun currentPortraitWidthDp(): Dp {
     val windowInfo = LocalWindowInfo.current
     val density = LocalDensity.current
     return with(density) {
@@ -92,8 +92,8 @@ internal fun PortraitWidthContainer(
 }
 
 @Composable
-internal fun LocationEntry(
-    screen: Screen.Location,
+internal fun DistanceCalculatorEntry(
+    screen: Screen.DistanceCalculator,
     backStack: SnapshotStateList<Any>,
     viewModel: DistanceCalculatorViewModel = hiltViewModel(),
 ) {
@@ -237,7 +237,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             },
             onNavigateToLocationPicker = { singleProject ->
                 backStack.updateSingleProjectState(singleProject)
-                backStack.add(element = Screen.Location())
+                backStack.add(element = Screen.DistanceCalculator())
             }
         )
     )

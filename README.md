@@ -92,7 +92,6 @@ Summarize benchmark output:
   + Warnings on build
 + Repositories
 + SingleProjectScreen
-  + Project name edit and validation
   + Kilometres validation. 0050 not valid.
   + Show work_type_help string
 + WorkdayScreen 
@@ -107,6 +106,8 @@ Summarize benchmark output:
 + CalendarScreen
 + SettingsScreen
   + App localization selection
+    + Three locally selectable languages + system specific language
+  + "Show flextime total" in workday screen as "00:00" or Undefined, when it is set as such with a Switch
 + AbsenceScreen
   + Use CustomCalendar to show dates with work
 + Excel
@@ -114,6 +115,7 @@ Summarize benchmark output:
   + Handle by selecting start date 
     + monthly reports 
     + weekly reports
+  + Show project names in alphabetical order in General, Allowance and Work type sections
 
 ## What to test constantly
 + Thorough regression testing of all features in all screens

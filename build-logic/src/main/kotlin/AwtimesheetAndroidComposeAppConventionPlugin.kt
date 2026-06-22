@@ -17,6 +17,11 @@ class AwtimesheetAndroidComposeAppConventionPlugin : Plugin<Project> {
                 compose = true
             }
             experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
+            // Explicitly define source sets to prevent duplication in Android view
+            sourceSets.maybeCreate("screenshotTest").apply {
+                java.directories.add("src/screenshotTest/java")
+            }
         }
 
         tasks.withType(Test::class.java).configureEach {

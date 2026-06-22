@@ -26,6 +26,7 @@ internal data class LocationCardState(
 
 internal sealed interface LocationCardEvent {
     data class RouteSelected(val route: RouteState) : LocationCardEvent
+    data object RouteCleared : LocationCardEvent
     data class TripTypeChanged(val isRoundTrip: Boolean) : LocationCardEvent
     data class ScreenPointsChanged(
         val startPoint: DistanceCalculatorLocationPoint?,
@@ -109,6 +110,15 @@ internal fun reduceLocationCardState(
                 destinationPoint = destinationPoint,
                 distanceKm = distanceStr.toDoubleOrNull(),
                 isRoundTrip = isRoundTrip
+            )
+        }
+
+        is LocationCardEvent.RouteCleared -> {
+            current.copy(
+                startPoint = null,
+                destinationPoint = null,
+                distanceKm = null,
+                isRoundTrip = false
             )
         }
 

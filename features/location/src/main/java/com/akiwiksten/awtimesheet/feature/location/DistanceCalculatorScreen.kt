@@ -89,8 +89,24 @@ fun DistanceCalculatorScreen(
                 event = LocationCardEvent.TripTypeChanged(isRoundTrip = isRoundTrip)
             )
         },
-        onClearRouteHistory = { viewModel.clearRouteHistory() },
-        onRouteSelected = viewModel::selectRoute,
+        onClearRouteHistory = {
+            viewModel.clearRouteHistory()
+            cardState.value = reduceLocationCardState(
+                current = cardState.value,
+                event = LocationCardEvent.RouteCleared
+            )
+        },
+        onRouteSelected = { route ->
+            val isDeselecting = selectedRoute?.start == route.start &&
+                selectedRoute?.destination == route.destination
+            viewModel.selectRoute(route)
+            if (isDeselecting) {
+                cardState.value = reduceLocationCardState(
+                    current = cardState.value,
+                    event = LocationCardEvent.RouteCleared
+                )
+            }
+        },
         onSelectStartPoint = {
             viewModel.clearSelectedRoute()
             onSelectStartPoint(cardUiState.startPoint, cardUiState.destinationPoint)
@@ -140,6 +156,10 @@ fun DistanceCalculatorScreen(
             selectedRoute?.let { route ->
                 viewModel.deleteRoute(route)
                 viewModel.clearSelectedRoute()
+                cardState.value = reduceLocationCardState(
+                    current = cardState.value,
+                    event = LocationCardEvent.RouteCleared
+                )
             }
         },
         onNavigateBack = onNavigateBack

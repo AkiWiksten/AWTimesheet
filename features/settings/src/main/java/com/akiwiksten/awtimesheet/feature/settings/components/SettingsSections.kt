@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.akiwiksten.awtimesheet.core.ACTION_BUTTON_FONT_SIZE
@@ -38,6 +39,11 @@ internal fun SettingsActionButtonsSection(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING_SMALL)
     ) {
+        val context = LocalContext.current
+        val appName = runCatching {
+            val appInfo = context.applicationInfo
+            context.packageManager.getApplicationLabel(appInfo).toString()
+        }
         AwtButton(
             onClick = state.onSave,
             enabled = state.isSaveEnabled,
@@ -46,7 +52,7 @@ internal fun SettingsActionButtonsSection(
             Text(text = stringResource(id = CoreR.string.save), fontSize = ACTION_BUTTON_FONT_SIZE)
         }
         if (state.isReportEnabled) {
-            NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx))
+            NoteBanner(text = stringResource(id = R.string.monthly_help_xlsx) + appName.getOrNull())
         }
         AwtButton(
             onClick = state.onGenerateXlsx,

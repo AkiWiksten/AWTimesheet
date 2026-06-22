@@ -34,7 +34,7 @@
     <string name="start_date">Alkamispäivä</string>
     <string name="end_date">Päättymispäivä</string>
     <string name="allowance">Korvaus</string>
-    <string name="no_allowance">Ei korvausta</string>
+    <string name="no_allowance">Ei päivärahaa</string>
     <string name="half_day_allowance">Osapäiväraha</string>
     <string name="full_allowance">Kokopäiväraha</string>
     <string name="kilometres">Kilometrit</string>

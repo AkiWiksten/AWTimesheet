@@ -34,7 +34,7 @@
     <string name="start_date">Startdatum</string>
     <string name="end_date">Slutdatum</string>
     <string name="allowance">Ersättning</string>
-    <string name="no_allowance">Ingen ersättning</string>
+    <string name="no_allowance">Ingen traktamente</string>
     <string name="half_day_allowance">Halv traktamente</string>
     <string name="full_allowance">Fullt traktamente</string>
     <string name="kilometres">Kilometer</string>

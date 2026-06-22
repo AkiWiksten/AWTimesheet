@@ -8,11 +8,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -203,6 +205,7 @@ private fun IntroAnimatedContent(
         }
 
         val currentScale = remember { Animatable(initialValue = MIN_INITIAL_SCALE) }
+        var isAnimationFinished by remember { mutableStateOf(false) }
 
         LaunchedEffect(key1 = targetScaleFactor, key2 = hasValidDimensions) {
             if (hasValidDimensions) {
@@ -210,12 +213,14 @@ private fun IntroAnimatedContent(
                     targetValue = targetScaleFactor,
                     animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
                 )
+                isAnimationFinished = true
             }
         }
 
         IntroContent(
             appName = appName,
             currentScale = currentScale.value,
+            showTapMe = isAnimationFinished,
             onItemClick = onItemClick
         )
     }
@@ -242,14 +247,14 @@ private fun calculateTargetScale(
 private fun IntroContent(
     appName: String,
     currentScale: Float,
+    showTapMe: Boolean,
     onItemClick: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable(enabled = true, onClick = onItemClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        contentAlignment = Alignment.Center
     ) {
         StrokeText(
             text = appName,
@@ -259,28 +264,45 @@ private fun IntroContent(
                     scaleY = currentScale
                     transformOrigin = TransformOrigin.Center
                 }
+                .height(80.dp)
+                .fillMaxWidth()
         )
+
+        if (showTapMe) {
+            StrokeText(
+                text = stringResource(R.string.tap_me),
+                fontSize = 44f,
+                strokeWidth = 4f,
+                modifier = Modifier
+                    .padding(top = 160.dp)
+                    .height(40.dp)
+                    .fillMaxWidth()
+            )
+        }
     }
 }
 
 @Composable
-private fun StrokeText(text: String, modifier: Modifier = Modifier) {
+private fun StrokeText(
+    text: String,
+    modifier: Modifier = Modifier,
+    fontSize: Float = 64f,
+    strokeWidth: Float = 10f
+) {
     Canvas(
         modifier = modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
     ) {
         val paint = android.graphics.Paint().apply {
             isAntiAlias = true
-            textSize = 64f
+            textSize = fontSize
             style = android.graphics.Paint.Style.STROKE
-            strokeWidth = 10f
+            this.strokeWidth = strokeWidth
             color = android.graphics.Color.BLACK
             textAlign = android.graphics.Paint.Align.CENTER
         }
 
         val centerX = size.width / 2f
-        val centerY = size.height / 2f
+        val centerY = size.height / 2f + (fontSize / 3f)
 
         drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
 

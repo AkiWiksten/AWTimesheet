@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="error_message">Error: %1$s</string>
+    <string name="tap_me">Tap me!</string>
 </resources>
 

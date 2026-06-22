@@ -16,8 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -55,6 +54,8 @@ import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.MyAlertDialog
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
+import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.domain.model.RouteState
 import com.android.tools.screenshot.PreviewTest
 import kotlin.math.roundToInt
@@ -177,6 +178,7 @@ fun DistanceCalculatorScreen(
     )
 
     BackHandler(onBack = state.onNavigateBack)
+    val scrollState = rememberScrollState()
     Scaffold(
         topBar = {
             AwtCenterAlignedTopAppBar(
@@ -194,7 +196,8 @@ fun DistanceCalculatorScreen(
     ) { padding ->
         DistanceCalculatorScreenContent(
             state = state,
-            padding = padding
+            padding = padding,
+            scrollState = scrollState
         )
     }
 }
@@ -203,6 +206,7 @@ fun DistanceCalculatorScreen(
 private fun DistanceCalculatorScreenContent(
     state: DistanceCalculatorScreenState,
     padding: PaddingValues,
+    scrollState: androidx.compose.foundation.ScrollState,
 ) {
     var showClearHistoryDialog by remember { mutableStateOf(false) }
 
@@ -227,12 +231,18 @@ private fun DistanceCalculatorScreenContent(
         if (state.distanceKm != null) "${effectiveDistance.roundToInt()} km" else stringResource(R.string.not_available)
     val roundedDistance = effectiveDistance.roundToInt()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .padding(PADDING_SPACING)
-            .padding(bottom = LocalContentBottomPadding.current),
+    ScrollableScreenColumn(
+        state = ScrollableScreenColumnState(
+            scrollState = scrollState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            columnModifier = Modifier
+                .fillMaxSize()
+                .padding(all = PADDING_SPACING),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = PADDING_SPACING)
+        )
     ) {
         DistanceCalculatorInputCard(state = state, distanceText = distanceText)
 
@@ -243,9 +253,7 @@ private fun DistanceCalculatorScreenContent(
         } == true
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = PADDING_SPACING_SMALL),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -295,26 +303,20 @@ private fun DistanceCalculatorScreenContent(
                 items = state.routeHistory,
                 selectedRoute = state.selectedRoute,
                 onRouteSelected = state.onRouteSelected,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = PADDING_SPACING_SMALL)
+                modifier = Modifier.fillMaxWidth()
             )
 
             AwtButton(
                 onClick = { showClearHistoryDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = PADDING_SPACING_SMALL)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = stringResource(R.string.clear_route_history))
             }
         } else {
-            EmptyHistoryCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = PADDING_SPACING)
-            )
+            EmptyHistoryCard(modifier = Modifier.fillMaxWidth())
         }
+
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
     }
 }
 
@@ -400,18 +402,13 @@ private fun CalculatedRouteList(
         shape = RoundedCornerShape(size = FIELD_CORNER_RADIUS),
         modifier = modifier.fillMaxWidth()
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondary),
             verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
-            itemsIndexed(
-                items = items,
-                key = { _, routeItem ->
-                    "${routeItem.start}_${routeItem.destination}"
-                }
-            ) { _, routeItem ->
+            items.forEach { routeItem ->
                 CalculatedRouteListItem(
                     item = routeItem,
                     isSelected = selectedRoute?.let { selected ->
@@ -557,7 +554,7 @@ fun PreviewDistanceCalculatorEmpty() {
             onClear = {},
             onReturnDistance = {},
             onDeleteSelectedRoute = {},
-            onNavigateBack = {}
+            onNavigateBack = {},
         )
     )
 }
@@ -594,6 +591,7 @@ private fun DistanceCalculatorPreviewContent(
     state: DistanceCalculatorScreenState
 ) {
     AWTimesheetTheme(dynamicColor = false) {
+        val scrollState = rememberScrollState()
         Scaffold(
             topBar = {
                 AwtCenterAlignedTopAppBar(
@@ -611,7 +609,8 @@ private fun DistanceCalculatorPreviewContent(
         ) { padding ->
             DistanceCalculatorScreenContent(
                 state = state,
-                padding = padding
+                padding = padding,
+                scrollState = scrollState
             )
         }
     }

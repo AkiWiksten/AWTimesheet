@@ -24,6 +24,7 @@ data class DistanceCalculatorScreenState(
     val onSelectStartPoint: () -> Unit,
     val onSelectDestinationPoint: () -> Unit,
     val onAddToList: (String) -> Unit,
+    val onClear: () -> Unit,
     val onReturnDistance: () -> Unit,
     val onDeleteSelectedRoute: () -> Unit,
     val onNavigateBack: () -> Unit

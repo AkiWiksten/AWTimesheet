@@ -110,6 +110,8 @@ Summarize benchmark output:
   + "Show flextime total" in workday screen as "00:00" or Undefined, when it is set as such with a Switch
 + AbsenceScreen
   + Use CustomCalendar to show dates with work
++ DistanceCalculatorScreen
+  + Confirm Clear History
 + Excel
   + Show start date in a month first, e.g. 15th.
   + Handle by selecting start date 

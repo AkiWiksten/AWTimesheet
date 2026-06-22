@@ -36,6 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,6 +54,7 @@ import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
+import com.akiwiksten.awtimesheet.core.ui.MyAlertDialog
 import com.akiwiksten.awtimesheet.domain.model.RouteState
 import com.android.tools.screenshot.PreviewTest
 import kotlin.math.roundToInt
@@ -137,6 +141,13 @@ fun DistanceCalculatorScreen(
             }
             onConfirmDistance(distanceToSave)
         },
+        onClear = {
+            viewModel.clearSelectedRoute()
+            cardState.value = reduceLocationCardState(
+                current = cardState.value,
+                event = LocationCardEvent.RouteCleared
+            )
+        },
         onReturnDistance = {
             val distanceToReturn = selectedRoute?.distance?.let { distance ->
                 if (distance.contains("*2")) {
@@ -193,10 +204,28 @@ private fun DistanceCalculatorScreenContent(
     state: DistanceCalculatorScreenState,
     padding: PaddingValues,
 ) {
+    var showClearHistoryDialog by remember { mutableStateOf(false) }
+
+    if (showClearHistoryDialog) {
+        MyAlertDialog(
+            onDismissRequest = { showClearHistoryDialog = false },
+            onConfirmation = {
+                state.onClearRouteHistory()
+                showClearHistoryDialog = false
+            },
+            titleAndText = Pair(
+                stringResource(R.string.clear_history_dialog_title),
+                stringResource(R.string.clear_history_dialog_message)
+            ),
+            icon = Icons.Default.Delete
+        )
+    }
+
     val baseDistance = state.distanceKm ?: 0.0
     val effectiveDistance = if (state.isRoundTrip) baseDistance * 2 else baseDistance
     val distanceText =
         if (state.distanceKm != null) "${effectiveDistance.roundToInt()} km" else stringResource(R.string.not_available)
+    val roundedDistance = effectiveDistance.roundToInt()
 
     Column(
         modifier = Modifier
@@ -207,57 +236,78 @@ private fun DistanceCalculatorScreenContent(
     ) {
         DistanceCalculatorInputCard(state = state, distanceText = distanceText)
 
-        if (state.routeHistory.isNotEmpty()) {
-            val canDeleteSelectedRoute = state.selectedRoute?.let { selected ->
-                state.routeHistory.any { routeItem ->
-                    ((routeItem.start == selected.start) && (routeItem.destination == selected.destination))
-                }
-            } == true
+        val canDeleteSelectedRoute = state.selectedRoute?.let { selected ->
+            state.routeHistory.any { routeItem ->
+                ((routeItem.start == selected.start) && (routeItem.destination == selected.destination))
+            }
+        } == true
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = PADDING_SPACING_SMALL),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = PADDING_SPACING_SMALL),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AwtButton(
+                onClick = state.onReturnDistance,
+                enabled = state.selectedRoute != null,
             ) {
-                AwtButton(
-                    onClick = state.onReturnDistance,
-                    enabled = state.selectedRoute != null,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Text(text = stringResource(R.string.return_distance))
-                    }
-                }
-                IconButton(
-                    onClick = state.onDeleteSelectedRoute,
-                    enabled = canDeleteSelectedRoute,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    )
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.delete)
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null
                     )
-                }
-                AwtButton(onClick = state.onClearRouteHistory) {
-                    Text(text = stringResource(R.string.clear_route_history))
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(text = stringResource(R.string.return_distance))
                 }
             }
+            IconButton(
+                onClick = state.onDeleteSelectedRoute,
+                enabled = canDeleteSelectedRoute,
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete)
+                )
+            }
+            AwtButton(
+                onClick = { state.onAddToList(roundedDistance.toString()) },
+                enabled = roundedDistance > 0,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.add_to_list))
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.ArrowDownward,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
 
+        if (state.routeHistory.isNotEmpty()) {
             CalculatedRouteList(
                 items = state.routeHistory,
                 selectedRoute = state.selectedRoute,
                 onRouteSelected = state.onRouteSelected,
-                modifier = Modifier.padding(top = PADDING_SPACING_SMALL)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = PADDING_SPACING_SMALL)
             )
+
+            AwtButton(
+                onClick = { showClearHistoryDialog = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = PADDING_SPACING_SMALL)
+            ) {
+                Text(text = stringResource(R.string.clear_route_history))
+            }
         } else {
             EmptyHistoryCard(
                 modifier = Modifier
@@ -321,8 +371,6 @@ private fun DistanceCalculatorInputCard(
                 onTripTypeChange = state.onTripTypeChange
             )
 
-            val baseDistance = state.distanceKm ?: 0.0
-            val roundedDistance = if (state.isRoundTrip) (baseDistance * 2).roundToInt() else baseDistance.roundToInt()
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -332,18 +380,8 @@ private fun DistanceCalculatorInputCard(
                     Text(stringResource(R.string.distance), fontWeight = FontWeight.SemiBold)
                     Text(distanceText)
                 }
-                AwtButton(
-                    onClick = { state.onAddToList(roundedDistance.toString()) },
-                    enabled = roundedDistance > 0,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.add_to_list))
-                        Spacer(modifier = Modifier.size(4.dp))
-                        Icon(
-                            imageVector = Icons.Default.ArrowDownward,
-                            contentDescription = null
-                        )
-                    }
+                AwtButton(onClick = state.onClear) {
+                    Text(stringResource(R.string.clear))
                 }
             }
         }
@@ -516,6 +554,7 @@ fun PreviewDistanceCalculatorEmpty() {
             onSelectDestinationPoint = {},
             onTripTypeChange = {},
             onAddToList = {},
+            onClear = {},
             onReturnDistance = {},
             onDeleteSelectedRoute = {},
             onNavigateBack = {}
@@ -541,6 +580,7 @@ fun PreviewDistanceCalculatorWithHistory() {
             onSelectDestinationPoint = {},
             onTripTypeChange = {},
             onAddToList = {},
+            onClear = {},
             onReturnDistance = {},
             onDeleteSelectedRoute = {},
             onNavigateBack = {}

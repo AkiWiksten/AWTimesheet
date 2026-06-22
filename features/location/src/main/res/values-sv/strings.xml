@@ -3,6 +3,8 @@
     <string name="back">Tillbaka</string>
     <string name="add_to_list">Lägg till i lista</string>
     <string name="clear_route_history">Rensa rutthistorik</string>
+    <string name="clear_history_dialog_title">Rensa historik?</string>
+    <string name="clear_history_dialog_message">Är du säker på att du vill rensa alla historikposter? Denna åtgärd kan inte ångras.</string>
     <string name="no_history_items">Inga historikposter</string>
     <string name="distance">Avstånd</string>
     <string name="distance_calculation_title">Distansberäkning</string>
@@ -18,6 +20,7 @@
     <string name="start">Start</string>
     <string name="use_current_location">Använd min nuvarande plats</string>
     <string name="confirm">Bekräfta</string>
+    <string name="clear">Rensa</string>
     <string name="return_distance">Returnera avstånd</string>
     <string name="delete">Radera</string>
     <string name="one_way">Enkel resa</string>

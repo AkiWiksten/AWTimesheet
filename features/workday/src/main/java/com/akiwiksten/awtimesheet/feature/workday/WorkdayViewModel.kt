@@ -7,6 +7,7 @@ import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.WorkTimeCalculator
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
+import com.akiwiksten.awtimesheet.domain.model.isProjectNameOnlyPlaceholder
 import com.akiwiksten.awtimesheet.domain.repository.DateRepository
 import com.akiwiksten.awtimesheet.domain.repository.SettingsRepository
 import com.akiwiksten.awtimesheet.domain.usecase.DeleteProjectUseCase
@@ -57,7 +58,10 @@ class WorkdayViewModel @Inject constructor(
                 }
 
             val allProjects = (data.projects + unrecordedProjects)
-                .sortedBy { it.projectName }
+                .sortedWith(
+                    compareBy<SingleProjectState> { it.isProjectNameOnlyPlaceholder() }
+                        .thenBy { it.projectName }
+                )
                 .mapIndexed { listIndex, project -> project.copy(listIndex = listIndex) }
 
             val workTypes = settingsRepository.getWorkTypes()

@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.core.DEFAULT_ELEVATION
 import com.akiwiksten.awtimesheet.core.FIELD_CORNER_RADIUS
@@ -52,6 +53,7 @@ import com.akiwiksten.awtimesheet.core.PADDING_SPACING_SMALL
 import com.akiwiksten.awtimesheet.core.theme.AWTimesheetTheme
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
+import com.akiwiksten.awtimesheet.core.ui.Header
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.MyAlertDialog
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
@@ -299,6 +301,10 @@ private fun DistanceCalculatorScreenContent(
         }
 
         if (state.routeHistory.isNotEmpty()) {
+            Header(
+                title = stringResource(id = R.string.route_history),
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp)
+            )
             CalculatedRouteList(
                 items = state.routeHistory,
                 selectedRoute = state.selectedRoute,

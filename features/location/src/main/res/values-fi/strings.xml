@@ -2,6 +2,7 @@
 <resources>
     <string name="back">Takaisin</string>
     <string name="add_to_list">Lisää listaan</string>
+    <string name="route_history">Reittihistoria</string>
     <string name="clear_route_history">Tyhjennä reittihistoria</string>
     <string name="clear_history_dialog_title">Tyhjennä historia?</string>
     <string name="clear_history_dialog_message">Haluatko varmasti poistaa kaikki historiamerkinnät? Tätä toimintoa ei voi peruuttaa.</string>

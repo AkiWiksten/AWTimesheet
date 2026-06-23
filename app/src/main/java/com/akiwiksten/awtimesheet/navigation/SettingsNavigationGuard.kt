@@ -185,8 +185,11 @@ private fun appEntryProvider(
     entry<Screen.SingleProject> { screen ->
         SingleProjectEntry(screen = screen, backStack = backStack)
     }
-    entry<Screen.Location> { screen ->
-        LocationEntry(screen = screen, backStack = backStack)
+    entry<Screen.DistanceCalculator> { screen ->
+        DistanceCalculatorEntry(
+            screen = screen,
+            backStack = backStack
+        )
     }
     entry<Screen.LocationPicker> { screen ->
         LocationPickerEntry(screen = screen, backStack = backStack)
@@ -206,7 +209,8 @@ private fun WorkdayNavEntry(backStack: SnapshotStateList<Any>) {
                 element = Screen.SingleProject(
                     listIndex = project.listIndex,
                     projectName = project.projectName,
-                    originalProjectName = if (project.isAddMode) "" else project.projectName
+                    originalProjectName = if (project.isAddMode) "" else project.projectName,
+                    isAddMode = project.isAddMode
                 )
             )
         }

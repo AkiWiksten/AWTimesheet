@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -92,8 +93,7 @@ private fun LocationPickerMainContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .padding(PADDING_SPACING)
-            .padding(bottom = LocalContentBottomPadding.current),
+            .padding(PADDING_SPACING),
         verticalArrangement = Arrangement.spacedBy(PADDING_SPACING)
     ) {
         LocationPickerSearchField(
@@ -132,6 +132,7 @@ private fun LocationPickerMainContent(
                 modifier = Modifier.fillMaxSize()
             )
         }
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
     }
 }
 

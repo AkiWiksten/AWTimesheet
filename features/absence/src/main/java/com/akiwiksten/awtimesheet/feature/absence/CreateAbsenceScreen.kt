@@ -3,6 +3,7 @@ package com.akiwiksten.awtimesheet.feature.absence
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
@@ -126,8 +127,7 @@ private fun CreateAbsenceScreenStateful(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = PADDING_SPACING)
-            .padding(bottom = LocalContentBottomPadding.current),
+            .padding(all = PADDING_SPACING),
     )
 }
 
@@ -218,6 +218,7 @@ private fun CreateAbsenceContent(
                     Text(text = stringResource(id = com.akiwiksten.awtimesheet.core.R.string.save))
                 }
             }
+            Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
         }
     }
 }

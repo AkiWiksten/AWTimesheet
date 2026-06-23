@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -53,8 +54,7 @@ fun AbsenceScreen(
         ),
         modifier = Modifier
             .fillMaxSize()
-            .padding(all = PADDING_SPACING)
-            .padding(bottom = LocalContentBottomPadding.current),
+            .padding(all = PADDING_SPACING),
     )
 }
 
@@ -92,8 +92,10 @@ private fun AbsenceContent(
         )
         SavedAbsencesList(
             uiState = uiState,
-            actions = actions
+            actions = actions,
+            modifier = Modifier.weight(1f)
         )
+        Spacer(modifier = Modifier.padding(bottom = LocalContentBottomPadding.current))
     }
 }
 

@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import com.akiwiksten.awtimesheet.core.AbsenceFlexDayMatcher
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.WorkTimeDisplayCalculator
-import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.ui.AwtButton
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
 import com.akiwiksten.awtimesheet.core.ui.Header
@@ -100,12 +99,7 @@ internal fun WorkdaySuccessContent(
     )
     val displayState = rememberWorkdayDisplayState(state = state, estimateUiState = estimateUiState)
     val listItems = remember(state.projects, config) {
-        state.projects
-            .sortedWith(
-                compareBy<SingleProjectState> { it.projectTime == ZERO_TIME }
-                    .thenBy { it.projectName }
-            )
-            .map { it.toListItemUiModel(config = config) }
+        state.projects.map { it.toListItemUiModel(config = config) }
     }
     val selectedItemKey = remember(state.projects, selectedItemIndex) {
         state.projects.firstOrNull { it.listIndex == selectedItemIndex }?.stableListItemKey()

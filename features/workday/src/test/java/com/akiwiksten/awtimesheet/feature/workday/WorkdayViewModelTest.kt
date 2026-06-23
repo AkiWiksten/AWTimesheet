@@ -83,7 +83,7 @@ class WorkdayViewModelTest {
         Assert.assertEquals("-05:00", state.flexTimeByDate)
         Assert.assertEquals("+01:45", state.initialFlexTimeTotal)
         Assert.assertEquals("-03:15", state.flexTimeTotal)
-        Assert.assertEquals(listOf("Alpha", "Beta"), state.projects.map { it.projectName })
+        Assert.assertEquals(listOf("Beta", "Alpha"), state.projects.map { it.projectName })
         Assert.assertEquals(ZERO_TIME, dateRepository.workTimeByDateChange.value)
     }
 

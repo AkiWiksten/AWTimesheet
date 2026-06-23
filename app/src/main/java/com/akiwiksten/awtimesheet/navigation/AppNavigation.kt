@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,10 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreen
-import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorViewModel
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerScreen
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen
@@ -46,7 +42,7 @@ fun AWTimesheetApp() {
     val backStack = rememberSaveable(saver = BackStackSaver) { mutableStateListOf<Any>(Screen.Intro) }
     val settingsNavigationGuard = rememberSettingsNavigationGuard()
     val isIntroRoute = backStack.lastOrNull() is Screen.Intro
-    val portraitWidth = rememberPortraitWidthDp()
+    val portraitWidth = currentPortraitWidthDp()
 
     if (isIntroRoute) {
         WorkTimeNavDisplay(
@@ -64,7 +60,7 @@ fun AWTimesheetApp() {
 }
 
 @Composable
-private fun rememberPortraitWidthDp(): Dp {
+private fun currentPortraitWidthDp(): Dp {
     val windowInfo = LocalWindowInfo.current
     val density = LocalDensity.current
     return with(density) {
@@ -92,36 +88,31 @@ internal fun PortraitWidthContainer(
 }
 
 @Composable
-internal fun LocationEntry(
-    screen: Screen.Location,
+internal fun DistanceCalculatorEntry(
+    screen: Screen.DistanceCalculator,
     backStack: SnapshotStateList<Any>,
-    viewModel: DistanceCalculatorViewModel = hiltViewModel(),
 ) {
-    val routeHistory by viewModel.routeHistory.collectAsState()
-    val selectedRoute by viewModel.selectedRoute.collectAsState()
-
-    val cardState = rememberLocationCardState(
-        screen = screen,
-        selectedRoute = selectedRoute,
-    )
-    val cardUiState = cardState.value.toDistanceCalculatorCardUiState()
-
     DistanceCalculatorScreen(
-        state = createDistanceCalculatorScreenState(
-            backStack = backStack,
-            viewModel = viewModel,
-            params = DistanceCalculatorUiParams(
-                routeHistory = routeHistory,
-                selectedRoute = selectedRoute,
-                cardUiState = cardUiState,
-            ),
-            onTripTypeChange = { isRoundTrip ->
-                cardState.value = reduceLocationCardState(
-                    current = cardState.value,
-                    event = LocationCardEvent.TripTypeChanged(isRoundTrip = isRoundTrip)
-                )
-            }
-        )
+        initialStartPoint = screen.startPoint?.toFeatureLocationPoint(),
+        initialDestinationPoint = screen.destinationPoint?.toFeatureLocationPoint(),
+        onSelectStartPoint = { start, destination ->
+            navigateToLocationPicker(
+                backStack = backStack,
+                startPoint = start,
+                destinationPoint = destination,
+                target = Screen.LocationTarget.START,
+            )
+        },
+        onSelectDestinationPoint = { start, destination ->
+            navigateToLocationPicker(
+                backStack = backStack,
+                startPoint = start,
+                destinationPoint = destination,
+                target = Screen.LocationTarget.DESTINATION,
+            )
+        },
+        onConfirmDistance = { backStack.confirmLocationDistance(it) },
+        onNavigateBack = { backStack.pop() }
     )
 }
 
@@ -193,7 +184,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             projectName = screen.projectName ?: "",
             originalProjectName = screen.originalProjectName ?: "",
             projectTime = screen.projectTime ?: "",
-            isAddMode = screen.listIndex == -1,
+            isAddMode = screen.isAddMode,
             listIndex = screen.listIndex,
             kilometres = screen.kilometres,
             allowance = screen.allowance,
@@ -237,7 +228,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             },
             onNavigateToLocationPicker = { singleProject ->
                 backStack.updateSingleProjectState(singleProject)
-                backStack.add(element = Screen.Location())
+                backStack.add(element = Screen.DistanceCalculator())
             }
         )
     )

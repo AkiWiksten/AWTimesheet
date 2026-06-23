@@ -87,7 +87,7 @@ sealed interface Screen : Parcelable {
     }
 
     @Parcelize
-    data class Location(
+    data class DistanceCalculator(
         val startPoint: LocationPoint? = null,
         val destinationPoint: LocationPoint? = null,
         val routeHistory: List<RouteHistoryItem> = emptyList()

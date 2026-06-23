@@ -2,7 +2,10 @@
 <resources>
     <string name="back">Takaisin</string>
     <string name="add_to_list">Lisää listaan</string>
+    <string name="route_history">Reittihistoria</string>
     <string name="clear_route_history">Tyhjennä reittihistoria</string>
+    <string name="clear_history_dialog_title">Tyhjennä reittihistoria?</string>
+    <string name="clear_history_dialog_message">Haluatko varmasti poistaa kaikki historiamerkinnät? Tätä toimintoa ei voi peruuttaa.</string>
     <string name="no_history_items">Ei historiamerkintöjä</string>
     <string name="distance">Etäisyys</string>
     <string name="distance_calculation_title">Etäisyyslaskenta</string>
@@ -18,7 +21,9 @@
     <string name="start">Lähtö</string>
     <string name="use_current_location">Käytä nykyistä sijaintiani</string>
     <string name="confirm">Vahvista</string>
+    <string name="clear">Tyhjennä</string>
     <string name="return_distance">Palauta etäisyys</string>
+    <string name="return_distance_with_count">Etäisyys %1$d km\n(%2$d reittiä)</string>
     <string name="delete">Poista</string>
     <string name="one_way">Yhdensuuntainen</string>
     <string name="round_trip">Meno-paluu</string>

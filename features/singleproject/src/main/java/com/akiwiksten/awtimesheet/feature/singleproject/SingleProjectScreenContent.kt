@@ -165,7 +165,8 @@ private fun SingleProjectLoadingContent(
         uiState = cachedSuccessState ?: SingleProjectUiState.Success(
             data = (screenState.uiState as? SingleProjectUiState.Success)?.data ?: screenState.state,
             workTimeByDate = ZERO_TIME,
-            workTypes = (screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList()
+            workTypes = (screenState.uiState as? SingleProjectUiState.Success)?.workTypes ?: emptyList(),
+            projectDetailsBaseline = null
         ),
         hasUnsavedChanges = hasUnsavedChanges
     )

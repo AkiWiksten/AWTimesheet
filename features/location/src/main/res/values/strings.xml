@@ -2,7 +2,10 @@
 <resources>
     <string name="back">Back</string>
     <string name="add_to_list">Add to list</string>
-    <string name="clear_route_history">Clear history</string>
+    <string name="route_history">Route history</string>
+    <string name="clear_route_history">Clear route history</string>
+    <string name="clear_history_dialog_title">Clear route history?</string>
+    <string name="clear_history_dialog_message">Are you sure you want to clear all history items? This action cannot be undone.</string>
     <string name="no_history_items">No history items</string>
     <string name="distance">Distance</string>
     <string name="distance_calculation_title">Distance calculation</string>
@@ -18,7 +21,9 @@
     <string name="start">Start</string>
     <string name="use_current_location">Use my current location</string>
     <string name="confirm">Confirm</string>
+    <string name="clear">Clear</string>
     <string name="return_distance">Return distance</string>
+    <string name="return_distance_with_count">Distance %1$d km\nof %2$d route(s)</string>
     <string name="delete">Delete</string>
     <string name="one_way">One-way</string>
     <string name="round_trip">Round-trip</string>

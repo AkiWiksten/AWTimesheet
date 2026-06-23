@@ -186,7 +186,7 @@ internal fun SingleProjectEntry(screen: Screen.SingleProject, backStack: Snapsho
             projectName = screen.projectName ?: "",
             originalProjectName = screen.originalProjectName ?: "",
             projectTime = screen.projectTime ?: "",
-            isAddMode = screen.listIndex == -1,
+            isAddMode = screen.isAddMode,
             listIndex = screen.listIndex,
             kilometres = screen.kilometres,
             allowance = screen.allowance,

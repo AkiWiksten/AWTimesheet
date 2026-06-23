@@ -202,8 +202,19 @@ private fun rememberSingleProjectDerivedState(
     baseline: SingleProjectState,
     singleProjectUiState: SingleProjectUiState
 ): SingleProjectDerivedState {
-    val hasUnsavedChanges by remember(state, baseline) {
-        derivedStateOf { hasChanges(current = state, baseline = baseline) }
+    val hasUnsavedChanges by remember(state, baseline, singleProjectUiState) {
+        derivedStateOf {
+            val projectFieldsChanged = hasChanges(current = state, baseline = baseline)
+            val projectDetailsChanged = if (singleProjectUiState is SingleProjectUiState.Success) {
+                hasChanges(
+                    current = singleProjectUiState.projectDetails,
+                    baseline = singleProjectUiState.projectDetailsBaseline
+                )
+            } else {
+                false
+            }
+            projectFieldsChanged || projectDetailsChanged
+        }
     }
     val isDuplicate by remember(state.projectName, singleProjectUiState) {
         derivedStateOf {
@@ -225,9 +236,7 @@ private fun rememberSingleProjectDerivedState(
             isSingleProjectConfirmEnabled(
                 state = state,
                 hasUnsavedChanges = hasUnsavedChanges,
-                isDuplicateProjectName = isDuplicate,
-                isAddMode = baseline.isAddMode,
-                hasProjectDetails = (singleProjectUiState as? SingleProjectUiState.Success)?.projectDetails != null
+                isDuplicateProjectName = isDuplicate
             )
         }
     }

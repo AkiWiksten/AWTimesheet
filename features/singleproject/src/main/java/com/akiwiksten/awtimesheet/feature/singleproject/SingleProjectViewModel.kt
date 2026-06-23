@@ -32,6 +32,7 @@ sealed class SingleProjectUiState {
         val settings: SettingsState? = null,
         val data: SingleProjectState,
         val projectDetails: ProjectDetailsState? = null,
+        val projectDetailsBaseline: ProjectDetailsState? = null,
         val otherProjectNames: List<String> = emptyList(),
         val baseline: SingleProjectState? = null
     ) : SingleProjectUiState()
@@ -69,17 +70,23 @@ class SingleProjectViewModel @Inject constructor(
             val workTypes = settingsRepository.getWorkTypes()
             val settings = settingsRepository.getSettings()
             val workTimeByDate = projectRepository.getWorkTimeByDate(effectiveDate)
-            val projectDetails = args.projectDetails ?: projectDetailsRepository.getProjectDetails(
+            val dbProjectDetails = projectDetailsRepository.getProjectDetails(
                 date = effectiveDate,
                 projectName = selectedProjectName.value
             )
+            val projectDetails = args.projectDetails ?: dbProjectDetails
             val project = projectRepository.getProject(effectiveDate, selectedProjectName.value)
             val otherProjectNames = projectRepository.getProjectNames()
                 .filter { !it.equals(selectedProjectName.value, ignoreCase = true) }
 
             val dbProjectState = project?.let {
                 mapToSingleProjectState(it, args.listIndex)
-            } ?: SingleProjectState(isAddMode = true, date = effectiveDate, listIndex = args.listIndex)
+            } ?: SingleProjectState(
+                isAddMode = true,
+                date = effectiveDate,
+                listIndex = args.listIndex,
+                projectName = args.projectName
+            )
 
             _uiState.update { currentState ->
                 val currentSuccess = currentState as? SingleProjectUiState.Success
@@ -89,6 +96,7 @@ class SingleProjectViewModel @Inject constructor(
                     workTypes = workTypes,
                     settings = settings,
                     projectDetails = projectDetails,
+                    projectDetailsBaseline = dbProjectDetails,
                     otherProjectNames = otherProjectNames,
                     baseline = currentSuccess?.baseline ?: dbProjectState,
                     data = resolveInitialProjectState(args, project, effectiveDate, currentData)

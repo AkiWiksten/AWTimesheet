@@ -23,6 +23,7 @@
     <string name="confirm">Confirm</string>
     <string name="clear">Clear</string>
     <string name="return_distance">Return distance</string>
+    <string name="return_distance_with_count">Return distance\nof %1$d route(s)</string>
     <string name="delete">Delete</string>
     <string name="one_way">One-way</string>
     <string name="round_trip">Round-trip</string>

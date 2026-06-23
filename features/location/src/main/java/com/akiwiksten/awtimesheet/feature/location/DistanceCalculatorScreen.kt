@@ -258,7 +258,15 @@ private fun DistanceCalculatorScreenContent(
                         contentDescription = null
                     )
                     Spacer(modifier = Modifier.size(4.dp))
-                    Text(text = stringResource(R.string.return_distance))
+                    val buttonText = if (state.selectedRoutes.isEmpty()) {
+                        stringResource(R.string.return_distance)
+                    } else {
+                        stringResource(
+                            R.string.return_distance_with_count,
+                            state.selectedRoutes.size
+                        )
+                    }
+                    Text(text = buttonText)
                 }
             }
             IconButton(

@@ -23,7 +23,7 @@
     <string name="confirm">Vahvista</string>
     <string name="clear">Tyhjennä</string>
     <string name="return_distance">Palauta etäisyys</string>
-    <string name="return_distance_with_count">Palauta %1$d:n\nreitin etäisyys</string>
+    <string name="return_distance_with_count">Etäisyys %1$d km\n(%2$d reittiä)</string>
     <string name="delete">Poista</string>
     <string name="one_way">Yhdensuuntainen</string>
     <string name="round_trip">Meno-paluu</string>

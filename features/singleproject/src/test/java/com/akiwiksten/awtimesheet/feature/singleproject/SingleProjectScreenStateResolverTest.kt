@@ -17,8 +17,7 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = editedState,
             hasUnsavedChanges = true,
-            isDuplicateProjectName = false,
-            isAddMode = true
+            isDuplicateProjectName = false
         )
 
         Assert.assertEquals(true, isEnabled)
@@ -36,8 +35,7 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = initialState,
             hasUnsavedChanges = false,
-            isDuplicateProjectName = false,
-            isAddMode = false
+            isDuplicateProjectName = false
         )
 
         Assert.assertEquals(true, isEnabled)
@@ -51,8 +49,7 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = editedState,
             hasUnsavedChanges = true,
-            isDuplicateProjectName = false,
-            isAddMode = false
+            isDuplicateProjectName = false
         )
 
         Assert.assertEquals(true, isEnabled)
@@ -65,8 +62,7 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = state,
             hasUnsavedChanges = true,
-            isDuplicateProjectName = true,
-            isAddMode = true
+            isDuplicateProjectName = true
         )
 
         Assert.assertEquals(false, isEnabled)
@@ -177,41 +173,35 @@ class SingleProjectScreenStateResolverTest {
         val isEnabled = isSingleProjectConfirmEnabled(
             state = state,
             hasUnsavedChanges = true,
-            isDuplicateProjectName = false,
-            isAddMode = false,
-            hasProjectDetails = true
+            isDuplicateProjectName = false
         )
 
         Assert.assertEquals(true, isEnabled)
     }
 
     @Test
-    fun editMode_withZeroProjectTime_withoutProjectDetails_disablesConfirm() {
+    fun editMode_withZeroProjectTime_withoutProjectDetails_enablesConfirm() {
         val state = projectState(listIndex = 0, projectName = "Alpha", projectTime = "00:00")
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = state,
             hasUnsavedChanges = true,
-            isDuplicateProjectName = false,
-            isAddMode = false,
-            hasProjectDetails = false
+            isDuplicateProjectName = false
         )
 
-        Assert.assertEquals(false, isEnabled)
+        Assert.assertEquals(true, isEnabled)
     }
 
     @Test
-    fun addMode_withZeroProjectTime_withoutProjectDetails_disablesConfirm() {
+    fun addMode_withZeroProjectTime_withoutProjectDetails_enablesConfirm() {
         val state = projectState(listIndex = -1, projectName = "Alpha", projectTime = "00:00")
 
         val isEnabled = isSingleProjectConfirmEnabled(
             state = state,
             hasUnsavedChanges = true,
-            isDuplicateProjectName = false,
-            isAddMode = true,
-            hasProjectDetails = false
+            isDuplicateProjectName = false
         )
 
-        Assert.assertEquals(false, isEnabled)
+        Assert.assertEquals(true, isEnabled)
     }
 }

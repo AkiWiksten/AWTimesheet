@@ -15,10 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorScreen
-import com.akiwiksten.awtimesheet.feature.location.DistanceCalculatorViewModel
 import com.akiwiksten.awtimesheet.feature.location.LocationPickerScreen
 import com.akiwiksten.awtimesheet.feature.projectdetails.ProjectDetailsScreen
 import com.akiwiksten.awtimesheet.feature.singleproject.SingleProjectScreen

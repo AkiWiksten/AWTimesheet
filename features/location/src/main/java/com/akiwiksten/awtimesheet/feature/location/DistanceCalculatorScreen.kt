@@ -228,6 +228,17 @@ private fun DistanceCalculatorScreenContent(
         if (state.distanceKm != null) "${effectiveDistance.roundToInt()} km" else stringResource(R.string.not_available)
     val roundedDistance = effectiveDistance.roundToInt()
 
+    val totalSelectedDistance = remember(state.selectedRoutes) {
+        state.selectedRoutes.sumOf { route ->
+            if (route.distance.contains("*2")) {
+                val numericPart = route.distance.substringBefore(" *2").removeSuffix(" km")
+                (numericPart.toDoubleOrNull() ?: 0.0) * 2
+            } else {
+                route.distance.removeSuffix(" km").toDoubleOrNull() ?: 0.0
+            }
+        }.roundToInt()
+    }
+
     ScrollableScreenColumn(
         state = ScrollableScreenColumnState(
             scrollState = scrollState,
@@ -263,6 +274,7 @@ private fun DistanceCalculatorScreenContent(
                     } else {
                         stringResource(
                             R.string.return_distance_with_count,
+                            totalSelectedDistance,
                             state.selectedRoutes.size
                         )
                     }

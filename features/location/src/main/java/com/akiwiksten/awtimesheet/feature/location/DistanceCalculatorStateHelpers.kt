@@ -159,7 +159,7 @@ private fun RouteState.toLocationPoint(isStart: Boolean): DistanceCalculatorLoca
     val latitude = if (isStart) startLatitude else destinationLatitude
     val longitude = if (isStart) startLongitude else destinationLongitude
     val address = if (isStart) start else destination
-    
+
     return if (latitude != null && longitude != null) {
         DistanceCalculatorLocationPoint(
             latitude = latitude,

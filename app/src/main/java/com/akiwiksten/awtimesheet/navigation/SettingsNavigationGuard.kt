@@ -20,12 +20,6 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.akiwiksten.awtimesheet.core.ui.LocalContentBottomPadding
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
-import com.akiwiksten.awtimesheet.feature.absence.AbsenceScreen
-import com.akiwiksten.awtimesheet.feature.absence.CreateAbsenceScreen
-import com.akiwiksten.awtimesheet.feature.calendar.CalendarScreen
-import com.akiwiksten.awtimesheet.feature.intro.IntroScreen
-import com.akiwiksten.awtimesheet.feature.settings.SettingsScreen
-import com.akiwiksten.awtimesheet.feature.workday.WorkdayScreen
 import com.akiwiksten.awtimesheet.core.R as CoreR
 
 internal data class SettingsNavigationGuard(
@@ -161,17 +155,13 @@ private fun appEntryProvider(
         IntroNavEntry(backStack = backStack)
     }
     entry<Screen.Calendar> {
-        CalendarScreen()
+        CalendarNavEntry()
     }
     entry<Screen.Absence> {
-        AbsenceScreen(
-            onNavigateToCreateAbsence = { backStack.add(element = Screen.CreateAbsence) }
-        )
+        AbsenceNavEntry(backStack = backStack)
     }
     entry<Screen.CreateAbsence> {
-        CreateAbsenceScreen(
-            onNavigateBack = { backStack.pop() }
-        )
+        CreateAbsenceNavEntry(backStack = backStack)
     }
     entry<Screen.Workday> {
         WorkdayNavEntry(backStack = backStack)
@@ -180,49 +170,17 @@ private fun appEntryProvider(
         SettingsNavEntry(settingsNavigationGuard = settingsNavigationGuard)
     }
     entry<Screen.ProjectDetails> { screen ->
-        ProjectDetailsEntry(screen = screen, backStack = backStack)
+        ProjectDetailsNavEntry(screen = screen, backStack = backStack)
     }
     entry<Screen.SingleProject> { screen ->
-        SingleProjectEntry(screen = screen, backStack = backStack)
+        SingleProjectNavEntry(screen = screen, backStack = backStack)
     }
     entry<Screen.DistanceCalculator> { screen ->
-        DistanceCalculatorEntry(
-            screen = screen,
-            backStack = backStack
-        )
+        DistanceCalculatorNavEntry(screen = screen, backStack = backStack)
     }
     entry<Screen.LocationPicker> { screen ->
-        LocationPickerEntry(screen = screen, backStack = backStack)
+        LocationPickerNavEntry(screen = screen, backStack = backStack)
     }
-}
-
-@Composable
-private fun IntroNavEntry(backStack: SnapshotStateList<Any>) {
-    IntroScreen(onItemClick = { backStack.add(element = Screen.Calendar) })
-}
-
-@Composable
-private fun WorkdayNavEntry(backStack: SnapshotStateList<Any>) {
-    WorkdayScreen(
-        onNavigateToSingleProject = { project ->
-            backStack.add(
-                element = Screen.SingleProject(
-                    listIndex = project.listIndex,
-                    projectName = project.projectName,
-                    originalProjectName = if (project.isAddMode) "" else project.projectName,
-                    isAddMode = project.isAddMode
-                )
-            )
-        }
-    )
-}
-
-@Composable
-private fun SettingsNavEntry(settingsNavigationGuard: SettingsNavigationGuard) {
-    SettingsScreen(
-        onUnsavedChangesChanged = settingsNavigationGuard.onUnsavedChangesChanged,
-        registerUnsavedActions = settingsNavigationGuard.registerUnsavedActions
-    )
 }
 
 internal fun createGuardedBackAction(

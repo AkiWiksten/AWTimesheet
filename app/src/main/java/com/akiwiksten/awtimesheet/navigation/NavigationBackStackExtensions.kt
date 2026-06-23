@@ -10,7 +10,7 @@ internal fun SnapshotStateList<Any>.pop() {
     }
 }
 
-internal fun SnapshotStateList<Any>.updateSingleProjectWorkTime(
+internal fun SnapshotStateList<Any>.updateSingleProjectFromDetails(
     details: Screen.ProjectDetails
 ) {
     pop()
@@ -84,9 +84,9 @@ internal fun SnapshotStateList<Any>.seedLocationPointsFromCard(
 
 internal fun SnapshotStateList<Any>.confirmLocationDistance(kilometres: String) {
     val index = (size - 1 downTo 0).firstOrNull { getOrNull(it) is Screen.DistanceCalculator } ?: return
-    val locationScreen = getOrNull(index) as? Screen.DistanceCalculator ?: return
+    val distanceCalculatorScreen = getOrNull(index) as? Screen.DistanceCalculator ?: return
 
-    this[index] = locationScreen.copy(
+    this[index] = distanceCalculatorScreen.copy(
         startPoint = null,
         destinationPoint = null,
     )

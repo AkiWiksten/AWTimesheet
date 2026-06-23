@@ -78,7 +78,7 @@ fun SingleProjectScreen(
         onNavigateBack = navigationActions.onNavigateBack,
         onOpenProjectDetails = openProjectDetails,
         onSaveAndNavigateBack = saveAndNavigateBackToWorkday,
-        onNavigateToLocationPicker = { navigationActions.onNavigateToLocationPicker(it) }
+        onNavigateToDistanceCalculator = { navigationActions.onNavigateToDistanceCalculator(it) }
     )
 
     SingleProjectUiStateContent(
@@ -92,7 +92,7 @@ private data class SingleProjectContentParams(
     val onNavigateBack: () -> Unit,
     val onOpenProjectDetails: (SingleProjectState, ProjectDetailsState?) -> Unit,
     val onSaveAndNavigateBack: (SingleProjectState, ProjectDetailsState?) -> Unit,
-    val onNavigateToLocationPicker: (SingleProjectState) -> Unit,
+    val onNavigateToDistanceCalculator: (SingleProjectState) -> Unit,
 )
 
 @Composable
@@ -153,7 +153,7 @@ private fun SingleProjectScreenStateful(
         },
         onOpenProjectDetails = { params.onOpenProjectDetails(state, uiState.projectDetails) },
         onSave = { params.onSaveAndNavigateBack(state, uiState.projectDetails) },
-        onNavigateToLocationPicker = { params.onNavigateToLocationPicker(state) }
+        onNavigateToLocationPicker = { params.onNavigateToDistanceCalculator(state) }
     )
 
     val onDiscardAndNavigateBack = {

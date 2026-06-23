@@ -17,7 +17,7 @@ data class DistanceCalculatorScreenState(
     val distanceKm: Double?,
     val isRoundTrip: Boolean = false,
     val routeHistory: List<RouteState> = emptyList(),
-    val selectedRoute: RouteState? = null,
+    val selectedRoutes: Set<RouteState> = emptySet(),
     val onTripTypeChange: (Boolean) -> Unit = {},
     val onClearRouteHistory: () -> Unit,
     val onRouteSelected: (RouteState) -> Unit,
@@ -26,6 +26,6 @@ data class DistanceCalculatorScreenState(
     val onAddToList: (String) -> Unit,
     val onClear: () -> Unit,
     val onReturnDistance: () -> Unit,
-    val onDeleteSelectedRoute: () -> Unit,
+    val onDeleteSelectedRoutes: () -> Unit,
     val onNavigateBack: () -> Unit
 )

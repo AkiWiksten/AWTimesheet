@@ -19,8 +19,8 @@ class DistanceCalculatorViewModel @Inject constructor(
 ) : ViewModel() {
     private val _routeHistory = MutableStateFlow<List<RouteState>>(emptyList())
     val routeHistory: StateFlow<List<RouteState>> = _routeHistory.asStateFlow()
-    private val _selectedRoute = MutableStateFlow<RouteState?>(null)
-    val selectedRoute: StateFlow<RouteState?> = _selectedRoute.asStateFlow()
+    private val _selectedRoutes = MutableStateFlow<Set<RouteState>>(emptySet())
+    val selectedRoutes: StateFlow<Set<RouteState>> = _selectedRoutes.asStateFlow()
 
     init {
         loadInitialRouteHistory()
@@ -47,17 +47,25 @@ class DistanceCalculatorViewModel @Inject constructor(
     fun clearRouteHistory() {
         viewModelScope.launch {
             routeRepository.clearAll()
-            _selectedRoute.value = null
+            _selectedRoutes.value = emptySet()
         }
     }
 
     fun selectRoute(route: RouteState) {
-        _selectedRoute.update { currentSelection ->
-            if (currentSelection?.start == route.start && currentSelection.destination == route.destination) {
-                null
+        _selectedRoutes.update { currentSelection ->
+            if (currentSelection.any { it.timestamp == route.timestamp }) {
+                currentSelection.filterNot { it.timestamp == route.timestamp }.toSet()
             } else {
-                route
+                currentSelection + route
             }
+        }
+    }
+
+    fun deleteSelectedRoutes() {
+        viewModelScope.launch {
+            val toDelete = _selectedRoutes.value
+            toDelete.forEach { routeRepository.delete(it) }
+            _selectedRoutes.value = emptySet()
         }
     }
 
@@ -67,8 +75,8 @@ class DistanceCalculatorViewModel @Inject constructor(
         }
     }
 
-    fun clearSelectedRoute() {
-        _selectedRoute.value = null
+    fun clearSelectedRoutes() {
+        _selectedRoutes.value = emptySet()
     }
 
     private fun loadInitialRouteHistory() {
@@ -86,10 +94,10 @@ class DistanceCalculatorViewModel @Inject constructor(
                 _routeHistory.update {
                     routes.sortedByDescending { route -> route.timestamp.toLongOrNull() ?: Long.MIN_VALUE }
                 }
-                _selectedRoute.update { currentSelection ->
-                    currentSelection?.let { selected ->
-                        routes.firstOrNull { it.start == selected.start && it.destination == selected.destination }
-                    }
+                _selectedRoutes.update { currentSelection ->
+                    currentSelection.mapNotNull { selected ->
+                        routes.firstOrNull { it.timestamp == selected.timestamp }
+                    }.toSet()
                 }
             }
         }

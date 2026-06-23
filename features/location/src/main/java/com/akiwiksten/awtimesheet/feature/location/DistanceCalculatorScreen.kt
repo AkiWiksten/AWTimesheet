@@ -74,12 +74,12 @@ fun DistanceCalculatorScreen(
     viewModel: DistanceCalculatorViewModel = hiltViewModel()
 ) {
     val routeHistory by viewModel.routeHistory.collectAsState()
-    val selectedRoute by viewModel.selectedRoute.collectAsState()
+    val selectedRoutes by viewModel.selectedRoutes.collectAsState()
 
     val cardState = rememberLocationCardState(
         initialStartPoint = initialStartPoint,
         initialDestinationPoint = initialDestinationPoint,
-        selectedRoute = selectedRoute,
+        selectedRoute = selectedRoutes.lastOrNull(),
     )
     val cardUiState = cardState.value.toDistanceCalculatorCardUiState()
 
@@ -89,7 +89,7 @@ fun DistanceCalculatorScreen(
         distanceKm = cardUiState.distanceKm,
         isRoundTrip = cardUiState.isRoundTrip,
         routeHistory = routeHistory,
-        selectedRoute = selectedRoute,
+        selectedRoutes = selectedRoutes,
         onTripTypeChange = { isRoundTrip ->
             cardState.value = reduceLocationCardState(
                 current = cardState.value,
@@ -104,10 +104,9 @@ fun DistanceCalculatorScreen(
             )
         },
         onRouteSelected = { route ->
-            val isDeselecting = selectedRoute?.start == route.start &&
-                selectedRoute?.destination == route.destination
+            val isAlreadySelected = selectedRoutes.any { it.timestamp == route.timestamp }
             viewModel.selectRoute(route)
-            if (isDeselecting) {
+            if (isAlreadySelected && selectedRoutes.size == 1) {
                 cardState.value = reduceLocationCardState(
                     current = cardState.value,
                     event = LocationCardEvent.RouteCleared
@@ -115,11 +114,11 @@ fun DistanceCalculatorScreen(
             }
         },
         onSelectStartPoint = {
-            viewModel.clearSelectedRoute()
+            viewModel.clearSelectedRoutes()
             onSelectStartPoint(cardUiState.startPoint, cardUiState.destinationPoint)
         },
         onSelectDestinationPoint = {
-            viewModel.clearSelectedRoute()
+            viewModel.clearSelectedRoutes()
             onSelectDestinationPoint(cardUiState.startPoint, cardUiState.destinationPoint)
         },
         onAddToList = { kilometres ->
@@ -145,36 +144,32 @@ fun DistanceCalculatorScreen(
             onConfirmDistance(distanceToSave)
         },
         onClear = {
-            viewModel.clearSelectedRoute()
+            viewModel.clearSelectedRoutes()
             cardState.value = reduceLocationCardState(
                 current = cardState.value,
                 event = LocationCardEvent.RouteCleared
             )
         },
         onReturnDistance = {
-            val distanceToReturn = selectedRoute?.distance?.let { distance ->
-                if (distance.contains("*2")) {
-                    val numericPart = distance.substringBefore(" *2").removeSuffix(" km")
-                    val doubled = (numericPart.toDoubleOrNull() ?: 0.0) * 2
-                    doubled.roundToInt().toString()
-                } else {
-                    distance.removeSuffix(" km")
+            if (selectedRoutes.isNotEmpty()) {
+                val totalDistance = selectedRoutes.sumOf { route ->
+                    if (route.distance.contains("*2")) {
+                        val numericPart = route.distance.substringBefore(" *2").removeSuffix(" km")
+                        (numericPart.toDoubleOrNull() ?: 0.0) * 2
+                    } else {
+                        route.distance.removeSuffix(" km").toDoubleOrNull() ?: 0.0
+                    }
                 }
-            }
-            if (distanceToReturn != null) {
-                onConfirmDistance(distanceToReturn)
+                onConfirmDistance(totalDistance.roundToInt().toString())
                 onNavigateBack()
             }
         },
-        onDeleteSelectedRoute = {
-            selectedRoute?.let { route ->
-                viewModel.deleteRoute(route)
-                viewModel.clearSelectedRoute()
-                cardState.value = reduceLocationCardState(
-                    current = cardState.value,
-                    event = LocationCardEvent.RouteCleared
-                )
-            }
+        onDeleteSelectedRoutes = {
+            viewModel.deleteSelectedRoutes()
+            cardState.value = reduceLocationCardState(
+                current = cardState.value,
+                event = LocationCardEvent.RouteCleared
+            )
         },
         onNavigateBack = onNavigateBack
     )
@@ -248,12 +243,6 @@ private fun DistanceCalculatorScreenContent(
     ) {
         DistanceCalculatorInputCard(state = state, distanceText = distanceText)
 
-        val canDeleteSelectedRoute = state.selectedRoute?.let { selected ->
-            state.routeHistory.any { routeItem ->
-                ((routeItem.start == selected.start) && (routeItem.destination == selected.destination))
-            }
-        } == true
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -261,7 +250,7 @@ private fun DistanceCalculatorScreenContent(
         ) {
             AwtButton(
                 onClick = state.onReturnDistance,
-                enabled = state.selectedRoute != null,
+                enabled = state.selectedRoutes.isNotEmpty(),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -273,8 +262,8 @@ private fun DistanceCalculatorScreenContent(
                 }
             }
             IconButton(
-                onClick = state.onDeleteSelectedRoute,
-                enabled = canDeleteSelectedRoute,
+                onClick = state.onDeleteSelectedRoutes,
+                enabled = state.selectedRoutes.isNotEmpty(),
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = MaterialTheme.colorScheme.error,
                     disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -307,7 +296,7 @@ private fun DistanceCalculatorScreenContent(
             )
             CalculatedRouteList(
                 items = state.routeHistory,
-                selectedRoute = state.selectedRoute,
+                selectedRoutes = state.selectedRoutes,
                 onRouteSelected = state.onRouteSelected,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -399,7 +388,7 @@ private fun DistanceCalculatorInputCard(
 @Composable
 private fun CalculatedRouteList(
     items: List<RouteState>,
-    selectedRoute: RouteState?,
+    selectedRoutes: Set<RouteState>,
     onRouteSelected: (RouteState) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -417,9 +406,7 @@ private fun CalculatedRouteList(
             items.forEach { routeItem ->
                 CalculatedRouteListItem(
                     item = routeItem,
-                    isSelected = selectedRoute?.let { selected ->
-                        ((selected.start == routeItem.start) && (selected.destination == routeItem.destination))
-                    } == true
+                    isSelected = selectedRoutes.any { it.timestamp == routeItem.timestamp }
                 ) {
                     onRouteSelected(routeItem)
                 }
@@ -559,7 +546,7 @@ fun PreviewDistanceCalculatorEmpty() {
             onAddToList = {},
             onClear = {},
             onReturnDistance = {},
-            onDeleteSelectedRoute = {},
+            onDeleteSelectedRoutes = {},
             onNavigateBack = {},
         )
     )
@@ -576,7 +563,7 @@ fun PreviewDistanceCalculatorWithHistory() {
             destinationAddress = selectedRoute.destination,
             distanceKm = 24.2,
             routeHistory = PreviewRouteHistory,
-            selectedRoute = selectedRoute,
+            selectedRoutes = setOf(selectedRoute),
             onClearRouteHistory = {},
             onRouteSelected = {},
             onSelectStartPoint = {},
@@ -585,7 +572,7 @@ fun PreviewDistanceCalculatorWithHistory() {
             onAddToList = {},
             onClear = {},
             onReturnDistance = {},
-            onDeleteSelectedRoute = {},
+            onDeleteSelectedRoutes = {},
             onNavigateBack = {}
         )
     )

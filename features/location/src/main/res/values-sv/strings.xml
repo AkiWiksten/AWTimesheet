@@ -4,7 +4,7 @@
     <string name="add_to_list">Lägg till i lista</string>
     <string name="route_history">Rutthistorik</string>
     <string name="clear_route_history">Rensa rutthistorik</string>
-    <string name="clear_history_dialog_title">Rensa historik?</string>
+    <string name="clear_history_dialog_title">Rensa rutthistorik?</string>
     <string name="clear_history_dialog_message">Är du säker på att du vill rensa alla historikposter? Denna åtgärd kan inte ångras.</string>
     <string name="no_history_items">Inga historikposter</string>
     <string name="distance">Avstånd</string>

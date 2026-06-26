@@ -47,7 +47,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.core.rememberDelayedLoadingVisibility
 
 private const val ANIMATION_DURATION = 3000
 private const val SCREEN_FILL_RATIO = 0.6f

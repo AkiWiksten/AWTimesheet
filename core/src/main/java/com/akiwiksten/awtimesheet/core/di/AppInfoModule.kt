@@ -20,7 +20,7 @@ object AppInfoModule {
     fun provideAppName(@ApplicationContext context: Context): String {
         val applicationInfo = context.applicationInfo
         return if (applicationInfo.labelRes == 0) {
-            applicationInfo.nonLocalizedLabel?.toString() ?: "WorkTime 3.0"
+            applicationInfo.nonLocalizedLabel?.toString() ?: "AWTimesheet"
         } else {
             context.getString(applicationInfo.labelRes)
         }

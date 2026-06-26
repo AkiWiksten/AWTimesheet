@@ -22,7 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
-import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.core.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.SingleProjectState
 import com.akiwiksten.awtimesheet.feature.workday.components.WorkdayErrorContent
 import com.akiwiksten.awtimesheet.feature.workday.components.WorkdayLoadingContent

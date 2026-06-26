@@ -30,7 +30,7 @@ import com.akiwiksten.awtimesheet.core.TIME_FORMAT
 import com.akiwiksten.awtimesheet.core.ZERO_TIME
 import com.akiwiksten.awtimesheet.core.hasChanges
 import com.akiwiksten.awtimesheet.core.ui.AwtCenterAlignedTopAppBar
-import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.core.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.model.ProjectDetailsState
 import com.akiwiksten.awtimesheet.domain.model.SettingsState
 import com.akiwiksten.awtimesheet.domain.model.isNewDayForProject

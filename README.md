@@ -90,7 +90,13 @@ Summarize benchmark output:
   + Dark theme
   + Check test coverage and add tests
   + Warnings on build
+  + Use lazy items in lists where possible
+  + project_details have foreign keys to project
+  + Use DataStore for settings
+  + Regularly use LeakCanary and the Memory Profiler during development
 + Repositories
++ IntroScreen
+  + Display animation more lightly
 + SingleProjectScreen
   + Kilometres validation. 0050 not valid.
   + Show work_type_help string

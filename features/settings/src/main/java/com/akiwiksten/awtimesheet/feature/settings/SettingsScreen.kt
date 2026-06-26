@@ -22,7 +22,7 @@ import com.akiwiksten.awtimesheet.core.DEFAULT_WORK_TYPES
 import com.akiwiksten.awtimesheet.core.PADDING_SPACING
 import com.akiwiksten.awtimesheet.core.ui.CenteredErrorBox
 import com.akiwiksten.awtimesheet.core.ui.CenteredLoadingBox
-import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.core.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.domain.usecase.GeneratedAllowanceLabels
 import com.akiwiksten.awtimesheet.domain.usecase.WorkdayGenerationScope
 import com.akiwiksten.awtimesheet.feature.settings.components.SettingsContent

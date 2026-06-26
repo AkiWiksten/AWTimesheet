@@ -1,4 +1,4 @@
-package com.akiwiksten.awtimesheet.core.ui
+package com.akiwiksten.awtimesheet.core
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.akiwiksten.awtimesheet.core.LOADING_INDICATOR_DELAY_MS
 import kotlinx.coroutines.delay
 
 @Composable

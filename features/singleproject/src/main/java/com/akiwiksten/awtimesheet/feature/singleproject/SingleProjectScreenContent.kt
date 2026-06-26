@@ -41,7 +41,7 @@ import com.akiwiksten.awtimesheet.core.ui.NoteBanner
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumn
 import com.akiwiksten.awtimesheet.core.ui.ScrollableScreenColumnState
 import com.akiwiksten.awtimesheet.core.ui.UnsavedChangesDialog
-import com.akiwiksten.awtimesheet.core.ui.rememberDelayedLoadingVisibility
+import com.akiwiksten.awtimesheet.core.rememberDelayedLoadingVisibility
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectCommentField
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectDownSection
 import com.akiwiksten.awtimesheet.feature.singleproject.components.SingleProjectHeaderSection

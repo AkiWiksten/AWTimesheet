@@ -210,4 +210,3 @@ internal fun LocationPickerNavEntry(
         onNavigateBack = { backStack.pop() }
     )
 }
-

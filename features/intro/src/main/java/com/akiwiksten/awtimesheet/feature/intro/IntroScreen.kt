@@ -1,8 +1,8 @@
 package com.akiwiksten.awtimesheet.feature.intro
 
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,16 +30,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
@@ -98,7 +101,7 @@ internal fun IntroStateContent(
     uiState: IntroUiState,
     onItemClick: () -> Unit
 ) {
-    IntroBackgroundContainer {
+    IntroBackgroundContainer { maxWidth, maxHeight ->
         val showLoadingIndicator = rememberDelayedLoadingVisibility(
             isLoading = uiState is IntroUiState.Loading
         )
@@ -113,8 +116,7 @@ internal fun IntroStateContent(
         when (uiState) {
             is IntroUiState.Loading -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -124,7 +126,9 @@ internal fun IntroStateContent(
                         lastSuccessState?.let {
                             IntroAnimatedContent(
                                 appName = it.appName,
-                                onItemClick = onItemClick
+                                onItemClick = onItemClick,
+                                maxWidth = maxWidth,
+                                maxHeight = maxHeight
                             )
                         }
                     }
@@ -133,14 +137,14 @@ internal fun IntroStateContent(
             is IntroUiState.Success -> {
                 IntroAnimatedContent(
                     appName = uiState.appName,
-                    onItemClick = onItemClick
+                    onItemClick = onItemClick,
+                    maxWidth = maxWidth,
+                    maxHeight = maxHeight
                 )
             }
             is IntroUiState.Error -> {
-                // Show error state
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -156,7 +160,7 @@ internal fun IntroStateContent(
 }
 
 @Composable
-private fun IntroBackgroundContainer(content: @Composable () -> Unit) {
+private fun IntroBackgroundContainer(content: @Composable (Dp, Dp) -> Unit) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isLandscape = maxWidth > maxHeight
         val backgroundRes = if (isLandscape) {
@@ -172,75 +176,49 @@ private fun IntroBackgroundContainer(content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxSize()
         )
 
-        content()
+        content(maxWidth, maxHeight)
     }
 }
 
 @Composable
 private fun IntroAnimatedContent(
     appName: String,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    maxWidth: Dp,
+    maxHeight: Dp
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
 
-    val textStyle = LocalTextStyle.current.copy(
-        textMotion = TextMotion.Animated,
-        fontSize = 20.sp
+    val baseStyle = TextStyle(
+        fontSize = 64.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        textMotion = TextMotion.Animated
     )
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val scaleReferenceWidthPx = with(density) { minOf(maxWidth, maxHeight).roundToPx() }
-        val hasValidDimensions = scaleReferenceWidthPx > 0 && maxHeight > 0.dp
-
-        val targetScaleFactor = if (hasValidDimensions) {
-            calculateTargetScale(
-                appName = appName,
-                textStyle = textStyle,
-                textMeasurer = textMeasurer,
-                contentWidthPx = scaleReferenceWidthPx
-            )
-        } else {
-            DEFAULT_FALLBACK_SCALE
-        }
-
-        val currentScale = remember { Animatable(initialValue = MIN_INITIAL_SCALE) }
-        var isAnimationFinished by remember { mutableStateOf(false) }
-
-        LaunchedEffect(key1 = targetScaleFactor, key2 = hasValidDimensions) {
-            if (hasValidDimensions) {
-                currentScale.animateTo(
-                    targetValue = targetScaleFactor,
-                    animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
-                )
-                isAnimationFinished = true
-            }
-        }
-
-        IntroContent(
-            appName = appName,
-            currentScale = currentScale.value,
-            showTapMe = isAnimationFinished,
-            onItemClick = onItemClick
-        )
+    val targetScaleFactor = remember(appName, maxWidth, maxHeight) {
+        val maxWidthPx = with(density) { maxWidth.toPx() }
+        val textWidth = textMeasurer.measure(appName, baseStyle).size.width
+        if (textWidth > 0) (maxWidthPx * SCREEN_FILL_RATIO) / textWidth else DEFAULT_FALLBACK_SCALE
     }
-}
 
-@Composable
-private fun calculateTargetScale(
-    appName: String,
-    textStyle: TextStyle,
-    textMeasurer: TextMeasurer,
-    contentWidthPx: Int
-): Float = remember(appName, textStyle, contentWidthPx) {
-    val textLayoutResult = textMeasurer.measure(text = appName, style = textStyle)
-    val textWidthPx = textLayoutResult.size.width
+    var startAnimation by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { startAnimation = true }
 
-    if (textWidthPx > 0 && contentWidthPx > 0) {
-        (contentWidthPx / textWidthPx) * SCREEN_FILL_RATIO
-    } else {
-        DEFAULT_FALLBACK_SCALE
-    }
+    val currentScale by animateFloatAsState(
+        targetValue = if (startAnimation) targetScaleFactor else MIN_INITIAL_SCALE,
+        animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = FastOutSlowInEasing),
+        label = "IntroScale"
+    )
+
+    IntroContent(
+        appName = appName,
+        currentScale = currentScale,
+        showTapMe = currentScale >= targetScaleFactor * 0.99f,
+        onItemClick = onItemClick,
+        baseStyle = baseStyle
+    )
 }
 
 @Composable
@@ -248,7 +226,8 @@ private fun IntroContent(
     appName: String,
     currentScale: Float,
     showTapMe: Boolean,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    baseStyle: TextStyle
 ) {
     Box(
         modifier = Modifier
@@ -258,6 +237,7 @@ private fun IntroContent(
     ) {
         StrokeText(
             text = appName,
+            style = baseStyle,
             modifier = Modifier
                 .graphicsLayer {
                     scaleX = currentScale
@@ -271,7 +251,7 @@ private fun IntroContent(
         if (showTapMe) {
             StrokeText(
                 text = stringResource(R.string.tap_me),
-                fontSize = 44f,
+                style = baseStyle.copy(fontSize = 16.sp),
                 strokeWidth = 4f,
                 modifier = Modifier
                     .padding(top = 160.dp)
@@ -285,29 +265,37 @@ private fun IntroContent(
 @Composable
 private fun StrokeText(
     text: String,
+    style: TextStyle,
     modifier: Modifier = Modifier,
-    fontSize: Float = 64f,
-    strokeWidth: Float = 10f
+    strokeWidth: Float = 16f
 ) {
-    Canvas(
-        modifier = modifier
-    ) {
-        val paint = android.graphics.Paint().apply {
-            isAntiAlias = true
-            textSize = fontSize
-            style = android.graphics.Paint.Style.STROKE
-            this.strokeWidth = strokeWidth
-            color = android.graphics.Color.BLACK
-            textAlign = android.graphics.Paint.Align.CENTER
-        }
+    val textMeasurer = rememberTextMeasurer()
+    val textLayoutResult = remember(text, style) {
+        textMeasurer.measure(text, style)
+    }
 
+    Canvas(modifier = modifier) {
         val centerX = size.width / 2f
-        val centerY = size.height / 2f + (fontSize / 3f)
+        val centerY = size.height / 2f - (textLayoutResult.size.height / 2f)
+        val topLeft = androidx.compose.ui.geometry.Offset(
+            centerX - (textLayoutResult.size.width / 2f),
+            centerY
+        )
 
-        drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
+        // Draw Stroke
+        drawText(
+            textLayoutResult = textLayoutResult,
+            color = Color.Black,
+            topLeft = topLeft,
+            drawStyle = Stroke(width = strokeWidth)
+        )
 
-        paint.style = android.graphics.Paint.Style.FILL
-        paint.color = android.graphics.Color.WHITE
-        drawContext.canvas.nativeCanvas.drawText(text, centerX, centerY, paint)
+        // Draw Fill
+        drawText(
+            textLayoutResult = textLayoutResult,
+            color = Color.White,
+            topLeft = topLeft,
+            drawStyle = Fill
+        )
     }
 }

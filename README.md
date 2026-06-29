@@ -94,6 +94,9 @@ Summarize benchmark output:
   + project_details have foreign keys to project
   + Use DataStore for settings
   + Regularly use LeakCanary and the Memory Profiler during development
+  + Use collectAsStateWithLifecycle() 
+  + Material theme for spacing, padding (CompositionLocal)
+  + All lists as LazyColumn?
 + Repositories
 + IntroScreen
   + Display animation more lightly
@@ -118,6 +121,8 @@ Summarize benchmark output:
   + Use CustomCalendar to show dates with work
 + DistanceCalculatorScreen
   + Confirm Clear History
++ LocationPickerScreen
+  + Debounce Search
 + Excel
   + Show start date in a month first, e.g. 15th.
   + Handle by selecting start date 
